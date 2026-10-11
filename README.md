@@ -21,7 +21,7 @@
 node server.js
 ```
 
-启动后控制台会打印访问地址与集成状态。默认 `http://127.0.0.1:8090`。
+启动后控制台会打印访问地址与集成状态。默认 `http://127.0.0.1:9080`。
 
 **首次初始化会打印一次账号口令**（仅终端输出，不落盘）：
 
@@ -35,9 +35,9 @@ node server.js
 口令遗失：停服后删除 `data/mos.json` 重新初始化（会丢失全部业务数据）。
 
 ```
-访问入口：http://127.0.0.1:8090/        系统外壳
-健康检查：http://127.0.0.1:8090/api/health
-业务接口：http://127.0.0.1:8090/api/mos/*
+访问入口：http://127.0.0.1:9080/        系统外壳
+健康检查：http://127.0.0.1:9080/api/health
+业务接口：http://127.0.0.1:9080/api/mos/*
 ```
 
 ---
@@ -141,8 +141,19 @@ bash tools/run-mos-tests.sh unit    # 只跑某一套：smoke | unit | e2e | ui
 
 - `config.json` 由 `config.example.json` 复制而来，含本地配置，**已 gitignore，不要提交**。
 - **所有变量名见 [.env.example](.env.example)**（只列变量名，不含任何凭据）。
-- 常用：`MOS_PORT`（默认 8090）、`MOS_HOST`、`MOS_DATA_DIR`、`MOS_ADMIN_PASSWORD`、
+- 常用：`MOS_PORT`（默认 9080）、`MOS_HOST`、`MOS_DATA_DIR`、`MOS_ADMIN_PASSWORD`、
   `MOS_SOURCE_INGEST`、`MOS_EGRESS_ALLOWED_HOSTS`、`MOS_TRUSTED_PROXIES`、`MOS_ALLOWED_CLIENT_CIDRS`。
+
+### 端口约定（与本工程同机部署的其他系统必须互斥）
+
+| 用途 | 端口 |
+|---|---|
+| 本工程默认 | **9080** |
+| 本工程自检 | **9500-9699**（随机分配；UI 套件的 CDP 从 9600 起） |
+| 企业 OA 侧已占用（**不要用**） | 8080-8082、8090-8097、8101-8104、8121-8122、8866、8899、9223、9333-9336、9999 |
+
+> 同机运行两个仓库时端口表必须显式互斥。迁移过程中曾**两次**因端口重叠导致对方自检出现「假失败」
+> （请求打到了另一套服务上），详见 [ADR-002](docs/ADRs/ADR-002-standalone-repo.md)。
 
 ---
 

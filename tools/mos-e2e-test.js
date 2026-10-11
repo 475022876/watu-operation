@@ -21,8 +21,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname, '..');
-const PORT = 8700 + Math.floor(Math.random() * 250);
-const FEED_PORT = 8950 + Math.floor(Math.random() * 49);
+const PORT = 9550 + Math.floor(Math.random() * 10);
+const FEED_PORT = 9585 + Math.floor(Math.random() * 10);
 const BASE = 'http://127.0.0.1:' + PORT;
 const DATA_DIR = path.join(ROOT, 'data-mos-e2e-' + crypto.randomBytes(3).toString('hex'));
 const OUT_DIR = path.join(ROOT, 'TEST_EVIDENCE_MOS_BUILD01');

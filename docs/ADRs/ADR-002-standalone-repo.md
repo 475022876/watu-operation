@@ -50,14 +50,14 @@ D:\运营系统\VFIB-Marketing-OS\
 | 整体搬迁（不改内容） | `lib/mos/**`、`public/mos.html`、`public/mos/**`、`public/favicon.svg`、`tools/mos-*`、`tools/run-mos-tests.sh`、`docs/**`、测试证据目录 |
 | 复制共享件 | `lib/{util,net,security,password,static}.js`（逐字复制，保证行为一致） |
 | 新写 | `server.js`（独立入口）、`lib/config.js`（独立配置）、`package.json`、`.gitignore`、`.env.example`、`config.example.json`、`README.md` |
-| 命名空间改名 | `OA_MOS_*` → `MOS_*`；`OA_DATA_DIR/OA_PORT/OA_HOST/OA_ADMIN_PASSWORD` → `MOS_*`；`oa_csrf` → `mos_csrf`；`x-oa-csrf` → `x-mos-csrf`；`oa_sid` → `mos_sid` |
+| 命名空间改名 | `MOS_*` → `MOS_*`；`OA_DATA_DIR/OA_PORT/OA_HOST/OA_ADMIN_PASSWORD` → `MOS_*`；`oa_csrf` → `mos_csrf`；`x-oa-csrf` → `x-mos-csrf`；`oa_sid` → `mos_sid` |
 | 代码简化 | `lib/mos/routes/auth.js` 中「先按 OA Cookie 名构造再 replace 成 mos_sid」的两处冗余逻辑删除（新配置直接给出正确 Cookie 名） |
 | 注释订正 | 去掉已不成立的「与 OA 同源/复用 OA 模块」表述；**保留**产品层面的诚实声明（如「企业 OA 接口尚未接通」） |
-| 默认端口 | 改为 **8090**（OA 用 8080），避免同机冲突 |
+| 默认端口 | 改为 **9080**，并把自检端口整体挪到 **9500-9699** 独立区段。**这不是洁癖，是迁移中实际踩了两次坑**：先选 8090 → 撞 OA 回归统一入口的隔离实例（出现 4 处假失败）；再选 8091 → 撞 OA 安全套件 `PORTS.proxy`（出现 14 处假失败，全部表现为「应 403 却 200」，因为请求打到了本工程这个不做该限制的服务上）。原因是两个仓库同机运行，**端口表必须显式互斥** |
 
 ### 母仓库侧的清理（同样重要）
 
-- 删除：`lib/mos/`、`public/mos.html`、`public/mos/`、`tools/mos-*`、`tools/run-mos-tests.sh`、`docs/marketing-os/`、MOS 测试证据目录、`data-test/preview/mos.json`。
+- 删除：`lib/mos/`、`public/mos.html`、`public/mos/`、`tools/mos-*`、`tools/run-mos-tests.sh`、`docs/`、MOS 测试证据目录、`data-test/preview/mos.json`。
 - 回退：`server.js` 的 MOS 挂载行、`.gitignore` 与 `README.md` 中的 MOS 条目、`.env.example` 的 MOS 段。
 - **保留**：`lib/store.js` 的落盘竞态修复 —— 那是母仓库自身的生产级缺陷修复（异步 `rename` 可能用旧快照覆盖新快照），与 MOS 无关，不属于迁移范围。**迁移不得顺带回退这个修复。**
 
@@ -87,7 +87,7 @@ D:\运营系统\VFIB-Marketing-OS\
 ## 回滚方案
 
 将本工程目录移回母仓库对应位置，并在 `server.js` 中恢复 MOS 挂载（`require('./lib/mos/routes')` 与 `/api/mos/` 分流），
-同时把命名空间改回 `OA_MOS_*`。由于目录形状与母仓库时期完全一致，回滚同样不需要改动 `lib/mos/**` 内部代码。
+同时把命名空间改回 `MOS_*`。由于目录形状与母仓库时期完全一致，回滚同样不需要改动 `lib/mos/**` 内部代码。
 
 ---
 

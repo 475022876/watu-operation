@@ -3,6 +3,12 @@
 > 格式严格遵循 `09_CODEX_EXECUTION_PLAN.md` §7「Codex 每轮自审格式」：
 > ①本轮功能与实际界面 ②改动文件 ③迁移操作与回滚 ④测试命令与通过结果 ⑤Mock/Real 状态 ⑥安全检查 ⑦未完成/阻断 ⑧下轮范围。
 
+> **⚠ 迁移后记（2026-10-11）**：本报告记录的是 BUILD-01 交付时（工程尚在企业 OA 仓库内）的自审结论。
+> 此后工程已整体迁出为**独立仓库**，见 [ADRs/ADR-002-standalone-repo.md](ADRs/ADR-002-standalone-repo.md)。
+> 因此 §③ 的「改动文件 / 回滚步骤」与 §④ 中的 `bash tools/run-tests-v113.sh all`（母仓库回归入口）
+> 均属**历史语境**；当前工程的验证入口是 `bash tools/run-mos-tests.sh all`，迁移后复跑为 **117/117 通过**。
+> 其余各节（功能范围、Mock/Real 状态、安全检查、未完成项）结论依然有效。
+
 | 项 | 内容 |
 |---|---|
 | 批次 | BUILD-01（基础 + 策划） |
@@ -101,10 +107,10 @@ tools/run-mos-tests.sh      # 统一入口，产出 TEST_EVIDENCE_MOS_BUILD01/su
 
 ### 新增 — 文档与配置（4 个）
 ```
-docs/marketing-os/ARCHITECTURE_AUDIT.md      # 步骤 0 仓库诊断（含风险登记 R-01…R-06）
-docs/marketing-os/ADRs/ADR-001-tech-stack.md # 技术栈 ADR（Accepted）
-docs/marketing-os/MOCK_REAL_MATRIX.md        # Mock/Real 矩阵（含代码级诚实性边界）
-docs/marketing-os/BUILD-01_TEST_REPORT.md    # 本批次测试报告
+docs/ARCHITECTURE_AUDIT.md      # 步骤 0 仓库诊断（含风险登记 R-01…R-06）
+docs/ADRs/ADR-001-tech-stack.md # 技术栈 ADR（Accepted）
+docs/MOCK_REAL_MATRIX.md        # Mock/Real 矩阵（含代码级诚实性边界）
+docs/BUILD-01_TEST_REPORT.md    # 本批次测试报告
 .env.example                                  # OA + MOS 环境变量模板（无任何凭据字面量）
 ```
 
@@ -114,7 +120,7 @@ docs/marketing-os/BUILD-01_TEST_REPORT.md    # 本批次测试报告
 | `server.js` | +3 处挂载：`/api/mos/` 路由分流、启动时加载 MOS 库、关闭时 `saveNow()`；横幅 +1 行 | 不改既有路由与中间件顺序 |
 | `lib/store.js` | `flush()` 中异步 `fs.rename` → **`fs.renameSync`** | **修复既有数据丢失竞态**（详见 ③ 与 ⑦） |
 | `.gitignore` | 增加 `data-mos-*/`、`UI_EVIDENCE_MOS_BUILD01/` | 隔离测试产物 |
-| 新增 `lib/mos/**`、`public/mos/**`、`tools/mos-*`、`docs/marketing-os/**`、`.env.example` | — | 见上 |
+| 新增 `lib/mos/**`、`public/mos/**`、`tools/mos-*`、`docs/**`、`.env.example` | — | 见上 |
 
 > **未新增任何业务模块**：S05 客户增长、品牌声誉/风险专项、营销线索移交与闭环、CRM、代理后台、卡交易、自动社媒发布
 > **均无菜单、无 API、无数据库集合、无假流程**（`00 §0.1-6 / §3`、`11 §已冻结的 MARK`）。
@@ -131,12 +137,12 @@ docs/marketing-os/BUILD-01_TEST_REPORT.md    # 本批次测试报告
 | 首次启动行为 | 建空库 → `migrate()` → 写入 DEMO 种子 → 打印一次性管理员口令与 DEMO 口令（**打印后立即从内存删除，不落盘**） |
 | 对 OA 主库的影响 | **无**。`db.json` 结构与 `version` 均未改动；OA 的 `version === 3` 断言保持成立 |
 | 新库与老库同源 | `load()` 在 seed 之后同样执行 `migrate()`，保证"首启库"与"历史库升级"得到完全一致的形状 |
-| 环境变量开关 | `OA_MOS_ENABLED=false` 可整体关闭子系统（关闭后不创建 mos.json、不挂载路由） |
+| 环境变量开关 | `MOS_ENABLED=false` 可整体关闭子系统（关闭后不创建 mos.json、不挂载路由） |
 
 ### 回滚（三步，可完整还原）
 ```bash
 # 1) 关闭子系统（立即生效，无需改动代码）
-export OA_MOS_ENABLED=false
+export MOS_ENABLED=false
 
 # 2) 若要彻底移除代码（可选）
 git rm -r lib/mos public/mos public/mos.html public/mos/app.css tools/mos-*.js tools/run-mos-tests.sh docs/marketing-os .env.example

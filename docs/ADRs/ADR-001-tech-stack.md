@@ -1,6 +1,6 @@
 # ADR-001｜技术栈决策：在既有 OA 仓库内增量内建 Marketing OS（复用零依赖栈）
 
-- **状态**：Accepted（待开发负责人确认）
+- **状态**：Accepted（**技术栈选择仍有效**）；其中「放在企业 OA 仓库内」的部署形态已被 [ADR-002](ADR-002-standalone-repo.md) 取代
 - **日期**：2026-10-11
 - **决策人**：Codex（主工程师）
 - **依据**：`00_MASTER_BUILD_SPEC.md` §2、§0.1-5；`09_CODEX_EXECUTION_PLAN.md` §1、§7；`11_SPEC_CHECKLIST.md`
@@ -32,7 +32,7 @@ lib/mos/                     # 后端子系统（不修改 OA 既有 lib/*.js �
   routes/    meta.js plans.js campaigns.js topics.js tasks.js sources.js audit.js
 public/mos.html              # 子系统外壳（/mos 自动映射）
 public/mos/  app.css? js/…
-docs/marketing-os/           # 本子系统文档（架构/ADR/报告/矩阵）
+docs/           # 本子系统文档（架构/ADR/报告/矩阵）
 data/mos.json                # 独立数据文件（运行时生成，gitignore）
 ```
 
@@ -61,7 +61,7 @@ data/mos.json                # 独立数据文件（运行时生成，gitignore�
 - 无强类型：以 `lib/mos/dict.js` 集中字典 + 运行期校验替代 TS 编译期检查。
 - 规模上限：与 OA 同为"单表单万级"，符合 V0.1 原型定位（非生产合规系统）。
 
-**回滚**：删除 `lib/mos/`、`public/mos*`、`docs/marketing-os/`、`data/mos.json`，并移除 `server.js` 中的 1 行 `require`。OA 主库不受影响。
+**回滚**：删除 `lib/mos/`、`public/mos*`、`docs/`、`data/mos.json`，并移除 `server.js` 中的 1 行 `require`。OA 主库不受影响。
 
 ## 5. 待开发负责人确认项
 

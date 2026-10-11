@@ -16,8 +16,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname, '..');
-const PORT = 8400 + Math.floor(Math.random() * 400);
-const CDP_PORT = 9300 + Math.floor(Math.random() * 400);
+const PORT = 9560 + Math.floor(Math.random() * 20);
+const CDP_PORT = 9600 + Math.floor(Math.random() * 90);
 const BASE = 'http://127.0.0.1:' + PORT;
 const DATA_DIR = path.join(ROOT, 'data-mos-ui-' + crypto.randomBytes(3).toString('hex'));
 const SHOT_DIR = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD01');

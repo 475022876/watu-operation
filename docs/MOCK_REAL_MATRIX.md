@@ -1,6 +1,6 @@
 # Marketing OS V0.1 — Mock / Real 集成矩阵（BUILD-01）
 
-> 单一权威来源：`lib/mos/config.js` 的 `DEFAULT.integrations`（可被 `config.json` 的 `mos.integrations` 与环境变量 `OA_MOS_*` 覆盖）。
+> 单一权威来源：`lib/mos/config.js` 的 `DEFAULT.integrations`（可被 `config.json` 的 `mos.integrations` 与环境变量 `MOS_*` 覆盖）。
 > **任何一处从 `mock` 改成 `real`，都必须同步更新本文件并补充验证证据。**
 > 依据：`00_MASTER_BUILD_SPEC.md` §0.1-5、§3；`06_INTEGRATION_SECURITY.md` §1/§6；`08_TEST_AND_ACCEPTANCE.md` §5 Gate A/D。
 
@@ -45,16 +45,16 @@
 
 | 变量 | 作用 | 默认 |
 |---|---|---|
-| `OA_MOS_ENABLED` | 关闭整个子系统 | `true` |
-| `OA_MOS_DEMO_SEED` | 是否写入 DEMO 种子数据 | `true` |
-| `OA_MOS_IDENTITY` / `OA_MOS_KNOWLEDGE` / `OA_MOS_LIBRARY` | 覆盖集成状态 | `mock` |
-| `OA_MOS_SOURCE_INGEST` | 采集开关 | `real` |
-| `OA_MOS_TEXT_PROVIDER` / `OA_MOS_IMAGE_PROVIDER` | 模型 Provider | `none` |
-| `OA_MOS_EGRESS_ALLOWED_HOSTS` | 出站 allowlist（逗号分隔） | 内置 10 个公开机构域名 |
-| `OA_MOS_EGRESS_ALLOW_HTTP` | 允许明文 http（**仅本地验证**） | `false` |
-| `OA_MOS_EGRESS_ALLOW_LOOPBACK` | 允许回环（**仅本地验证**） | `false` |
+| `MOS_ENABLED` | 关闭整个子系统 | `true` |
+| `MOS_DEMO_SEED` | 是否写入 DEMO 种子数据 | `true` |
+| `MOS_IDENTITY` / `MOS_KNOWLEDGE` / `MOS_LIBRARY` | 覆盖集成状态 | `mock` |
+| `MOS_SOURCE_INGEST` | 采集开关 | `real` |
+| `MOS_TEXT_PROVIDER` / `MOS_IMAGE_PROVIDER` | 模型 Provider | `none` |
+| `MOS_EGRESS_ALLOWED_HOSTS` | 出站 allowlist（逗号分隔） | 内置 10 个公开机构域名 |
+| `MOS_EGRESS_ALLOW_HTTP` | 允许明文 http（**仅本地验证**） | `false` |
+| `MOS_EGRESS_ALLOW_LOOPBACK` | 允许回环（**仅本地验证**） | `false` |
 
-> ⚠ `OA_MOS_EGRESS_ALLOW_HTTP` / `OA_MOS_EGRESS_ALLOW_LOOPBACK` 只供本机端到端测试使用，
+> ⚠ `MOS_EGRESS_ALLOW_HTTP` / `MOS_EGRESS_ALLOW_LOOPBACK` 只供本机端到端测试使用，
 > 生产环境必须保持关闭（默认已关闭，即 https-only + 私网/回环一律阻断）。
 
 ## 4. Gate 对应关系

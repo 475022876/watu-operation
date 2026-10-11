@@ -10,7 +10,7 @@ const os = require('node:os');
 const crypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname, '..');
-const PORT = 8300 + Math.floor(Math.random() * 400);
+const PORT = 9500 + Math.floor(Math.random() * 50);
 const DATA_DIR = path.join(ROOT, 'data-mos-smoke-' + crypto.randomBytes(3).toString('hex'));
 const ADMIN_PW = 'Smk' + crypto.randomBytes(9).toString('hex');
 

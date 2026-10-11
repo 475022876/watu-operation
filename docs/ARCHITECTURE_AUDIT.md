@@ -1,5 +1,11 @@
 # ARCHITECTURE_AUDIT.md — 现有仓库诊断（VFIB Marketing OS V0.1 · 步骤0）
 
+> **⚠ 迁移后记（2026-10-11）**：本文是 BUILD-01 开工前对**母仓库**的诊断记录，其结论（复用零依赖栈、增量内建）
+> 在当时成立。此后业务方要求运营中台与母仓库彻底分离，工程已整体迁出为**独立仓库**，
+> 详见 [ADRs/ADR-002-standalone-repo.md](ADRs/ADR-002-standalone-repo.md)。
+> 文中提及的母仓库路径、`tools/run-tests-v113.sh`、`x-oa-csrf` 等均属**历史语境**，不代表当前工程。
+> 风险登记中 R-01（数据混装）/ R-06（破坏既有 OA）已因迁出而消失，另新增 **R-07：安全基座双份漂移**（见 ADR-002）。
+
 **审计对象**：`D:/企业数据后台/oa-system-20261004/oa-system`（VFIB Enterprise Workspace v1.1.5）
 **审计时间**：2026-10-11
 **审计人**：Codex（主工程师）
