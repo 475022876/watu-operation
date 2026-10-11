@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#071D49">
+<meta name="robots" content="noindex, nofollow">
+<title>VFIB Marketing OS V0.1（沙盒）</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/mos/app.css">
+</head>
+<body>
+
+<!-- 登录门（未登录时显示；MOS 使用独立身份 Cookie mos_sid） -->
+<div class="gate" id="gate" hidden>
+  <form class="gate-card" id="loginForm" autocomplete="on">
+    <div class="gate-brand">
+      <span class="gate-mark">VFIB</span>
+      <div>
+        <div class="gate-title">Marketing OS <span class="badge badge-ver">V0.1 沙盒</span></div>
+        <div class="gate-sub">智能品牌传播与市场运营中台 · 原型</div>
+      </div>
+    </div>
+    <p class="gate-note">
+      本地隔离测试身份（MockIdentityGateway）—— <strong>非</strong>企业 OA/SSO。
+      接入真实身份源前，本环境仅供沙盒演示与 UI 审计。
+    </p>
+    <label class="field"><span>账号</span><input id="loginUser" name="username" autocomplete="username" required></label>
+    <label class="field"><span>密码</span><input id="loginPass" name="password" type="password" autocomplete="current-password" required></label>
+    <div class="gate-err" id="loginErr" hidden></div>
+    <button class="btn btn-primary btn-block" id="loginBtn" type="submit">登录</button>
+    <div class="gate-foot">
+      <span id="gateVersion"></span>
+    </div>
+  </form>
+</div>
+
+<!-- 强制改密 -->
+<div class="gate" id="pwdGate" hidden>
+  <form class="gate-card" id="pwdForm">
+    <div class="gate-brand">
+      <span class="gate-mark">VFIB</span>
+      <div>
+        <div class="gate-title">首次登录需修改密码</div>
+        <div class="gate-sub">引导账号密码策略</div>
+      </div>
+    </div>
+    <label class="field"><span>当前密码</span><input id="pwdOld" type="password" required></label>
+    <label class="field"><span>新密码（≥8 位）</span><input id="pwdNew" type="password" required minlength="8"></label>
+    <div class="gate-err" id="pwdErr" hidden></div>
+    <button class="btn btn-primary btn-block" type="submit">提交并进入系统</button>
+  </form>
+</div>
+
+<div class="app" id="appRoot" hidden>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="logo-box" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 20.5V5a1.5 1.5 0 0 1 1.5-1.5h8A1.5 1.5 0 0 1 15 5v15.5"/>
+          <path d="M15 9.6h3.5A1.5 1.5 0 0 1 20 11.1v9.4"/>
+          <path d="M2.8 20.5h18.4"/><path d="M7.4 7.8h3M7.4 11.8h3M7.4 15.8h3"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <span class="brand-name">Marketing OS</span>
+        <span class="brand-sub" id="brandSub">智能品牌传播与市场运营中台</span>
+      </span>
+    </div>
+
+    <nav class="nav" id="nav" aria-label="工作中心"></nav>
+
+    <div class="sidebar-foot">
+      <div class="sidebar-foot-row"><span class="dot" id="syncDot"></span><span id="syncText">已连接</span></div>
+      <div class="sidebar-foot-row mt8"><span id="versionText">v0.1.0</span></div>
+    </div>
+  </aside>
+  <div class="sidebar-mask" id="sidebarMask"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn only-mobile" id="menuBtn" aria-label="打开菜单">☰</button>
+      <div class="topbar-left">
+        <div class="brand-switch" id="brandSwitch" aria-label="品牌切换"></div>
+      </div>
+      <div class="topbar-right">
+        <span class="env-chip" id="envChip" title="环境标识">SANDBOX</span>
+        <button class="user-chip" id="userChip" type="button">
+          <span class="avatar" id="userAvatar">—</span>
+          <span class="u-name" id="userName">加载中</span>
+        </button>
+        <div class="dropdown hidden" id="userMenu"></div>
+      </div>
+    </header>
+
+    <!-- 全局 Mock / 集成状态提示条（01 §4：不得谎称已打通） -->
+    <div class="integration-bar" id="integrationBar"></div>
+
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="drawerRoot"></div>
+<div class="toast-root" id="toastRoot"></div>
+
+<script type="module" src="/mos/js/app.js"></script>
+</body>
+</html>

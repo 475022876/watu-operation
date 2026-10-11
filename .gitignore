@@ -1,0 +1,22 @@
+# 运行时数据（业务库 + 上传），不进版本库
+data/
+# 自检用的隔离数据目录（每次运行随机命名，用完自动清理）
+data-mos-*/
+
+# 本地配置：含真实凭据 / 私有字典覆盖，绝不入库
+config.json
+.env
+
+# 日志
+*.log
+
+# 测试证据：可由 `bash tools/run-mos-tests.sh all` 随时重新生成
+TEST_EVIDENCE_MOS_BUILD01/
+UI_EVIDENCE_MOS_BUILD01/
+
+# 编辑器 / 系统
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+node_modules/

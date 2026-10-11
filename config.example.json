@@ -1,0 +1,45 @@
+{
+  "_comment": "复制为 config.json 后按需修改。config.json 含本地配置，已 gitignore，不要提交。",
+  "port": 8090,
+  "host": "127.0.0.1",
+  "allowLocalhost": true,
+  "trustedProxies": [],
+  "allowedNetworks": [],
+  "auth": {
+    "cookieName": "mos_sid",
+    "csrfCookieName": "mos_csrf",
+    "csrfHeader": "x-mos-csrf",
+    "secureCookies": "auto",
+    "allowedOrigins": []
+  },
+  "mos": {
+    "enabled": true,
+    "demoSeed": true,
+    "integrations": {
+      "identity": "mock",
+      "knowledge": "mock",
+      "library": "mock",
+      "sourceIngest": "real",
+      "textProvider": "none",
+      "imageProvider": "none"
+    },
+    "egress": {
+      "allowedHosts": [
+        "www.bis.org", "bis.org",
+        "www.imf.org", "imf.org",
+        "www.fsb.org", "fsb.org",
+        "www.fatf-gafi.org", "fatf-gafi.org",
+        "www.swift.com", "swift.com"
+      ],
+      "allowHttp": false,
+      "fetchTimeoutMs": 12000,
+      "maxBytes": 2097152,
+      "maxItemsPerRun": 40
+    },
+    "dictionaries": {},
+    "budget": {
+      "brandMonthlyUsd": 0,
+      "perJobUsdMax": 0
+    }
+  }
+}
