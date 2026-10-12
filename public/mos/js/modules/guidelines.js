@@ -41,7 +41,7 @@ async function render() {
     + card('平台', d.platforms)
     + '</div>'
     + '<div class="card"><div class="card-head"><h2>创意模板（PPT-01–08）</h2></div><div class="card-body">'
-    + stateBlock('pending', { title: '暂无可加载模板', desc: '模板需绑定到已激活的 Skill 版本；当前无 APPROVED Skill 版本，因此模板列表为空。模板加载能力在 BUILD-02 交付。' }).html
+    + stateBlock('pending', { title: '暂无可加载模板', desc: '模板需绑定到已激活（APPROVED）的 Skill 版本；当前无 APPROVED Skill 版本，因此模板列表为空。可用模板清单见「Creative Studio → 视觉工作室」（GET /api/mos/templates）。' }).html
     + '</div></div>';
 }
 

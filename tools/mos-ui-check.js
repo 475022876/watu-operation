@@ -1,12 +1,14 @@
 'use strict';
 /* ============================================================
- * Marketing OS BUILD-01 · 真实浏览器端到端检查 + 截图证据
+ * Marketing OS · 真实浏览器端到端检查 + 截图证据（BUILD-01 + BUILD-02）
  * ------------------------------------------------------------
- * 目的：在真实 Chrome 中走完「登录 → 强制改密 → 8 个工作中心导航 → 关键操作」，
+ * 目的：在真实 Chrome 中走完「登录 → 强制改密 → 全部工作中心导航 → 关键写操作」，
  *       收集控制台错误/异常，并产出 UI 证据截图。
+ *       BUILD-02 段落额外验证五个新页面的**真实写操作 + 刷新后持久化**，而不是"打开看一眼"。
  * 运行：node tools/mos-ui-check.js
  * 约束：零第三方依赖（CDP over 内置 WebSocket）；隔离数据目录 + 运行期随机口令；
  *       不触碰 data/ 与既有数据；结束清理实例、Chrome 与临时目录。
+ * 截图：BUILD-01 → UI_EVIDENCE_MOS_BUILD01/ ；BUILD-02 → UI_EVIDENCE_MOS_BUILD02/
  * ============================================================ */
 
 const { spawn } = require('node:child_process');
@@ -21,6 +23,8 @@ const CDP_PORT = 9600 + Math.floor(Math.random() * 90);
 const BASE = 'http://127.0.0.1:' + PORT;
 const DATA_DIR = path.join(ROOT, 'data-mos-ui-' + crypto.randomBytes(3).toString('hex'));
 const SHOT_DIR = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD01');
+const SHOT_DIR_B02 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD02');
+const SHOT_DIR_B03 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD03');
 const OUT_DIR = path.join(ROOT, 'TEST_EVIDENCE_MOS_BUILD01');
 
 const ADMIN_PW = 'MosUI-' + crypto.randomBytes(9).toString('base64url');
@@ -159,7 +163,9 @@ async function main() {
 
   const shot = async (name) => {
     const r = await cdp.send('Page.captureScreenshot', { format: 'png' });
-    fs.writeFileSync(path.join(SHOT_DIR, name), Buffer.from(r.data, 'base64'));
+    const dir = name.indexOf('B02-') === 0 ? SHOT_DIR_B02 : (name.indexOf('B03-') === 0 ? SHOT_DIR_B03 : SHOT_DIR);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, name), Buffer.from(r.data, 'base64'));
   };
   const evalJs = async (expr) => {
     const r = await cdp.send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true });
@@ -211,24 +217,33 @@ async function main() {
     const integrationBarText = await evalJs('document.getElementById("integrationBar").textContent');
     check('集成状态提示条显示 MOCK/未接通', String(integrationBarText).indexOf('MOCK') !== -1 && String(integrationBarText).indexOf('未接通') !== -1, String(integrationBarText).slice(0, 120));
 
-    /* 6) 遍历各工作中心 */
+    /* 6) 遍历各工作中心
+     * 注意：BUILD-02 起 Creative Studio 拆为三个真实页面（content-editor / visual-studio /
+     * video-workspace），并新增 my-reviews；原有的 'creative' 占位路由已不存在。
+     *
+     * 每个条目带**期望页头**：仅断言"有标题"是不够的 —— 路由不存在时 navigate() 会静默
+     * 早返回、页面停留在上一模块，旧写法会把这种失效判为通过（BUILD-02 自检 A-12 已记录）。 */
     const visits = [
-      ['my-work', '04-workspace-my-work.png'],
-      ['active-projects', '05-workspace-projects.png'],
-      ['brand-overview', '06-brand-overview.png'],
-      ['brand-guidelines', '07-brand-guidelines.png'],
-      ['brand-library', '08-brand-reference.png'],
-      ['planning', '09-planning-list.png'],
-      ['topics', '10-topics.png'],
-      ['intelligence', '11-intelligence.png'],
-      ['tasks', '12-content-tasks.png'],
-      ['campaigns', '13-campaigns.png'],
-      ['creative', '14-creative-stage.png'],
-      ['publishing', '15-publishing-stage.png'],
-      ['analytics', '16-analytics-stage.png'],
-      ['governance', '17-governance-stage.png']
+      ['my-work', '04-workspace-my-work.png', 'My Work'],
+      ['active-projects', '05-workspace-projects.png', 'Active Projects'],
+      ['brand-overview', '06-brand-overview.png', 'Brand Overview'],
+      ['brand-guidelines', '07-brand-guidelines.png', 'Visual & Creative Guidelines'],
+      ['brand-library', '08-brand-reference.png', 'Reference Library'],
+      ['planning', '09-planning-list.png', 'Monthly Planning'],
+      ['topics', '10-topics.png', 'Master Topics'],
+      ['intelligence', '11-intelligence.png', 'Intelligence'],
+      ['tasks', '12-content-tasks.png', 'Content Tasks'],
+      ['campaigns', '13-campaigns.png', 'Campaigns'],
+      ['content-editor', 'B02-14-content-editor.png', '内容编辑器'],
+      ['visual-studio', 'B02-15-visual-studio.png', '视觉工作室'],
+      ['video-workspace', 'B02-16-video-workspace.png', '视频工作区'],
+      ['my-reviews', 'B02-17-my-reviews.png', '我的审核'],
+      ['publishing', 'B02-18-publishing.png', '发布中心'],
+      // BUILD-03：Analytics / Governance 已由占位页升级为真实页面（页头随之变更）
+      ['analytics', 'B03-29-analytics.png', '运营分析'],
+      ['governance', 'B03-30-governance.png', '治理与资产']
     ];
-    for (const [id, file] of visits) {
+    for (const [id, file, expectTitle] of visits) {
       await evalJs('(function(){location.hash="#/' + id + '";return true;})()');
       await sleep(120);
       await evalJs('(function(){var b=document.querySelector(\'[data-route="' + id + '"]\');if(b)b.click();return true;})()');
@@ -236,7 +251,8 @@ async function main() {
       await sleep(500);
       await shot(file);
       const title = await evalJs('(document.querySelector(".page-head h1")||{}).textContent||""');
-      check('模块渲染：' + id, !!title, title);
+      check('模块渲染：' + id + ' → ' + expectTitle,
+        String(title).indexOf(expectTitle) !== -1, '实际=' + title);
     }
 
     /* 7) 规划：月视图日历 */
@@ -324,6 +340,293 @@ async function main() {
     const srcPersist = await waitFor('document.body.innerText.indexOf(' + JSON.stringify(SRC_NAME) + ')!==-1', '刷新后来源仍在', 15000);
     check('刷新不丢：登记的来源刷新后依然存在', srcPersist, '');
     await shot('25-intelligence-after-reload.png');
+
+    /* ==========================================================
+     * 8) BUILD-02：五个新页面的真实操作 + 持久化验证（浏览器内完成）
+     * 用户要求「所有页面必须具备真实操作及持久化能力，不允许仅制作展示界面」，
+     * 因此这里不是"打开看一眼"，而是走一遍真实的写操作并验证刷新后仍在。
+     * ========================================================== */
+    const goRoute = async (id) => {
+      await evalJs('(function(){location.hash="#/' + id + '";return true;})()');
+      await sleep(120);
+      await evalJs('(function(){var b=document.querySelector(\'[data-route="' + id + '"]\');if(b)b.click();return true;})()');
+    };
+
+    // --- 内容编辑器：新建草稿 → 写正文 → 保存 → 刷新后仍在 ---
+    const UNIQ = 'UI-B02-' + Date.now().toString(36);
+    await goRoute('content-editor');
+    const ceReady = await waitFor('document.getElementById("ceNew")', '内容编辑器工具栏', 15000);
+    check('B02-UI 内容编辑器渲染（版本列表 + 三栏）', ceReady
+      && await evalJs('!!document.querySelector(".editor-3col")'), '');
+
+    await evalJs('(function(){document.getElementById("ceNew").click();return true;})()');
+    const dlgOpen = await waitFor('document.getElementById("__mok")', '新建草稿确认弹窗', 8000);
+    if (dlgOpen) await evalJs('(function(){document.getElementById("__mok").click();return true;})()');
+    const editorOn = await waitFor('!!document.getElementById("ceText")', '正文编辑器出现（草稿已创建）', 12000);
+    check('B02-UI 内容编辑器：界面内新建草稿版本成功', editorOn, '');
+
+    if (editorOn) {
+      await evalJs('(function(){'
+        + 'var t=document.getElementById("ceTitle");if(t){t.value=' + JSON.stringify(UNIQ) + ';t.dispatchEvent(new Event("input",{bubbles:true}));}'
+        + 'var b=document.getElementById("ceText");b.value=' + JSON.stringify('界面写入的正文 ' + UNIQ) + ';'
+        + 'b.dispatchEvent(new Event("input",{bubbles:true}));return true;})()');
+      const dirtyShown = await evalJs('(document.getElementById("ceDirty")||{}).textContent||""');
+      check('B02-UI 内容编辑器：正文修改后显式提示未保存', String(dirtyShown).indexOf('未保存') !== -1, String(dirtyShown));
+      await shot('B02-21-content-editor-draft.png');
+
+      await evalJs('(function(){document.getElementById("ceSave").click();return true;})()');
+      await sleep(1400);
+
+      // 刷新后版本列表仍应含该版本（真实持久化）
+      await cdp.send('Page.reload', { ignoreCache: true });
+      await waitFor('document.readyState==="complete"', '刷新后加载');
+      await goRoute('content-editor');
+      await waitFor('document.getElementById("ceNew")', '刷新后内容编辑器', 15000);
+      const persisted = await waitFor(
+        'document.body.innerText.indexOf(' + JSON.stringify(UNIQ) + ')!==-1', '刷新后草稿仍在', 15000);
+      check('B02-UI 内容编辑器：草稿保存后刷新仍在（真实持久化）', persisted, UNIQ);
+      await shot('B02-22-content-editor-after-reload.png');
+
+      // 冻结送审：正文转为只读（不变量 1 的界面表现）
+      await evalJs('(function(){var v=document.querySelector(".ver-item");if(v)v.click();return true;})()');
+      await waitFor('document.getElementById("ceLock")', '冻结按钮出现', 12000);
+      await evalJs('(function(){document.getElementById("ceLock").click();return true;})()');
+      const confirmLock = await waitFor('document.getElementById("__mok")', '送审确认弹窗', 8000);
+      if (confirmLock) await evalJs('(function(){document.getElementById("__mok").click();return true;})()');
+      await sleep(1600);
+      const ro = await evalJs('(function(){var t=document.getElementById("ceText");return t?!!t.readOnly:false;})()');
+      check('B02-UI 内容编辑器：送审冻结后正文变为只读（不可再改）', ro === true, 'readonly=' + ro);
+      await shot('B02-23-content-editor-locked.png');
+
+      // 我的审核：应出现刚送审产生的审核单。
+      // 注意：默认勾选「仅我可裁决」，而当前登录者是**作者本人** → 职责分离会把它过滤掉，
+      // 这是正确行为。因此先取消勾选，再看审核单是否真实存在。
+      await goRoute('my-reviews');
+      const rvReady = await waitFor('document.getElementById("rvRefresh")', '我的审核页', 15000);
+      check('B02-UI 我的审核渲染（按类型分组计数 + 审核单卡片）', rvReady
+        && await evalJs('!!document.querySelector(".grid-3")'), '');
+      const selfExcluded = await evalJs('document.body.innerText.indexOf("职责分离")!==-1'
+        + '||document.querySelectorAll(".review-card").length===0');
+      check('B02-UI 我的审核：默认只列「我可裁决」，作者本人被职责分离过滤', selfExcluded === true, '');
+      await evalJs('(function(){var m=document.getElementById("rvMine");if(m&&m.checked){m.click();}return true;})()');
+      await sleep(1200);
+      const cardCount = await evalJs('document.querySelectorAll(".review-card").length');
+      check('B02-UI 我的审核：取消「仅我可裁决」后送审产生的审核单可见', cardCount > 0, 'cards=' + cardCount);
+      await shot('B02-24-my-reviews.png');
+    }
+
+    // --- 视觉工作室：受控提示词预览（真实调用 Brand Rule Engine） ---
+    await goRoute('visual-studio');
+    const vsReady = await waitFor('document.getElementById("vsBrief")', '视觉工作室表单', 15000);
+    check('B02-UI 视觉工作室渲染（模板清单 + 生成表单 + 素材区）', vsReady
+      && await evalJs('!!document.getElementById("vsPreview")'), '');
+    if (vsReady) {
+      await evalJs('(function(){'
+        + 'var t=document.getElementById("vsBrief");t.value="机构建筑中性画面，留白充足，无黄调。";'
+        + 't.dispatchEvent(new Event("input",{bubbles:true}));'
+        + 'document.getElementById("vsPreview").click();return true;})()');
+      const previewed = await waitFor(
+        'document.getElementById("vsOut").innerText.indexOf("生效规则哈希")!==-1', '提示词预览结果', 12000);
+      check('B02-UI 视觉工作室：受控提示词预览返回生效规则哈希', previewed, '');
+      const skillNote = await evalJs('document.body.innerText.indexOf("REFERENCE_ONLY")!==-1||document.body.innerText.indexOf("参考")!==-1');
+      check('B02-UI 视觉工作室：显式展示 Skill 未批准状态（不得谎称可用）', skillNote === true, '');
+      await shot('B02-25-visual-studio.png');
+    }
+
+    // --- 视频工作区：界面内写脚本 → 状态推进 → 刷新仍在 ---
+    await goRoute('video-workspace');
+    const vwReady = await waitFor('document.getElementById("vwBrief")', '视频工作区表单', 15000);
+    check('B02-UI 视频工作区渲染（阶段条 + Brief/脚本/分镜/字幕）', vwReady
+      && await evalJs('!!document.getElementById("vwAddSec")'), '');
+    if (vwReady) {
+      const SECT = 'UI 开场分节 ' + UNIQ;
+      await evalJs('(function(){document.getElementById("vwAddSec").click();return true;})()');
+      await sleep(200);
+      await evalJs('(function(){'
+        + 'var hs=document.querySelectorAll(".sec-h");var h=hs[hs.length-1];h.value=' + JSON.stringify(SECT) + ';h.dispatchEvent(new Event("input",{bubbles:true}));'
+        + 'var cs=document.querySelectorAll(".sec-c");var c=cs[cs.length-1];c.value="提出问题并给出结论。";c.dispatchEvent(new Event("input",{bubbles:true}));'
+        + 'return true;})()');
+      await evalJs('(function(){document.getElementById("vwSave").click();return true;})()');
+      await sleep(1500);
+      // 阶段条：Brief + 脚本 应为已完成（badge-ok），以此确认状态真的推进了
+      // （旧写法检查 innerText 含"脚本"是恒真断言 —— 卡片标题里本来就有"脚本"二字）
+      const okStages = await evalJs('document.querySelectorAll(".card-body.tight .badge-ok").length');
+      check('B02-UI 视频工作区：保存脚本后阶段条推进（Brief+脚本 已完成）', okStages >= 2, 'ok-stages=' + okStages);
+
+      await cdp.send('Page.reload', { ignoreCache: true });
+      await waitFor('document.readyState==="complete"', '刷新后加载');
+      await goRoute('video-workspace');
+      await waitFor('document.getElementById("vwBrief")', '刷新后视频工作区', 15000);
+      // 分节标题在 <input> 里，innerText 读不到，必须读 value
+      const vwPersist = await waitFor(
+        'Array.from(document.querySelectorAll(".sec-h")).some(function(e){return e.value===' + JSON.stringify(SECT) + ';})',
+        '刷新后脚本分节仍在', 15000);
+      check('B02-UI 视频工作区：脚本保存后刷新仍在（真实持久化）', vwPersist, '');
+      await shot('B02-26-video-workspace.png');
+    }
+
+    // --- 发布中心：四个视图切换 + 渠道表真实渲染 ---
+    await goRoute('publishing');
+    const pbReady = await waitFor('document.querySelectorAll("[data-tab]").length>=4', '发布中心标签', 15000);
+    check('B02-UI 发布中心渲染（日历/队列/渠道/归档 四视图）', pbReady
+      && await evalJs('document.body.innerText.indexOf("不会自动发布")!==-1'), '');
+    await evalJs('(function(){var bs=document.querySelectorAll("[data-tab]");bs[2].click();return true;})()');
+    await sleep(900);
+    const chRows = await evalJs('document.querySelectorAll("table.tbl tbody tr").length');
+    check('B02-UI 发布中心：渠道登记视图渲染真实渠道行', chRows > 0, 'rows=' + chRows);
+    await shot('B02-27-publishing-channels.png');
+    await evalJs('(function(){var bs=document.querySelectorAll("[data-tab]");bs[0].click();return true;})()');
+    await sleep(900);
+    const pubCalCells = await evalJs('document.querySelectorAll(".cal-grid .cal-cell").length');
+    check('B02-UI 发布中心：日历视图渲染月网格', pubCalCells > 20, 'cells=' + pubCalCells);
+    await shot('B02-28-publishing-calendar.png');
+
+    /* ==========================================================
+     * 9) BUILD-03：Analytics 与 Governance & Assets 的真实页面验证
+     *    - Analytics：四段标签、缺失语义（不得用 0 冒充）、真实落盘后才出数字
+     *    - Governance：第三条链（ASSET_ADMISSION）、沙盒/正式分列、可复用恒 0
+     *    写入一律走页面内同源 fetch（读 mos_csrf 双提交令牌），随后 reload 验证持久化，
+     *    确认页面读的是服务端真实记录而非前端假数据。
+     * ========================================================== */
+    const pageApi = async (path, method, body) => {
+      const expr = '(async function(){'
+        + 'var m=String(document.cookie||"").match(/(?:^|;\\s*)mos_csrf=([^;]+)/);'
+        + 'var h={"Content-Type":"application/json"};'
+        + 'if(m)h["x-mos-csrf"]=decodeURIComponent(m[1]);'
+        + 'var r=await fetch(' + JSON.stringify(path) + ',{method:' + JSON.stringify(method || 'GET')
+        + ',headers:h,credentials:"same-origin"'
+        + (body === undefined ? '' : ',body:' + JSON.stringify(JSON.stringify(body))) + '});'
+        + 'var t=await r.text();var j=null;try{j=JSON.parse(t);}catch(e){}'
+        + 'return JSON.stringify({status:r.status,json:j});})()';
+      const raw = await evalJs(expr);
+      try { return JSON.parse(raw); } catch (_) { return { status: 0, json: null }; }
+    };
+
+    // --- Analytics：四段标签 + 缺失语义 ---
+    await goRoute('analytics');
+    const anReady = await waitFor('document.querySelectorAll(".tabs [data-tab]").length>=4', 'Analytics 标签', 15000);
+    check('B03-UI 运营分析渲染（Content/Channels/Operations/AI & Cost 四段）', anReady, '');
+    const anTabs = await evalJs('Array.from(document.querySelectorAll(".tabs [data-tab]")).map(function(e){return e.dataset.tab;}).join(",")');
+    check('B03-UI 运营分析：四段标签名称正确',
+      anTabs === 'content,channels,operations,aiCost', 'tabs=' + anTabs);
+
+    // 先切到 AI & Cost（全新库没有任何生成作业 → 费用必须显示「缺失」而不是 0/估算值）
+    await evalJs('(function(){var b=document.getElementById("anTab-aiCost");if(b)b.click();return true;})()');
+    await sleep(1200);
+    const costBody = await evalJs('(document.getElementById("anBody")||{}).innerText||""');
+    check('B03-UI 运营分析：无回执时「可核费用」显示缺失，不出现估算金额',
+      String(costBody).indexOf('缺失') !== -1
+      && String(costBody).indexOf('不做估算') !== -1, '含缺失=' + (String(costBody).indexOf('缺失') !== -1));
+    await shot('B03-31-analytics-ai-cost.png');
+
+    // Channels：无指标记录时必须显式说明「缺失」，且不得出现 0 占位
+    await evalJs('(function(){var b=document.getElementById("anTab-channels");if(b)b.click();return true;})()');
+    await sleep(1200);
+    const chBody = await evalJs('(document.getElementById("anBody")||{}).innerText||""');
+    check('B03-UI 运营分析：无指标记录时渠道指标显示缺失态并说明原因',
+      String(chBody).indexOf('渠道指标缺失') !== -1
+      && String(chBody).indexOf('不会用 0 或示例数字填充') !== -1, '');
+    const metricBtn = await evalJs('document.querySelectorAll("[data-metric]").length');
+    check('B03-UI 运营分析：没有发布记录时不显示「录入指标」按钮（写入路径前置条件真实）',
+      metricBtn === 0, 'btns=' + metricBtn);
+    await shot('B03-32-analytics-channels.png');
+
+    // --- 前置：页面内同源上传一份工作素材（入库申请只能针对已存在的工作素材） ---
+    const upExpr = '(async function(){'
+      + 'var m=String(document.cookie||"").match(/(?:^|;\\s*)mos_csrf=([^;]+)/);'
+      + 'var h={"Content-Type":"image/png"};if(m)h["x-mos-csrf"]=decodeURIComponent(m[1]);'
+      + 'var b=new Uint8Array([0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A,7,7,7,7,7,7,7,7]);'
+      + 'var r=await fetch("/api/mos/assets/upload?brand=VFIB&name=b03-ui-asset.png",'
+      + '{method:"POST",headers:h,credentials:"same-origin",body:b});'
+      + 'var t=await r.text();var j=null;try{j=JSON.parse(t);}catch(e){}'
+      + 'return JSON.stringify({status:r.status,json:j});})()';
+    let upRes = { status: 0, json: null };
+    try { upRes = JSON.parse(await evalJs(upExpr) || '{"status":0,"json":null}'); } catch (_) { /* ignore */ }
+    const waId = upRes.json && upRes.json.asset && upRes.json.asset.id;
+    check('B03-UI 前置：页面内上传工作素材成功（真实落盘、带 sha256）',
+      upRes.status === 200 && !!waId, 'HTTP ' + upRes.status + ' id=' + waId);
+
+    const admReg = waId ? await pageApi('/api/mos/asset-admissions?brand=VFIB', 'POST', {
+      workingAssetId: waId, categoryCode: 'A01',
+      submissionMetadata: { title: 'UI-B03 入库申请', license: 'LICENSED', description: '浏览器内发起' }
+    }) : { status: 0, json: null };
+    const uiAdmId = admReg.json && admReg.json.admission && admReg.json.admission.id;
+    check('B03-UI 前置：页面内创建入库申请成功（进入 SUBMITTED）',
+      admReg.status === 200 && !!uiAdmId, 'HTTP ' + admReg.status + ' id=' + uiAdmId);
+
+    // --- Governance & Assets：三标签 + MOCK 诚实边界 ---
+    await goRoute('governance');
+    const gvReady = await waitFor('document.querySelectorAll(".tabs [data-tab]").length>=3', '治理标签', 15000);
+    check('B03-UI 治理与资产渲染（Asset Admission / Approved Assets / Review History）', gvReady, '');
+    const gvTabs = await evalJs('Array.from(document.querySelectorAll(".tabs [data-tab]")).map(function(e){return e.dataset.tab;}).join(",")');
+    check('B03-UI 治理与资产：三标签名称正确',
+      gvTabs === 'admission,assets,history', 'tabs=' + gvTabs);
+
+    const admBody = await evalJs('(document.getElementById("appRoot")||{}).innerText||""');
+    check('B03-UI 治理与资产：明确标注资料库为 MOCK，且说明不会变为可复用',
+      String(admBody).indexOf('资料库为 MOCK') !== -1
+      && String(admBody).indexOf('不会') !== -1, '');
+    check('B03-UI 治理与资产：可复用资产计数展示（Mock 下必然为 0）',
+      String(admBody).indexOf('可复用资产') !== -1, '');
+    await shot('B03-34-governance-admission.png');
+
+    // 真实 UI 操作：打开入库申请抽屉 → 点「执行预检」（按钮由服务端状态驱动）
+    const rowVisible = await waitFor(
+      'document.querySelectorAll("[data-open]").length>=1', '入库申请行渲染', 12000);
+    check('B03-UI 治理与资产：新申请的表格行真实渲染（来自服务端记录）', rowVisible, '');
+    await evalJs('(function(){var b=document.querySelector("[data-open]");if(b)b.click();return true;})()');
+    const drawerOpen = await waitFor('document.querySelector(".drawer")', '入库申请抽屉', 12000);
+    check('B03-UI 治理与资产：抽屉展示预检/回执/可复用资格/流程历史', drawerOpen
+      && await evalJs('document.querySelector(".drawer").innerText.indexOf("可复用资格")!==-1')
+      && await evalJs('document.querySelector(".drawer").innerText.indexOf("流程历史")!==-1'), '');
+    const preBtnClicked = await evalJs('(function(){'
+      + 'var bs=document.querySelectorAll(".drawer .btn");'
+      + 'for(var i=0;i<bs.length;i++){if(bs[i].textContent.indexOf("执行预检")!==-1){bs[i].click();return true;}}'
+      + 'return false;})()');
+    check('B03-UI 治理与资产：抽屉内提供「执行预检」真实动作', preBtnClicked === true, '');
+    await sleep(1800);
+    await shot('B03-37-governance-drawer.png');
+
+    // 预检后：抽屉已关闭并刷新，列表状态应变为 PRECHECK（真实写操作的结果）
+    const preDone = await waitFor('document.body.innerText.indexOf("PRECHECK")!==-1', '预检结果回显', 12000);
+    check('B03-UI 治理与资产：执行预检后列表状态更新为 PRECHECK（真实写操作生效）', preDone, '');
+
+    // 刷新后仍在（服务端持久化）
+    await cdp.send('Page.reload', { ignoreCache: true });
+    await waitFor('document.readyState==="complete"', '刷新后加载');
+    await goRoute('governance');
+    await waitFor('document.querySelectorAll(".tabs [data-tab]").length>=3', '刷新后治理页', 15000);
+    const admPersist = await waitFor(
+      'document.body.innerText.indexOf("UI-B03 入库申请")!==-1', '刷新后入库申请仍在', 15000);
+    check('B03-UI 治理与资产：入库申请与预检结果刷新后依然存在（真实持久化）', admPersist, '');
+
+    // Approved Assets：正式库检索恒空 + 沙盒分列
+    await evalJs('(function(){var b=document.getElementById("gvTab-assets");if(b)b.click();return true;})()');
+    await sleep(1300);
+    const asBody = await evalJs('(document.getElementById("appRoot")||{}).innerText||""');
+    check('B03-UI 治理与资产：Approved Assets 明确「正式库检索恒为空」，不伪造正式资产',
+      String(asBody).indexOf('正式库检索') !== -1
+      && String(asBody).indexOf('恒为空') !== -1, '');
+    check('B03-UI 治理与资产：展示可复用判定公式（审批 AND 同步 AND 权限 AND ACTIVE AND REAL）',
+      String(asBody).indexOf('授权来源为 REAL') !== -1, '');
+    await shot('B03-35-governance-assets.png');
+
+    // Review History：append-only 说明 + 空/有数据两种状态都能渲染
+    await evalJs('(function(){var b=document.getElementById("gvTab-history");if(b)b.click();return true;})()');
+    await sleep(1300);
+    const hiBody = await evalJs('(document.getElementById("appRoot")||{}).innerText||""');
+    check('B03-UI 治理与资产：审核历史视图渲染（append-only 说明可见）',
+      String(hiBody).indexOf('append-only') !== -1, '');
+    await shot('B03-36-governance-history.png');
+
+    // 页面级检查：Analytics / Governance 必须是真实端点驱动（端点被 403/404 时会退回错误态）
+    const anApi = await pageApi('/api/mos/analytics?brand=VFIB&section=all');
+    check('B03-UI 运营分析端点真实可用（页面数据来自该端点）',
+      anApi.status === 200 && !!(anApi.json && anApi.json.sections), 'HTTP ' + anApi.status);
+    const gvApi = await pageApi('/api/mos/asset-admissions?brand=VFIB&pageSize=100');
+    check('B03-UI 治理端点真实可用（含 availableBlockedReason 说明 Mock 阻塞原因）',
+      gvApi.status === 200 && typeof (gvApi.json || {}).availableBlockedReason === 'string'
+      && String(gvApi.json.availableBlockedReason).length > 0, 'HTTP ' + gvApi.status);
 
     check('无页面级未捕获异常', pageErrors.length === 0, pageErrors.slice(0, 3).join(' | '));
     check('无控制台 error 输出', consoleErrors.length === 0, consoleErrors.slice(0, 5).join(' | '));

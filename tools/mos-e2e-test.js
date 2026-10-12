@@ -99,6 +99,7 @@ function client() {
     return { status: res.status, json };
   }
   return {
+    jar,
     call,
     async login(u, p) {
       const r = await call('POST', '/api/mos/auth/login', { username: u, password: p });
@@ -369,6 +370,27 @@ async function main() {
     await persist.login(U1.username, U1.password);
     const meBefore = await persist.call('GET', '/api/mos/auth/me');
     const beforeCount = (await p1.call('GET', '/api/mos/source-items?brand=VFIB&pageSize=200')).json.total;
+    /**
+     * 前置条件：确认该会话**已真实落盘**，再重启服务。
+     *
+     * 教训（BUILD-03 实测 A-26）：数据文件写入带 60ms 合并窗口 + 异步 rename。
+     * 若在合并窗口内重启，会话可能尚未落盘 —— 此时断言"重启后会话仍有效"失败
+     * **不是**产品缺陷，而是用例没有建立前置条件（本机 Chrome/多套件连跑时更容易触发）。
+     * 因此这里显式轮询等落盘（有界 3s），让断言只检验「落盘后的会话是否跨重启有效」。
+     */
+    const mosFile = path.join(DATA_DIR, 'mos.json');
+    const sid = String(persist.jar.get('mos_sid') || '');
+    let durable = false;
+    for (let i = 0; i < 30 && !durable; i += 1) {
+      try {
+        const raw = JSON.parse(fs.readFileSync(mosFile, 'utf8'));
+        durable = (raw.sessions || []).some((s) => s.token === sid);
+      } catch (_) { /* 文件暂不可读，继续等 */ }
+      if (!durable) await sleep(100);
+    }
+    check('PERSIST-00 前提：会话已真实落盘（避免在写入合并窗口内重启）', durable === true, 'token=' + sid.slice(0, 8));
+    // 额外等待，让 60ms 合并窗口内的其它写入也完成（减少跨重启断言的抖动）
+    await sleep(150);
     server.kill('SIGTERM');
     await sleep(1200);
     const server2 = spawn(process.execPath, ['server.js'], {
@@ -397,7 +419,9 @@ async function main() {
       && (planAfter.json.items || []).some((x) => x.id === planId), 'items=' + afterCount + '/' + beforeCount);
     const meAfter = await persist.call('GET', '/api/mos/auth/me');
     check('PERSIST-02 重启前会话仍有效（未重新登录）', meBefore.status === 200 && meAfter.status === 200
-      && meAfter.json.user && meAfter.json.user.id === meBefore.json.user.id, 'me=' + meAfter.status);
+      && meAfter.json.user && meAfter.json.user.id === meBefore.json.user.id,
+      'before=' + meBefore.status + '/' + ((meBefore.json && meBefore.json.user && meBefore.json.user.id) || '-')
+      + ' after=' + meAfter.status + '/' + ((meAfter.json && meAfter.json.user && meAfter.json.user.id) || '-'));
     server2.kill('SIGTERM');
   } catch (err) {
     check('E2E 流程未抛异常', false, err.message);

@@ -168,8 +168,37 @@ function renderTopic(dr, data) {
     box.innerHTML = loadingHtml();
     try {
       const r = await api.get('/api/mos/topics/' + t.id + '/reuse');
-      box.innerHTML = '<div class="callout mock">' + esc(r.note) + '</div>'
-        + stateBlock('pending', { title: '暂无可复用记录', desc: '历史 ContentVersion / Publication 将在 BUILD-02 交付；已授权 LibraryAsset 需真实资料库接通后才能检索（06 §1）。' }).html;
+      const c = r.counts || {};
+      let h = '<div class="callout mock">' + esc(r.note) + '</div>';
+
+      h += '<div class="row" style="gap:8px;flex-wrap:wrap;margin:8px 0">'
+        + '<span class="pill">内容任务 ' + (c.tasks || 0) + '</span>'
+        + '<span class="pill">内容版本 ' + (c.contentVersions || 0) + '</span>'
+        + '<span class="pill">已发布 ' + (c.publications || 0) + '</span>'
+        + '<span class="badge badge-mock">已授权资产 ' + (r.libraryIntegrationMode || 'mock') + '</span></div>';
+
+      h += '<h3 style="margin:8px 0 4px">历史内容版本</h3>';
+      h += r.contentVersions.length
+        ? '<div class="table-wrap"><table class="tbl"><thead><tr><th>版本</th><th>标题</th><th>状态</th><th>风险</th></tr></thead><tbody>'
+          + r.contentVersions.map((v) => '<tr><td class="mono small">' + esc(v.code) + '</td>'
+            + '<td class="small">' + esc(v.title) + (v.supersededById ? ' <span class="muted">（已被取代）</span>' : '') + '</td>'
+            + '<td class="small">' + esc(v.state) + '</td><td class="small">' + esc(v.riskGrade) + '</td></tr>').join('')
+          + '</tbody></table></div>'
+        : stateBlock('empty', { title: '该 Topic 暂无内容版本', desc: '本 Topic 尚未产生 ContentVersion；建立内容任务并创建版本后即在此出现。' }).html;
+
+      h += '<h3 style="margin:12px 0 4px">已登记发布</h3>';
+      h += r.publications.length
+        ? '<div class="table-wrap"><table class="tbl"><thead><tr><th>发布记录</th><th>状态</th><th>发布时间</th><th>URL</th></tr></thead><tbody>'
+          + r.publications.map((p) => '<tr><td class="mono small">' + esc(p.id) + '</td>'
+            + '<td class="small">' + esc(p.status) + '</td><td class="small mono">' + esc(p.actualAt) + '</td>'
+            + '<td class="small">' + (p.url ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer">链接</a>' : '—') + '</td></tr>').join('')
+          + '</tbody></table></div>'
+        : stateBlock('empty', { title: '该 Topic 暂无发布记录', desc: '发布为人工登记（系统不自动发布）；登记后在此可见。' }).html;
+
+      h += '<h3 style="margin:12px 0 4px">已授权资料库资产</h3>'
+        + stateBlock('pending', { title: '资料库未接通', desc: r.libraryNote }).html;
+
+      box.innerHTML = h;
     } catch (err) { box.innerHTML = '<div class="callout danger">' + esc(err.message) + '</div>'; }
   });
 }

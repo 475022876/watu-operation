@@ -353,3 +353,110 @@ table.tbl tr.clickable { cursor: pointer; }
   .cal-grid { gap: 3px; }
   .cal-cell { min-height: 74px; padding: 4px; }
 }
+
+/* ============================================================
+ * BUILD-02 追加样式（内容编辑器 / 视觉工作室 / 视频工作区 / 发布中心 / 我的审核）
+ * 仅使用既有 CSS 变量，保持 "Modern Institutional Workspace" 语汇。
+ * ============================================================ */
+
+/* 三栏编辑器：左（Brief/证据） | 中（正文） | 右（AI 助手） */
+.editor-3col { display: grid; grid-template-columns: 268px minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+@media (max-width: 1280px) { .editor-3col { grid-template-columns: 240px minmax(0, 1fr); } .editor-3col .ed-col-ai { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .editor-3col { grid-template-columns: minmax(0, 1fr); } }
+.ed-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.ed-col-ai .card-body { padding: 12px; }
+
+/* 编辑器正文区 */
+.ed-body { width: 100%; min-height: 380px; border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
+  padding: 14px; font-family: var(--font); font-size: 13.5px; line-height: 1.72; color: var(--ink);
+  background: var(--surface); resize: vertical; }
+.ed-body:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+.ed-body[readonly] { background: var(--muted); color: var(--ink-2); cursor: not-allowed; }
+.ed-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--ink-3); }
+
+/* 只读锁提示条 */
+.lock-banner { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; padding: 9px 11px;
+  border-radius: var(--radius-sm); background: var(--info-bg); color: var(--ink-2); border: 1px solid var(--border-soft); }
+.lock-banner.warn { background: var(--warn-bg); }
+
+/* 版本列表 */
+.ver-list { display: flex; flex-direction: column; gap: 6px; }
+.ver-item { border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 8px 10px; cursor: pointer;
+  background: var(--surface); display: flex; flex-direction: column; gap: 4px; }
+.ver-item:hover { border-color: var(--gold); }
+.ver-item.on { border-color: var(--navy); background: var(--muted); }
+.ver-item .vi-top { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.ver-item .vi-code { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+
+/* 两栏通用（视觉工作室 / 视频工作区） */
+.split-2 { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 14px; align-items: start; }
+@media (max-width: 1100px) { .split-2 { grid-template-columns: minmax(0, 1fr); } }
+
+/* 图像/关键帧网格 */
+.asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 10px; }
+.asset-card { border: 1px solid var(--border-soft); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface); }
+.asset-card .ac-thumb { aspect-ratio: 1 / 1; background: var(--muted); display: flex; align-items: center; justify-content: center; }
+.asset-card .ac-thumb img { width: 100%; height: 100%; object-fit: contain; }
+.asset-card .ac-meta { padding: 7px 9px; font-size: 11.5px; color: var(--ink-3); display: flex; flex-direction: column; gap: 3px; }
+.asset-card .ac-name { font-size: 12px; color: var(--ink); font-weight: 600; word-break: break-all; }
+
+/* 提示条（生成阻塞 / 未接通） */
+.block-note { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: var(--radius-sm);
+  font-size: 12.5px; background: var(--warn-bg); color: var(--ink-2); border: 1px solid var(--border-soft); }
+.block-note.danger { background: var(--danger-bg); }
+.block-note.info { background: var(--info-bg); }
+
+/* 分镜表 */
+.shot-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) 96px 32px; gap: 8px; align-items: start;
+  padding: 8px; border: 1px solid var(--border-soft); border-radius: var(--radius-sm); margin-bottom: 8px; }
+.shot-row .sh-no { font-family: var(--mono); font-size: 12px; color: var(--ink-3); padding-top: 6px; }
+.shot-row textarea { min-height: 54px; font-family: var(--font); font-size: 12.5px; }
+
+/* 发布队列行 */
+.queue-row { display: grid; grid-template-columns: 132px minmax(0, 1fr) 116px 132px 92px; gap: 10px; align-items: center;
+  padding: 9px 10px; border-bottom: 1px solid var(--border-soft); font-size: 12.5px; }
+.queue-row:last-child { border-bottom: 0; }
+.queue-row.head { background: var(--muted); font-weight: 600; color: var(--ink-2); font-size: 12px; }
+@media (max-width: 900px) { .queue-row { grid-template-columns: minmax(0, 1fr); gap: 4px; } .queue-row.head { display: none; } }
+
+/* 日历条目状态点 */
+.cal-entry .ce-plan { color: var(--ink-2); }
+
+/* 审核卡 */
+.review-card { border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 11px 12px; background: var(--surface); }
+.review-card + .review-card { margin-top: 10px; }
+.review-card .rc-head { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.review-card .rc-title { font-weight: 600; font-size: 13px; }
+.review-card .rc-actions { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 9px; }
+
+/* 差异提示 */
+.diff-warn { font-size: 12px; color: var(--danger); }
+
+/* ============================================================
+ * BUILD-03 追加样式（Analytics 四分段 / Governance & Assets 三视图）
+ * 复用既有 CSS 变量，保持 "Modern Institutional Workspace" 语汇。
+ * ============================================================ */
+
+/* 水平条形分布（任务状态等） */
+.bar-row { display: grid; grid-template-columns: 132px minmax(0, 1fr) 48px; gap: 10px; align-items: center;
+  font-size: 12.5px; padding: 3px 0; }
+.bar-row .bar-label { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-row .bar-track { height: 8px; border-radius: 6px; background: var(--muted); overflow: hidden; }
+.bar-row .bar-fill { height: 100%; background: var(--navy-secondary); border-radius: 6px; }
+.bar-row .bar-val { text-align: right; color: var(--ink-3); }
+
+/* 流程时间线（入库申请 history） */
+.timeline { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.tl-item { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 8px; align-items: start; }
+.tl-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); margin-top: 5px; }
+.timeline .tl-item:not(:last-child) .tl-dot { box-shadow: 0 0 0 3px var(--muted); }
+
+/* 检查清单（预检结果） */
+.checklist { display: flex; flex-direction: column; gap: 4px; }
+
+/* 表格行内操作列 */
+.actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+@media (max-width: 900px) {
+  .bar-row { grid-template-columns: 96px minmax(0, 1fr) 40px; }
+}

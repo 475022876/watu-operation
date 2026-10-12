@@ -1,0 +1,417 @@
+/* Marketing OS —— Governance & Assets（W08-02 Review History / W08-03 Asset Admission / W08-04 Approved Assets）。
+ *
+ * 三条审批链中，本页承载**第三条：资产入库（ASSET_ADMISSION）**。
+ * 硬规则（03 §2.4 / 08 §E2E-05）：
+ *   - 最终入库审批是**独立特权** `library.asset.approve.final`，页面只按服务端返回的 canDecide 显示按钮，
+ *     按钮的有无**不构成授权**（前端隐藏不等于安全）；
+ *   - 可复用资格（reuseEligibility）由服务端计算，页面只展示结论与阻塞原因；
+ *   - Mock 资料库下 AVAILABLE 不可达，页面明确说明，不给出「已入库可用」的假象。
+ */
+import { api, withBrand } from '../api.js';
+import {
+  esc, toast, openModal, openDrawer, stateBlock, loadingHtml, fmtDateTime,
+  dictOptions, mockBadge, statusBadge
+} from '../ui.js';
+
+let ctxRef = null;
+let hostEl = null;
+let tab = 'admission';
+let admissions = [];
+let summary = null;
+let blockedReason = '';
+let assets = [];
+let refs = null;
+let history = [];
+let q = '';
+let busy = false;
+
+const TABS = [
+  ['admission', 'Asset Admission'],
+  ['assets', 'Approved Assets'],
+  ['history', 'Review History']
+];
+
+/* ---------------- 状态徽标 ---------------- */
+
+function admissionBadge(a) {
+  const cls = {
+    WORKING: 'badge-neutral', SUBMITTED: 'badge-info', PRECHECK: 'badge-info', REVIEWING: 'badge-info',
+    FINAL_APPROVAL_PENDING: 'badge-warn', FINAL_APPROVAL_GRANTED: 'badge-ok',
+    REJECTED: 'badge-danger', LIBRARY_SYNC_PENDING: 'badge-info',
+    SYNC_COMPLETED: 'badge-ok', SYNC_FAILED: 'badge-danger', AVAILABLE: 'badge-ok'
+  }[a.state] || 'badge-neutral';
+  return '<span class="badge ' + cls + '">' + esc(a.state) + '</span>';
+}
+
+function head(ctx) {
+  return '<div class="page-head"><div class="crumb">Governance & Assets</div>'
+    + '<div class="ph-row"><h1>治理与资产</h1>'
+    + '<span class="pill">当前品牌 ' + esc(ctx.brand) + '</span>'
+    + '<span class="pill">第三条链：Asset Admission</span>'
+    + '<div class="ph-actions"><button class="btn btn-sm" id="gvRefresh">刷新</button></div></div>'
+    + '<div class="ph-desc">专业审核 / 发布审核 / 资产入库是<b>三条独立链</b>；'
+    + '最终入库许可是独立特权，不随 P1 或技术管理员自动获得。</div></div>';
+}
+
+/* ---------------- W08-03 Asset Admission ---------------- */
+
+function renderAdmission() {
+  let h = '<div class="grid grid-4">'
+    + '<div class="card"><div class="card-body" style="padding:12px 14px"><div class="small muted">申请总数</div>'
+    + '<div style="font-size:21px;font-weight:600;margin:4px 0">' + (summary ? summary.total : 0) + '</div></div></div>'
+    + '<div class="card"><div class="card-body" style="padding:12px 14px"><div class="small muted">待最终审批</div>'
+    + '<div style="font-size:21px;font-weight:600;margin:4px 0">' + (summary ? summary.pendingApproval : 0) + '</div></div></div>'
+    + '<div class="card"><div class="card-body" style="padding:12px 14px"><div class="small muted">同步失败待重试</div>'
+    + '<div style="font-size:21px;font-weight:600;margin:4px 0">' + (summary ? summary.failed : 0) + '</div></div></div>'
+    + '<div class="card"><div class="card-body" style="padding:12px 14px"><div class="small muted">可复用资产</div>'
+    + '<div style="font-size:21px;font-weight:600;margin:4px 0">' + (summary ? summary.reusable : 0) + '</div>'
+    + '<div class="small muted">Mock 下必然为 0</div></div></div>'
+    + '</div>';
+
+  h += '<div class="callout mock"><b>资料库为 MOCK。</b>' + esc(blockedReason || '')
+    + ' 因此本页任何申请都<b>不会</b>变成「可复用」。</div>';
+
+  h += '<div class="card"><div class="card-head"><h2>入库申请</h2>'
+    + '<div class="ch-actions"><button class="btn btn-sm btn-primary" id="admNew">新建入库申请</button></div></div>'
+    + '<div class="card-body tight">';
+  if (!admissions.length) {
+    h += '<div class="card-body">' + stateBlock('empty', {
+      title: '还没有入库申请',
+      desc: '入库申请从 Visual Studio 上传/生成的工作素材发起；也可以在右上角直接新建。'
+    }).html + '</div>';
+  } else {
+    h += '<div class="table-wrap"><table class="tbl"><thead><tr>'
+      + '<th>资产 / 分类</th><th>状态</th><th>最终审批</th><th>同步</th><th>可复用</th><th>提交</th><th></th></tr></thead><tbody>'
+      + admissions.map((a) => '<tr>'
+        + '<td>' + mockBadge(a.assetMock) + '<div class="small">' + esc((a.submissionMetadata || {}).title || a.assetFileName)
+        + '</div><div class="mono small muted">' + esc(a.categoryCode) + '</div></td>'
+        + '<td>' + admissionBadge(a) + '</td>'
+        + '<td class="small">' + esc(a.finalApprovalStatus) + '<br><span class="muted">' + esc(a.approvalMode) + '</span></td>'
+        + '<td class="small">' + esc(a.syncStatus) + '<br><span class="muted mono">' + esc(a.libraryId || '—') + '</span></td>'
+        + '<td>' + (a.reuseEligibility ? '<span class="badge badge-ok">可复用</span>'
+          : '<span class="badge badge-neutral" title="' + esc((a.reuseBlocking || []).join('；')) + '">不可复用</span>') + '</td>'
+        + '<td class="small">' + esc(a.submittedByName || '—') + '<br><span class="muted mono">' + esc(fmtDateTime(a.submittedAt)) + '</span></td>'
+        + '<td class="actions"><button class="btn btn-sm" data-open="' + esc(a.id) + '">处理</button></td></tr>').join('')
+      + '</tbody></table></div>';
+  }
+  h += '</div></div>';
+  return h;
+}
+
+async function openAdmission(id) {
+  let d;
+  try { d = await api.get('/api/mos/asset-admissions/' + id); } catch (err) { toast(err.message, 'err'); return; }
+  const a = d.admission;
+  const c = d.reviewCase;
+  let body = '<div class="callout mock">' + esc(blockedReason || '') + '</div>';
+
+  body += '<h3 style="margin:4px 0 6px">申请信息</h3>'
+    + '<dl class="kv">'
+    + '<dt>状态</dt><dd>' + admissionBadge(a) + '</dd>'
+    + '<dt>最终审批</dt><dd>' + esc(a.finalApprovalStatus) + '（授权来源 ' + esc(a.approvalMode) + '）</dd>'
+    + '<dt>同步状态</dt><dd>' + esc(a.syncStatus) + ' · 尝试 ' + a.syncAttempts + ' 次</dd>'
+    + '<dt>幂等键</dt><dd class="mono small">' + esc(a.idempotencyKey) + '</dd>'
+    + '<dt>资产指纹</dt><dd class="mono small">' + esc(a.assetSha256) + '</dd>'
+    + '<dt>当前指纹</dt><dd class="mono small">' + esc(a.assetDigestNow || '—') + '</dd>'
+    + '<dt>分类</dt><dd>' + esc(a.categoryCode) + '</dd>'
+    + '<dt>许可</dt><dd>' + esc((a.submissionMetadata || {}).license) + '</dd>'
+    + '<dt>资料库 ID</dt><dd class="mono small">' + esc(a.libraryId || '（无：Mock 无正式回执）') + '</dd>'
+    + '</dl>';
+
+  body += '<h3 style="margin:12px 0 6px">预检</h3>';
+  if (!a.precheck) {
+    body += '<div class="muted small">尚未预检。</div>';
+  } else {
+    body += '<div class="small">结论：<b>' + esc(a.precheck.verdict) + '</b> · ' + esc(a.precheck.checkedByName || '') + ' · ' + esc(fmtDateTime(a.precheck.checkedAt)) + '</div>'
+      + '<div class="checklist" style="margin-top:6px">' + (a.precheck.checks || []).map((k) =>
+        '<div class="checkline ' + (k.ok ? '' : 'no') + '"><span class="ck">' + (k.ok ? '✓' : '✕') + '</span>'
+        + '<span>' + esc(k.id) + ' — ' + esc(k.note) + '</span></div>').join('') + '</div>';
+  }
+
+  body += '<h3 style="margin:12px 0 6px">资料库回执</h3>';
+  body += a.receipt
+    ? '<dl class="kv"><dt>回执号</dt><dd class="mono small">' + esc(a.receipt.receiptId) + '</dd>'
+      + '<dt>回执状态</dt><dd>' + esc(a.receipt.state) + (a.receipt.deduplicated ? ' · 幂等去重' : '') + '</dd>'
+      + '<dt>资产 ID</dt><dd class="mono small">' + esc(a.receipt.assetId || '—') + '</dd>'
+      + '<dt>错误</dt><dd class="small">' + esc(a.receipt.errorCode || '—') + ' ' + esc(a.receipt.error || '') + '</dd></dl>'
+    : '<div class="muted small">尚未调用资料库。</div>';
+
+  body += '<h3 style="margin:12px 0 6px">可复用资格（服务端计算）</h3>'
+    + (a.reuseEligibility
+      ? '<div class="callout ok">满足可复用条件。</div>'
+      : '<div class="callout warn">不可复用。阻塞原因：<ul style="margin:6px 0 0 18px">'
+        + (a.reuseBlocking || []).map((r) => '<li>' + esc(r) + '</li>').join('') + '</ul></div>');
+
+  if (c) {
+    body += '<h3 style="margin:12px 0 6px">最终审批审核单</h3>'
+      + '<div class="small">类型 ' + esc(c.type) + ' · 状态 ' + esc(c.state)
+      + ' · 需权限 <span class="mono">library.asset.approve.final</span></div>'
+      + (c.canDecide ? '' : '<div class="small muted" style="margin-top:4px">你当前无权裁决：'
+        + esc((c.decideBlockedReasons || []).join('；')) + '</div>');
+  }
+
+  body += '<h3 style="margin:12px 0 6px">流程历史</h3>'
+    + '<div class="timeline">' + (a.history || []).map((e) => '<div class="tl-item">'
+      + '<div class="tl-dot"></div><div><div class="small"><b>' + esc(e.action) + '</b> '
+      + (e.fromState && e.toState && e.fromState !== e.toState ? esc(e.fromState) + ' → ' + esc(e.toState) : '')
+      + '</div><div class="small muted">' + esc(e.actorName || '—') + ' · ' + esc(fmtDateTime(e.at)) + '</div>'
+      + (e.note ? '<div class="small">' + esc(e.note) + '</div>' : '') + '</div></div>').join('') + '</div>';
+
+  const footer = document.createElement('div');
+  footer.className = 'row';
+  footer.style.gap = '8px';
+  footer.style.flexWrap = 'wrap';
+  const dr = openDrawer({ title: '入库申请 · ' + ((a.submissionMetadata || {}).title || a.id), body, footer });
+
+  const addBtn = (label, primary, fn) => {
+    const b = document.createElement('button');
+    b.className = 'btn btn-sm' + (primary ? ' btn-primary' : '');
+    b.textContent = label;
+    b.addEventListener('click', async () => { b.disabled = true; try { await fn(); } finally { b.disabled = false; } });
+    footer.appendChild(b);
+    return b;
+  };
+
+  const reload = async () => { dr.close(); await refresh(); };
+
+  if (a.state === 'SUBMITTED') {
+    addBtn('执行预检', true, async () => {
+      try { const r = await api.post('/api/mos/asset-admissions/' + a.id + '/precheck', {}); toast('预检结论：' + (r.precheck ? r.precheck.verdict : '—'), r.precheck && r.precheck.verdict === 'PASS' ? 'ok' : 'err'); await reload(); }
+      catch (err) { toast(err.message, 'err'); }
+    });
+  }
+  if (a.precheck && a.precheck.verdict === 'PASS' && ['PRECHECK', 'REVIEWING'].indexOf(a.state) !== -1) {
+    addBtn('提交最终审批', true, async () => {
+      try { await api.post('/api/mos/asset-admissions/' + a.id + '/submit-final', {}); toast('已提交最终审批', 'ok'); await reload(); }
+      catch (err) { toast(err.message, 'err'); }
+    });
+  }
+  if (c && c.canDecide && c.state !== 'APPROVED' && c.state !== 'REJECTED') {
+    addBtn('批准入库', true, async () => {
+      try {
+        await api.post('/api/mos/review-cases/' + c.id + '/decision', { action: 'APPROVE', approvalRef: a.id });
+        toast('最终审批已通过', 'ok'); await reload();
+      } catch (err) { toast(err.message, 'err'); }
+    });
+    addBtn('驳回', false, async () => {
+      const reason = window.prompt('驳回原因（必填）');
+      if (!reason) return;
+      try {
+        await api.post('/api/mos/review-cases/' + c.id + '/decision', { action: 'REJECT', remarks: reason });
+        toast('已驳回', 'ok'); await reload();
+      } catch (err) { toast(err.message, 'err'); }
+    });
+  }
+  if (a.state === 'FINAL_APPROVAL_GRANTED') {
+    addBtn('提交资料库同步', true, async () => {
+      try { const r = await api.post('/api/mos/asset-admissions/' + a.id + '/sync', {}); toast(r.note || '已同步', r.admission.syncStatus === 'COMPLETED' ? 'ok' : 'err'); await reload(); }
+      catch (err) { toast(err.message, 'err'); }
+    });
+  }
+  if (a.state === 'SYNC_FAILED') {
+    addBtn('重试同步（幂等）', true, async () => {
+      try { const r = await api.post('/api/mos/asset-admissions/' + a.id + '/retry-sync', {}); toast(r.note || '已重试', r.admission.syncStatus === 'COMPLETED' ? 'ok' : 'err'); await reload(); }
+      catch (err) { toast(err.message, 'err'); }
+    });
+  }
+  if (a.asset && a.asset.contentUrl) {
+    addBtn('查看素材', false, async () => { window.open(a.asset.contentUrl, '_blank', 'noopener'); });
+  }
+  if (!footer.children.length) {
+    footer.innerHTML = '<span class="small muted">当前状态没有可执行动作（或你没有相应权限）。</span>';
+  }
+}
+
+function newAdmissionDialog() {
+  if (!assets.length) {
+    toast('还没有工作素材：请先在 Visual Studio 上传一份素材', 'err');
+    return;
+  }
+  const cats = (ctxRef.meta && ctxRef.meta.dictionaries && ctxRef.meta.dictionaries.assetCategories) || [];
+  openModal({
+    title: '新建入库申请',
+    okText: '提交申请',
+    body: '<div class="callout info">入库申请只针对**已存在的工作素材**；预检与最终审批在提交后分别执行。</div>'
+      + '<label class="field"><span>工作素材</span><select id="admAsset">'
+      + assets.map((a) => '<option value="' + esc(a.id) + '">' + esc(a.fileName) + (a.mock ? '（MOCK）' : '') + '</option>').join('')
+      + '</select></label>'
+      + '<label class="field"><span>资产分类（A01–A08）</span><select id="admCat">'
+      + dictOptions(cats, '', '请选择') + '</select></label>'
+      + '<label class="field"><span>标题</span><input id="admTitle" placeholder="资产名称"></label>'
+      + '<label class="field"><span>许可状态</span><select id="admLicense">'
+      + '<option value="INTERNAL_DRAFT">内部草稿（INTERNAL_DRAFT）</option>'
+      + '<option value="LICENSED">已授权（LICENSED）</option>'
+      + '<option value="OPEN">开放（OPEN）</option>'
+      + '<option value="UNVERIFIED">许可未核验（UNVERIFIED · 会被拒绝）</option>'
+      + '</select></label>'
+      + '<label class="field"><span>说明</span><input id="admDesc" placeholder="用途、来源、适用场景"></label>',
+    onOk: async (b) => {
+      const body = {
+        workingAssetId: b.querySelector('#admAsset').value,
+        categoryCode: b.querySelector('#admCat').value,
+        submissionMetadata: {
+          title: b.querySelector('#admTitle').value.trim(),
+          license: b.querySelector('#admLicense').value,
+          description: b.querySelector('#admDesc').value.trim()
+        }
+      };
+      if (!body.categoryCode) { toast('请选择资产分类', 'err'); return false; }
+      try {
+        const r = await api.post('/api/mos/asset-admissions', Object.assign({ brand: ctxRef.brand }, body));
+        toast('入库申请已创建：' + r.admission.id, 'ok');
+        await refresh();
+      } catch (err) { toast(err.message, 'err'); return false; }
+    }
+  });
+}
+
+/* ---------------- W08-04 Approved Assets ---------------- */
+
+function renderAssets() {
+  const d = refs || { items: [], gateway: { items: [] }, counts: {}, integration: {} };
+  let h = '<div class="callout mock"><b>企业资料库未接通（MOCK）。</b>' + esc(d.note || '')
+    + ' 正式库检索（下方 Production 段）在 Mock 下<b>恒为空</b>，不伪造正式资产。</div>';
+
+  h += '<div class="filters">'
+    + '<input type="search" id="laQ" placeholder="按资料库 ID / 来源检索" value="' + esc(q) + '">'
+    + '<button class="btn btn-sm" id="laSearch">检索</button>'
+    + '<span class="pill">条目 ' + ((d.counts && d.counts.total) || 0) + '</span>'
+    + '<span class="badge badge-mock">沙盒 ' + ((d.counts && d.counts.mockOnly) || 0) + '</span>'
+    + '<span class="badge badge-ok">可复用 ' + ((d.counts && d.counts.reusable) || 0) + '</span>'
+    + '</div>';
+
+  h += '<div class="card"><div class="card-head"><h2>Production 检索（真实资料库）</h2>'
+    + '<span class="badge badge-mock">' + esc((d.integration && d.integration.mode) || 'mock') + '</span></div>'
+    + '<div class="card-body">'
+    + ((d.gateway && d.gateway.items && d.gateway.items.length)
+      ? '<div class="table-wrap"><table class="tbl"><thead><tr><th>资产</th><th>版本</th><th>权限</th></tr></thead><tbody>'
+        + d.gateway.items.map((i) => '<tr><td class="mono small">' + esc(i.id || i.assetId) + '</td>'
+          + '<td class="small">' + esc(i.version || '—') + '</td><td class="small">' + esc(i.permissionScope || '') + '</td></tr>').join('')
+        + '</tbody></table></div>'
+      : stateBlock('pending', { title: '正式库检索为空', desc: (d.gateway && d.gateway.note) || 'MOCK 下不返回正式已批准资产。' }).html)
+    + '</div></div>';
+
+  h += '<div class="card"><div class="card-head"><h2>Sandbox 条目（本机入库流程产生）</h2>'
+    + '<span class="pill">带 MOCK_ 前缀</span></div><div class="card-body tight">';
+  if (!d.items.length) {
+    h += '<div class="card-body">' + stateBlock('empty', {
+      title: '还没有沙盒条目',
+      desc: '完成一次「入库申请 → 预检 → 最终审批 → 同步」后，这里会出现回执条目。'
+    }).html + '</div>';
+  } else {
+    h += '<div class="table-wrap"><table class="tbl"><thead><tr>'
+      + '<th>资料库 ID</th><th>版本</th><th>资产状态</th><th>权限核验</th><th>可复用</th><th>来源申请</th><th>核验时间</th></tr></thead><tbody>'
+      + d.items.map((r) => '<tr>'
+        + '<td class="mono small">' + esc(r.libraryId || '—') + mockBadge(r.mock) + '</td>'
+        + '<td class="small">' + esc(r.version || '—') + '</td>'
+        + '<td class="small">' + esc(r.assetState) + '</td>'
+        + '<td class="small">' + (r.permissionValid ? '<span class="badge badge-ok">有效</span>' : '<span class="badge badge-warn">未核验</span>') + '</td>'
+        + '<td>' + (r.reuseEligibility ? '<span class="badge badge-ok">可复用</span>'
+          : '<span class="badge badge-neutral" title="' + esc((r.reuseBlocking || []).join('；')) + '">不可复用</span>') + '</td>'
+        + '<td class="mono small">' + esc(r.admissionId) + '</td>'
+        + '<td class="small mono">' + esc(fmtDateTime(r.lastVerifiedAt)) + '</td></tr>').join('')
+      + '</tbody></table></div>';
+  }
+  h += '</div></div>';
+
+  h += '<div class="card"><div class="card-head"><h2>设计说明</h2></div><div class="card-body">'
+    + '<div class="checkline no"><span class="ck">✕</span><span>入库审批 APPROVED <b>不等于</b>已持久化的 AVAILABLE（00 §3）。</span></div>'
+    + '<div class="checkline no"><span class="ck">✕</span><span>已发布内容不会自动进入企业资料库；复用需单独发起入库申请。</span></div>'
+    + '<div class="checkline"><span class="ck">•</span><span>可复用资格 = 最终审批通过 AND 同步完成 AND 权限核验有效 AND 资产 ACTIVE AND 授权来源为 REAL。</span></div>'
+    + '</div></div>';
+  return h;
+}
+
+/* ---------------- W08-02 Review History ---------------- */
+
+function renderHistory() {
+  let h = '<div class="filters"><span class="pill">决策记录 ' + history.length + ' 条</span>'
+    + '<span class="small muted">append-only：历史不会被改写</span></div>';
+  h += '<div class="card"><div class="card-head"><h2>审核决策历史</h2></div><div class="card-body tight">';
+  if (!history.length) {
+    h += '<div class="card-body">' + stateBlock('empty', { title: '还没有审核决策', desc: '任何审核裁决都会在这里留下不可改写的记录。' }).html + '</div>';
+  } else {
+    h += '<div class="table-wrap"><table class="tbl"><thead><tr>'
+      + '<th>时间</th><th>审核链</th><th>动作</th><th>主体</th><th>裁决人</th><th>权限快照</th><th>备注</th></tr></thead><tbody>'
+      + history.map((d) => '<tr>'
+        + '<td class="small mono">' + esc(fmtDateTime(d.createdAt)) + '</td>'
+        + '<td class="small">' + esc(d.type) + '</td>'
+        + '<td class="small"><b>' + esc(d.action) + '</b><br><span class="muted">' + esc(d.previousState || '') + '</span></td>'
+        + '<td class="mono small">' + esc(d.subjectId) + '</td>'
+        + '<td class="small">' + esc(d.actorName || d.actorId) + '</td>'
+        + '<td class="small muted">' + esc((d.actingAuthority || []).join(' / ')) + '</td>'
+        + '<td class="small">' + esc(String(d.remarks || '').slice(0, 80)) + '</td></tr>').join('')
+      + '</tbody></table></div>';
+  }
+  h += '</div></div>';
+  return h;
+}
+
+/* ---------------- 加载与渲染 ---------------- */
+
+async function load() {
+  const ctx = ctxRef;
+  if (tab === 'admission') {
+    const r = await api.get(withBrand('/api/mos/asset-admissions', ctx.brand, { pageSize: 100 }));
+    admissions = r.items || [];
+    summary = r.summary || null;
+    blockedReason = r.availableBlockedReason || '';
+    const a = await api.get(withBrand('/api/mos/assets', ctx.brand, { pageSize: 200 }));
+    assets = a.items || [];
+  } else if (tab === 'assets') {
+    refs = await api.get(withBrand('/api/mos/library-asset-refs', ctx.brand, { q }));
+  } else {
+    const r = await api.get(withBrand('/api/mos/review-history', ctx.brand, { pageSize: 200 }));
+    history = r.items || [];
+  }
+}
+
+async function render() {
+  const ctx = ctxRef;
+  hostEl.innerHTML = loadingHtml();
+  try { await load(); } catch (err) {
+    const s = stateBlock(err.status === 403 ? 'denied' : 'error', {
+      title: err.status === 403 ? '无权访问该视图' : '加载失败',
+      desc: err.message || '未知错误',
+      actions: [{ label: '重试', primary: true, onClick: () => render() }]
+    });
+    hostEl.innerHTML = s.html; s.bind(hostEl);
+    return;
+  }
+
+  let h = head(ctx);
+  h += '<div class="tabs">' + TABS.map(([k, l]) =>
+    '<button data-tab="' + k + '" class="' + (tab === k ? 'on' : '') + '" id="gvTab-' + k + '">' + esc(l) + '</button>').join('') + '</div>';
+
+  if (tab === 'admission') h += renderAdmission();
+  else if (tab === 'assets') h += renderAssets();
+  else h += renderHistory();
+
+  hostEl.innerHTML = h;
+
+  hostEl.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', async () => {
+    if (busy) return;
+    tab = b.dataset.tab;
+    await render();
+  }));
+  const rf = hostEl.querySelector('#gvRefresh');
+  if (rf) rf.addEventListener('click', () => render());
+  const nb = hostEl.querySelector('#admNew');
+  if (nb) nb.addEventListener('click', newAdmissionDialog);
+  hostEl.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => openAdmission(b.dataset.open)));
+  const laSearch = hostEl.querySelector('#laSearch');
+  if (laSearch) laSearch.addEventListener('click', async () => {
+    const el = hostEl.querySelector('#laQ');
+    q = el ? el.value.trim() : '';
+    await render();
+  });
+  void statusBadge;
+}
+
+async function refresh() { await render(); }
+
+export default {
+  async mount(host, ctx) { ctxRef = ctx; hostEl = host; tab = 'admission'; q = ''; busy = false; await render(); },
+  unmount() { hostEl = null; admissions = []; refs = null; history = []; busy = false; },
+  hasUnsaved() { return false; }
+};

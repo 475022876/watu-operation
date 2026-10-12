@@ -67,15 +67,31 @@ async function render() {
   }
   html += '</div>';
 
+  // 审核队列：BUILD-03 起接入真实 ReviewCase（专业 / 发布 / 入库三条链统一入口）
+  const reviews = data.pendingReviews || [];
+  html += '<div class="card"><div class="card-head"><h2>我的审核队列</h2>'
+    + '<div class="ch-actions"><span class="badge badge-neutral">' + reviews.length + '</span>'
+    + '<button class="btn btn-sm" data-go-reviews="1">打开 My Reviews</button></div></div>';
+  if (!reviews.length) {
+    html += '<div class="card-body">' + stateBlock('empty', {
+      title: '没有待你裁决的审核单',
+      desc: (data.emptyHints && data.emptyHints.reviews) || '当前没有需要你裁决的专业 / 发布 / 入库审核单。'
+    }).html + '</div>';
+  } else {
+    html += '<div class="card-body tight">' + reviews.slice(0, 8).map((r) => '<div class="list-item"><div class="li-main">'
+      + '<div class="li-title">' + esc(r.type) + ' · ' + esc((r.subject && r.subject.title) || r.subjectId || '') + '</div>'
+      + '<div class="li-sub"><span class="badge badge-info">' + esc(r.state) + '</span>'
+      + ' <span class="mono small muted">' + esc(r.id) + '</span></div>'
+      + '</div><div class="li-actions"><button class="btn btn-sm" data-go-reviews="1">去裁决</button></div></div>').join('')
+      + '</div>';
+  }
   html += '</div>';
 
-  // 审核队列（BUILD-03 前明确为"未接入"，不伪造待办）
-  html += '<div class="card"><div class="card-head"><h2>我的审核队列</h2></div><div class="card-body">'
-    + stateBlock('pending', { title: '审核待办将在 BUILD-03 接入', desc: data.emptyHints && data.emptyHints.reviews }).html
-    + '</div></div>';
+  html += '</div>';
 
   hostEl.innerHTML = html;
 
+  hostEl.querySelectorAll('[data-go-reviews]').forEach((b) => b.addEventListener('click', () => ctx.navigate('my-reviews')));
   hostEl.querySelectorAll('[data-open-plan]').forEach((b) => b.addEventListener('click', () => ctx.navigate('planning')));
   hostEl.querySelectorAll('[data-task-act]').forEach((b) => b.addEventListener('click', () => taskAction(b.dataset.taskId, b.dataset.taskAct)));
 }
@@ -84,7 +100,7 @@ function nextActionBtn(t) {
   const map = {
     IDEA: { act: 'PLANNED', label: '标记已计划' },
     PLANNED: { act: 'IN_PRODUCTION', label: '开始制作' },
-    IN_PRODUCTION: { act: 'IN_REVIEW', label: '送审(冻结版本待 BUILD-02)' },
+    IN_PRODUCTION: { act: 'IN_REVIEW', label: '送审（到内容编辑器冻结版本）' },
     IN_REVIEW: { act: 'READY', label: '标记审核通过' }
   };
   const m = map[t.status];

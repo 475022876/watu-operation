@@ -136,7 +136,7 @@ function renderCamp(dr, c) {
 
   html += '<div class="divider"></div>';
   html += '<div class="row between"><h3>交付清单</h3><span class="pill">内容任务 ' + c.taskCount + '</span></div>';
-  html += '<div class="hint">任务级交付清单与发布登记在 BUILD-02 交付。</div>';
+  html += '<div class="hint">任务级交付情况见「内容任务」（可按 Campaign 筛选）；实际发布登记在「发布中心 → 队列」完成，系统不自动发布。</div>';
 
   dr.body.innerHTML = html;
 

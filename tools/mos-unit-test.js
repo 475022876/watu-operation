@@ -24,9 +24,23 @@ const ids = require('../lib/mos/ids');
 const { ROLES, PERMISSIONS } = dict;
 
 const results = [];
+/**
+ * 用例链：所有用例（含 async）**串行**执行。
+ * 教训（BUILD-03）：若仅把 async 用例的 Promise 收集起来并发 await，用例体内 `await` 期间
+ * 会被其他用例插入执行（例如 `_resetForTest()` 清空共享的表），造成随机失败。
+ */
+let chain = Promise.resolve();
 function t(name, fn) {
-  try { fn(); results.push({ name, ok: true }); console.log('  PASS  ' + name); }
-  catch (err) { results.push({ name, ok: false, detail: err.message }); console.log('  FAIL  ' + name + '  :: ' + err.message); }
+  chain = chain.then(async () => {
+    try {
+      const r = fn();
+      if (r && typeof r.then === 'function') await r;
+      results.push({ name, ok: true }); console.log('  PASS  ' + name);
+    } catch (err) {
+      results.push({ name, ok: false, detail: err.message });
+      console.log('  FAIL  ' + name + '  :: ' + err.message);
+    }
+  });
 }
 function eq(a, b, msg) { assert.strictEqual(a, b, msg); }
 function ok(v, msg) { assert.ok(v, msg); }
@@ -272,16 +286,165 @@ t('U-13b 品牌定义：VFIB 与 UCARD，U CARD 非 VFIB CARD', () => {
   ok(ucard.skillState === 'MISSING_NOT_APPROVED', 'U CARD 独立 Skill 未批准，必须显式标注');
 });
 
+/* ==================== BUILD-03：资产入库 / 数据分级 / schema v3 ==================== */
+
+/* ---------------- U-14 入库状态机完整性 ---------------- */
+t('U-14 入库状态机：状态集与迁移表自洽（无悬空目标、终态无出边）', () => {
+  const states = dict.ADMISSION_STATES;
+  const tr = dict.ADMISSION_TRANSITIONS;
+  eq(Object.keys(tr).sort().join(','), states.slice().sort().join(','), '迁移表必须覆盖每个状态');
+  for (const from of Object.keys(tr)) {
+    for (const to of tr[from]) ok(states.indexOf(to) !== -1, from + ' → ' + to + ' 目标状态未定义');
+  }
+  for (const s of ['REJECTED', 'AVAILABLE']) eq((tr[s] || []).length, 0, s + ' 必须是终态');
+  ok(tr.SYNC_FAILED.indexOf('LIBRARY_SYNC_PENDING') !== -1, '失败恢复边必须存在：SYNC_FAILED → LIBRARY_SYNC_PENDING');
+  ok(tr.PRECHECK.indexOf('LIBRARY_SYNC_PENDING') === -1, 'PRECHECK 不得直连同步（必须先过最终审批）');
+});
+
+t('U-14b assertTransition：合法放行、非法阻断并给出中文原因', () => {
+  const al = require('../lib/mos/admissionlib');
+  const a = { state: 'SYNC_FAILED' };
+  ok(al.assertTransition(a, 'LIBRARY_SYNC_PENDING', dict.ADMISSION_TRANSITIONS).ok, 'SYNC_FAILED → SYNC_PENDING 应放行');
+  ok(!al.assertTransition(a, 'AVAILABLE', dict.ADMISSION_TRANSITIONS).ok, 'SYNC_FAILED → AVAILABLE 应阻断');
+  ok(al.assertTransition({ state: 'AVAILABLE' }, 'SUBMITTED', dict.ADMISSION_TRANSITIONS).message.indexOf('不允许迁移') !== -1);
+});
+
+/* ---------------- U-15 可复用资格必须「计算」且 Mock 下不可达 ---------------- */
+t('U-15 ★Mock 下 reuseEligibility 结构性为 false，且逐项给出阻塞原因', () => {
+  const al = require('../lib/mos/admissionlib');
+  const admission = {
+    finalApprovalStatus: 'APPROVED', syncStatus: 'COMPLETED', approvalMode: 'MOCK',
+    libraryId: 'MOCK_ASSET_x', state: 'SYNC_COMPLETED'
+  };
+  const ref = { permissionValid: false, assetState: 'MOCK_SANDBOX' };
+  const r = al.reuseEligibility(admission, ref);
+  eq(r.eligible, false, 'Mock 下绝不可判定为可复用');
+  ok(r.blocking.length >= 2, '应给出阻塞原因');
+  ok(r.blocking.join('|').indexOf('MOCK') !== -1, '阻塞原因需点明 Mock 来源');
+});
+
+t('U-15b 仅当 REAL 回执 + 权限核验 + ACTIVE + 审批通过 + 同步完成 才可复用', () => {
+  const al = require('../lib/mos/admissionlib');
+  const base = { finalApprovalStatus: 'APPROVED', syncStatus: 'COMPLETED', approvalMode: 'REAL', libraryId: 'LIB-1', state: 'SYNC_COMPLETED' };
+  eq(al.reuseEligibility(base, { permissionValid: true, assetState: 'ACTIVE' }).eligible, true, '全部满足才可复用');
+  eq(al.reuseEligibility(base, { permissionValid: false, assetState: 'ACTIVE' }).eligible, false);
+  eq(al.reuseEligibility(base, { permissionValid: true, assetState: 'REVOKED' }).eligible, false);
+  eq(al.reuseEligibility(Object.assign({}, base, { syncStatus: 'FAILED' }), { permissionValid: true, assetState: 'ACTIVE' }).eligible, false);
+  eq(al.reuseEligibility(null, null).eligible, false, '申请不存在必须 fail closed');
+});
+
+/* ---------------- U-16 预检：只做可确定判断，重复内容必须拒绝 ---------------- */
+t('U-16 预检 not_duplicate：同品牌同摘要已存在引用则 FAIL（其余检查全通过）', () => {
+  const al = require('../lib/mos/admissionlib');
+  const admission = {
+    id: 'adm_1', brandCode: 'VFIB', workingAssetId: 'wa_1', assetSha256: 'D1',
+    categoryCode: 'A01', submissionMetadata: { license: 'LICENSED' }, precheck: null
+  };
+  const db = {
+    working_assets: [{ id: 'wa_1', brandCode: 'VFIB', sha256: 'D1', origin: 'UPLOADED', mock: false }],
+    library_asset_refs: []
+  };
+  eq(al.precheck(db, admission).verdict, 'PASS', '无重复时应 PASS');
+  db.library_asset_refs.push({ brandCode: 'VFIB', sourceDigest: 'D1', state: 'REFERENCED' });
+  const dup = al.precheck(db, admission);
+  eq(dup.verdict, 'FAIL', '发现同内容引用时应 FAIL');
+  ok(dup.failureReasons.join('|').indexOf('not_duplicate') !== -1, '必须点明 not_duplicate');
+});
+
+t('U-16b 预检 license=UNVERIFIED 必须拒绝（资料库不受理）', () => {
+  const al = require('../lib/mos/admissionlib');
+  const db = { working_assets: [{ id: 'wa_1', brandCode: 'VFIB', sha256: 'D1', origin: 'UPLOADED' }], library_asset_refs: [] };
+  const admission = { id: 'a', brandCode: 'VFIB', workingAssetId: 'wa_1', assetSha256: 'D1', categoryCode: 'A01', submissionMetadata: { license: 'UNVERIFIED' } };
+  eq(al.precheck(db, admission).verdict, 'FAIL');
+});
+
+t('U-16c 预检 digest 不匹配（素材被替换）必须拒绝', () => {
+  const al = require('../lib/mos/admissionlib');
+  const db = { working_assets: [{ id: 'wa_1', brandCode: 'VFIB', sha256: 'D2', origin: 'UPLOADED' }], library_asset_refs: [] };
+  const admission = { id: 'a', brandCode: 'VFIB', workingAssetId: 'wa_1', assetSha256: 'D1', categoryCode: 'A01', submissionMetadata: { license: 'LICENSED' } };
+  eq(al.precheck(db, admission).verdict, 'FAIL');
+});
+
+/* ---------------- U-17 AI 外发数据分级（SEC-10 的字典侧） ---------------- */
+t('U-17 数据分级：RESTRICTED 默认拒发，PUBLIC/INTERNAL 允许（fail closed）', () => {
+  const d = dict.DATA_CLASSES;
+  eq(d.map((x) => x.code).join(','), 'PUBLIC,INTERNAL,RESTRICTED');
+  eq(d.find((x) => x.code === 'RESTRICTED').sendAllowed, false);
+  eq(d.find((x) => x.code === 'PUBLIC').sendAllowed, true);
+  eq(d.find((x) => x.code === 'INTERNAL').sendAllowed, true);
+});
+
+t('U-17b dataClasses 纳入统一字典校验（未知分级不可静默降级）', () => {
+  ok(dict.dictValid('dataClasses', 'PUBLIC') && dict.dictValid('dataClasses', 'RESTRICTED'));
+  ok(!dict.dictValid('dataClasses', 'SECRET') && !dict.dictValid('dataClasses', ''));
+});
+
+/* ---------------- U-18 资料库 Mock 网关：幂等与故障注入 ---------------- */
+t('U-18 Mock 网关：同内容摘要去重（返回 deduplicated，不产生第二个资产）', async () => {
+  const lib = require('../lib/mos/adapters/library');
+  if (lib._resetForTest) lib._resetForTest();
+  const req = { brandCode: 'VFIB', admissionId: 'adm_u18', assetSha256: 'DD1', categoryCode: 'A01', license: 'LICENSED', title: 't' };
+  const r1 = await lib.submitAdmission(req, 'key-u18');
+  const r2 = await lib.submitAdmission(req, 'key-u18-b');
+  eq(r1.state, 'SYNC_COMPLETED');
+  eq(r2.deduplicated, true, '同摘要不同幂等键应命中去重');
+  eq(r2.assetId, r1.assetId, '必须复用同一资产');
+});
+
+t('U-18b Mock 网关：回执必须 permissionValid=false 且为沙盒资产（不得冒充正式入库）', async () => {
+  const lib = require('../lib/mos/adapters/library');
+  if (lib._resetForTest) lib._resetForTest();
+  const r = await lib.submitAdmission({ brandCode: 'VFIB', admissionId: 'adm_u18b', assetSha256: 'DD2', categoryCode: 'A01', license: 'LICENSED' }, 'key-u18b');
+  eq(r.permissionValid, false);
+  eq(r.assetState, 'MOCK_SANDBOX');
+  eq(r.formalApproved === true, false, 'Mock 不得声明正式批准');
+  ok(String(r.assetId).indexOf('MOCK_ASSET_') === 0);
+});
+
+t('U-18c Mock 网关：缺摘要/缺分类/许可未核验 → 引擎级拒绝（不是测试桩）', async () => {
+  const lib = require('../lib/mos/adapters/library');
+  if (lib._resetForTest) lib._resetForTest();
+  const noDigest = await lib.submitAdmission({ brandCode: 'VFIB', admissionId: 'x', categoryCode: 'A01' }, 'k1');
+  eq(noDigest.state, 'SYNC_FAILED');
+  eq(noDigest.errorCode, 'MISSING_DIGEST');
+  const noCat = await lib.submitAdmission({ brandCode: 'VFIB', admissionId: 'x', assetSha256: 'D' }, 'k2');
+  eq(noCat.errorCode, 'MISSING_CATEGORY');
+  const unv = await lib.submitAdmission({ brandCode: 'VFIB', admissionId: 'x', assetSha256: 'D', categoryCode: 'A01', license: 'UNVERIFIED' }, 'k3');
+  eq(unv.errorCode, 'LICENSE_UNVERIFIED');
+});
+
+/* ---------------- U-19 schema v3 迁移（只增不改；不预置任何已批准资产） ---------------- */
+t('U-19 schema 版本为 3，且 asset_admissions / library_asset_refs 在基线形状中', () => {
+  const store = require('../lib/mos/store');
+  eq(store.MOS_SCHEMA_VERSION, 3);
+  ok(Array.isArray(store.BASE_SHAPE.asset_admissions), 'asset_admissions 必须是顶级集合');
+  ok(Array.isArray(store.BASE_SHAPE.library_asset_refs), 'library_asset_refs 必须是顶级集合');
+});
+
+t('U-19b migrate：v2 文档补齐 v3 形状，且**不注入**任何已批准资产（08 §6）', () => {
+  const store = require('../lib/mos/store');
+  const legacy = { mosSchemaVersion: 2, brands: [], users: [] };
+  const changed = store.migrate(legacy);
+  ok(changed === true, '应报告已迁移');
+  eq(legacy.mosSchemaVersion, 3);
+  eq(legacy.asset_admissions.length, 0, '迁移不得预置申请');
+  eq(legacy.library_asset_refs.length, 0, '迁移不得预置已批准资产引用');
+});
+
 /* ---------------- 汇总 ---------------- */
-const failed = results.filter((r) => !r.ok);
-console.log('\n单元测试：' + (results.length - failed.length) + '/' + results.length + ' 通过');
-// 证据落盘（与冒烟/E2E/UI 同一目录，便于统一归档与复核）
-try {
-  fs.mkdirSync(OUT_DIR, { recursive: true });
-  fs.writeFileSync(path.join(OUT_DIR, 'unit-result.json'), JSON.stringify({
-    suite: 'mos-unit', mosVersion: '0.1.0', ranAt: new Date().toISOString(),
-    total: results.length, passed: results.length - failed.length, failed: failed.length,
-    cases: results
-  }, null, 2), 'utf8');
-} catch (_) { /* ignore */ }
-if (failed.length) process.exit(1);
+(async () => {
+  await chain;
+  const failed = results.filter((r) => !r.ok);
+  console.log('\n单元测试：' + (results.length - failed.length) + '/' + results.length + ' 通过');
+  // 证据落盘（与冒烟/E2E/UI 同一目录，便于统一归档与复核）
+  try {
+    fs.mkdirSync(OUT_DIR, { recursive: true });
+    fs.writeFileSync(path.join(OUT_DIR, 'unit-result.json'), JSON.stringify({
+      suite: 'mos-unit', mosVersion: '0.1.0', build: 'BUILD-01 + BUILD-02 + BUILD-03',
+      ranAt: new Date().toISOString(),
+      total: results.length, passed: results.length - failed.length, failed: failed.length,
+      cases: results
+    }, null, 2), 'utf8');
+  } catch (_) { /* ignore */ }
+  if (failed.length) process.exit(1);
+})();

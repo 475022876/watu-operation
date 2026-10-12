@@ -14,7 +14,7 @@ function head(ctx) {
     + '<button class="btn btn-sm" id="newAdhoc">新建临时任务（AD_HOC）</button>'
     + '<button class="btn btn-sm btn-primary" id="newTask">新建任务</button>'
     + '</div></div>'
-    + '<div class="ph-desc">任务可关联 0/1 个 Campaign 与 0/1 个 Topic；状态迁移由服务端强制。内容编辑器与版本冻结在 BUILD-02 交付。</div></div>';
+    + '<div class="ph-desc">任务可关联 0/1 个 Campaign 与 0/1 个 Topic；状态迁移由服务端强制。内容编辑器与版本冻结在「Creative Studio → 内容编辑器」交付。</div></div>';
 }
 
 /** 数据区容器：加载骨架只出现一次，数据到达后整体替换（避免骨架残留） */
@@ -152,7 +152,7 @@ async function openTask(id) {
       + '<div class="divider"></div>'
       + '<div class="row" style="flex-wrap:wrap">' + (t.allowedTransitions || []).map((s) =>
         '<button class="btn btn-sm" data-tt="' + esc(s) + '">迁移到 ' + esc(s) + '</button>').join('') + '</div>'
-      + '<div class="hint">进入 IN_REVIEW / READY 需要 content.submit 权限；BUILD-02 会在此挂载版本冻结与专业/发布审核。</div>'
+      + '<div class="hint">进入 IN_REVIEW / READY 需要 content.submit 权限；版本冻结与专业/发布审核在「Creative Studio → 内容编辑器」发起。</div>'
   });
 
   mo.body.querySelectorAll('[data-tt]').forEach((b) => b.addEventListener('click', async () => {

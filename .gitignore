@@ -11,8 +11,13 @@ config.json
 *.log
 
 # 测试证据：可由 `bash tools/run-mos-tests.sh all` 随时重新生成
-TEST_EVIDENCE_MOS_BUILD01/
-UI_EVIDENCE_MOS_BUILD01/
+TEST_EVIDENCE_MOS_BUILD*/
+UI_EVIDENCE_MOS_BUILD*/
+
+# 本地工具产物：WorkBuddy 会话/记忆数据、临时探针数据目录、应用描述文件
+.workbuddy/
+.migtest*/
+*.genie
 
 # 编辑器 / 系统
 .DS_Store

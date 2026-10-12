@@ -5,8 +5,8 @@
 不是 PPT 展示页，不是 OA 替代品，不是企业资料库副本。所有页面都具备真实操作与持久化能力。
 
 - 版本：`0.1.0`（`lib/mos/config.js` 的 `MOS_VERSION`，单一来源）
-- 数据 schema：`mosSchemaVersion = 1`
-- 当前阶段：**BUILD-01（基础 + 策划）已交付**；BUILD-02 / BUILD-03 未开工
+- 数据 schema：`mosSchemaVersion = 3`（v1→v2→v3 只增不改，见 `lib/mos/store.js` `migrate()`）
+- 当前阶段：**BUILD-01（基础 + 策划）、BUILD-02（AI 创作 + 传播）、BUILD-03（资产入库 + 分析 + 治理）已交付**；BUILD-04 未开工
 
 > ⚠ **本工程尚未接通任何外部真实系统**。企业资料库、SSO、模型 Provider、真实金融数据源均未完成源码级集成审计。
 > 凡标注 `MOCK` 的能力**不代表已打通**，详见 [docs/MOCK_REAL_MATRIX.md](docs/MOCK_REAL_MATRIX.md)。
@@ -81,19 +81,22 @@ node server.js
 
 ```bash
 bash tools/run-mos-tests.sh all     # 全部套件
-bash tools/run-mos-tests.sh unit    # 只跑某一套：smoke | unit | e2e | ui
+bash tools/run-mos-tests.sh e2e03   # 只跑某一套：smoke | unit | e2e | e2e02 | e2e03 | ui
 ```
 
 | 套件 | 覆盖内容 | 断言数 |
 |---|---|---|
-| `unit` | 字典 / 状态机 / RBAC / SSRF / RSS 解析 / 去重 / 脱敏 / 内容哈希 / 业务编码 | 25 |
 | `smoke` | 接口可用性与鉴权闭环（登录、改密闸门、字典、日历、审计） | 13 |
-| `e2e` | E2E-01 外部信息→Master Topic、E2E-02 月度计划→Calendar、跨品牌越权、SSRF、审计、**重启后数据与会话不丢失** | 47 |
-| `ui` | **CDP 驱动本机真实 Chrome**：页面内完成写操作 → `Page.reload` → 数据仍在 | 32 |
+| `unit` | 字典 / 状态机 / RBAC / SSRF / RSS 解析 / 去重 / 脱敏 / 内容哈希 / 业务编码 / **入库状态机 · 可复用判定 · 预检 · 数据分级 · Mock 网关幂等 · schema v3 迁移** | 39 |
+| `e2e` | E2E-01 外部信息→Master Topic、E2E-02 月度计划→Calendar、跨品牌越权、SSRF、审计、**重启后数据与会话不丢失（含落盘前置条件）** | 48 |
+| `e2e02` | **E2E-03 AI 创作与审核链、E2E-04 排期/人工发布/归档**、SEC-02 真实改盘篡改、SEC-04 未批准不得发布、预算闸门、幂等、无自动发布 | 63 |
+| `e2e03` | **E2E-05 资产入库全流程**（申请→预检→最终审批→资料库同步→失败恢复）、SEC-01/02/07/08/09/10 全量、Analytics 真实聚合与缺失语义、治理收口 | 75 |
+| `ui` | **CDP 驱动本机真实 Chrome**：页面内完成写操作 → `Page.reload` → 数据仍在（含 BUILD-02 五个页面与 **BUILD-03 运营分析 / 治理与资产**） | 73 |
 
 - 每套自带**随机数据目录**（`data-mos-*`）与**运行期随机口令**，跑完自动清理，绝不触碰 `data/`。
-- 结果落 `TEST_EVIDENCE_MOS_BUILD01/`（含 `summary.json`），UI 截图落 `UI_EVIDENCE_MOS_BUILD01/`。
+- 结果落 `TEST_EVIDENCE_MOS_BUILD01/`（含 `summary.json`）；BUILD-02 / BUILD-03 端到端证据分落 `TEST_EVIDENCE_MOS_BUILD02/`、`TEST_EVIDENCE_MOS_BUILD03/`；UI 截图分落 `UI_EVIDENCE_MOS_BUILD01|02|03/`。
 - 任一断言失败 → 退出码非 0，可直接接入 CI。
+- 当前全绿：**311/311**。
 
 ---
 
@@ -105,15 +108,17 @@ bash tools/run-mos-tests.sh unit    # 只跑某一套：smoke | unit | e2e | ui
 |---|---|---|
 | 身份认证 | `mock` | 本地隔离测试身份，非企业 SSO/OIDC |
 | 知识库检索 | `mock` | 沙盒数据 |
-| 企业资料库 | `mock` | 回执强制 `MOCK_` 前缀、检索恒返回空、最终授权只能得 `MOCK_APPROVED` |
+| 企业资料库 | `mock` | 回执强制 `MOCK_` 前缀、`permissionValid:false`、`assetState:MOCK_SANDBOX`、检索恒返回空、最终授权只能得 `MOCK_APPROVED`；**`AVAILABLE`（可复用）结构性不可达** |
 | 外部情报采集 | `real` | 真实 HTTP 出站，受域名白名单 + DNS/IP 拦截 + 超时/体积上限约束 |
 | 文本模型 | `none` | 摘要四态：`NOT_CONFIGURED` / `MOCK` / `INTEGRATION_PENDING` / `BLOCKED` |
-| 图像模型 | `none` | BUILD-02 才接入 |
+| 图像模型 | `none` | 代码就绪（`mock` / `openai`），无 Key 未验证 |
+| 平台指标 API | 未接通 | Analytics 无数据来源的指标一律显示「缺失」，**不用 0 或示例值填充** |
 | 企业 OA 接口 | 未接通 | — |
 
 > **任何 `mock` → `real` 的变更，必须同步更新 `docs/MOCK_REAL_MATRIX.md` 并写明验证方式。**
 
-代码层的诚实性硬边界（不要削弱）：资料库回执 `MOCK_` 前缀、`searchApproved` 恒空、最终授权只能 `MOCK_APPROVED`；
+代码层的诚实性硬边界（不要削弱）：资料库回执 `MOCK_` 前缀 + `permissionValid:false`、`searchApproved` 恒空、最终授权只能 `MOCK_APPROVED`、
+可复用资格由服务端**计算**（Mock 下恒为 `false`）、分析指标无来源即显示「缺失」；
 外部网页内容**只当数据、绝不当指令**（防提示注入）；采集失败或来源未核验一律 fail closed，不伪造成功。
 
 ---
@@ -160,11 +165,16 @@ bash tools/run-mos-tests.sh unit    # 只跑某一套：smoke | unit | e2e | ui
 ## 已知边界与未完成事项
 
 - **未接通**：企业资料库真实 API、企业 SSO、文本/图像模型 Provider、真实金融数据源。
+  BUILD-02 的模型适配器（`mock` / `openai` / `deepseek`）为**代码就绪但无密钥未验证**，不宣称已打通。
 - **字典为临时口径**：`SPECIAL-01 手册` 与 Visual Brand Guardian 文件包尚未提供，C/N/V/F/M/A/G 字典由代码内置并统一标
   `provisional: true`（**不臆造标签**）。拿到正式材料后经 `config.json → mos.dictionaries` 覆盖。
-- **明确不做**（规格标注 MARK/DEFERRED）：客户增长、品牌声誉监测、线索交接、CRM、代理后台、卡交易、自动社媒发布。
+- **明确不做**（规格标注 MARK/DEFERRED）：客户增长、品牌声誉监测、线索交接、CRM、代理后台、卡交易、自动社媒发布、视频自动渲染/配音/剪辑。
 - **DEMO 种子**的月度计划使用固定月份，跨月后不在「当月」，仅影响演示观感。
-- BUILD-02 / BUILD-03 页面为占位页，会明确标注所属阶段，不假装可用。
+- **发布为人工登记**：系统内无任何定时器，到期不自动发布；`PUBLISHED` 只能由人工提交真实 URL/证据产生。
+- **资产入库证据链**：最终入库许可 `library.asset.approve.final` 为**独立特权**，不复用预检权限；
+  入库申请的双字段（最终审批 / 同步）互不推导；Mock 资料库下 `AVAILABLE` 不可达（UI 与 API 均如实说明）。
+- **Windows 平台注意**：`kill('SIGTERM')` 为硬终止，服务端优雅关停分支不会执行。
+  因此安全关键写入（登录/登出会话）已改为**创建即同步落盘**，不依赖关停兜底（见 `docs/BUILD-03_SELF_AUDIT.md` A-26）。
 
 ## 文档索引
 
@@ -176,3 +186,9 @@ bash tools/run-mos-tests.sh unit    # 只跑某一套：smoke | unit | e2e | ui
 | [docs/MOCK_REAL_MATRIX.md](docs/MOCK_REAL_MATRIX.md) | Mock / Real 集成矩阵 |
 | [docs/BUILD-01_TEST_REPORT.md](docs/BUILD-01_TEST_REPORT.md) | BUILD-01 测试报告（含 10 项调试过程） |
 | [docs/BUILD-01_SELF_AUDIT.md](docs/BUILD-01_SELF_AUDIT.md) | BUILD-01 自审报告 |
+| [docs/BUILD-02_PLAN.md](docs/BUILD-02_PLAN.md) | BUILD-02 代码审计与开发计划 |
+| [docs/BUILD-02_TEST_REPORT.md](docs/BUILD-02_TEST_REPORT.md) | BUILD-02 测试报告（E2E-03/04 + SEC-02 真实篡改路径） |
+| [docs/BUILD-02_SELF_AUDIT.md](docs/BUILD-02_SELF_AUDIT.md) | BUILD-02 自审报告（含 A-09…A-15 缺陷处置） |
+| [docs/BUILD-03_PLAN.md](docs/BUILD-03_PLAN.md) | BUILD-03 代码审计与开发计划 |
+| [docs/BUILD-03_TEST_REPORT.md](docs/BUILD-03_TEST_REPORT.md) | BUILD-03 测试报告（E2E-05 + SEC 全量 + Analytics 缺失语义） |
+| [docs/BUILD-03_SELF_AUDIT.md](docs/BUILD-03_SELF_AUDIT.md) | BUILD-03 自审报告（含 A-16…A-27 缺陷处置） |

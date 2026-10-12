@@ -16,10 +16,10 @@ export const store = {
 };
 
 const CENTERS = [
-  { id: 'workspace', label: 'Workspace', items: ['my-work', 'active-projects'] },
+  { id: 'workspace', label: 'Workspace', items: ['my-work', 'my-reviews', 'active-projects'] },
   { id: 'brand', label: 'Brand Center', items: ['brand-overview', 'brand-guidelines', 'brand-library'] },
   { id: 'planning', label: 'Planning Center', items: ['planning', 'topics', 'intelligence', 'tasks'] },
-  { id: 'creative', label: 'Creative Studio', items: ['creative'] },
+  { id: 'creative', label: 'Creative Studio', items: ['content-editor', 'visual-studio', 'video-workspace'] },
   { id: 'publishing', label: 'Publishing Center', items: ['publishing'] },
   { id: 'marketing', label: 'Marketing Center', items: ['campaigns'] },
   { id: 'analytics', label: 'Analytics Center', items: ['analytics'] },
@@ -51,14 +51,25 @@ const MODULES = [
   { id: 'campaigns', label: 'Campaigns', icon: '◆', center: 'marketing', context: '项目 Brief、Topic/Task 关联与进度',
     loader: () => import('./modules/campaigns.js') },
 
-  { id: 'creative', label: 'Content & Visual Studio', icon: '✦', center: 'creative', stage: 'BUILD-02', context: '内容编辑、视觉生成与视频工作区',
-    loader: () => import('./modules/stage.js') },
-  { id: 'publishing', label: 'Publishing', icon: '⇪', center: 'publishing', stage: 'BUILD-02', context: '排期、发布队列与 Published Archive',
-    loader: () => import('./modules/stage.js') },
-  { id: 'analytics', label: 'Analytics', icon: '▩', center: 'analytics', stage: 'BUILD-03', context: '内容/渠道/计划执行/AI 成本',
-    loader: () => import('./modules/stage.js') },
-  { id: 'governance', label: 'Governance & Assets', icon: '⛨', center: 'governance', stage: 'BUILD-03', context: '三条审批链与资产入库',
-    loader: () => import('./modules/stage.js') }
+  // BUILD-02：Creative Studio 拆为内容编辑器 / 视觉工作室 / 视频工作区（全部为真实可操作页面）
+  { id: 'content-editor', label: 'Content Editor', icon: '✎', center: 'creative', context: '内容编辑、版本冻结与送审',
+    loader: () => import('./modules/content.js') },
+  { id: 'visual-studio', label: 'Visual Studio', icon: '✦', center: 'creative', context: '图像生成、模板与工作素材',
+    loader: () => import('./modules/visual.js') },
+  { id: 'video-workspace', label: 'Video Workspace', icon: '▶', center: 'creative', context: 'Brief / 脚本 / 分镜 / 字幕 / 成片',
+    loader: () => import('./modules/video.js') },
+
+  { id: 'my-reviews', label: 'My Reviews', icon: '⛨', center: 'workspace', context: '待我裁决的专业/发布/入库审核单',
+    loader: () => import('./modules/reviews.js') },
+
+  { id: 'publishing', label: 'Publishing', icon: '⇪', center: 'publishing', context: '日历、发布队列、渠道登记与 Published Archive',
+    loader: () => import('./modules/publishing.js') },
+
+  // BUILD-03：Analytics 与 Governance & Assets 转为真实页面（stage.js 占位页已删除）
+  { id: 'analytics', label: 'Analytics', icon: '▩', center: 'analytics', context: '内容 / 渠道 / 计划执行 / AI 成本（真实聚合）',
+    loader: () => import('./modules/analytics.js') },
+  { id: 'governance', label: 'Governance & Assets', icon: '⛨', center: 'governance', context: '三条审批链、资产入库与已批准资产',
+    loader: () => import('./modules/governance.js') }
 ];
 
 const els = {};
