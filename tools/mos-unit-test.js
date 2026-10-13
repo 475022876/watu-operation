@@ -155,29 +155,110 @@ t('U-07 SSRF：私网/回环/链路本地/云元数据/IPv6 ULA 全部判为阻�
   ok(!source.isBlockedIp('2001:4860:4860::8888'));
 });
 
-t('U-07b 非白名单主机被拒（fail closed）', async () => {});
-t('U-07b SSRF 判定：非白名单主机 / 明文 http / 回环（未开测试开关）均拒绝', () => {
+t('U-07b SSRF 判定：非白名单主机 / 明文 http / 回环 / 合法字面量 IP（**不依赖公网 DNS**）', () => {
   const cfgMod = require('../lib/mos/config');
   const saved = process.env.MOS_EGRESS_ALLOWED_HOSTS;
   const savedLoop = process.env.MOS_EGRESS_ALLOW_LOOPBACK;
-  process.env.MOS_EGRESS_ALLOWED_HOSTS = '127.0.0.1,bis.org';
+  const savedHttp = process.env.MOS_EGRESS_ALLOW_HTTP;
+  // 全部使用**字面量 IP / 明确域名**，不做任何公网 DNS 解析
+  process.env.MOS_EGRESS_ALLOWED_HOSTS = '127.0.0.1,93.184.216.34';
   delete process.env.MOS_EGRESS_ALLOW_LOOPBACK;
+  delete process.env.MOS_EGRESS_ALLOW_HTTP;
   cfgMod.resetConfigCache();
 
   return Promise.all([
     source.assertEgressAllowed('https://evil.example.com/feed'),
-    source.assertEgressAllowed('http://bis.org/feed'),
-    source.assertEgressAllowed('https://127.0.0.1:9/x'),
-    source.assertEgressAllowed('https://bis.org/press')
+    source.assertEgressAllowed('http://93.184.216.34/feed'),
+    source.assertEgressAllowed('https://127.0.0.1/x'),
+    source.assertEgressAllowed('https://93.184.216.34/press')
   ]).then((r) => {
     eq(r[0].ok, false); eq(r[0].code, 'HOST_NOT_ALLOWLISTED');
     eq(r[1].ok, false); eq(r[1].code, 'SCHEME_NOT_ALLOWED');
     eq(r[2].ok, false); eq(r[2].code, 'SSRF_BLOCKED');
     eq(r[3].ok, true);
+    eq(r[3].ip, '93.184.216.34');           // 校验结果携带被固定的 IP
+    eq(r[3].family, 4);
+    eq(r[3].addresses.length, 1);
     if (saved === undefined) delete process.env.MOS_EGRESS_ALLOWED_HOSTS; else process.env.MOS_EGRESS_ALLOWED_HOSTS = saved;
     if (savedLoop === undefined) delete process.env.MOS_EGRESS_ALLOW_LOOPBACK; else process.env.MOS_EGRESS_ALLOW_LOOPBACK = savedLoop;
+    if (savedHttp === undefined) delete process.env.MOS_EGRESS_ALLOW_HTTP; else process.env.MOS_EGRESS_ALLOW_HTTP = savedHttp;
     cfgMod.resetConfigCache();
   });
+});
+
+t('U-07c URL 内嵌凭据一律拒绝（CREDENTIALS_IN_URL）', async () => {
+  const r = await source.assertEgressAllowed('https://user:pass@93.184.216.34/feed');
+  eq(r.ok, false); eq(r.code, 'CREDENTIALS_IN_URL');
+});
+
+t('U-07d 生产模式：测试放行开关失效 + 端口收紧到 allowedPorts', async () => {
+  const cfgMod = require('../lib/mos/config');
+  const savedProd = process.env.MOS_PRODUCTION;
+  const savedHosts = process.env.MOS_EGRESS_ALLOWED_HOSTS;
+  const savedLoop = process.env.MOS_EGRESS_ALLOW_LOOPBACK;
+  const savedHttp = process.env.MOS_EGRESS_ALLOW_HTTP;
+  process.env.MOS_PRODUCTION = '1';
+  process.env.MOS_EGRESS_ALLOWED_HOSTS = '127.0.0.1,93.184.216.34';
+  process.env.MOS_EGRESS_ALLOW_LOOPBACK = '1';   // 生产下必须失效
+  process.env.MOS_EGRESS_ALLOW_HTTP = '1';       // 生产下必须失效
+  cfgMod.resetConfigCache();
+
+  return Promise.all([
+    source.assertEgressAllowed('https://127.0.0.1/x'),
+    source.assertEgressAllowed('http://93.184.216.34/x'),
+    source.assertEgressAllowed('https://93.184.216.34:8443/x'),
+    source.assertEgressAllowed('https://93.184.216.34/x')
+  ]).then((r) => {
+    eq(r[0].ok, false); eq(r[0].code, 'SSRF_BLOCKED');       // 回环开关在生产失效
+    eq(r[1].ok, false); eq(r[1].code, 'SCHEME_NOT_ALLOWED'); // 明文 http 开关在生产失效
+    eq(r[2].ok, false); eq(r[2].code, 'PORT_NOT_ALLOWED');   // 非 443 端口被拒
+    eq(r[3].ok, true);
+    if (savedProd === undefined) delete process.env.MOS_PRODUCTION; else process.env.MOS_PRODUCTION = savedProd;
+    if (savedHosts === undefined) delete process.env.MOS_EGRESS_ALLOWED_HOSTS; else process.env.MOS_EGRESS_ALLOWED_HOSTS = savedHosts;
+    if (savedLoop === undefined) delete process.env.MOS_EGRESS_ALLOW_LOOPBACK; else process.env.MOS_EGRESS_ALLOW_LOOPBACK = savedLoop;
+    if (savedHttp === undefined) delete process.env.MOS_EGRESS_ALLOW_HTTP; else process.env.MOS_EGRESS_ALLOW_HTTP = savedHttp;
+    cfgMod.resetConfigCache();
+  });
+});
+
+t('U-07e pinnedLookup：连接被固定绑定到已校验 IP（DNS 重绑定防线）', () => {
+  let got = null;
+  source.pinnedLookup(['93.184.216.34'])('evil.example.com', {}, (err, addr, family) => {
+    got = { err, addr, family };
+  });
+  ok(!got.err, '不应报错');
+  eq(got.addr, '93.184.216.34');
+  eq(got.family, 4);
+
+  let all = null;
+  source.pinnedLookup(['2001:4860:4860::8888'])('x', { all: true }, (err, addrs) => { all = addrs; });
+  eq(all[0].address, '2001:4860:4860::8888');
+  eq(all[0].family, 6);
+});
+
+t('U-07f 字面量 IPv6 回环/ULA 被拒（走 SSRF 判定，无 DNS）', async () => {
+  const cfgMod = require('../lib/mos/config');
+  const savedHosts = process.env.MOS_EGRESS_ALLOWED_HOSTS;
+  process.env.MOS_EGRESS_ALLOWED_HOSTS = '[::1],::1,fc00::1';
+  cfgMod.resetConfigCache();
+  const r1 = await source.assertEgressAllowed('https://[::1]/x');
+  const r2 = await source.assertEgressAllowed('https://[fc00::1]/x');
+  eq(r1.ok, false); eq(r1.code, 'SSRF_BLOCKED');
+  eq(r2.ok, false); eq(r2.code, 'SSRF_BLOCKED');
+  if (savedHosts === undefined) delete process.env.MOS_EGRESS_ALLOWED_HOSTS; else process.env.MOS_EGRESS_ALLOWED_HOSTS = savedHosts;
+  cfgMod.resetConfigCache();
+});
+
+t('U-07g 内嵌 IPv4 的 IPv6 写法不得绕过地址段拦截（NAT64 / 6to4 / IPv4-mapped 十六进制）', () => {
+  // 十六进制写的 IPv4-mapped（URL 规范化后的形态）——整改前会漏判
+  ok(source.isBlockedIp('::ffff:a00:1'), '::ffff:a00:1 (=10.0.0.1) 必须阻断');
+  ok(source.isBlockedIp('::ffff:10.0.0.1'), '::ffff:10.0.0.1 必须阻断');
+  ok(source.isBlockedIp('64:ff9b::a00:1'), 'NAT64 64:ff9b::/96 内嵌私网必须阻断');
+  ok(source.isBlockedIp('2002:0a00:0001::'), '6to4 2002::/16 内嵌私网必须阻断');
+  ok(source.isBlockedIp('::ffff:7f00:1'), '::ffff:127.0.0.1 回环必须阻断');
+  ok(source.isLoopbackIp('::ffff:7f00:1'), '回环识别需覆盖十六进制 mapped 写法');
+  ok(!source.isBlockedIp('2001:4860:4860::8888'), '公网 IPv6 不应被误杀');
+  ok(!source.isBlockedIp('::ffff:5db8:d822'), '公网 ::ffff:93.184.216.34 不应被误杀');
 });
 
 /* ---------------- U-08/U-09 RSS 解析 ---------------- */

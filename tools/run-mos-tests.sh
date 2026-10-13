@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# VFIB Marketing OS V0.1 —— BUILD-01/02/03 回归测试统一入口
+# VFIB Marketing OS V0.1 —— BUILD-01/02/03 + V0.1 综合整改 回归测试统一入口
 #
-# 用法: bash tools/run-mos-tests.sh [smoke|unit|e2e|e2e02|e2e03|ui|all]
+# 用法: bash tools/run-mos-tests.sh [smoke|unit|sec|e2e|e2e02|e2e03|ui|all]
 #
 # 设计要点：
 #   - 每个子套件自带「独立数据目录 + 运行期随机口令」，互不干扰，也不触碰 data/。
@@ -41,6 +41,7 @@ run_one() {
 
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "smoke" ]; then run_one smoke tools/mos-smoke-test.js; fi
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "unit"  ]; then run_one unit  tools/mos-unit-test.js;  fi
+if [ "$SUITES" = "all" ] || [ "$SUITES" = "sec"   ]; then run_one sec   tools/mos-security-egress-test.js; fi
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "e2e"   ]; then run_one e2e   tools/mos-e2e-test.js;   fi
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "e2e02" ]; then run_one e2e02 tools/mos-e2e-build02.js; fi
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "e2e03" ]; then run_one e2e03 tools/mos-e2e-build03.js; fi
@@ -55,6 +56,7 @@ const dirs = ["TEST_EVIDENCE_MOS_BUILD01", "TEST_EVIDENCE_MOS_BUILD02", "TEST_EV
 const files = {
   smoke: "smoke-result.json",
   unit: "unit-result.json",
+  sec: "security-egress-result.json",
   e2e: "e2e-result.json",
   e2e02: "e2e-build02-result.json",
   e2e03: "e2e-build03-result.json",
@@ -78,7 +80,7 @@ for (const dir of dirs) {
 }
 const out = {
   project: "VFIB Marketing OS V0.1",
-  build: "BUILD-01 + BUILD-02 + BUILD-03",
+  build: "BUILD-01 + BUILD-02 + BUILD-03 + V0.1 综合整改（Phase 1）",
   mosVersion: "0.1.0",
   ranAt: new Date().toISOString(),
   suites, total, passed, failed,
