@@ -123,7 +123,9 @@ input:disabled, select:disabled, textarea:disabled { background: var(--muted); c
 .brand-text { display: flex; flex-direction: column; min-width: 0; }
 .brand-name { color: #fff; font-weight: 600; font-size: 14px; }
 .brand-sub { font-size: 11px; color: #A9B6CE; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.nav { flex: 1; overflow-y: auto; padding: 6px 8px 16px; }
+/* 侧边导航：隐藏滚动条（滚轮/触控仍可滚动） */
+.nav { flex: 1; overflow-y: auto; padding: 6px 8px 16px; scrollbar-width: none; -ms-overflow-style: none; }
+.nav::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .nav-group { margin-bottom: 10px; }
 .nav-group-label {
   font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #8C9BB8;
