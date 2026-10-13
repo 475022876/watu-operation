@@ -81,7 +81,7 @@ function startStub() {
         const sig = String(req.headers['x-vfib-signature'] || '');
         const ticket = String(req.headers['x-vfib-ticket'] || '');
         const corr = String(req.headers['x-vfib-correlation-id'] || '');
-        stubHits.push({ pathname, query, keyId, ts, nonce, sig, ticket, corr, bodyLen: raw.length });
+        stubHits.push({ pathname, query, keyId, ts, nonce, sig, ticket, corr, bodyLen: raw.length, body: raw.toString('utf8') });
 
         const envelope = (status, okFlag, data, error) => {
           res.writeHead(status, { 'Content-Type': 'application/json' });
@@ -357,6 +357,59 @@ async function main() {
   ok('WC-29 nonce 每次唯一：连续两次调用均不被桩判为 NONCE_REPLAY',
     c1.ok === true && c2.ok === true && stubHits.length === 2 && stubHits[0].nonce !== stubHits[1].nonce,
     'n1=' + String(stubHits[0].nonce).slice(0, 8) + ' n2=' + String(stubHits[1].nonce).slice(0, 8));
+
+  section('L4 与 Workspace V1.1.7 实取源码的逐项对齐（2026-10-13 修正项）');
+
+  // WC-31：事件类型字面量 —— 必须与 events.js 完全一致（含下划线与 skill.version.changed）
+  const evtOk = wc.EVENT_TYPES.length === 7
+    && wc.EVENT_TYPES.indexOf('skill.version.changed') !== -1
+    && wc.EVENT_TYPES.indexOf('service_account.changed') !== -1
+    && wc.EVENT_TYPES.indexOf('service.account.changed') === -1;
+  ok('WC-31 事件类型表与 Workspace events.js 一致（下划线 service_account.changed + 含 skill.version.changed）',
+    evtOk, wc.EVENT_TYPES.join(','));
+
+  // WC-32：补齐的错误码可被正确分层（此前落 unknown）
+  const e1 = wc.parseEnvelope(400, { ok: false, data: null, error: { code: 'BAD_ADMISSION_INPUT' }, request_id: 'r', policy_version: '1.0' });
+  const e2 = wc.parseEnvelope(404, { ok: false, data: null, error: { code: 'USER_NOT_FOUND' }, request_id: 'r', policy_version: '1.0' });
+  ok('WC-32 补齐 BAD_ADMISSION_INPUT/USER_NOT_FOUND 后可正确分层（不再落 unknown）',
+    e1.errorLayer === 'request' && e1.retryable === false && e2.errorLayer === 'request' && e2.retryable === false,
+    'l1=' + e1.errorLayer + ' l2=' + e2.errorLayer);
+
+  // WC-33：准入入参预校验 fail closed —— 本侧模型目前给不出必填字段 → 零出站
+  stubHits = [];
+  const pre = await ws.createAdmission({ originObjectId: 'wa_1', contentHash: 'a'.repeat(64), brandId: 'VFIB', title: 't' });
+  ok('WC-33 准入入参缺必填字段 → BAD_ADMISSION_INPUT + missing[]，且**零出站**',
+    pre.ok === false && pre.errorCode === 'BAD_ADMISSION_INPUT' && pre.missing.indexOf('libraryPrimaryCategory') !== -1
+      && pre.missing.indexOf('classification') !== -1 && pre.missing.indexOf('licenseStatus') !== -1 && stubHits.length === 0,
+    'missing=' + pre.missing.join('|') + ' hits=' + stubHits.length);
+
+  // WC-34：字段齐备 → 放行并如实携带服务端必填字段
+  stubHits = [];
+  const full = await ws.createAdmission({
+    idempotencyKey: 'idem_1', originObjectId: 'wa_1', brandId: 'VFIB',
+    libraryPrimaryCategory: '02', classification: 'internal', licenseStatus: 'cleared',
+    marketingCategory: 'A03', title: 'T', contentHash: 'b'.repeat(64)
+  });
+  const sentBody = stubHits.length ? JSON.parse(stubHits[0].body) : {};
+  ok('WC-34 字段齐备：申请放行，请求体含 libraryPrimaryCategory/classification/licenseStatus，且 originSystem 不由调用方指定',
+    full.ok === true && sentBody.libraryPrimaryCategory === '02' && sentBody.classification === 'internal'
+      && sentBody.licenseStatus === 'cleared' && sentBody.originSystem === undefined
+      && sentBody.reuseScope === 'none' && sentBody.externalAiTransferPolicy === 'blocked',
+    'state=' + full.state + ' body=' + JSON.stringify(sentBody).slice(0, 160));
+
+  // WC-35：knowledgeSearch 发 topK（旧实现发 limit 会被服务端忽略）
+  stubHits = [];
+  await ws.knowledgeSearch({ query: 'q', brandId: 'VFIB', limit: 7 });
+  const ksBody = stubHits.length ? JSON.parse(stubHits[0].body) : {};
+  ok('WC-35 knowledgeSearch 以 topK 传参（limit 作为兼容别名映射到 topK）',
+    ksBody.topK === 7 && ksBody.limit === undefined, 'body=' + JSON.stringify(ksBody));
+
+  // WC-36：assetsSearch 支持 offset 与三类过滤（服务端按 body.offset 分页）
+  stubHits = [];
+  await ws.assetsSearch({ query: 'q', brandId: 'VFIB', limit: 10, offset: 20, marketingCategory: 'A03' });
+  const asBody = stubHits.length ? JSON.parse(stubHits[0].body) : {};
+  ok('WC-36 assetsSearch 支持 offset 与 marketingCategory 过滤', asBody.offset === 20 && asBody.marketingCategory === 'A03',
+    'body=' + JSON.stringify(asBody));
 
   // 坏签名场景：把私钥换成另一把 → 桩验签失败 → 401 BAD_SIGNATURE，分层为 service
   const other = crypto.generateKeyPairSync('ed25519');

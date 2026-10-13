@@ -8,13 +8,27 @@
 
 | 项 | 状态 |
 |---|---|
-| 契约常量 / 签名算法 / 错误码表 / 封套解析 | **已实现并离线自检通过**（`tools/mos-workspace-contract-test.js`，30 断言） |
+| 契约常量 / 签名算法 / 错误码表 / 封套解析 | **已实现并离线自检通过**（`tools/mos-workspace-contract-test.js`，**36** 断言） |
 | 请求形成正确性（GET query 不参与签名、原始字节哈希、票据头、防重放 nonce） | **已通过本地桩 Workspace 验证**（桩按契约逐条复刻验签流程） |
 | **与真实 Enterprise Workspace 的联调** | **NOT_VERIFIED** — 无可用服务与凭据，**未发生任何真实调用** |
 | 服务账户能否产生最终审批 | **不可能**（契约 §1.2 双重闭合；本适配器 `finalDecision()` 恒拒绝并被自检断言） |
 
 > 按整改 A-06 原文：「没有可用服务时只交付可测适配器和 Mock，**禁止声称联调成功**」。
 > 上述 `NOT_VERIFIED` 项在交付报告中保持原状，不做粉饰。
+
+### 0.1 2026-10-13 按 Workspace V1.1.7 实取源码做的符合性修正（6 项）
+
+| 编号 | 修正 | 说明 |
+|---|---|---|
+| C-01 | 事件类型 `service.account.changed` → **`service_account.changed`** | `events.js` 用下划线，原实现永远失配 |
+| C-02 | 补事件类型 **`skill.version.changed`** | §F 正式 Skill 版本变更事件；缺失会静默忽略 Skill 版本变化 |
+| C-03 | 错误码表补 **6 项**（`BAD_ADMISSION_INPUT` / `USER_NOT_FOUND` / `BAD_PUBLIC_KEY` / `BAD_SCOPES` / `BAD_NAME` / `ERROR`） | 此前落 `unknown`，可重试性判断失真 |
+| C-04 | 新增枚举常量（A01–A08 / 01–07 资料区 / 四级密级 / 许可状态 / 复用范围 / AI 策略） | 逐字对齐 `asset-policy.js`、`library-nav.js` |
+| C-05 | `knowledgeSearch` 改发 **`topK`**（`limit` 保留为兼容别名） | 服务端读取 `body.topK`，**不读 `limit`** |
+| C-06 | `assetsSearch` 支持 **`offset`** 与 `categoryId`/`subcategoryId`/`marketingCategory`；`createAdmission` 增加**出站前同构预校验** | 服务端以 `body.offset` 分页；准入必填字段缺失时**本地拒绝、零出站** |
+
+> 上述均为**本侧对既有契约的符合性修正**，**未改动共享契约语义**。
+> 与资料库侧的任何语义分歧记录在 `MARKETING_HANDOFF_BUNDLE/CONTRACT_DIFF.md`（**待双方签署**）。
 
 ## 1. 为什么是「两层认证」
 

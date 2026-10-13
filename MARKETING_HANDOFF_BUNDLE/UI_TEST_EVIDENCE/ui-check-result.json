@@ -1,0 +1,494 @@
+{
+  "suite": "mos-ui",
+  "at": "2026-10-13T11:53:47.681Z",
+  "passed": 97,
+  "failed": 0,
+  "total": 97,
+  "results": [
+    {
+      "name": "Chrome DevTools 端口可用",
+      "ok": true,
+      "detail": "Chrome/154.0.8037.99"
+    },
+    {
+      "name": "登录门可见",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "首登触发强制改密",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "改密后进入应用外壳",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "侧边导航包含 8 个工作中心条目",
+      "ok": true,
+      "detail": "nav-item=19"
+    },
+    {
+      "name": "工作中心名称齐全（含 Marketing Center，非 Growth Center）",
+      "ok": true,
+      "detail": "Workspace|Brand Center|Planning Center|Creative Studio|Publishing Center|Marketing Center|Analytics Center|Governance & Assets"
+    },
+    {
+      "name": "不存在 Growth Center",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "集成状态提示条显示 MOCK/未接通",
+      "ok": true,
+      "detail": "沙盒环境 · 集成状态：身份：MOCK/mock资料库：mock知识库：mock情报采集：real文本模型：MOCK/mock图像模型：none企业资料库：NOT_CONFIGUREDOA 接口：未接通（未接通项一律按 MOCK 展示，不得"
+    },
+    {
+      "name": "模块渲染：my-work → My Work",
+      "ok": true,
+      "detail": "实际=My Work"
+    },
+    {
+      "name": "模块渲染：active-projects → Active Projects",
+      "ok": true,
+      "detail": "实际=Active Projects"
+    },
+    {
+      "name": "模块渲染：brand-overview → Brand Overview",
+      "ok": true,
+      "detail": "实际=Brand Overview"
+    },
+    {
+      "name": "模块渲染：brand-guidelines → Visual & Creative Guidelines",
+      "ok": true,
+      "detail": "实际=Visual & Creative Guidelines"
+    },
+    {
+      "name": "模块渲染：brand-library → Reference Library",
+      "ok": true,
+      "detail": "实际=Reference Library"
+    },
+    {
+      "name": "模块渲染：planning → Monthly Planning",
+      "ok": true,
+      "detail": "实际=Monthly Planning"
+    },
+    {
+      "name": "模块渲染：topics → Master Topics",
+      "ok": true,
+      "detail": "实际=Master Topics"
+    },
+    {
+      "name": "模块渲染：intelligence → Intelligence",
+      "ok": true,
+      "detail": "实际=Intelligence"
+    },
+    {
+      "name": "模块渲染：tasks → All Tasks",
+      "ok": true,
+      "detail": "实际=All Tasks"
+    },
+    {
+      "name": "模块渲染：campaigns → Campaigns",
+      "ok": true,
+      "detail": "实际=Campaigns"
+    },
+    {
+      "name": "模块渲染：marketing-vfib → VFIB Banking Marketing",
+      "ok": true,
+      "detail": "实际=VFIB Banking Marketing"
+    },
+    {
+      "name": "模块渲染：marketing-ucard → U CARD Marketing",
+      "ok": true,
+      "detail": "实际=U CARD Marketing"
+    },
+    {
+      "name": "模块渲染：content-editor → 内容编辑器",
+      "ok": true,
+      "detail": "实际=内容编辑器"
+    },
+    {
+      "name": "模块渲染：visual-studio → 视觉工作室",
+      "ok": true,
+      "detail": "实际=视觉工作室"
+    },
+    {
+      "name": "模块渲染：video-workspace → 视频工作区",
+      "ok": true,
+      "detail": "实际=视频工作区"
+    },
+    {
+      "name": "模块渲染：my-reviews → 我的审核",
+      "ok": true,
+      "detail": "实际=我的审核"
+    },
+    {
+      "name": "模块渲染：publishing → 发布中心",
+      "ok": true,
+      "detail": "实际=发布中心"
+    },
+    {
+      "name": "模块渲染：analytics → 运营分析",
+      "ok": true,
+      "detail": "实际=运营分析"
+    },
+    {
+      "name": "模块渲染：governance → 治理与资产",
+      "ok": true,
+      "detail": "实际=治理与资产"
+    },
+    {
+      "name": "统一日历渲染出日期格",
+      "ok": true,
+      "detail": "cells=31"
+    },
+    {
+      "name": "日历可切换周视图",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "来源详情提供采集入口（失败会如实降级）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "UI 真实操作：页面新建月度计划后列表回显",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "刷新后仍处于已登录态（会话服务端持久化）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "刷新不丢：新建的月度计划刷新后依然存在",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "UI 真实操作：页面登记情报来源并回显（默认待核验）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "刷新不丢：登记的来源刷新后依然存在",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B02-UI 内容编辑器渲染（版本列表 + 三栏）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B02-UI 内容编辑器：界面内新建草稿版本成功",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B02-UI 内容编辑器：正文修改后显式提示未保存",
+      "ok": true,
+      "detail": "有未保存修改"
+    },
+    {
+      "name": "B02-UI 内容编辑器：草稿保存后刷新仍在（真实持久化）",
+      "ok": true,
+      "detail": "UI-B02-mv6mgllt"
+    },
+    {
+      "name": "B02-UI 内容编辑器：送审冻结后正文变为只读（不可再改）",
+      "ok": true,
+      "detail": "readonly=true"
+    },
+    {
+      "name": "B02-UI 我的审核渲染（按类型分组计数 + 审核单卡片）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B02-UI 我的审核：默认只列「我可裁决」，作者本人被职责分离过滤",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B02-UI 我的审核：取消「仅我可裁决」后送审产生的审核单可见",
+      "ok": true,
+      "detail": "cards=1"
+    },
+    {
+      "name": "B02-UI 视觉工作室渲染（模板清单 + 生成表单 + 素材区）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B02-UI 视觉工作室：受控提示词预览返回生效规则哈希",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B02-UI 视觉工作室：显式展示 Skill 未批准状态（不得谎称可用）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B02-UI 视频工作区渲染（阶段条 + Brief/脚本/分镜/字幕）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B02-UI 视频工作区：保存脚本后阶段条推进（Brief+脚本 已完成）",
+      "ok": true,
+      "detail": "ok-stages=2"
+    },
+    {
+      "name": "B02-UI 视频工作区：脚本保存后刷新仍在（真实持久化）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B02-UI 发布中心渲染（日历/队列/渠道/归档 四视图）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B02-UI 发布中心：渠道登记视图渲染真实渠道行",
+      "ok": true,
+      "detail": "rows=2"
+    },
+    {
+      "name": "B02-UI 发布中心：日历视图渲染月网格",
+      "ok": true,
+      "detail": "cells=34"
+    },
+    {
+      "name": "B03-UI 运营分析渲染（Content/Channels/Operations/AI & Cost 四段）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 运营分析：四段标签名称正确",
+      "ok": true,
+      "detail": "tabs=content,channels,operations,aiCost"
+    },
+    {
+      "name": "B03-UI 运营分析：无回执时「可核费用」显示缺失，不出现估算金额",
+      "ok": true,
+      "detail": "含缺失=true"
+    },
+    {
+      "name": "B03-UI 运营分析：无指标记录时渠道指标显示缺失态并说明原因",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 运营分析：没有发布记录时不显示「录入指标」按钮（写入路径前置条件真实）",
+      "ok": true,
+      "detail": "btns=0"
+    },
+    {
+      "name": "B03-UI 前置：页面内上传工作素材成功（真实落盘、带 sha256）",
+      "ok": true,
+      "detail": "HTTP 200 id=wa_mv6mgvzo_f05e9a0bb84b"
+    },
+    {
+      "name": "B03-UI 前置：页面内创建入库申请成功（进入 SUBMITTED）",
+      "ok": true,
+      "detail": "HTTP 200 id=adm_mv6mgvzw_19f198d6f986"
+    },
+    {
+      "name": "B03-UI 治理与资产渲染（Asset Admission / Approved Assets / Review History）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 治理与资产：三标签名称正确",
+      "ok": true,
+      "detail": "tabs=admission,assets,history"
+    },
+    {
+      "name": "B03-UI 治理与资产：明确标注资料库为 MOCK，且说明不会变为可复用",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 治理与资产：可复用资产计数展示（Mock 下必然为 0）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 治理与资产：新申请的表格行真实渲染（来自服务端记录）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 治理与资产：抽屉展示预检/回执/可复用资格/流程历史",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 治理与资产：抽屉内提供「执行预检」真实动作",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 治理与资产：执行预检后列表状态更新为 PRECHECK（真实写操作生效）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 治理与资产：入库申请与预检结果刷新后依然存在（真实持久化）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 治理与资产：Approved Assets 明确「正式库检索恒为空」，不伪造正式资产",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 治理与资产：展示可复用判定公式（审批 AND 同步 AND 权限 AND ACTIVE AND REAL）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 治理与资产：审核历史视图渲染（append-only 说明可见）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B03-UI 运营分析端点真实可用（页面数据来自该端点）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "B03-UI 治理端点真实可用（含 availableBlockedReason 说明 Mock 阻塞原因）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "BUILD-04 Campaign 通过 UI 真实创建并入列",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "BUILD-04 服务端存在该 Campaign（含品牌级 Marketing Brief 模板默认值）",
+      "ok": true,
+      "detail": "CMP-VFIB-0001"
+    },
+    {
+      "name": "BUILD-04 模板按品牌预填（VFIB → VFIB_BANKING）",
+      "ok": true,
+      "detail": "VFIB_BANKING"
+    },
+    {
+      "name": "BUILD-04 Campaign 详情五段式（Brief/Deliverables/Schedule/Assets/Results）",
+      "ok": true,
+      "detail": "Marketing Brief|Deliverables|Schedule|Assets|Progress & Results"
+    },
+    {
+      "name": "BUILD-04 无来源产品宣称被标 UNVERIFIED 且 Brief 显示「受阻」（不冒充正式可用）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "BUILD-04 服务端计算：readyForOfficialUse=false 且 claimSummary.unverified>=1",
+      "ok": true,
+      "detail": "{\"total\":1,\"verified\":0,\"unverified\":1}"
+    },
+    {
+      "name": "BUILD-04 交付任务创建预填 Campaign 关联（M-03）",
+      "ok": true,
+      "detail": "预填=camp_mv6mh0jk_39d713a0ea2c"
+    },
+    {
+      "name": "BUILD-04 交付任务创建成功并出现在 Campaign Deliverables",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "BUILD-04 Results 显示 NOT CONFIGURED 且不出现虚构绩效数字",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "BUILD-04 All Tasks 页头与深链接上下文过滤齐备",
+      "ok": true,
+      "detail": "All Tasks"
+    },
+    {
+      "name": "BUILD-04 tasks 端点按 campaignId 过滤（Deliverables 与 All Tasks 同源）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "BUILD-04 VFIB Banking Marketing 工作区渲染且展示品牌 Brief 模板",
+      "ok": true,
+      "detail": "VFIB Banking Marketing"
+    },
+    {
+      "name": "BUILD-04 U CARD 工作区在品牌不匹配时给出提示与切换入口",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "BUILD-04 切换到 UCARD 后工作区一致且使用 U CARD 模板",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "BUILD-04 Reference Library 复用共享资产浏览组件（M-02）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Phase3 调度面板：默认关闭且如实声明单实例限制",
+      "ok": true,
+      "detail": "采集调度（A-01）\n默认关闭\n状态\n未运行 配置项 enabled=false\n巡检间隔\n60 分钟（单轮最多 3 个来源）\n连续失败上限\n5 次后停止自动重试（重试有界）\n已巡检轮次\n0 轮 · 最近：—\n调度器默认关闭；单文件存储只支持单实例，第二实例会被锁拒绝并在作业摘要中如实上报。自动采集仅针对 ACTIVE + 非 MANUAL 频率 + 出站白名单内的来源。\n⚠ 单实例限制：本系统为"
+    },
+    {
+      "name": "Phase3 到期预览逐条给出「不会自动采集」的原因（未核验 / MANUAL 频率）",
+      "ok": true,
+      "detail": "blocked=3"
+    },
+    {
+      "name": "Phase3 作业记录卡渲染（空态也给出明确说明，不显示假数据）",
+      "ok": true,
+      "detail": "采集作业记录\n尚无采集作业记录。手工「执行采集」与自动巡检都会留下记录（含失败与跳过）。"
+    },
+    {
+      "name": "Phase3 「立即巡检」真实执行且不粉饰：DEMO 来源全部不可调度 → 执行 0、跳过 N",
+      "ok": true,
+      "detail": "本轮巡检：执行 0 个来源，跳过 3 个。 「执行 0 个来源」表示当前没有任何 ACTIVE + 非 MANUAL 频率 + 白名单内的来源，并非采集失败或成功 —— 系统不会为凑数字而伪造抓取。"
+    },
+    {
+      "name": "Phase3 运行时可开启自动采集（状态如实变为运行中）",
+      "ok": true,
+      "detail": "采集调度（A-01）\n默认关闭\n状态\n运行中 配置项 enabled=true\n巡检间隔\n60 分钟（单轮最多 3 个来源）\n连续失败上限\n5 次后停止自动重试（重试有界）\n已巡检轮次\n1 轮 · 最近：2026-10-13 19:53\n调度器默认关闭；单文件存储只支持单实例，第二实例会被锁拒绝并在作业摘要中如实上报。"
+    },
+    {
+      "name": "Phase3 关闭后恢复未运行（开关双向可用，不残留自动出站）",
+      "ok": true,
+      "detail": "采集调度（A-01）\n默认关闭\n状态\n未运行 配置项 enabled=false\n巡检间隔\n60 分钟（单轮最多 3 个来源）\n连续失败上限\n5 次后停止自动重试（重试有界）\n已巡检轮次\n1 轮 · 最近：2026-10-13 19:53\n调度器默认关闭；单文件存储只支持单实例，第二实例会被锁拒绝并在作业摘要中如实上报"
+    },
+    {
+      "name": "Phase3 来源登记表展示采集频率与「不自动」标识",
+      "ok": true,
+      "detail": "来源登记表\n名称\t域名\t等级\t方式\t频率\t许可\t状态\t白名单\t条目\t下次采集\t\nUI 验证来源 2026-10-13\tbis.org\tS1\tRSS\tMANUAL\n不自动\n\tUNVERIFIED\t待核验\t在名单\t0\t—\t\n管理\n\n人工登记来源（演示用） DEMO\tinternal.example\tS4\tMANUAL\tMANUAL\n不自动\n\tMETADATA_ONLY\t生效中\t未列入\t1\t—\t\n管理\n"
+    },
+    {
+      "name": "无页面级未捕获异常",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "无控制台 error 输出",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}
