@@ -5,6 +5,74 @@
 
 ---
 
+## [0.1.2] — 2026-10-14 — AI Intelligence & Task-Driven UX（执行包四阶段）
+
+**基线**：`2fe3841`（应用版本 0.1.1，schema v5）
+**目标/实际版本**：`0.1.2`（执行包 `VFIB_Marketing_OS_V0.1.2_AI_Intelligence_Task_Driven_UX_Codex_Pack`，8 文件 SHA256 核验一致）
+**schema**：v5 → **v7**（只增不改、幂等迁移）
+
+### Phase 0 — 基线与影响分析（`ee6383d`）
+
+- `PHASE0_BASELINE_AND_IMPACT.md`：导航映射（旧 8 中心→新 5+2，**模块 id 全部不变**→深链接零破坏）、
+  ~100 API 端点盘点、迁移策略、6 条红线、BLOCKED 边界（LLM 无凭据 / Web Search 未接凭据 /
+  SPECIAL-01 原件未随包 / Skill 待真人审批）。
+
+### Phase A — 任务驱动 UX 与中英双语（`9fca396`）
+
+- **导航重构**：5 主（工作台/策划与情报/内容制作/发布管理/运营分析）+ 2 辅（品牌与素材/审批与管理，按角色可见）；
+  20 个模块 id 不变。
+- **i18n**：`public/mos/js/i18n.js`——中文为源语言，en-US 精确字典；`t()/applyDom()` + MutationObserver
+  异步翻译；语言偏好**服务端持久化**（`PUT /api/mos/auth/preferences`，白名单 zh-CN/en-US）。
+- **员工任务工作台**：`my-work` 扩展 `dueThisWeek`/`continueTask`；
+  `PUT /api/mos/my-work/continue {taskId}` 服务端继续锚点（越权 403+审计）；`#/content-editor?task=<id>` 深链接。
+- schema v6：`users[].prefs = {locale, lastTaskId}`。
+- ui 套件 106→**110**（7 项导航断言 + 4 项双语断言）。
+
+### Phase B — AI 情报研究与候选选题（`3a372e3`）
+
+- schema v7：新增 `research_reports` / `research_findings` / `source_evidence` / `topic_proposals` / `research_jobs`。
+- **`lib/mos/adapters/websearch.js`（新）**：无凭据一律 `{blocked:true, code:'NOT_CONFIGURED'}`——
+  **零伪造发现**；`assertSafeUrl()` SSRF 字面校验（仅 https / 拒私网环回保留段 / 拒内网主机名 / 仅 443）。
+- **TRUSTED_DAILY 每日汇编**：从**真实采集** `source_items` 汇编（白名单出站），生成 SourceEvidence
+  （contentHash 可追溯）+ FACT 发现（UNVERIFIED 起步）；空库如实空报告。
+- **Proposal 状态机**：`AI_RECOMMENDED→PENDING_EDITORIAL_REVIEW→APPROVED/REVISION_REQUESTED/ON_HOLD/REJECTED`；
+  新权限 `research.create`（P1/P2/P4）、`editorial.approve`（仅 P1）；P1 一屏审核（6 字段可改，
+  editDiff 落审计）；**发现无证据强制 NEEDS_VERIFICATION（fail-closed）**；
+  SPECIAL-01 适配：C06 缺公告授权 / C01、C03 缺正式依据 → 待核验且**批准不洗白**。
+- 前端情报资讯新增「AI 研究」「选题建议」页签（BLOCKED 如实展示 / 报告证据抽屉 / P1 审核弹窗）。
+- 新套件 `research`（tools/mos-e2e-v012-research.js）**55/55**。
+
+### Phase C — 编辑域派工与制作空间（`035e959`）
+
+- **批准入池** `POST /api/mos/topic-proposals/:id/approve-to-pool`：正式 Master Topic
+  （`APPROVED_UNSCHEDULED`，与既有四态并存）+ 证据如实链接（不可回溯的发现计入 skipped，不伪造）。
+- **批准并安排** `POST /api/mos/topic-proposals/:id/approve-and-schedule`：**幂等 Saga**——
+  fail-fast 全量校验（平台/负责人/日期）→ 内存原子变更 → **单次落盘**（绝不出现「审批成功但派工缺半」）；
+  `idempotencyKey` 全局唯一（重放返回快照，零新增）；自动创建月度计划（`autoBySaga` 审计）；
+  每平台独立 ContentTask + PlanItem。
+- **同源视图** `GET /api/mos/editorial/views?view=day|week|month`：同一 PlanItem/Task 数据源过滤聚合，
+  不存在第二套计划；`/api/mos/calendar` 新增 `day` 视图。
+- Topic 状态机新增 `APPROVED_UNSCHEDULED→PLANNED→ASSIGNED`。
+- 前端：提案抽屉三固定操作；内容编辑器四标签工作空间条（Brief/Content/Visuals/Review）。
+- 新套件 `editorial`（tools/mos-e2e-v012-editorial.js）**43/43**。
+
+### 全量回归
+
+- **773/773**（13 套件：smoke unit sec sched provider workspace dual e2e e2e02 e2e03 ui research editorial），升版后复跑全绿。
+- 交付文档：`PHASE0_BASELINE_AND_IMPACT.md`、`PHASE_A_UI_AND_I18N_REPORT.md`、
+  `PHASE_B_AI_INTELLIGENCE_REPORT.md`、`PHASE_C_TASK_WORKFLOW_REPORT.md`、
+  `SPECIAL01_SOURCE_MAPPING.md`、`PROVIDER_REAL_MOCK_MATRIX.md`、`SECURITY_REGRESSION_REPORT.md`、
+  `E2E_RUN_LOG.md`、`MIGRATION_AND_ROLLBACK.md`、`FINAL_ACCEPTANCE_V0.1.2.md`、`UI_SCREENSHOTS/`。
+
+### 边界与红线（未变）
+
+- 未改企业资料库源码；共享契约 1.0 未动；未建平行账本；四类审批分离；
+  S05/声誉专项/线索闭环/U CARD 代理后台**不建设**；**未部署生产**。
+- Web Research / 文本·图像 Provider 无凭据 → BLOCKED，不以 Mock 冒充真实；
+  41 项 provisional 字典项待 SPECIAL-01 原件核验。
+
+---
+
 ## [0.1.1] — 2026-10-13 — V1.2 整改（真实 HTTP 安全负例 + 正式输出门禁）
 
 **基线**：`259a91d`（应用版本 0.1.0，schema v5）

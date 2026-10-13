@@ -16,59 +16,54 @@
 | 字段 | 值 |
 | --- | --- |
 | 系统名称 | VFIB Marketing OS（运营中台） |
-| 应用版本（本版） | **0.1.1** |
-| 上一版本 / 回滚目标 | **0.1.0** |
-| 基线 Git 提交 | `259a91d`（`main`，应用版本 0.1.0） |
-| **发布 Git 提交** | **`2fe3841dc2c7a96bf264b42f08704f8e695293cc`**（应用代码与交付物首次成形于此提交） |
-| 发布标签 | **`v0.1.1`**（annotated，指向发布提交 `2fe3841`） |
-| 交付源码包 | `VFIB_MARKETING_OS_V0.1.1_REMEDIATED_SOURCE.zip`（**由发布提交 `2fe3841` 的源码树生成**；SHA256 `6d0eec406a2928e538398ef97bf602bda9677a19fd6060790d7ed6107f8dca2f`，310 条目 15,968,180 字节；包内 `PACKAGE_MANIFEST.txt` 记录 `git: 2fe3841`。`*.zip` 与 `dist/` 已 gitignore，可由 `tools/package-mos-source.sh` 重生成） |
+| 应用版本（本版） | **0.1.2** |
+| 上一版本 / 回滚目标 | **0.1.1** |
+| 基线 Git 提交 | `2fe3841`（`main`，应用版本 0.1.1） |
+| 阶段提交链 | `ee6383d`(Phase 0) → `9fca396`(Phase A) → `3a372e3`(Phase B) → `035e959`(Phase C) → 本发布提交 |
+| **发布 Git 提交** | **本文件随发布提交入库；确切 SHA256 由紧随其后的文档提交回填至此（Git 历史可查）** |
+| 发布标签 | **`v0.1.2`**（annotated，指向发布提交） |
+| 交付源码包 | `VFIB_MARKETING_OS_V0.1.2_SOURCE.zip`（由发布提交源码树生成；`*.zip` 与 `dist/` 已 gitignore，可由 `tools/package-mos-source.sh` 重生成；SHA256 见仓库根 `dist/SHA256SUMS.txt`） |
 | 分支 | `main`（远端 `475022876/watu-operation`） |
 | 接口契约版本 | **1.0**（未变） |
-| OpenAPI SHA256 | `cd3cc198a9c568192dbec76429fb9a6dbc836f5e738377249bc14f73d8e825e3`（三方逐字节一致） |
-| 数据 schema 版本 | **v5**（本版**未变**：无新增集合、无迁移） |
-| 资料库（Workspace）兼容目标 | 1.1.7（目标 1.1.8；资料库侧 V1.2 包本轮未交付） |
-| 整改执行包 | `VFIB_MarketingOS_Remediation_V1.2`（B 包 + C 包） |
+| 数据 schema 版本 | **v7**（v5→v6：`users[].prefs`；v6→v7：新增研究域 5 集合；只增不改、幂等，见 `MIGRATION_AND_ROLLBACK.md`） |
+| 资料库（Workspace）兼容目标 | 1.1.7（适配层未变，仍 NOT_VERIFIED——`LIBRARY_HANDOFF_BUNDLE` 未交付） |
+| 执行包 | `VFIB_Marketing_OS_V0.1.2_AI_Intelligence_Task_Driven_UX_Codex_Pack`（8 文件 SHA256 全部核验一致） |
 | 交付形态 | **Staging / 本地隔离实例**；**未部署生产**（须另行批准） |
-| 发布日期 | 2026-10-13 |
+| 发布日期 | 2026-10-14 |
 
 ### 1.1 测试证据
 
 | 套件 | 结果 | 证据路径 |
 | --- | --- | --- |
-| 全量回归 `bash tools/run-mos-tests.sh all`（**11 套件**） | **546/546 通过** | `TEST_EVIDENCE_MOS_BUILD01/summary.json` |
-| └ 含 `ui`（真实浏览器 CDP） | **106/106 通过** | `UI_EVIDENCE_MOS_BUILD01/` |
-| 双系统真实 HTTP 安全负例 `build06` | **61/61 通过**（verdict `PASS_EVIDENCE_COMPLETE`） | `TEST_EVIDENCE_MOS_BUILD06/dual-security-result.json` |
-| 双系统真实 HTTP 正向端到端 `joint`（V1.1 建立，本轮回归） | **64/64 通过** | `TEST_EVIDENCE_MOS_BUILD04/dual-e2e-result.json` |
-| **聚合口径**（`all` + 保留的双系统证据目录 `joint`/`build06`） | **671/671 通过** | `TEST_EVIDENCE_MOS_BUILD01/summary.json`（`total: 671 / passed: 671 / failed: 0 / mosVersion: "0.1.1"`） |
+| 全量回归 `bash tools/run-mos-tests.sh all`（**13 套件**） | **773/773 通过** | `TEST_EVIDENCE_MOS_BUILD01/summary.json` |
+| └ 含 `ui`（真实浏览器 CDP） | **110/110 通过**（28 截图） | `UI_SCREENSHOTS/`（与 `UI_EVIDENCE_MOS_BUILD01/` 同源） |
+| └ **`research`（本版新增，Phase B）** | **55/55 通过** | `TEST_EVIDENCE_MOS_V012_RESEARCH/` |
+| └ **`editorial`（本版新增，Phase C）** | **43/43 通过** | `TEST_EVIDENCE_MOS_V012_EDITORIAL/` |
+| 双系统真实 HTTP 安全负例 `build06` | **61/61 通过** | `TEST_EVIDENCE_MOS_BUILD06/dual-security-result.json` |
+| 双系统真实 HTTP 正向端到端 `joint` | **64/64 通过** | `TEST_EVIDENCE_MOS_BUILD04/dual-e2e-result.json` |
 
-> **断言语义数口径说明（重要）**：`run-mos-tests.sh` 的汇总器会**扫描全部证据目录**，因此
-> 当 `joint` 与 `build06` 的产物与 `all` 自身 11 套件同处仓库时，`summary.json` 的
-> `total` 显示为 **671**（`all` 11 套件 546 + `joint` 64 + `build06` 61）。
-> 两个数字**都是真实的**，只是口径不同：`546/546` 指 `all` 单次运行的 11 套件合计，
-> `671/671` 指仓库当前全部证据的聚合。引用时请写明口径，避免把 671 误当成单次运行结果。
-
-- `build06` 服务端审计证据：6/6 类拒绝在 Provider 隔离实例 `db.json` 的 `integration-call`
-  审计行中逐条核对通过（`code` + `status` + `ok=false`，按 `correlationId` 对号）。
-- `build06` 全程**未改动资料库源码**：以 `server.js` mtime 双证（`providerSourceUnchanged: true`）。
+> 运行日志详见 `E2E_RUN_LOG.md`；安全负例明细见 `SECURITY_REGRESSION_REPORT.md`。
 
 ### 1.2 本版是否含应用代码变更
 
-**是。** 新增 `lib/mos/formalguard.js` 与 `POST /api/mos/formal-output-check`，
-并修正 `POST /api/mos/generation-jobs` 对 `TEXT` 类型**从不校验 `outputIntent`** 的真实缺陷
-（正式文字作品可绕过 Skill 门禁）。故按 V1.2 要求将应用版本由 `0.1.0` 升至 `0.1.1`。
-详见 `CHANGELOG.md`。
+**是（大规模）。** 执行包 V0.1.2 四阶段全部落地：
+- Phase A：五主+两辅导航（模块 id 不变）、中英双语（服务端偏好持久化）、员工任务工作台（继续锚点/本周待发布）；schema v6。
+- Phase B：AI 情报研究（TRUSTED_DAILY 真实汇编 / WEB_RESEARCH 无凭据 BLOCKED / 证据链 / 提案状态机 / P1 一屏审核）；schema v7。
+- Phase C：批准入池 / 批准并安排幂等 Saga（idempotencyKey 全局防重）/ 日周月同源视图 / 任务工作空间四标签。
+- 新增权限 `research.create`、`editorial.approve`；新增端点组 `/api/mos/research/*`、`/api/mos/topic-proposals*`、`/api/mos/editorial/*`。
 
 ### 1.3 发布前置条件（本版逐条状态）
 
 | 条件 | 状态 |
 | --- | --- |
-| 全量回归通过 | ✅ 546/546（`all` 11 套件；仓库聚合 671/671） |
-| 双系统真实 HTTP 安全负例通过 | ✅ 61/61 |
-| 真实浏览器 UI 复测通过 | ✅ 106/106 |
+| 全量回归通过 | ✅ 773/773（13 套件，升版后复跑） |
+| 新增套件通过 | ✅ research 55/55；editorial 43/43 |
+| 真实浏览器 UI 复测通过 | ✅ 110/110 |
 | 变更日志（`CHANGELOG.md`）已更新 | ✅ |
-| 系统版本显示已同步（UI + `/api/mos/meta`） | ✅ |
-| 发布登记（本文件）已更新 | ✅ |
-| **发布审批（人工签署）** | ⬜ **未完成** —— 见 `MARKETING_HANDOFF_BUNDLE_V1.2/JOINT_SIGNOFF_V1.2.md` |
+| 系统版本显示已同步（UI + `lib/config.js` + `lib/mos/config.js` + `package.json`） | ✅ |
+| 迁移与回滚文档 | ✅ `MIGRATION_AND_ROLLBACK.md`（schema v7 向后兼容 0.1.1） |
+| 诚实性矩阵 / SPECIAL-01 映射 / 安全回归报告 / E2E 日志 | ✅ 四份交付文档齐备 |
+| **发布审批（人工签署）** | ⬜ **未完成**（须由获得授权的正式身份签署） |
 | **生产部署授权** | ⬜ **未完成** —— 本轮**不部署生产** |
 
 ---
@@ -84,9 +79,9 @@
 
 ## 3. 回滚指引
 
-1. 回滚**应用版本**：`git revert <发布提交>` 或检出 `259a91d`。
-2. **数据无需回滚**：本版 schema 仍为 v5，未做迁移，`data/mos.json` 结构前后兼容。
-3. 回滚后需重新执行 `bash tools/run-mos-tests.sh all` 确认 **546/546**（`all` 11 套件）。
+1. 回滚**应用版本**：检出标签 `v0.1.1`（或 `2fe3841`）；保留 `data/` 与 `config.json`。
+2. **数据无需回滚**：schema v7 只增不改，0.1.1 代码可安全读取 v7 数据（研究域集合被旧代码忽略）。详见 `MIGRATION_AND_ROLLBACK.md`。
+3. 回滚后需重新执行 `bash tools/run-mos-tests.sh all` 确认回归通过（0.1.1 基线为 546/546）。
 4. **契约不变**：回滚不影响 `/api/integrations/marketing/*`（该前缀由资料库侧提供，本仓库不改）。
 
 ---

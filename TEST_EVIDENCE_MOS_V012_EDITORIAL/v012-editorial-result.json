@@ -4,8 +4,8 @@
   "total": 43,
   "passed": 43,
   "failed": 0,
-  "ranAt": "2026-10-13T22:16:06.783Z",
-  "base": "http://127.0.0.1:9676",
+  "ranAt": "2026-10-13T22:20:48.757Z",
+  "base": "http://127.0.0.1:9677",
   "results": [
     {
       "name": "SV-01 服务器启动并探活",
@@ -50,7 +50,7 @@
     {
       "name": "AP-02 批准入池 → 200 且 Topic state=APPROVED_UNSCHEDULED",
       "ok": true,
-      "detail": "{\"id\":\"topic_mv78pq6r_c6600eb3c989\",\"title\":\"Pool topic udirq\",\"state\":\"APPROVED_UNSCHEDULED\",\"pillarCode\":\"C02\",\"narrativeCode\":\"N01\",\"riskGrade\":\"G1\"}"
+      "detail": "{\"id\":\"topic_mv78vrq7_09db8d3d1513\",\"title\":\"Pool topic pyggz\",\"state\":\"APPROVED_UNSCHEDULED\",\"pillarCode\":\"C02\",\"narrativeCode\":\"N01\",\"riskGrade\":\"G1\"}"
     },
     {
       "name": "AP-03 栏目映射正确（C02）且叙事 N01",
@@ -120,7 +120,7 @@
     {
       "name": "SG-01 Saga 完成 → 200，Topic state=ASSIGNED",
       "ok": true,
-      "detail": "{\"id\":\"topic_mv78pq79_b40af60c7d7d\",\"title\":\"Scheduled topic fvp4t\",\"state\":\"ASSIGNED\"}"
+      "detail": "{\"id\":\"topic_mv78vrr0_f9682d579f2f\",\"title\":\"Scheduled topic vzn15\",\"state\":\"ASSIGNED\"}"
     },
     {
       "name": "SG-02 两个平台任务 PLANNED 且编号不同",
@@ -130,7 +130,7 @@
     {
       "name": "SG-03 自动创建月度计划（autoCreated=true）+ 2 个 PlanItem",
       "ok": true,
-      "detail": "{\"id\":\"plan_mv78pq79_7d391562c8d0\",\"code\":\"VFIB-2026-11-v1\",\"year\":2026,\"month\":11,\"autoCreated\":true}"
+      "detail": "{\"id\":\"plan_mv78vrr0_47205f4170a9\",\"code\":\"VFIB-2026-11-v1\",\"year\":2026,\"month\":11,\"autoCreated\":true}"
     },
     {
       "name": "SG-04 提案 APPROVED 且回链 Topic",

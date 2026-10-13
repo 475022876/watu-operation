@@ -4,8 +4,8 @@
   "total": 55,
   "passed": 55,
   "failed": 0,
-  "ranAt": "2026-10-13T22:16:00.390Z",
-  "base": "http://127.0.0.1:9667",
+  "ranAt": "2026-10-13T22:20:42.168Z",
+  "base": "http://127.0.0.1:9664",
   "results": [
     {
       "name": "SV-01 服务器启动并可通过 /api/health 探活",
@@ -190,7 +190,7 @@
     {
       "name": "ST-07 审核人 / 标题修改落库",
       "ok": true,
-      "detail": "reviewer=user_mv78pko"
+      "detail": "reviewer=user_mv78vm4"
     },
     {
       "name": "ST-08 editDiff 记录人工改动（from→to）",
