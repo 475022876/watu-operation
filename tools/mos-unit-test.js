@@ -590,9 +590,9 @@ t('U-18c Mock 网关：缺摘要/缺分类/许可未核验 → 引擎级拒绝�
 });
 
 /* ---------------- U-19 schema v3/v4/v5 迁移（只增不改；不预置任何已批准资产/作业） ---------------- */
-t('U-19 schema 版本为 6（v6=V0.1.2 用户偏好字段，v3/v4/v5 迁移保留）且 asset_admissions / library_asset_refs / ingest_jobs / 四项集成态集合在基线形状中', () => {
+t('U-19 schema 版本为 7（v7=V0.1.2 研究域 4 集合；v6=用户偏好；v3—v5 迁移保留）且 asset_admissions / library_asset_refs / ingest_jobs / 四项集成态集合在基线形状中', () => {
   const store = require('../lib/mos/store');
-  eq(store.MOS_SCHEMA_VERSION, 6);
+  eq(store.MOS_SCHEMA_VERSION, 7);
   ok(Array.isArray(store.BASE_SHAPE.asset_admissions), 'asset_admissions 必须是顶级集合');
   ok(Array.isArray(store.BASE_SHAPE.library_asset_refs), 'library_asset_refs 必须是顶级集合');
   ok(Array.isArray(store.BASE_SHAPE.ingest_jobs), 'ingest_jobs 必须是顶级集合（A-01 采集作业记录）');
@@ -603,12 +603,12 @@ t('U-19 schema 版本为 6（v6=V0.1.2 用户偏好字段，v3/v4/v5 迁移保�
   ok(Array.isArray(store.BASE_SHAPE.library_admission_jobs), 'library_admission_jobs 必须是顶级集合（准入推送作业记录）');
 });
 
-t('U-19b migrate：v2 文档补齐 v3—v6 形状，且**不注入**任何已批准资产或作业记录（08 §6）', () => {
+t('U-19b migrate：v2 文档补齐 v3—v7 形状，且**不注入**任何已批准资产或作业记录（08 §6）', () => {
   const store = require('../lib/mos/store');
   const legacy = { mosSchemaVersion: 2, brands: [], users: [{ id: 'u1', username: 'legacy' }] };
   const changed = store.migrate(legacy);
   ok(changed === true, '应报告已迁移');
-  eq(legacy.mosSchemaVersion, 6);
+  eq(legacy.mosSchemaVersion, 7);
   ok(legacy.users[0].prefs && typeof legacy.users[0].prefs === 'object', 'v6：用户必须获得 prefs 对象');
   eq(legacy.users[0].prefs.locale, null, 'v6：locale 缺省 null（未设置，前端回落组织默认）');
   eq(legacy.users[0].prefs.lastTaskId, null, 'v6：lastTaskId 缺省 null');
@@ -643,7 +643,7 @@ t('U-19c v3 → v5 迁移幂等且只新增集合，既有业务集合零改写'
   const before = zeroRewrite();
   store.migrate(doc);
   eq(zeroRewrite(), before, '既有业务集合与内容必须零改写');
-  eq(doc.mosSchemaVersion, 6);
+  eq(doc.mosSchemaVersion, 7);
   eq(doc.ingest_jobs.length, 0);
   eq(doc.library_tickets.length, 0);
   eq(doc.library_event_cursors.length, 0);
@@ -666,7 +666,7 @@ t('U-19d v4 → v5 保守回填：不猜测密级、自由文本许可绝不映�
     ]
   };
   store.migrate(doc);
-  eq(doc.mosSchemaVersion, 6);
+  eq(doc.mosSchemaVersion, 7);
   const old = doc.asset_admissions.find((a) => a.id === 'ad-old');
   eq(old.libraryPrimaryCategory, null, '资料区**不得猜测**');
   eq(old.classification, null, '密级**不得猜测降级**');

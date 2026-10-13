@@ -4,7 +4,7 @@ import { api, withBrand } from '../api.js';
 import { esc, toast, openDrawer, openModal, loadingHtml, stateBlock, statusBadge, demoBadge, dictOptions, fmtDateTime, fmtDate } from '../ui.js';
 
 let ctxRef = null; let hostEl = null;
-let tab = 'feed';       // feed | sources
+let tab = 'feed';       // feed | sources | research | proposals
 let q = '';
 let sourceFilter = '';
 /** 最近一次手工巡检结果（跨卡片重渲染保留，避免结果刚显示就被刷新冲掉） */
@@ -14,8 +14,10 @@ function head(ctx) {
   return '<div class="page-head"><div class="crumb">计划中心 / 情报资讯</div>'
     + '<div class="ph-row"><h1>情报资讯</h1>'
     + '<div class="ph-actions"><button class="btn btn-sm' + (tab === 'feed' ? ' btn-primary' : '') + '" data-t="feed">情报流</button>'
-    + '<button class="btn btn-sm' + (tab === 'sources' ? ' btn-primary' : '') + '" data-t="sources">来源登记</button></div></div>'
-    + '<div class="ph-desc">外部内容一律按**不可信数据**处理；抓取受主机白名单与 SSRF 判定约束，失败即降级且如实展示。</div></div>';
+    + '<button class="btn btn-sm' + (tab === 'sources' ? ' btn-primary' : '') + '" data-t="sources">来源登记</button>'
+    + '<button class="btn btn-sm' + (tab === 'research' ? ' btn-primary' : '') + '" data-t="research">AI 研究</button>'
+    + '<button class="btn btn-sm' + (tab === 'proposals' ? ' btn-primary' : '') + '" data-t="proposals">选题建议</button></div></div>'
+    + '<div class="ph-desc">外部内容一律按**不可信数据**处理；抓取受主机白名单与 SSRF 判定约束，失败即降级且如实展示。无凭据的研究通道会如实标记 BLOCKED，绝不伪造结果。</div></div>';
 }
 
 /** 数据区容器：加载骨架只出现一次，数据到达后整体替换（避免骨架残留） */
@@ -31,7 +33,10 @@ async function render() {
   const ctx = ctxRef;
   hostEl.innerHTML = head(ctx) + '<div id="mosBody">' + loadingHtml() + '</div>';
   hostEl.querySelectorAll('[data-t]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.t; render(); }));
-  if (tab === 'feed') await renderFeed(); else await renderSources();
+  if (tab === 'feed') await renderFeed();
+  else if (tab === 'research') await renderResearch();
+  else if (tab === 'proposals') await renderProposals();
+  else await renderSources();
 }
 
 /* ---------------- 情报流 ---------------- */
@@ -454,6 +459,301 @@ function renderSourceDetail(dr, s) {
       out.innerHTML = '<div class="callout danger">' + esc(err.message) + '</div>';
       toast(err.message, 'err');
       b.disabled = false;
+    }
+  }));
+}
+
+/* ==================== V0.1.2 Phase B：AI 研究（报告/证据链） ==================== */
+
+const CATEGORY_LABELS = {
+  C01: 'C01 Inside VFIB', C02: 'C02 Banking Explained', C03: 'C03 Banking in Action',
+  C04: 'C04 Institutional Solutions', C05: 'C05 Digital Finance Insights', C06: 'C06 VFIB Newsroom'
+};
+const RISK_LABELS = { G0: 'G0 低', G1: 'G1 常规', G2: 'G2 高', G3: 'G3 极高' };
+const CHANNEL_LABELS = {
+  LINKEDIN: 'LinkedIn', X: 'X', YOUTUBE: 'YouTube', FACEBOOK: 'Facebook', NEWSLETTER: 'Newsletter'
+};
+
+function reportBadge(st) {
+  const map = { COMPLETED: 'badge-ok', BLOCKED: 'badge-warn', FAILED: 'badge-danger', PENDING: 'badge-info', RUNNING: 'badge-info' };
+  return '<span class="badge ' + (map[st] || 'badge-neutral') + '">' + esc(st) + '</span>';
+}
+function proposalBadge(st) {
+  const map = { AI_RECOMMENDED: 'badge-info', PENDING_EDITORIAL_REVIEW: 'badge-warn', APPROVED: 'badge-ok', REVISION_REQUESTED: 'badge-warn', ON_HOLD: 'badge-neutral', REJECTED: 'badge-danger' };
+  return '<span class="badge ' + (map[st] || 'badge-neutral') + '">' + esc(st) + '</span>';
+}
+function verificationBadge(v) {
+  const map = { VERIFIED: 'badge-ok', NEEDS_VERIFICATION: 'badge-warn', UNVERIFIED: 'badge-neutral' };
+  return '<span class="badge ' + (map[v] || 'badge-neutral') + '">' + esc(v === 'NEEDS_VERIFICATION' ? '待核验' : v) + '</span>';
+}
+
+async function renderResearch() {
+  const ctx = ctxRef;
+  let data;
+  try { data = await api.get(withBrand('/api/mos/research/reports', ctx.brand)); }
+  catch (err) {
+    const s = stateBlock(err.status === 404 ? 'denied' : 'error', { title: err.status === 404 ? '无权访问该品牌' : '加载失败', desc: err.message, actions: [{ label: '重试', primary: true, onClick: renderResearch }] });
+    setBody(s.html); s.bind(bodyEl()); return;
+  }
+
+  const ws = data.webSearch || {};
+  let html = '<div class="filters">'
+    + '<button class="btn btn-sm btn-primary" id="dailyBtn">汇编每日情报（可信来源）</button>'
+    + '<button class="btn btn-sm" id="webBtn">发起 Web 研究</button>'
+    + '<span class="pill">共 ' + data.items.length + ' 份报告</span></div>';
+
+  html += '<div class="callout ' + (ws.configured ? 'ok' : 'warn') + '">Web 研究通道：'
+    + (ws.configured ? '<span class="badge badge-ok">已配置</span>' : '<span class="badge badge-warn">未配置（BLOCKED）</span>')
+    + ' · ' + esc(ws.reason || '真实外部搜索需要 MOS_WEBSEARCH_PROVIDER + MOS_WEBSEARCH_API_KEY，未配置前系统拒绝执行、绝不以模拟冒充真实研究。')
+    + '</div>';
+
+  if (!data.items.length) {
+    html += '<div class="card"><div class="card-body">' + stateBlock('empty', {
+      title: '暂无研究报告',
+      desc: '点击「汇编每日情报」从已采集的可信来源条目生成结构化报告；或先到「来源登记」启用来源并完成采集。'
+    }).html + '</div></div>';
+  } else {
+    html += '<div class="card"><div class="card-head"><h2>研究报告</h2></div><div class="card-body tight">';
+    for (const r of data.items) {
+      html += '<div class="list-item"><div class="li-main">'
+        + '<div class="li-title">' + esc(r.code) + ' · ' + esc(r.mode) + ' ' + reportBadge(r.status) + ' ' + demoBadge(r.demo) + '</div>'
+        + '<div class="li-sub">' + esc(String(r.query || '').slice(0, 120)) + '</div>'
+        + '<div class="li-sub small muted">发现 ' + (r.findingCount || 0) + ' 条 · 关联选题建议 ' + (r.proposalCount || 0) + ' 条 · '
+        + esc(fmtDateTime(r.createdAt)) + '</div>'
+        + (r.blockedReason ? '<div class="err-text">' + esc(r.blockedReason) + '</div>' : '')
+        + '</div><div class="li-actions"><button class="btn btn-sm" data-rpt="' + esc(r.id) + '">详情</button></div></div>';
+    }
+    html += '</div></div>';
+  }
+
+  setBody(html);
+  hostEl.querySelector('#dailyBtn').addEventListener('click', async (e) => {
+    e.target.disabled = true;
+    try {
+      const r = await api.post(withBrand('/api/mos/research/daily', ctxRef.brand), { days: 1 });
+      toast('每日情报已汇编：' + r.report.findingCount + ' 条发现', 'ok');
+      renderResearch();
+    } catch (err) { toast(err.message, 'err'); e.target.disabled = false; }
+  });
+  hostEl.querySelector('#webBtn').addEventListener('click', () => webResearchDialog());
+  hostEl.querySelectorAll('[data-rpt]').forEach((b) => b.addEventListener('click', () => openReport(b.dataset.rpt)));
+}
+
+function webResearchDialog() {
+  openModal({
+    title: '发起 Web 研究',
+    okText: '发起（未配置则 BLOCKED）',
+    body: '<div class="hint">外部搜索受来源可信与合规约束；当前无凭据时会<b>如实记 BLOCKED</b>，不产生任何伪造发现。</div>'
+      + '<label class="field"><span>研究主题</span><input id="wrQ" type="text" placeholder="例如：某监管新规对行业的影响"></label>'
+      + '<label class="field"><span>深度</span><select id="wrD"><option value="STANDARD">STANDARD</option><option value="DEEP">DEEP</option></select></label>',
+    onOk: async (b) => {
+      try {
+        const r = await api.post(withBrand('/api/mos/research/web', ctxRef.brand), {
+          query: b.querySelector('#wrQ').value, depth: b.querySelector('#wrD').value
+        });
+        if (r.report.status === 'BLOCKED') toast('研究被阻断（未配置）：' + (r.report.blockedReason || ''), 'err');
+        else toast('研究已完成', 'ok');
+        renderResearch();
+      } catch (err) { toast(err.message, 'err'); return false; }
+    }
+  });
+}
+
+async function openReport(id) {
+  let data;
+  try { data = await api.get('/api/mos/research/reports/' + id); }
+  catch (err) { toast(err.message, 'err'); return; }
+  const r = data.report;
+  const dr = openDrawer({ title: '研究报告 ' + r.code });
+
+  let h = '<dl class="kv">'
+    + '<dt>模式 / 状态</dt><dd>' + esc(r.mode) + ' ' + reportBadge(r.status) + '</dd>'
+    + '<dt>主题</dt><dd>' + esc(r.query || '') + '</dd>'
+    + '<dt>提供方</dt><dd>' + esc(r.provider || '—') + ' · 成本 $' + esc(String(r.costUsd || 0)) + '</dd>'
+    + '<dt>创建</dt><dd>' + esc(fmtDateTime(r.createdAt)) + '</dd>'
+    + '</dl>';
+  if (r.blockedReason) h += '<div class="callout warn"><strong>BLOCKED</strong><br>' + esc(r.blockedReason) + '</div>';
+
+  h += '<div class="divider"></div><h3>发现（' + (r.findings || []).length + '）</h3>';
+  if (!(r.findings || []).length) {
+    h += '<div class="small muted">无发现。汇编类报告只会从真实采集条目生成，绝不编造。</div>';
+  } else {
+    for (const f of r.findings) {
+      h += '<div class="list-item"><div class="li-main">'
+        + '<div class="li-title">' + esc(f.kind) + ' ' + verificationBadge(f.verificationState) + '</div>'
+        + '<div class="li-sub">' + esc(String(f.statement || '').slice(0, 300)) + '</div>';
+      for (const ev of (f.evidence || [])) {
+        h += '<div class="li-sub small muted">证据：' + esc(ev.sourceName || ev.url) + ' · <a href="' + esc(ev.url) + '" target="_blank" rel="noopener noreferrer">链接</a>'
+          + ' · 指纹 <span class="mono">' + esc(String(ev.digest || ev.contentHash || '').slice(0, 12)) + '</span></div>';
+      }
+      h += '</div></div>';
+    }
+  }
+  h += '<div class="hint">核验规则：无证据的关键事实强制「待核验」；VERIFIED 只能在证据齐备后人工确认。</div>';
+  dr.body.innerHTML = h;
+}
+
+/* ==================== V0.1.2 Phase B：选题建议（Proposal 状态机 + 一屏审核） ==================== */
+
+let proposalStatusFilter = '';
+
+async function renderProposals() {
+  const ctx = ctxRef;
+  let data;
+  try { data = await api.get(withBrand('/api/mos/topic-proposals', ctx.brand, { status: proposalStatusFilter })); }
+  catch (err) {
+    const s = stateBlock(err.status === 404 ? 'denied' : 'error', { title: err.status === 404 ? '无权访问该品牌' : '加载失败', desc: err.message, actions: [{ label: '重试', primary: true, onClick: renderProposals }] });
+    setBody(s.html); s.bind(bodyEl()); return;
+  }
+
+  let html = '<div class="filters">'
+    + '<button class="btn btn-sm btn-primary" id="newProp">新建候选选题</button>'
+    + '<select id="pst"><option value="">全部状态</option>'
+    + ['AI_RECOMMENDED', 'PENDING_EDITORIAL_REVIEW', 'APPROVED', 'REVISION_REQUESTED', 'ON_HOLD', 'REJECTED'].map((s) =>
+      '<option value="' + s + '"' + (proposalStatusFilter === s ? ' selected' : '') + '>' + s + '</option>').join('')
+    + '</select>'
+    + '<span class="pill">共 ' + data.items.length + ' 条</span></div>';
+
+  html += '<div class="callout">候选选题（Proposal）与正式 Master Topic 分离：只有编辑审批通过后，才会进入正式选题池'
+    + '（Phase C）。审核权限为 editorial.approve（仅管理员），<b>不代替</b>正式资产的 library.asset.approve.final。</div>';
+
+  if (!data.items.length) {
+    html += '<div class="card"><div class="card-body">' + stateBlock('empty', {
+      title: '暂无候选选题',
+      desc: '可从「AI 研究」报告推导建议，或手工新建候选选题。'
+    }).html + '</div></div>';
+  } else {
+    html += '<div class="card"><div class="card-head"><h2>候选选题</h2></div><div class="card-body tight">';
+    for (const p of data.items) {
+      html += '<div class="list-item"><div class="li-main">'
+        + '<div class="li-title">' + esc(p.code) + ' · ' + esc(p.suggestedTitleEN) + ' ' + proposalBadge(p.status) + '</div>'
+        + '<div class="li-sub">' + esc(CATEGORY_LABELS[p.primaryCategory] || p.primaryCategory) + ' · ' + esc(RISK_LABELS[p.riskGrade] || p.riskGrade)
+        + ' · 来源 ' + esc(p.source) + (p.needsVerification ? ' <span class="badge badge-warn">待核验</span>' : '') + '</div>'
+        + '<div class="li-sub small muted">' + esc(String(p.summaryZH || '').slice(0, 140)) + '</div>'
+        + '</div><div class="li-actions"><button class="btn btn-sm" data-pp="' + esc(p.id) + '">详情/审核</button></div></div>';
+    }
+    html += '</div></div>';
+  }
+
+  setBody(html);
+  hostEl.querySelector('#newProp').addEventListener('click', () => newProposalDialog());
+  hostEl.querySelector('#pst').addEventListener('change', (e) => { proposalStatusFilter = e.target.value; renderProposals(); });
+  hostEl.querySelectorAll('[data-pp]').forEach((b) => b.addEventListener('click', () => openProposal(b.dataset.pp)));
+}
+
+function newProposalDialog() {
+  openModal({
+    title: '新建候选选题',
+    okText: '创建（待编辑审核）',
+    body: '<div class="hint">员工新建走 PENDING_EDITORIAL_REVIEW；AI 建议走 AI_RECOMMENDED。两路都必须经编辑审批。</div>'
+      + '<label class="field"><span>标题（EN）</span><input id="npT" type="text"></label>'
+      + '<label class="field"><span>摘要（中文）</span><textarea id="npS" rows="3"></textarea></label>'
+      + '<label class="field"><span>主栏目</span><select id="npC">'
+      + Object.keys(CATEGORY_LABELS).map((c) => '<option value="' + c + '">' + esc(CATEGORY_LABELS[c]) + '</option>').join('')
+      + '</select></label>'
+      + '<label class="field"><span>风险等级</span><select id="npG">'
+      + Object.keys(RISK_LABELS).map((g) => '<option value="' + g + '"' + (g === 'G1' ? ' selected' : '') + '>' + esc(RISK_LABELS[g]) + '</option>').join('')
+      + '</select></label>',
+    onOk: async (b) => {
+      try {
+        await api.post(withBrand('/api/mos/topic-proposals', ctxRef.brand), {
+          suggestedTitleEN: b.querySelector('#npT').value,
+          summaryZH: b.querySelector('#npS').value,
+          primaryCategory: b.querySelector('#npC').value,
+          riskGrade: b.querySelector('#npG').value,
+          source: 'EMPLOYEE'
+        });
+        toast('候选选题已创建（待审核）', 'ok');
+        renderProposals();
+      } catch (err) { toast(err.message, 'err'); return false; }
+    }
+  });
+}
+
+async function openProposal(id) {
+  let data;
+  try { data = await api.get('/api/mos/topic-proposals/' + id); }
+  catch (err) { toast(err.message, 'err'); return; }
+  drawProposal(openDrawer({ title: '候选选题 ' + data.proposal.code }), data.proposal);
+}
+
+function drawProposal(dr, p) {
+  let h = '<dl class="kv">'
+    + '<dt>标题</dt><dd>' + esc(p.suggestedTitleEN) + '</dd>'
+    + '<dt>状态</dt><dd>' + proposalBadge(p.status) + ' · 来源 ' + esc(p.source) + ' · 修订 ' + esc(String(p.revision || 0)) + ' 次</dd>'
+    + '<dt>摘要</dt><dd>' + esc(p.summaryZH || '') + '</dd>'
+    + '<dt>栏目 / 风险</dt><dd>' + esc(CATEGORY_LABELS[p.primaryCategory] || p.primaryCategory) + ' · ' + esc(RISK_LABELS[p.riskGrade] || p.riskGrade) + '</dd>'
+    + '<dt>平台</dt><dd>' + ((p.channels || []).map((c) => CHANNEL_LABELS[c] || c).join('、') || '—') + '</dd>'
+    + '</dl>';
+  if (p.needsVerification || (p.special01 && p.special01.needsVerification)) {
+    h += '<div class="callout warn">SPECIAL-01：该选题存在待核验约束。</div>';
+  }
+  for (const n of ((p.special01 && p.special01.notes) || p.special01Notes || [])) {
+    h += '<div class="small muted">· ' + esc(n) + '</div>';
+  }
+  if ((p.findings || []).length) {
+    h += '<div class="divider"></div><h3>支撑发现</h3>';
+    for (const f of p.findings) {
+      h += '<div class="small">' + esc(f.kind) + ' ' + verificationBadge(f.verificationState) + '<br>' + esc(String(f.statement || '').slice(0, 200)) + '</div>';
+    }
+  }
+  if ((p.editDiff || []).length) {
+    h += '<div class="divider"></div><h3>人工改动 diff（审计留痕）</h3>';
+    for (const d of p.editDiff) {
+      h += '<div class="small mono">' + esc(d.field) + '：' + esc(JSON.stringify(d.from)) + ' → ' + esc(JSON.stringify(d.to)) + '</div>';
+    }
+  }
+
+  h += '<div class="divider"></div><div id="propActs"></div><div id="propOut" style="margin-top:10px"></div>';
+  dr.body.innerHTML = h;
+  const acts = dr.body.querySelector('#propActs');
+  const out = dr.body.querySelector('#propOut');
+  const refresh = async () => {
+    try {
+      const r = await api.get('/api/mos/topic-proposals/' + p.id);
+      drawProposal(dr, r.proposal);
+    } catch (err) { toast(err.message, 'err'); }
+  };
+
+  let btns = '';
+  if (p.status === 'AI_RECOMMENDED') btns += '<button class="btn btn-sm btn-primary" data-act="submit">提交编辑审核</button>';
+  if (p.canDecide && p.status === 'PENDING_EDITORIAL_REVIEW') btns += '<button class="btn btn-sm btn-primary" data-act="decide">一屏审核</button>';
+  if (!btns) btns = '<div class="small muted">当前状态无可用操作' + (p.canDecide ? '' : '（你没有 editorial.approve 权限）') + '</div>';
+  acts.innerHTML = '<div class="row" style="flex-wrap:wrap">' + btns + '</div>';
+
+  acts.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', async () => {
+    if (b.dataset.act === 'submit') {
+      b.disabled = true;
+      try { await api.post('/api/mos/topic-proposals/' + p.id + '/submit', {}); toast('已提交审核', 'ok'); refresh(); }
+      catch (err) { toast(err.message, 'err'); b.disabled = false; }
+    } else if (b.dataset.act === 'decide') {
+      b.disabled = true;
+      openModal({
+        title: '一屏审核：' + p.code,
+        okText: '提交决策',
+        body: '<div class="hint">可修改标题/角度/栏目/平台/交付物/风险；修改会记入审计 diff。C06 缺公告授权、C01/C03 缺正式依据的选题不能批准。</div>'
+          + '<label class="field"><span>标题</span><input id="dcT" type="text" value="' + esc(p.suggestedTitleEN) + '"></label>'
+          + '<label class="field"><span>角度（可选）</span><input id="dcA" type="text" value="' + esc(p.angle || '') + '"></label>'
+          + '<label class="field"><span>决策</span><select id="dcD">'
+          + ['APPROVED', 'REVISION_REQUESTED', 'ON_HOLD', 'REJECTED'].map((s) => '<option value="' + s + '">' + s + '</option>').join('')
+          + '</select></label>'
+          + '<label class="field"><span>审核意见</span><textarea id="dcC" rows="2"></textarea></label>',
+        onOk: async (bd) => {
+          try {
+            const r = await api.post('/api/mos/topic-proposals/' + p.id + '/decision', {
+              decision: bd.querySelector('#dcD').value,
+              comments: bd.querySelector('#dcC').value,
+              edits: {
+                suggestedTitleEN: bd.querySelector('#dcT').value,
+                angle: bd.querySelector('#dcA').value
+              }
+            });
+            toast('决策已记录：' + r.proposal.status, 'ok');
+            refresh();
+          } catch (err) { toast(err.message, 'err'); return false; }
+        },
+        onCancel: () => { b.disabled = false; }
+      });
     }
   }));
 }
