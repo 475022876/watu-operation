@@ -30,7 +30,7 @@
 | --- | --- | --- |
 | 仓库 | `475022876/watu-operation`（`main`） | `D:\企业数据后台\oa-system-20261004\oa-system` |
 | 本轮代码基线 | **`259a91d`**（应用版本 `0.1.0`） | HEAD **`4cbfeef`**（`feat(v1.2): A 包 …` 链） |
-| 本轮发布提交 | 本文件所在提交（`git log -1 --format=%H` 复核；同时登记于 `docs/RELEASE_REGISTER.md` §1） | — |
+| 本轮发布提交 | **`2fe3841dc2c7a96bf264b42f08704f8e695293cc`**（annotated 标签 **`v0.1.1`**；同时登记于 [`docs/RELEASE_REGISTER.md`](docs/RELEASE_REGISTER.md) §1） | — |
 | 应用版本 | **`0.1.1`**（基线 `0.1.0`） | 工作区 `package.json` = `1.1.8`；其 V1.2 `RELEASE_REGISTER.md` 自述**本轮实际发布 `1.1.7`** ⚠ |
 | 契约版本 | **`1.0`（未变）** | `POLICY_VERSION = '1.0'`（未变） |
 | OpenAPI SHA256 | **`cd3cc198a9c568192dbec76429fb9a6dbc836f5e738377249bc14f73d8e825e3`** | **同值**（**四方逐字节一致**，见 `CONSUMER_BASELINE.md` §3） |

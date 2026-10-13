@@ -19,7 +19,9 @@
 | 应用版本（本版） | **0.1.1** |
 | 上一版本 / 回滚目标 | **0.1.0** |
 | 基线 Git 提交 | `259a91d`（`main`，应用版本 0.1.0） |
-| 发布 Git 提交 | `（见本文件所在提交；由 `git log -1 --format=%H` 复核）` |
+| **发布 Git 提交** | **`2fe3841dc2c7a96bf264b42f08704f8e695293cc`**（应用代码与交付物首次成形于此提交） |
+| 发布标签 | **`v0.1.1`**（annotated，指向发布提交 `2fe3841`） |
+| 交付源码包 | `VFIB_MARKETING_OS_V0.1.1_REMEDIATED_SOURCE.zip`（**由发布提交 `2fe3841` 的源码树生成**；SHA256 `6d0eec406a2928e538398ef97bf602bda9677a19fd6060790d7ed6107f8dca2f`，310 条目 15,968,180 字节；包内 `PACKAGE_MANIFEST.txt` 记录 `git: 2fe3841`。`*.zip` 与 `dist/` 已 gitignore，可由 `tools/package-mos-source.sh` 重生成） |
 | 分支 | `main`（远端 `475022876/watu-operation`） |
 | 接口契约版本 | **1.0**（未变） |
 | OpenAPI SHA256 | `cd3cc198a9c568192dbec76429fb9a6dbc836f5e738377249bc14f73d8e825e3`（三方逐字节一致） |

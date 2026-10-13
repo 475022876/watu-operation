@@ -28,7 +28,7 @@
 | 数据 schema 版本 | **v5（未变，无迁移）** | 由其自行登记 | ⬜ |
 | 整改执行包编号 | `VFIB_MarketingOS_Remediation_V1.2`（B 包 + C 包） | 同名 | ⬜ |
 | OpenAPI SHA256 | `cd3cc198a9c568192dbec76429fb9a6dbc836f5e738377249bc14f73d8e825e3` | 同值（**四方逐字节一致**） | ⬜ |
-| Git 提交 | 基线 `259a91d` → 发布提交（见 `docs/RELEASE_REGISTER.md` §1） | HEAD `4cbfeef`（+ 3 个**未提交**代码文件的如实声明，见 `CONSUMER_BASELINE.md` §2.1） | ⬜ |
+| Git 提交 | 基线 `259a91d` → **发布提交 `2fe3841`**（标签 `v0.1.1`，见 `docs/RELEASE_REGISTER.md` §1） | HEAD `4cbfeef`（+ 3 个**未提交**代码文件的如实声明，见 `CONSUMER_BASELINE.md` §2.1） | ⬜ |
 | 运行环境 | **Staging / 本地隔离实例**，端口 MOS `9564` / Provider `9765` | 同批隔离实例 | ⬜ |
 
 > ⚠ **版本口径待双方确认**：提供方 V1.2 `RELEASE_REGISTER.md` 记「本轮实际发布 1.1.7」，
@@ -113,7 +113,7 @@
 | 项 | 内容 |
 | --- | --- |
 | 系统 / 版本 | VFIB Marketing OS **0.1.1** |
-| Git 提交 | `⬜ 待填`（发布提交，见 `docs/RELEASE_REGISTER.md` §1） |
+| Git 提交 | **`2fe3841dc2c7a96bf264b42f08704f8e695293cc`**（标签 `v0.1.1`） |
 | 确认范围 | INT-01～INT-14 中**由消费方负责**的项 |
 | 结论 | ⬜ PASS / ⬜ CONDITIONAL / ⬜ 不通过 |
 | 签署人 / 职务 | ⬜ 待签 |
