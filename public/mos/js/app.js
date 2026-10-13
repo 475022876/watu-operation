@@ -5,6 +5,7 @@
  */
 import { api, ApiError } from './api.js';
 import { esc, initials, toast, openModal, openDrawer, confirmDialog, stateBlock, loadingHtml, integrationBarHtml } from './ui.js';
+import { initLocale, setLocale, getLocale, availableLocales, t, applyDom, ensureDomObserver } from './i18n.js';
 
 export const store = {
   me: null,
@@ -16,15 +17,18 @@ export const store = {
 };
 
 const CENTERS = [
-  { id: 'workspace', label: '工作台', items: ['my-work', 'my-reviews', 'active-projects'] },
-  { id: 'brand', label: '品牌中心', items: ['brand-overview', 'brand-guidelines', 'brand-library'] },
-  { id: 'planning', label: '计划中心', items: ['planning', 'topics', 'intelligence', 'tasks'] },
-  { id: 'creative', label: '创意工作室', items: ['content-editor', 'visual-studio', 'video-workspace'] },
-  { id: 'publishing', label: '发布中心', items: ['publishing'] },
-  // F-05：Marketing Center = VFIB Banking Marketing / U CARD Marketing 两个品牌工作区 + Campaigns
-  { id: 'marketing', label: '营销中心', items: ['marketing-vfib', 'marketing-ucard', 'campaigns'] },
-  { id: 'analytics', label: '运营分析中心', items: ['analytics'] },
-  { id: 'governance', label: '治理与资产', items: ['governance'] }
+  /* —— 五大主导航（V0.1.2 Phase A：按员工任务编排；模块 id 不变 → 深链接/收藏天然兼容） —— */
+  { id: 'workspace', label: '工作台', items: ['my-work', 'active-projects'] },
+  { id: 'planning-intel', label: '策划与情报', items: ['intelligence', 'topics', 'planning', 'campaigns', 'marketing-vfib', 'marketing-ucard'] },
+  { id: 'production', label: '内容制作', items: ['tasks', 'content-editor', 'visual-studio', 'video-workspace'] },
+  { id: 'publishing', label: '发布管理', items: ['publishing'] },
+  { id: 'analytics', label: '运营分析', items: ['analytics'] },
+  /* —— 两个辅助入口（次导航；「审批与管理」按权限可见，权限不足者不显示） —— */
+  { id: 'brand-assets', label: '品牌与素材', aux: true,
+    items: ['brand-overview', 'brand-guidelines', 'brand-library'] },
+  { id: 'review-admin', label: '审批与管理', aux: true,
+    requireRoles: ['P1', 'P3', 'PROFESSIONAL_REVIEWER', 'PUBLISHING_APPROVER', 'ASSET_REVIEWER', 'LIBRARY_FINAL_APPROVER'],
+    items: ['my-reviews', 'governance'] }
 ];
 
 const MODULES = [
@@ -188,6 +192,9 @@ async function enterApp(me) {
   if (!store.brand || !store.brands.some((b) => b.code === store.brand)) {
     store.brand = store.brands.length ? store.brands[0].code : '';
   }
+  /* V0.1.2 Phase A：双语初始化 —— 服务端偏好 > 本地临时记忆 > 组织默认 zh-CN */
+  initLocale(me.user && me.user.prefs && me.user.prefs.locale);
+  ensureDomObserver();
   try { store.meta = await api.get('/api/mos/meta'); } catch (_) { store.meta = null; }
   store.ready = true;
 
@@ -195,13 +202,33 @@ async function enterApp(me) {
   renderUser();
   renderNav();
   renderIntegrationBar();
+  bindLangToggle();
   els.versionText.textContent = 'v' + ((store.meta && store.meta.mosVersion) || '0.1.1');
-  els.syncText.textContent = '已连接服务';
+  els.syncText.textContent = t('已连接服务');
   els.syncDot.classList.remove('bad');
-  els.envChip.textContent = '沙盒环境 · MOS V0.1';
+  els.envChip.textContent = t('沙盒环境') + ' · MOS V0.1';
 
   const h0 = parseHash().id;
   navigate(MODULES.some((m) => m.id === h0) ? h0 : 'my-work');
+}
+
+/** V0.1.2 Phase A：右上角语言切换（无损实时切换，偏好持久化到服务端） */
+function bindLangToggle() {
+  const btn = $('langBtn');
+  if (!btn) return;
+  const paint = () => { btn.textContent = getLocale() === 'zh-CN' ? 'English' : '中文'; };
+  paint();
+  btn.onclick = async () => {
+    const next = setLocale(getLocale() === 'zh-CN' ? 'en-US' : 'zh-CN');
+    ensureDomObserver();
+    paint();
+    try { await api.put('/api/mos/auth/preferences', { locale: next }); } catch (_) { /* 离线时保留本地记忆 */ }
+    renderNav();
+    renderIntegrationBar();
+    els.syncText.textContent = t('已连接服务');
+    els.envChip.textContent = t('沙盒环境') + ' · MOS V0.1';
+    if (mounted && activeModule) { await remount(); } else { applyDom(document.body); }
+  };
 }
 
 function renderBrandSwitch() {
@@ -322,15 +349,19 @@ function aboutDialog() {
 function renderNav() {
   const byId = {};
   for (const m of MODULES) byId[m.id] = m;
+  const myRoles = ((store.me && store.me.roles) || []).map((r) => r.roleCode);
+  const isAdmin = myRoles.indexOf('MOS_ADMIN') !== -1;
   let html = '';
   for (const c of CENTERS) {
-    html += '<div class="nav-group"><div class="nav-group-label">' + esc(c.label) + '</div>';
+    /* 辅助入口按权限可见（01 规格：权限不足者不可见；服务端鉴权不受影响） */
+    if (c.requireRoles && !isAdmin && !c.requireRoles.some((r) => myRoles.indexOf(r) !== -1)) continue;
+    html += '<div class="nav-group' + (c.aux ? ' aux' : '') + '"><div class="nav-group-label">' + esc(t(c.label)) + '</div>';
     for (const id of c.items) {
       const m = byId[id];
       if (!m) continue;
       html += '<button type="button" class="nav-item' + (m.stage ? ' soon' : '') + '" data-route="' + m.id + '"'
         + ' title="' + esc(m.context) + '" aria-label="' + esc(c.label + ' · ' + m.label) + '">'
-        + '<span class="nav-ico" aria-hidden="true">' + m.icon + '</span><span class="nav-label">' + esc(m.label) + '</span>'
+        + '<span class="nav-ico" aria-hidden="true">' + m.icon + '</span><span class="nav-label">' + esc(t(m.label)) + '</span>'
         + (m.stage ? '<span class="soon-tag">' + esc(m.stage) + '</span>' : '') + '</button>';
     }
     html += '</div>';
@@ -398,6 +429,8 @@ async function remount() {
       module: activeModule,
       refreshShell: async () => { renderBrandSwitch(); }
     });
+    /* V0.1.2 Phase A：en-US 下对刚渲染的模块做精确匹配翻译（用户内容/专名不受影响） */
+    applyDom(host);
   } catch (err) {
     if (!(err instanceof ApiError) || err.status !== 401) console.error('[mos] mount 异常', err);
     els.content.innerHTML = '';

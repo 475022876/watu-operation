@@ -657,7 +657,7 @@ async function main() {
     secText.indexOf('"password"') === -1 && secText.indexOf('"token"') === -1, '');
 
   const meta2 = await admin.call('GET', '/api/mos/meta');
-  check('GOV-06 schema 版本已推进到 v5（只增不改；v4 = A-01 采集作业记录，v5 = B2/B3 集成态四集合）', meta2.json.schemaVersion === 5, 'schema=' + meta2.json.schemaVersion);
+  check('GOV-06 schema 版本已推进到 v6（只增不改；v5 = B2/B3 集成态四集合，v6 = V0.1.2 用户偏好）', meta2.json.schemaVersion === 6, 'schema=' + meta2.json.schemaVersion);
 
   /* ==================== Phase 3：A-01 采集调度 API（真实 HTTP） ==================== */
   section('Phase 3 · A-01 情报采集调度（服务端 API，默认关闭 + 单实例限制）');

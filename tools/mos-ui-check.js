@@ -215,10 +215,28 @@ async function main() {
     check('侧边导航包含 8 个工作中心条目', navCount >= 14, 'nav-item=' + navCount);
 
     const centers = await evalJs('Array.from(document.querySelectorAll(".nav-group-label")).map(function(e){return e.textContent;}).join("|")');
-    check('工作中心名称齐全（含 Marketing Center，非 Growth Center）',
-      ['工作台', '品牌中心', '计划中心', '创意工作室', '发布中心', '营销中心', '运营分析中心', '治理与资产'].every((c) => String(centers).indexOf(c) !== -1),
+    check('工作中心名称齐全（5 主 + 2 辅，非 Growth Center）',
+      ['工作台', '策划与情报', '内容制作', '发布管理', '运营分析', '品牌与素材', '审批与管理'].every((c) => String(centers).indexOf(c) !== -1),
       centers);
     check('不存在 Growth Center', String(centers).indexOf('Growth') === -1, '');
+
+    /* --- V0.1.2 Phase A：双语切换（I18N-01）--- */
+    const langBtnOn = await waitFor('!!document.getElementById("langBtn")', '语言切换按钮');
+    check('顶栏存在语言切换按钮', langBtnOn, '');
+    const zhNavBefore = await evalJs('Array.from(document.querySelectorAll(".nav-group-label")).map(function(e){return e.textContent;}).join("|")');
+    await evalJs('(function(){document.getElementById("langBtn").click();return true;})()');
+    await sleep(700);
+    const enNav = await evalJs('Array.from(document.querySelectorAll(".nav-group-label")).map(function(e){return e.textContent;}).join("|")');
+    check('切换 English 后主导航为英文', enNav.indexOf('Workspace') !== -1 && enNav.indexOf('Planning & Intelligence') !== -1
+      && enNav.indexOf('Content Production') !== -1, enNav);
+    const meLocaleEn = await evalJs('(async function(){'
+      + 'var r=await fetch("/api/mos/auth/me",{credentials:"same-origin"});var j=await r.json();'
+      + 'return (j.user&&j.user.prefs)?(j.user.prefs.locale||"(null)"):"(no-prefs)";})()');
+    check('语言偏好已持久化到服务端（en-US）', meLocaleEn === 'en-US', String(meLocaleEn));
+    await evalJs('(function(){document.getElementById("langBtn").click();return true;})()');
+    await sleep(700);
+    const zhNavBack = await evalJs('Array.from(document.querySelectorAll(".nav-group-label")).map(function(e){return e.textContent;}).join("|")');
+    check('切回中文后导航恢复且不丢数据', zhNavBack === zhNavBefore, zhNavBack);
 
     const integrationBarText = await evalJs('document.getElementById("integrationBar").textContent');
     check('集成状态提示条显示 MOCK/未接通', String(integrationBarText).indexOf('MOCK') !== -1 && String(integrationBarText).indexOf('未接通') !== -1, String(integrationBarText).slice(0, 120));

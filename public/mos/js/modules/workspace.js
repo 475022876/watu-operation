@@ -29,15 +29,27 @@ async function render() {
 
   const tasks = data.tasks || [];
   const plans = data.draftPlans || [];
+  const dueWeek = data.dueThisWeek || [];
+  const cont = data.continueTask || null;
 
   let html = headHtml(ctx);
 
+  /* V0.1.2 Phase A：继续上次工作 —— 服务端锚点（不依赖 localStorage），一键回到任务 */
+  html += cont
+    ? '<div class="callout info" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
+      + '<strong>' + '继续上次工作' + '：</strong>'
+      + '<span class="mono muted small">' + esc(cont.code) + '</span> ' + esc(cont.title)
+      + ' ' + statusBadge(cont.status) + ' <span class="pill">' + esc(platformLabel(cont.platform)) + '</span>'
+      + '<button class="btn btn-sm btn-primary" data-continue-task="' + esc(cont.id) + '">继续</button>'
+      + '<span class="muted small">制作截止 ' + esc(fmtDate(cont.productionDue)) + '</span></div>'
+    : '';
+
   html += '<div class="grid grid-2">';
 
-  // 我的任务（M-03：与 All Tasks / Campaign Deliverables 为同一 ContentTask 对象）
-  html += '<div class="card"><div class="card-head"><h2>我的未完成任务</h2>'
+  // 今日待办：我的任务（M-03：与 All Tasks / Campaign Deliverables 为同一 ContentTask 对象）
+  html += '<div class="card"><div class="card-head"><h2>我的任务</h2>'
     + '<div class="ch-actions"><span class="badge badge-neutral">' + tasks.length + '</span>'
-    + '<button class="btn btn-sm" data-go-tasks="1">打开 All Tasks</button></div></div>';
+    + '<button class="btn btn-sm" data-go-tasks="1">打开全部任务</button></div></div>';
   if (!tasks.length) {
     html += '<div class="card-body">' + stateBlock('empty', { title: '当前没有指派给你的未完成任务', desc: data.emptyHints && data.emptyHints.tasks }).html + '</div>';
   } else {
@@ -88,14 +100,40 @@ async function render() {
   }
   html += '</div>';
 
+  /* V0.1.2 Phase A：本周待发布 —— 与发布管理同源（publishing_schedules），排期≠已发布 */
+  html += '<div class="card"><div class="card-head"><h2>本周待发布</h2>'
+    + '<div class="ch-actions"><span class="badge badge-neutral">' + dueWeek.length + '</span>'
+    + '<button class="btn btn-sm" data-go-publishing="1">打开发布管理</button></div></div>';
+  if (!dueWeek.length) {
+    html += '<div class="card-body">' + stateBlock('empty', {
+      title: '未来 7 天没有已排期的发布',
+      desc: (data.emptyHints && data.emptyHints.dueThisWeek) || '排期不等于已发布；发布后在「发布管理」登记真实链接。'
+    }).html + '</div>';
+  } else {
+    html += '<div class="card-body tight">' + dueWeek.map((s) => '<div class="list-item"><div class="li-main">'
+      + '<div class="li-title">' + (s.taskCode ? '<span class="mono muted small">' + esc(s.taskCode) + '</span> ' : '')
+      + esc(s.taskTitle || '(未关联任务)') + '</div>'
+      + '<div class="li-sub"><span class="pill">' + esc(platformLabel(s.platform)) + '</span>'
+      + ' <span class="muted">' + esc(fmtDate(s.scheduledAt)) + '</span> · 品牌 ' + esc(s.brandCode) + '</div>'
+      + '</div></div>').join('') + '</div>';
+  }
+  html += '</div>';
+
   html += '</div>';
 
   hostEl.innerHTML = html;
 
   hostEl.querySelectorAll('[data-go-reviews]').forEach((b) => b.addEventListener('click', () => ctx.navigate('my-reviews')));
   hostEl.querySelectorAll('[data-go-tasks]').forEach((b) => b.addEventListener('click', () => ctx.navigate('tasks')));
+  hostEl.querySelectorAll('[data-go-publishing]').forEach((b) => b.addEventListener('click', () => ctx.navigate('publishing')));
   hostEl.querySelectorAll('[data-open-plan]').forEach((b) => b.addEventListener('click', () => ctx.navigate('planning')));
   hostEl.querySelectorAll('[data-task-act]').forEach((b) => b.addEventListener('click', () => taskAction(b.dataset.taskId, b.dataset.taskAct)));
+  /* 继续上次：记录锚点后直达内容编辑器并预选该任务 */
+  hostEl.querySelectorAll('[data-continue-task]').forEach((b) => b.addEventListener('click', async () => {
+    const tid = b.dataset.continueTask;
+    try { await api.put('/api/mos/my-work/continue', { taskId: tid }); } catch (_) { /* 锚点失败不阻断进入 */ }
+    ctx.navigate('content-editor', { task: tid });
+  }));
 }
 
 function nextActionBtn(t) {

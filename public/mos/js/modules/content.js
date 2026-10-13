@@ -61,7 +61,12 @@ async function render() {
     const s = stateBlock('empty', { title: '当前品牌还没有内容任务', desc: '请先在 Planning Center / Content Tasks 创建任务。', });
     setBody(s.html); bindHead(); return;
   }
+  /* V0.1.2 Phase A：深链接预选（#/content-editor?task=<id>，来自工作台「继续」） */
+  const wantTask = ctxRef && ctxRef.params && ctxRef.params.task;
+  if (wantTask && tasks.some((t) => t.id === wantTask)) taskId = wantTask;
   if (!taskId || !tasks.some((t) => t.id === taskId)) taskId = tasks[0].id;
+  /* 记录「继续上次」锚点（服务端持久化；失败不阻断制作） */
+  try { api.put('/api/mos/my-work/continue', { taskId }); } catch (_) { /* ignore */ }
 
   await Promise.all([loadVersions(), loadAssistants()]);
   paint();
