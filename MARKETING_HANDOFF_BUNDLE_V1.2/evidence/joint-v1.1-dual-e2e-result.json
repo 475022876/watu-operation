@@ -1,0 +1,357 @@
+{
+  "suite": "mos-e2e-build04-dual",
+  "phase": "V1.1 B4 —— 双系统真实 HTTP 端到端联调",
+  "ranAt": "2026-10-13T14:14:19.578Z",
+  "runTag": "5d00f4e0",
+  "verdict": "CONDITIONAL",
+  "verdictReason": "本侧真实双进程端到端联调全部通过；但因 A 包交付的 LIBRARY_HANDOFF_BUNDLE_V1.1 尚未收到、Provider 侧未宣布停止点达成，**Joint Acceptance 不得判定为 PASS** —— 结论封顶 CONDITIONAL。",
+  "jointAcceptance": "CONDITIONAL（待 Provider 交付 LIBRARY_HANDOFF_BUNDLE_V1.1 后由双方签署）",
+  "provider": {
+    "appVersionExpected": "1.1.7",
+    "sourceDir": "D:\\企业数据后台\\oa-system-20261004\\oa-system",
+    "isolation": "独立数据目录 + 运行期随机管理员口令 + 运行期随机票据 HMAC 密钥；外部 Provider 一律关闭",
+    "sourceModified": false
+  },
+  "mos": {
+    "baseUrl": "http://127.0.0.1:9552",
+    "providerBaseUrl": "http://127.0.0.1:9751",
+    "egress": "loopback http + allowLoopbackHttp（仅隔离测试；生产一律拒绝）",
+    "userMapping": "workspace.userMap 显式映射（未映射用户如实拒绝）"
+  },
+  "ports": {
+    "mos": 9552,
+    "provider": 9751
+  },
+  "contract": {
+    "contractVersion": "1.0",
+    "workspaceAppVersion": "1.1.7",
+    "openapiSha256": "cd3cc198a9c568192dbec76429fb9a6dbc836f5e738377249bc14f73d8e825e3"
+  },
+  "realJointTest": "EXECUTED（真实 HTTP 双进程；Provider 为资料库 V1.1.7 隔离实例）",
+  "transcript": [],
+  "total": 64,
+  "passed": 64,
+  "failed": 0,
+  "cases": [
+    {
+      "name": "D4-00 Provider 源码可用且未改动（只以 server.js + 环境变量装配隔离实例）",
+      "ok": true,
+      "detail": "D:\\企业数据后台\\oa-system-20261004\\oa-system"
+    },
+    {
+      "name": "D4-01 Provider 隔离实例真实启动（/api/health 200）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D4-02 Provider 管理员登录（x-oa-client: api 换取会话 token）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D4-03 Provider 侧合成测试身份创建并登录（exec / reviewer / 最终审批人）",
+      "ok": true,
+      "detail": "exec=ok rev=ok lfa=ok"
+    },
+    {
+      "name": "D4-04 Provider 侧独立授权显式授予（最终审批权不继承，须单独授权）",
+      "ok": true,
+      "detail": "lfa:library.asset.approve.final,exec:ai.external.transfer,rev:library.skill.approve.effective"
+    },
+    {
+      "name": "D4-04b 资料夹具上传并批准（internal 由管理员、executive 由 executive 角色批准）",
+      "ok": true,
+      "detail": "open=d_mv6rhxcv5f93e8d4/200 exec=d_mv6rhxd0d18a7e7f/200"
+    },
+    {
+      "name": "D4-05 服务账户登记成功（Provider 只持公钥，响应不含任何私钥字段）",
+      "ok": true,
+      "detail": "keyId=svc_mv6rhxd46d03874d fingerprint=2d7385d74c4281c0"
+    },
+    {
+      "name": "D4-06 本侧 Ed25519 签名被 Provider 真实验签通过（/health 200 合法封套）",
+      "ok": true,
+      "detail": "HTTP 200 policy=1.0"
+    },
+    {
+      "name": "D4-07 伪造签名被拒（401 BAD_SIGNATURE）—— 证明 D4-06 不是桩返回",
+      "ok": true,
+      "detail": "HTTP 401 code=BAD_SIGNATURE"
+    },
+    {
+      "name": "D4-08 Provider 能力声明不夸大：不提供 Published Content 归档",
+      "ok": true,
+      "detail": "{\"knowledgeSearch\":true,\"assetSearch\":true,\"assetResolve\":true,\"admissionSubmit\":true,\"admissionSubmitWithReviews\":true,\"admissionArtifactPush\":true,\"admissionStatus\":true,\"admissionFinalDecision\":\"session-ticket-only\",\"skillResolve\":true,\"changesPolling\":true,\"tickets\":true,\"publishedContentArchive\":false}"
+    },
+    {
+      "name": "D4-09 Marketing OS 隔离实例真实启动（/api/health 200）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D4-10 引导管理员首登强制改密成功（口令策略真实生效）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D4-11 MOS 侧合成身份创建（creator / asset-reviewer / library-final-approver / 未映射对照）",
+      "ok": true,
+      "detail": "d4.creator,d4.reviewer,d4.final,d4.unmapped"
+    },
+    {
+      "name": "D4-11b 四个合成身份已持久化（重启前核对，避免把\"内存态\"当\"落盘态\"）",
+      "ok": true,
+      "detail": "users=mosadmin|demo.p1|demo.p2|demo.p3|demo.reviewer|demo.lfa|d4.creator|d4.reviewer|d4.final|d4.unmapped"
+    },
+    {
+      "name": "D4-12 MOS 实例带显式用户映射重启成功（数据目录持久化、会话重签）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D4-13 重启后管理员会话可用",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D4-13b 四个合成身份登录成功（creator / reviewer / final / unmapped）",
+      "ok": true,
+      "detail": "200,200,200,200 users=mosadmin|demo.p1|demo.p2|demo.p3|demo.reviewer|demo.lfa|d4.creator|d4.reviewer|d4.final|d4.unmapped body={\"ok\":true,\"mustChangePassword\":false,\"displayName\":\"D4 d4.creator\"}"
+    },
+    {
+      "name": "D4-14 本侧集成状态：configured=true 且出站守卫放行（文案明确\"不代表联调通过\"）",
+      "ok": true,
+      "detail": "host=127.0.0.1 configured=true"
+    },
+    {
+      "name": "D4-15 契约基线一致：本侧 OpenAPI SHA256 与 C 包共享契约逐字节相同",
+      "ok": true,
+      "detail": "sha=cd3cc198a9c56819 codes=71"
+    },
+    {
+      "name": "D4-16 真实出站探测 /health：Provider 以合法封套应答（本侧→Provider 链路打通）",
+      "ok": true,
+      "detail": "HTTP 200 probeStatus=200 body={\"ok\":true,\"brandCode\":\"VFIB\",\"probe\":{\"ok\":true,\"health\":\"HEALTHY\",\"httpStatus\":200,\"errorCode\":\"\",\"requestId\":\"mos-e77abecb62fa\",\"data\":{\"status\":\"UP\",\"service\":\"vfib-enterprise-library\",\"appVersion\":\"1.1.7\",\"policyVersion\":\"1.0\",\"capabilities\":{\"knowledgeSearch\":true,\"assetSearch\":true,\"assetReso"
+    },
+    {
+      "name": "D4-17 只读探测：assets.search 走真实 HTTP 返回合法封套",
+      "ok": true,
+      "detail": "{\"name\":\"assets.search\",\"ok\":true,\"httpStatus\":200,\"errorCode\":\"\",\"errorLayer\":\"\",\"requestId\":\"mos-43c295f64398\",\"dataKeys\":[\"brandId\",\"items\",\"nextCursor\",\"total\"],\"itemCount\":0,\"withheldCount\":0,\"truncated\":false,\"nextCursor\":null,\"ticketMeta\":{\"cached\":false,\"refreshed\":true,\"expiresAt\":\"2026-10-13T14:19:11.000Z\",\"remainingSeconds\":300,\"scopes\":[\"assets.search\"],\"strippedScopes\":[]}}"
+    },
+    {
+      "name": "D4-18 只读探测：knowledge.search 走真实 HTTP，命中夹具资料且正文一律扣留（snippet 不外流）",
+      "ok": true,
+      "detail": "{\"name\":\"knowledge.search\",\"ok\":true,\"httpStatus\":200,\"errorCode\":\"\",\"errorLayer\":\"\",\"requestId\":\"mos-790446b1d0b9\",\"dataKeys\":[\"contentPolicy\",\"items\",\"minScore\",\"nextCursor\",\"query\",\"reachedThreshold\",\"total\"],\"itemCount\":2,\"withheldCount\":2,\"truncated\":false,\"nextCursor\":null,\"ticketMeta\":{\"cached\":false,\"refreshed\":true,\"expiresAt\":\"2026-10-13T14:19:11.000Z\",\"remainingSeconds\":300,\"scopes\":[\"knowledge.search\"],\"strippedScopes\":[]}}"
+    },
+    {
+      "name": "D4-19 只读探测：changes 走真实 HTTP，游标语义为单调整数 seq",
+      "ok": true,
+      "detail": "{\"name\":\"changes\",\"ok\":true,\"httpStatus\":200,\"errorCode\":\"\",\"errorLayer\":\"\",\"requestId\":\"mos-ff4fcfee403a\",\"dataKeys\":[\"hasMore\",\"items\",\"nextCursor\",\"oldestCursor\",\"policyVersion\",\"pollIntervalHintSeconds\",\"truncated\"],\"itemCount\":5,\"withheldCount\":0,\"truncated\":false,\"nextCursor\":5,\"ticketMeta\":{\"cached\":false,\"refreshed\":true,\"expiresAt\":\"2026-10-13T14:19:11.000Z\",\"remainingSeconds\":300,\"scopes\":[\"changes.read\"],\"strippedScopes\":[]}}"
+    },
+    {
+      "name": "D4-20 只读探测不回流正文：响应顶层键中不含 content/body/text 字段",
+      "ok": true,
+      "detail": "probes=3"
+    },
+    {
+      "name": "D4-21 工作素材上传成功（真实落盘 + sha256）",
+      "ok": true,
+      "detail": "HTTP 200 id=wa_mv6ri1xh_9c546bdc9d25"
+    },
+    {
+      "name": "D4-22 MOS 建单成功并带三项 Provider 必填字段",
+      "ok": true,
+      "detail": "id=adm_mv6ri1xo_bc6b7ec0b61e complete=true"
+    },
+    {
+      "name": "D4-23 预检 PASS（由独立预检员执行；权限不含最终审批）",
+      "ok": true,
+      "detail": "verdict=PASS"
+    },
+    {
+      "name": "D4-24 送审产生 ASSET_ADMISSION 审核单（提交人不得自批，走独立审核链）",
+      "ok": true,
+      "detail": "case=rc_mv6ri1xt_0fd7469705a5"
+    },
+    {
+      "name": "D4-25 授权主体在 MOS 侧完成最终审批（持有 library.asset.approve.final）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D4-26 未映射 MOS 用户同步 → 如实拒绝（NO_PROVIDER_USER_MAPPING），绝不用服务身份顶替",
+      "ok": true,
+      "detail": "code=NO_PROVIDER_USER_MAPPING"
+    },
+    {
+      "name": "D4-27 真实同步第③步被 Provider 以 409 FINAL_APPROVAL_REQUIRED 拦下（不中途可用）",
+      "ok": true,
+      "detail": "code=FINAL_APPROVAL_REQUIRED stage=artifact"
+    },
+    {
+      "name": "D4-28 本侧**不伪造**成功：无 libraryId、无回执、library_asset_refs 未建立可复用引用",
+      "ok": true,
+      "detail": "libraryId=null syncStatus=FAILED"
+    },
+    {
+      "name": "D4-29 Provider 侧申请真实存在（拿到 providerAdmissionId，非进程内假象）",
+      "ok": true,
+      "detail": "providerAdmissionId=adm_mv6ri1zx49140131"
+    },
+    {
+      "name": "D4-30 服务票据索取 admission.final.decision 被剔除，且用服务票据打最终审批 → 403 TICKET_KIND_MISMATCH",
+      "ok": true,
+      "detail": "greedyHTTP=403 granted=[] attemptHTTP=403 code=TICKET_KIND_MISMATCH"
+    },
+    {
+      "name": "D4-30b 本侧 workspace-client.finalDecision() 亦**结构性**恒拒绝（双重闭合）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "D4-29b Provider 侧申请状态已推进到 FINAL_APPROVAL_PENDING（submit 真的生效，非仅 HTTP 200）",
+      "ok": true,
+      "detail": "HTTP=200 state=FINAL_APPROVAL_PENDING providerProblems=[] steps=[{\"stage\":\"create\",\"ok\":true,\"httpStatus\":200,\"code\":\"\",\"requestId\":\"mos-08a5205f177f\"},{\"stage\":\"submit\",\"ok\":true,\"httpStatus\":200,\"code\":\"\",\"state\":\"FINAL_APPROVAL_PENDING\",\"problems\":[],\"submitSteps\":[\"SUBMITTED\",\"PRECHECK\",\"REVIEWING\",\"FINAL_APPROVAL_PENDING\"]},{\"stage\":\"artifact\",\"ok\":false,\"httpStatus\":409,\"code\":\"FINAL_APPROVAL_REQUIRED\",\"isReusable\":false,\"libraryAssetId\":\"\"}] body={\"ok\":true,\"data\":{\"admissionRequestId\":\"adm_mv6ri1zx49140131\",\"state\":\"FINAL_APPROVAL_PENDING\",\"stateLabel\":\"待最终审批\",\"isReusable\":false,\"inLibrary\":false,\"libraryAssetId\":null,\"libraryVersionId\":null,"
+    },
+    {
+      "name": "D4-31 被显式授权的本人会话可签出含 admission.final.decision 的票据（kind=session）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D4-32 Provider 侧最终审批通过（FINAL_APPROVED）",
+      "ok": true,
+      "detail": "HTTP 200 state=FINAL_APPROVED"
+    },
+    {
+      "name": "D4-33 重试同步成功：取得 Provider 正式 Asset ID + 版本 ID（isReusable=true）",
+      "ok": true,
+      "detail": "assetId=VFIB-ASSET-2026-0001 version=VFIB-ASSET-2026-0001-V1.0"
+    },
+    {
+      "name": "D4-34 本侧引用以**真实**来源建立（mode=real，permissionValid=true，assetState=ACTIVE）",
+      "ok": true,
+      "detail": "libraryId=VFIB-ASSET-2026-0001 mode=real"
+    },
+    {
+      "name": "D4-35 使用前重新验证：向 Provider 真实解析该资产 → 可复用（PROVIDER_VERIFIED）",
+      "ok": true,
+      "detail": "reason=PROVIDER_VERIFIED"
+    },
+    {
+      "name": "D4-36 Provider 侧撤回成功（治理动作，留审计）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D4-37 撤回后 Provider 解析 → 410 ASSET_GONE（治理主体可区分\"曾经有效但已失效\"）",
+      "ok": true,
+      "detail": "HTTP 410 code=ASSET_GONE"
+    },
+    {
+      "name": "D4-37b 非治理主体解析已撤回资产 → 非 200（404 一致隐藏）；**不得**据此判定可用",
+      "ok": true,
+      "detail": "HTTP 404 code=NOT_FOUND"
+    },
+    {
+      "name": "D4-38 事件轮询真实消费到 asset.revoked（按品牌处理、游标推进）",
+      "ok": true,
+      "detail": "HTTP=200 items=14 effects=policy.version.changed:1.0,permission.changed:droppedTickets=1,permission.changed:droppedTickets=0,permission.changed:dr cursor=14 tick={\"ok\":true,\"at\":\"2026-10-13T14:14:12.579Z\",\"intervalSeconds\":60,\"brands\":[{\"ok\":true,\"brandId\":\"VFIB\",\"items\":14,\"applied\":14,\"effects\":[\"policy.version.changed:1.0\",\"permission.changed:droppedTickets=1\",\"permission.changed:droppedTickets=0\",\"permission.changed:droppedTickets=0\",\"service_account.changed:droppedTickets=0\",\"admission.state.changed:adm_mv6ri1zx49140131\",\"admission.state.changed:adm_m"
+    },
+    {
+      "name": "D4-39 本地引用被置 INVALIDATED（失效登记可审计：kind + targetId + seq）",
+      "ok": true,
+      "detail": "invalidations=2 kinds=[\"permission.changed:VFIB\",\"asset.revoked:VFIB-ASSET-2026-0001\"]"
+    },
+    {
+      "name": "D4-40 撤回后再做使用前验证 → 拒绝（本地已失效，零出站，绝不沿用旧 Approved 结论）",
+      "ok": true,
+      "detail": "reason=INVALIDATED_LOCALLY usable=false"
+    },
+    {
+      "name": "D4-49 发布链身份就绪（P3 操作员 / PUBLISHING_APPROVER 审批人，均非管理员）",
+      "ok": true,
+      "detail": "HTTP 200,200"
+    },
+    {
+      "name": "D4-50 内容冻结送审生成 PUBLICATION_APPROVAL 审核单（发布审批链真实存在）",
+      "ok": true,
+      "detail": "adhocHTTP=200 cvHTTP=200 lockHTTP=200 body={\"ok\":true,\"version\":{\"id\":\"cv_mv6ri2x8_029e5eb84ad2\",\"brandCode\":\"VFIB\",\"contentTaskId\":\"task_mv6ri2x6_821e5c0ca352\",\"taskCode\":\"MOS-TASK-0003\",\"taskTitle\":\"D4/B5 发布链用例\",\"number\":1,\"code\":\"MOS-TASK-0003-v1\",\"title\":\"D4/B5 成品\",\"format\":\"MAR"
+    },
+    {
+      "name": "D4-51 发布审批通过后版本进入 APPROVED（提交人与审批人分离）",
+      "ok": true,
+      "detail": "HTTP=200 state=APPROVED"
+    },
+    {
+      "name": "D4-52 人工登记实际发布 → 生成 PublicationRecord（真实 URL / 实际时间）",
+      "ok": true,
+      "detail": "HTTP=200 pub=pub_mv6ri2xj_feb737f71a29 url=https://www.linkedin.com/company/vfib-bank/posts/d4-b5 sch={\"ok\":true,\"schedules\":[{\"id\":\"ps_mv6ri2xf_80ff03f9f8ac\",\"brandCode\":\"VFIB\",\"contentVersionId\":\"cv_mv6ri2x8_029e5eb84ad2\",\"versionCode\":\"MOS-TASK-0003-v1\",\"versionState\":\"APPROVED\",\"versionTitle\":\"D4/"
+    },
+    {
+      "name": "D4-53 归档快照真实落盘且正文可只读回放（TEXT_SNAPSHOT + archivedBodyAvailable）",
+      "ok": true,
+      "detail": "artifacts=[\"TEXT_SNAPSHOT:published/pub_mv6ri2xj_feb737f71a29/content.md\",\"MANIFEST:published/pub_mv6ri2xj_feb737f71a29/manifest.json\"] bodyLen=40"
+    },
+    {
+      "name": "D4-54 资料库侧资产总数在发布前后**未变化**（发布成品绝不会被自动镜像入正式库）",
+      "ok": true,
+      "detail": "before=0 after=0"
+    },
+    {
+      "name": "D4-55 发布期间资料库变更事件流**零新增**（运营中台发布不产生任何出站写入）",
+      "ok": true,
+      "detail": "cursorBefore=14 newItems=0 kinds=[]"
+    },
+    {
+      "name": "D4-56 从历史成品提取复用母版 → 走**独立的新准入申请**（得到与首发不同的 providerAdmissionId）",
+      "ok": true,
+      "detail": "remasterProviderId=adm_mv6ri2zuf518cd3c firstProviderId=adm_mv6ri1zx49140131 code=FINAL_APPROVAL_REQUIRED"
+    },
+    {
+      "name": "D4-41 Published Content 归档恒不在 Provider（capabilities.publishedContentArchive=false）",
+      "ok": true,
+      "detail": "{\"knowledgeSearch\":true,\"assetSearch\":true,\"assetResolve\":true,\"admissionSubmit\":true,\"admissionSubmitWithReviews\":true,\"admissionArtifactPush\":true,\"admissionStatus\":true,\"admissionFinalDecision\":\"session-ticket-only\",\"skillResolve\":true,\"changesPolling\":true,\"tickets\":true,\"publishedContentArchive\":false}"
+    },
+    {
+      "name": "D4-42 Published Archive 归档面在 Marketing OS 侧真实存在（红线：归档只在运营中台）",
+      "ok": true,
+      "detail": "HTTP 200 total=1"
+    },
+    {
+      "name": "D4-42b 归档说明明示「已发布内容不会自动进入企业资料库」（零污染回灌）",
+      "ok": true,
+      "detail": "note=Published Archive 是 Marketing OS 内的独立权威归档；已发布内容**不会**自动进入企业资料库（00 §1）。"
+    },
+    {
+      "name": "D4-43 MARK 项（客户增长/声誉/线索/代理/自动发布）**未开发**：权限表中不存在对应权限点",
+      "ok": true,
+      "detail": "forbidden=[] perms=20"
+    },
+    {
+      "name": "D4-44 schema 已升到 v5（集成态四集合随迁移只增不改）",
+      "ok": true,
+      "detail": "schemaVersion=5"
+    },
+    {
+      "name": "D4-45 Provider 源码未被本次联调修改（server.js mtime 早于本次运行）",
+      "ok": true,
+      "detail": "mtimeAge=1765s"
+    },
+    {
+      "name": "D4-46 MOS 侧事件轮询默认关闭（未获运营授权不自动出站）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "D4-47 Provider 隔离实例运行期无未捕获异常",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "D4-48 两套实例均已停止、临时数据目录已清理、`data/` 未被触碰",
+      "ok": true,
+      "detail": "oaStillUp=false"
+    }
+  ]
+}

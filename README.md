@@ -4,7 +4,7 @@
 
 不是 PPT 展示页，不是 OA 替代品，不是企业资料库副本。所有页面都具备真实操作与持久化能力。
 
-- 版本：`0.1.0`（`lib/mos/config.js` 的 `MOS_VERSION`，单一来源）
+- 版本：`0.1.1`（`lib/mos/config.js` 的 `MOS_VERSION`，单一来源）；发布登记见 `docs/RELEASE_REGISTER.md`
 - 数据 schema：`mosSchemaVersion = 3`（v1→v2→v3 只增不改，见 `lib/mos/store.js` `migrate()`）
 - 当前阶段：**BUILD-01（基础 + 策划）、BUILD-02（AI 创作 + 传播）、BUILD-03（资产入库 + 分析 + 治理）已交付**；BUILD-04 未开工
 

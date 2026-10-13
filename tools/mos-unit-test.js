@@ -1002,7 +1002,7 @@ t('U-23e Workspace 端点表与契约一致（含 skills；final-decision 要求
   try {
     fs.mkdirSync(OUT_DIR, { recursive: true });
     fs.writeFileSync(path.join(OUT_DIR, 'unit-result.json'), JSON.stringify({
-      suite: 'mos-unit', mosVersion: '0.1.0', build: 'BUILD-01 + BUILD-02 + BUILD-03',
+      suite: 'mos-unit', mosVersion: '0.1.1', build: 'BUILD-01 + BUILD-02 + BUILD-03',
       ranAt: new Date().toISOString(),
       total: results.length, passed: results.length - failed.length, failed: failed.length,
       cases: results

@@ -16,7 +16,7 @@ UI_EVIDENCE_MOS_BUILD*/
 
 # 交付源码包：可由 `bash tools/package-mos-source.sh` 随时重新生成（含二进制，不入库）
 dist/
-VFIB_MARKETING_OS_V0.1_REMEDIATED_SOURCE.zip
+VFIB_MARKETING_OS_*.zip
 
 # 本地工具产物：WorkBuddy 会话/记忆数据、临时探针数据目录、应用描述文件
 .workbuddy/

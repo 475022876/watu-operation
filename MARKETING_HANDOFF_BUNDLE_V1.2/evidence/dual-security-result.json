@@ -1,0 +1,393 @@
+{
+  "suite": "build05-dual-security",
+  "build": "BUILD-06",
+  "pack": "VFIB_MarketingOS_Remediation_V1.2",
+  "ranAt": "2026-10-13T15:55:28.155Z",
+  "runId": "bd499b20",
+  "total": 61,
+  "passed": 61,
+  "failed": 0,
+  "verdict": "PASS_EVIDENCE_COMPLETE",
+  "ports": {
+    "mos": 9564,
+    "provider": 9765
+  },
+  "providerSourceDir": "D:\\企业数据后台\\oa-system-20261004\\oa-system",
+  "providerSourceUnchanged": true,
+  "mosVersion": "0.1.1",
+  "realJointTest": true,
+  "coversInt": [
+    "INT-02",
+    "INT-03"
+  ],
+  "syntheticIdentities": {
+    "provider": [
+      "d6.exec",
+      "d6.exe",
+      "d6.rev",
+      "d6.lfa"
+    ],
+    "mos": [
+      "d6.creator",
+      "d6.precheck",
+      "d6.final",
+      "d6.ops",
+      "d6.unmapped"
+    ],
+    "note": "全部为**合成测试身份**，只用于证明控制机制；不代表真人授权或真人验收。"
+  },
+  "serverAuditEvidence": {
+    "rows": 29,
+    "matched": [
+      {
+        "label": "过期签名",
+        "correlationId": "d6-bd499b20-5",
+        "expected": "TIMESTAMP_OUT_OF_WINDOW/401",
+        "actual": "TIMESTAMP_OUT_OF_WINDOW/401",
+        "matched": true
+      },
+      {
+        "label": "nonce 重放",
+        "correlationId": "d6-bd499b20-8",
+        "expected": "NONCE_REPLAY/401",
+        "actual": "NONCE_REPLAY/401",
+        "matched": true
+      },
+      {
+        "label": "服务账号撤销",
+        "correlationId": "d6-bd499b20-10",
+        "expected": "BAD_SERVICE_ACCOUNT/401",
+        "actual": "BAD_SERVICE_ACCOUNT/401",
+        "matched": true
+      },
+      {
+        "label": "跨品牌（体/票据不一致）",
+        "correlationId": "d6-bd499b20-15",
+        "expected": "BRAND_MISMATCH/403",
+        "actual": "BRAND_MISMATCH/403",
+        "matched": true
+      },
+      {
+        "label": "跨品牌（不在允许清单）",
+        "correlationId": "d6-bd499b20-16",
+        "expected": "BRAND_NOT_ALLOWED/403",
+        "actual": "BRAND_NOT_ALLOWED/403",
+        "matched": true
+      },
+      {
+        "label": "跨品牌资产不可复用",
+        "correlationId": "d6-bd499b20-24",
+        "expected": "NOT_REUSABLE_FOR_SUBJECT/403",
+        "actual": "NOT_REUSABLE_FOR_SUBJECT/403",
+        "matched": true
+      }
+    ]
+  },
+  "results": [
+    {
+      "name": "D6-00 Provider 源码可用（只以 server.js + 环境变量装配隔离实例）",
+      "ok": true,
+      "detail": "D:\\企业数据后台\\oa-system-20261004\\oa-system"
+    },
+    {
+      "name": "D6-01 Provider 隔离实例真实启动（/api/health 200）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D6-02 Provider 管理员登录成功（Bearer api 会话）",
+      "ok": true,
+      "detail": "HTTP 200 token=YES"
+    },
+    {
+      "name": "D6-03 Provider 侧合成测试身份创建（member / executive / reviewer / owner）",
+      "ok": true,
+      "detail": "exec=u_mv6v459p7a6b79a2 exe=u_mv6v45awbec6f1ec rev=u_mv6v45c27bdb5abf lfa=u_mv6v45dd58923c29"
+    },
+    {
+      "name": "D6-04 Provider 侧独立授权显式登记（library.asset.approve.final 不自动继承）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D6-05 夹具①上传并送审（internal，由管理员）",
+      "ok": true,
+      "detail": "HTTP 200 doc=d_mv6v45dwb3572336"
+    },
+    {
+      "name": "D6-06 夹具①批准（internal 由 admin 资料库角色批准，密级 rank≤2）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D6-07 夹具②上传并送审（executive，由 executive 资料库角色）",
+      "ok": true,
+      "detail": "HTTP 200 doc=d_mv6v45frcfa8ea59"
+    },
+    {
+      "name": "D6-08 夹具②批准（executive，仅具备相应资料库角色者可批）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D6-09 服务账户①登记成功（Provider 只持公钥，响应不含私钥字段）",
+      "ok": true,
+      "detail": "keyId=svc_mv6v45fw36313d61"
+    },
+    {
+      "name": "D6-10 服务账户②登记成功（撤销负例专用，不影响主链路）",
+      "ok": true,
+      "detail": "id=svc_mv6v45fz285aaf5e"
+    },
+    {
+      "name": "D6-11 服务账户③登记成功（轮换负例专用）",
+      "ok": true,
+      "detail": "id=svc_mv6v45g026c2bb9f"
+    },
+    {
+      "name": "D6-12 受限票据签发（VFIB 普通身份 / VFIB 高管身份 / UCARD 跨品牌身份）",
+      "ok": true,
+      "detail": "HTTP 200/200/200"
+    },
+    {
+      "name": "D6-13 服务票据**不含** admission.final.decision（服务身份不可代签最终审批）",
+      "ok": true,
+      "detail": "note 明示服务票据永不携带该范围"
+    },
+    {
+      "name": "D6-13b Provider 能力声明不夸大：publishedContentArchive=false（资料库不建发布成品镜像）",
+      "ok": true,
+      "detail": "HTTP 200 publishedContentArchive=false"
+    },
+    {
+      "name": "D6-14 INT-02① 过期签名（ts=-3600s）被真实拒绝：401 TIMESTAMP_OUT_OF_WINDOW",
+      "ok": true,
+      "detail": "期望 401/TIMESTAMP_OUT_OF_WINDOW，实际 401/TIMESTAMP_OUT_OF_WINDOW | cid=d6-bd499b20-5"
+    },
+    {
+      "name": "D6-15 INT-02①b 未来时间戳（ts=+3600s）同样被拒：401 TIMESTAMP_OUT_OF_WINDOW",
+      "ok": true,
+      "detail": "实际 401/TIMESTAMP_OUT_OF_WINDOW | cid=d6-bd499b20-6"
+    },
+    {
+      "name": "D6-16 INT-02② nonce 重放被真实拒绝：首次 200、原样重放 401 NONCE_REPLAY",
+      "ok": true,
+      "detail": "首次 200 → 重放 401/NONCE_REPLAY | cid=d6-bd499b20-8"
+    },
+    {
+      "name": "D6-17 INT-02③ 服务账号撤销立即生效：撤销前 200 → 撤销后 401 BAD_SERVICE_ACCOUNT",
+      "ok": true,
+      "detail": "撤销前 200 / 撤销 200 / 撤销后 401/BAD_SERVICE_ACCOUNT | cid=d6-bd499b20-10"
+    },
+    {
+      "name": "D6-18 INT-02③b 公钥轮换后旧私钥立即失效：旧签 401 BAD_SIGNATURE、新签 200",
+      "ok": true,
+      "detail": "轮换前 200 / 轮换 200 / 旧签 401 / 新签 200 | cid=d6-bd499b20-12"
+    },
+    {
+      "name": "D6-19 对照：伪造签名 → 401 BAD_SIGNATURE（证明上面的 401 并非\"一律拒绝\"）",
+      "ok": true,
+      "detail": "实际 401/BAD_SIGNATURE"
+    },
+    {
+      "name": "D6-20 INT-03① 跨品牌（VFIB 票据查询 UCARD 上下文）被真实拒绝：403 BRAND_MISMATCH",
+      "ok": true,
+      "detail": "实际 403/BRAND_MISMATCH | cid=d6-bd499b20-15"
+    },
+    {
+      "name": "D6-21 INT-03①b 票据品牌不在服务端允许清单 → 403 BRAND_NOT_ALLOWED（票据签发即被拒）",
+      "ok": true,
+      "detail": "实际 403/BRAND_NOT_ALLOWED | cid=d6-bd499b20-16"
+    },
+    {
+      "name": "D6-22 单独授权的本人会话可签出 admission.final.decision 票据（kind=session）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D6-23 INT-04 反例 服务票据索取 final 范围被剔除，且以它打最终审批 → 403 TICKET_KIND_MISMATCH",
+      "ok": true,
+      "detail": "签发返回 scopes=[\"admissions.read\"]，打最终审批 403/TICKET_KIND_MISMATCH"
+    },
+    {
+      "name": "D6-24 准入链路真实走通并取得正式 Asset ID（用于跨品牌隔离对照）",
+      "ok": true,
+      "detail": "create/submit/final/artifact=200/200/200/200 assetId=VFIB-ASSET-2026-0001"
+    },
+    {
+      "name": "D6-25 INT-03② 同一资产：VFIB 票据解析 200，UCARD 票据解析 403 NOT_REUSABLE_FOR_SUBJECT",
+      "ok": true,
+      "detail": "VFIB 200 / UCARD 403/NOT_REUSABLE_FOR_SUBJECT | cid=d6-bd499b20-24"
+    },
+    {
+      "name": "D6-26 INT-03②b 跨品牌检索隔离：VFIB 命中该资产、UCARD 检索结果中不含该资产",
+      "ok": true,
+      "detail": "VFIB items=1 / UCARD items=0（UCARD 含目标=false）"
+    },
+    {
+      "name": "D6-27 INT-03③ 高密级资料（executive）对非提权主体不可见：普通身份 0 命中 / 高管身份命中",
+      "ok": true,
+      "detail": "HTTP 200/200 普通身份 hits=0（含目标=false）/ 高管身份 hits=1（含目标=true）| cid=d6-bd499b20-28 err=-"
+    },
+    {
+      "name": "D6-28 INT-03③b 对照：internal 资料对普通身份可见（证明检索链路本身有效）",
+      "ok": true,
+      "detail": "HTTP 200 hits=1（含目标=true） err=-"
+    },
+    {
+      "name": "D6-29 服务端审计证据：6 类拒绝在 Provider 审计中逐条可核对（code + status + ok=false）",
+      "ok": true,
+      "detail": "命中 6/6；审计行总数=29"
+    },
+    {
+      "name": "D6-30 被拒请求在审计中**不得**留下任何 2xx 成功记录（拒绝不能\"看起来成功\"）",
+      "ok": true,
+      "detail": "全部为 4xx"
+    },
+    {
+      "name": "D6-31 Marketing OS 隔离实例真实启动（/api/health 200）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D6-32 引导管理员首登改密成功（口令策略真实生效）",
+      "ok": true,
+      "detail": "login/chpw=200/200"
+    },
+    {
+      "name": "D6-33 MOS 侧合成身份创建（creator / prechecker / final approver / 采集触发者 / 未映射对照）",
+      "ok": true,
+      "detail": "creator=user_mv6v46sy_801618e0cbc3 precheck=user_mv6v46u4_eef5d7f7511d final=user_mv6v46vb_5160249fe178 ops=user_mv6v46wk_4c395161ba90 unmapped=user_mv6v46xr_b33c09796075"
+    },
+    {
+      "name": "D6-34 MOS 实例带**显式用户映射**重启成功（数据持久化、未映射者被如实拒绝）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D6-35 重启后管理员会话可用",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D6-36 本侧集成状态：configured=true 且出站守卫放行（文案明确\"不代表联调通过\"）",
+      "ok": true,
+      "detail": "configured=true"
+    },
+    {
+      "name": "D6-37 正向对照：MOS→Provider 真实 HTTP 只读探测成功（assets.search / knowledge.search / changes / assets.read 均 200）",
+      "ok": true,
+      "detail": "assets.search=200 knowledge.search=200 changes=200 assets.read=200"
+    },
+    {
+      "name": "D6-38 INT-03④ MOS 视图跨品牌：UCARD 品牌可出站检索但命中 0 条，读取 VFIB 资产被 403 拒绝",
+      "ok": true,
+      "detail": "UCARD assets.search=ok/0条 / assets.read=NOT_REUSABLE_FOR_SUBJECT"
+    },
+    {
+      "name": "D6-39 未映射用户：零出站如实拒绝（NO_PROVIDER_USER_MAPPING），绝不用服务身份顶替",
+      "ok": true,
+      "detail": "probes=0"
+    },
+    {
+      "name": "D6-39a MOS 侧四个合成身份会话可用（creator / prechecker / final approver / 采集触发者）",
+      "ok": true,
+      "detail": "creator=200 precheck=200 final=200 ops=200 err=[\"\",\"\",\"\",\"\"]"
+    },
+    {
+      "name": "D6-40 工作素材上传成功（真实落盘 + sha256）",
+      "ok": true,
+      "detail": "HTTP 200 id=wa_mv6v49up_18fc408df59b"
+    },
+    {
+      "name": "D6-41 MOS 建单成功并带三项 Provider 必填字段（libraryPrimaryCategory/classification/licenseStatus）",
+      "ok": true,
+      "detail": "HTTP 200 id=adm_mv6v49x1_10d72528003a"
+    },
+    {
+      "name": "D6-42 预检 PASS（由**独立**预检员执行；预检权限不含最终审批）",
+      "ok": true,
+      "detail": "HTTP 200 verdict=PASS fail=[]"
+    },
+    {
+      "name": "D6-43 送审产生 ASSET_ADMISSION 审核单（提交人不得自批，走独立审批链）",
+      "ok": true,
+      "detail": "HTTP 200 case=rc_mv6v49x6_c8765eb98eaa"
+    },
+    {
+      "name": "D6-44 授权主体在 MOS 侧完成最终审批（须持有 library.asset.approve.final）",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "D6-45 首次同步被 Provider 以 FINAL_APPROVAL_REQUIRED 拦下（申请 ≠ 资产，不中途可用）",
+      "ok": true,
+      "detail": "syncStatus=FAILED libraryId=null"
+    },
+    {
+      "name": "D6-46 重试同步成功：取得 Provider 正式 Asset ID，适配层记录为真实（非 MOCK）",
+      "ok": true,
+      "detail": "providerFinal=200 syncStatus=COMPLETED approvalMode=REAL libraryId=VFIB-ASSET-2026-0002"
+    },
+    {
+      "name": "D6-47 建立真实可复用引用（permissionValid=true，assetState=ACTIVE，非 MOCK）",
+      "ok": true,
+      "detail": "permissionValid=true assetState=ACTIVE mock=false"
+    },
+    {
+      "name": "D6-48 门禁（撤回前）：引用**可复用**，阻断项中不含 LIBRARY_REF_* 类（引用本身不是问题）",
+      "ok": true,
+      "detail": "blockers=[\"SKILL_NOT_EFFECTIVE\"]"
+    },
+    {
+      "name": "D6-49 撤回传播：Provider 撤回 → MOS 事件消费 → 本地引用 permissionValid=false（可审计）",
+      "ok": true,
+      "detail": "revoke=200 tick.ok=true totalItems=30 invalidations=3 permissionValid=false"
+    },
+    {
+      "name": "D6-50 ★ B1 门禁（撤回后）：FORMAL 输出被阻断，且出现 LIBRARY_REF_INVALIDATED / LIBRARY_REF_NOT_REUSABLE",
+      "ok": true,
+      "detail": "blockers=[\"SKILL_NOT_EFFECTIVE\",\"LIBRARY_REF_INVALIDATED\",\"LIBRARY_REF_NOT_REUSABLE\"]"
+    },
+    {
+      "name": "D6-51 ★ 生成端点同源门禁：FORMAL 生成被 409 FORMAL_OUTPUT_BLOCKED 阻断（含引用失效明细）",
+      "ok": true,
+      "detail": "HTTP 409 code=FORMAL_OUTPUT_BLOCKED blockers=[\"SKILL_NOT_EFFECTIVE\",\"LIBRARY_REF_INVALIDATED\",\"LIBRARY_REF_NOT_REUSABLE\"]"
+    },
+    {
+      "name": "D6-52 对照：同一引用在 TEST_DRAFT 下**不阻断**（草稿允许，但不得对外发布）",
+      "ok": true,
+      "detail": "HTTP 200 status=NOT_CONFIGURED"
+    },
+    {
+      "name": "D6-53 INT-10 关联：正式输出门禁要求**已批准生效** Skill；REFERENCE_ONLY 一律阻断（不用草稿冒充）",
+      "ok": true,
+      "detail": "skillState=REFERENCE_ONLY"
+    },
+    {
+      "name": "D6-54 服务账号被撤销后：MOS 探测全部失败且**无一条** ok=true（不静默成功）",
+      "ok": true,
+      "detail": "probes=3 ok 数=0 codes=[\"BAD_SERVICE_ACCOUNT\",\"BAD_SERVICE_ACCOUNT\",\"BAD_SERVICE_ACCOUNT\"]"
+    },
+    {
+      "name": "D6-55 本侧如实记录安全类拒绝（securityRejections 按码计数，不含任何凭据材料）",
+      "ok": true,
+      "detail": "byCode={\"BAD_SERVICE_ACCOUNT\":3} last={\"code\":\"BAD_SERVICE_ACCOUNT\",\"httpStatus\":401,\"endpoint\":\"CHANGES\",\"requestId\":\"\",\"at\":\"2026-10-13T15:55:28.148Z\"}"
+    },
+    {
+      "name": "D6-56 Provider 源码未被本次联调修改（server.js mtime 未变）",
+      "ok": true,
+      "detail": "mtime Δ=0ms"
+    },
+    {
+      "name": "D6-57 MARK 项（S05 客户增长 / 声誉专项 / 营销线索闭环 / 自动发布）本轮未开发：权限表中无对应权限点",
+      "ok": true,
+      "detail": "permissions=20 命中 MARK 类=[]"
+    },
+    {
+      "name": "D6-58 版本登记一致：package.json 版本 = /api/mos/meta 的 mosVersion（V1.2 目标 0.1.1）",
+      "ok": true,
+      "detail": "package.json=0.1.1 api=0.1.1"
+    }
+  ]
+}

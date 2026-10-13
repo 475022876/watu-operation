@@ -127,7 +127,7 @@ async function main() {
     const outDir = path.join(ROOT, 'TEST_EVIDENCE_MOS_BUILD01');
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(path.join(outDir, 'smoke-result.json'), JSON.stringify({
-      suite: 'mos-smoke', mosVersion: '0.1.0', ranAt: new Date().toISOString(),
+      suite: 'mos-smoke', mosVersion: '0.1.1', ranAt: new Date().toISOString(),
       total: results.length, passed: results.length - failed.length, failed: failed.length,
       cases: results
     }, null, 2), 'utf8');

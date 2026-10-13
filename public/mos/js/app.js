@@ -195,7 +195,7 @@ async function enterApp(me) {
   renderUser();
   renderNav();
   renderIntegrationBar();
-  els.versionText.textContent = 'v' + ((store.meta && store.meta.mosVersion) || '0.1.0');
+  els.versionText.textContent = 'v' + ((store.meta && store.meta.mosVersion) || '0.1.1');
   els.syncText.textContent = '已连接服务';
   els.syncDot.classList.remove('bad');
   els.envChip.textContent = 'SANDBOX · MOS V0.1';

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# VFIB Marketing OS V0.1 —— BUILD-01/02/03 + V0.1 综合整改 回归测试统一入口
+# VFIB Marketing OS V0.1.1 —— BUILD-01/02/03 + V0.1 综合整改 + V1.2 整改 回归测试统一入口
 #
-# 用法: bash tools/run-mos-tests.sh [smoke|unit|sec|sched|provider|workspace|dual|e2e|e2e02|e2e03|ui|joint|all]
-#       注：`joint`（双系统真实 HTTP 端到端）需要同机存在企业资料库源码，故不纳入 all。
+# 用法: bash tools/run-mos-tests.sh [smoke|unit|sec|sched|provider|workspace|dual|e2e|e2e02|e2e03|ui|build06|joint|all]
+#       注：`joint`（双系统真实 HTTP 端到端）与 `build06`（V1.2 双系统真实 HTTP 安全负例）需要同机存在
+#           企业资料库源码，故**均不纳入 all**，需按需显式运行。
 #
 # 设计要点：
 #   - 每个子套件自带「独立数据目录 + 运行期随机口令」，互不干扰，也不触碰 data/。
@@ -51,16 +52,18 @@ if [ "$SUITES" = "all" ] || [ "$SUITES" = "e2e"   ]; then run_one e2e   tools/mo
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "e2e02" ]; then run_one e2e02 tools/mos-e2e-build02.js; fi
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "e2e03" ]; then run_one e2e03 tools/mos-e2e-build03.js; fi
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "ui"    ]; then run_one ui    tools/mos-ui-check.js;   fi
-# `joint` 需要同机存在资料库源码，因此**不纳入 all**（避免在他机 CI 上出现假失败）；按需显式运行：
-#   bash tools/run-mos-tests.sh joint
+# `joint` / `build06` 需要同机存在资料库源码，因此**不纳入 all**（避免在他机 CI 上出现假失败）；按需显式运行：
+#   bash tools/run-mos-tests.sh joint      # V1.1 双系统真实 HTTP 正向端到端
+#   bash tools/run-mos-tests.sh build06    # V1.2 双系统真实 HTTP 安全负例 + B1 正式输出门禁
 if [ "$SUITES" = "joint" ]; then run_one joint tools/mos-e2e-build04-dual.js; fi
+if [ "$SUITES" = "build06" ]; then run_one build06 tools/mos-e2e-build06-dual.js; fi
 
 # 汇总：把各套件 JSON 归并成 summary.json（BUILD-01 / 02 / 03 证据目录合并统计）
 "$NODE" -e '
 const fs = require("fs");
 const path = require("path");
 const root = process.argv[1];
-const dirs = ["TEST_EVIDENCE_MOS_BUILD01", "TEST_EVIDENCE_MOS_BUILD02", "TEST_EVIDENCE_MOS_BUILD03", "TEST_EVIDENCE_MOS_BUILD04"];
+const dirs = ["TEST_EVIDENCE_MOS_BUILD01", "TEST_EVIDENCE_MOS_BUILD02", "TEST_EVIDENCE_MOS_BUILD03", "TEST_EVIDENCE_MOS_BUILD04", "TEST_EVIDENCE_MOS_BUILD06"];
 const files = {
   smoke: "smoke-result.json",
   unit: "unit-result.json",
@@ -73,7 +76,8 @@ const files = {
   e2e02: "e2e-build02-result.json",
   e2e03: "e2e-build03-result.json",
   ui: "ui-check-result.json",
-  joint: "dual-e2e-result.json"
+  joint: "dual-e2e-result.json",
+  build06: "dual-security-result.json"
 };
 const suites = {};
 let total = 0, passed = 0, failed = 0;
@@ -92,9 +96,9 @@ for (const dir of dirs) {
   }
 }
 const out = {
-  project: "VFIB Marketing OS V0.1",
-  build: "BUILD-01 + BUILD-02 + BUILD-03 + V0.1 综合整改（Phase 1—3）",
-  mosVersion: "0.1.0",
+  project: "VFIB Marketing OS V0.1.1",
+  build: "BUILD-01 + BUILD-02 + BUILD-03 + V0.1 综合整改（Phase 1—3）+ V1.2 整改（真实 HTTP 安全负例 / 正式输出门禁）",
+  mosVersion: "0.1.1",
   ranAt: new Date().toISOString(),
   suites, total, passed, failed,
   ok: failed === 0 && Object.keys(suites).length > 0

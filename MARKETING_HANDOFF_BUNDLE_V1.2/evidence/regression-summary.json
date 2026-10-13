@@ -1,0 +1,90 @@
+{
+  "project": "VFIB Marketing OS V0.1.1",
+  "build": "BUILD-01 + BUILD-02 + BUILD-03 + V0.1 综合整改（Phase 1—3）+ V1.2 整改（真实 HTTP 安全负例 / 正式输出门禁）",
+  "mosVersion": "0.1.1",
+  "ranAt": "2026-10-13T16:04:35.723Z",
+  "suites": {
+    "smoke": {
+      "file": "TEST_EVIDENCE_MOS_BUILD01\\smoke-result.json",
+      "total": 13,
+      "passed": 13,
+      "failed": 0
+    },
+    "unit": {
+      "file": "TEST_EVIDENCE_MOS_BUILD01\\unit-result.json",
+      "total": 75,
+      "passed": 75,
+      "failed": 0
+    },
+    "sec": {
+      "file": "TEST_EVIDENCE_MOS_BUILD01\\security-egress-result.json",
+      "total": 17,
+      "passed": 17,
+      "failed": 0
+    },
+    "sched": {
+      "file": "TEST_EVIDENCE_MOS_BUILD01\\scheduler-result.json",
+      "total": 20,
+      "passed": 20,
+      "failed": 0
+    },
+    "provider": {
+      "file": "TEST_EVIDENCE_MOS_BUILD01\\provider-contract-result.json",
+      "total": 21,
+      "passed": 21,
+      "failed": 0
+    },
+    "workspace": {
+      "file": "TEST_EVIDENCE_MOS_BUILD01\\workspace-contract-result.json",
+      "total": 36,
+      "passed": 36,
+      "failed": 0
+    },
+    "dual": {
+      "file": "TEST_EVIDENCE_MOS_BUILD01\\dual-identity-result.json",
+      "total": 51,
+      "passed": 51,
+      "failed": 0
+    },
+    "e2e": {
+      "file": "TEST_EVIDENCE_MOS_BUILD01\\e2e-result.json",
+      "total": 48,
+      "passed": 48,
+      "failed": 0
+    },
+    "ui": {
+      "file": "TEST_EVIDENCE_MOS_BUILD01\\ui-check-result.json",
+      "total": 106,
+      "passed": 106,
+      "failed": 0
+    },
+    "e2e02": {
+      "file": "TEST_EVIDENCE_MOS_BUILD02\\e2e-build02-result.json",
+      "total": 63,
+      "passed": 63,
+      "failed": 0
+    },
+    "e2e03": {
+      "file": "TEST_EVIDENCE_MOS_BUILD03\\e2e-build03-result.json",
+      "total": 96,
+      "passed": 96,
+      "failed": 0
+    },
+    "joint": {
+      "file": "TEST_EVIDENCE_MOS_BUILD04\\dual-e2e-result.json",
+      "total": 64,
+      "passed": 64,
+      "failed": 0
+    },
+    "build06": {
+      "file": "TEST_EVIDENCE_MOS_BUILD06\\dual-security-result.json",
+      "total": 61,
+      "passed": 61,
+      "failed": 0
+    }
+  },
+  "total": 671,
+  "passed": 671,
+  "failed": 0,
+  "ok": true
+}

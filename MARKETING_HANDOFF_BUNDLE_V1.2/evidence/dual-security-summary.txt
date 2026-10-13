@@ -1,0 +1,6 @@
+BUILD-06 · V1.2 真实 HTTP 安全负例（INT-02 / INT-03 + B1 正式输出门禁）
+runId=bd499b20
+MOS http://127.0.0.1:9564 / Provider http://127.0.0.1:9765
+结果 61/61 → PASS_EVIDENCE_COMPLETE
+服务端审计证据命中 6/6
+合成身份仅证明控制机制，不代表真人授权

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# VFIB Marketing OS V0.1 —— 整改交付源码包打包脚本（Phase 4 必需交付物 ①）
+# VFIB Marketing OS V0.1.1 —— 交付源码包打包脚本
 #
-# 产物：<仓库根>/VFIB_MARKETING_OS_V0.1_REMEDIATED_SOURCE.zip
-#   = 完整可运行源码 + 分阶段报告 + 测试证据（TEST_EVIDENCE_*）+ 浏览器 UI 证据（UI_EVIDENCE_*）
+# 产物：<仓库根>/VFIB_MARKETING_OS_V0.1.1_REMEDIATED_SOURCE.zip
+#   = 完整可运行源码 + 变更日志 + 分阶段报告 + 测试证据（TEST_EVIDENCE_*）
+#     + 浏览器 UI 证据（UI_EVIDENCE_*）+ V1.1 / V1.2 两代交付包与联合验收报告
 #
 # 严格排除（绝不入库/入包）：
 #   data/、config.json、.env、.workbuddy/、node_modules/、*.log、data-mos-*/、.git/
@@ -12,7 +13,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 ROOT="$(pwd)"
-NAME="VFIB_MARKETING_OS_V0.1_REMEDIATED_SOURCE"
+NAME="VFIB_MARKETING_OS_V0.1.1_REMEDIATED_SOURCE"
 STAGE="dist/${NAME}"
 OUT="${ROOT}/${NAME}.zip"
 
@@ -36,6 +37,7 @@ copy package.json
 copy config.example.json
 copy .env.example
 copy README.md
+copy CHANGELOG.md
 copy lib
 copy public
 copy tools
@@ -44,10 +46,13 @@ copy reports
 # ---------- 1b. V1.1 三包整改交付物（MARKETING_HANDOFF_BUNDLE_V1.1 + 联合验收报告） ----------
 copy MARKETING_HANDOFF_BUNDLE_V1.1
 copy JOINT_ACCEPTANCE_REPORT.md
+# ---------- 1c. V1.2 整改交付物（MARKETING_HANDOFF_BUNDLE_V1.2 + 联合验收报告 V1.2） ----------
+copy MARKETING_HANDOFF_BUNDLE_V1.2
+copy JOINT_ACCEPTANCE_REPORT_V1.2.md
 
 # ---------- 2. 测试证据（必需交付物 ⑤） ----------
 for d in TEST_EVIDENCE_MOS_BUILD01 TEST_EVIDENCE_MOS_BUILD02 TEST_EVIDENCE_MOS_BUILD03 \
-         TEST_EVIDENCE_MOS_BUILD04 \
+         TEST_EVIDENCE_MOS_BUILD04 TEST_EVIDENCE_MOS_BUILD06 \
          UI_EVIDENCE_MOS_BUILD01 UI_EVIDENCE_MOS_BUILD02 UI_EVIDENCE_MOS_BUILD03 \
          UI_EVIDENCE_MOS_BUILD04 UI_EVIDENCE_MOS_BUILD05; do
   [ -d "$d" ] && copy "$d"

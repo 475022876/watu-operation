@@ -1,0 +1,1351 @@
+openapi: 3.0.3
+info:
+  title: VFIB Enterprise Library × Marketing OS — Controlled Integration Gateway
+  version: 1.1.7
+  description: |
+    # 契约来源声明
+
+    本文件**不是**设计稿，而是从**实际路由代码**推导：
+
+    - 集成端点：`lib/routes/integrations.js`（`integ(method, pattern, handler)` 共 12 条）
+    - 管理端点：`lib/routes/integration-admin.js`
+    - 治理端点：`lib/routes/admission.js`
+    - 技能端点：`lib/routes/skills.js`
+    - 错误码：由上述文件的 `httpError(..., 'CODE')` 字面量全集提取
+    - 枚举：`lib/asset-policy.js`、`lib/library-nav.js`、`lib/integration/*.js`
+
+    任何字段与错误码若与本文不符，以源码为准并**形成 `CONTRACT_DIFF.md` 后双方协调**，
+    禁止单方面调整（见 `03_SHARED_CONTRACT_AND_ACCEPTANCE.md` §2）。
+
+    # 两层凭据模型（缺一不可）
+
+    ① **服务身份** — Ed25519 请求签名头：
+    `x-vfib-key-id` / `x-vfib-timestamp` / `x-vfib-nonce` / `x-vfib-signature`
+    回答「是哪个服务账户在调用」。服务端**只登记公钥**，库内不存在可用于冒充的机密。
+
+    ② **用户上下文** — 受限签名票据头：`x-vfib-ticket`
+    把「实际员工 + 品牌 + 用途 + 范围 + 有效期」做进服务端 HMAC 签名里。
+    **服务端每次都用这个员工自己的权限重新判定**，绝不用「对服务账户的授权」代替
+    「对实际用户的授权」。
+
+    可选：`x-vfib-correlation-id` — 贯穿双方日志；服务端原样回填为响应 `request_id`，
+    未提供时由服务端生成 `req_*`。
+
+    # 统一响应封套
+
+    ```json
+    { "ok": true,  "data": { }, "error": null, "request_id": "req_...", "policy_version": "1.0" }
+    { "ok": false, "data": null, "error": { "code": "BAD_SIGNATURE", "message": "..." },
+      "request_id": "req_...", "policy_version": "1.0" }
+    ```
+
+    ⚠ **与本仓库普通 OA 路由的形状不同**：普通路由是
+    `{ok:false, error:"消息", code:"CODE"}`（`code` 在**顶层**）。集成侧一律用 `error.code`。
+
+    # 状态码语义
+
+    | 状态 | 含义 |
+    |---|---|
+    | 200 | 成功 |
+    | 400 | 输入非法 |
+    | 401 | 凭据无效或过期 |
+    | 403 | 已识别身份但禁止 |
+    | 404 | 不可见（**与不存在同响应**，避免探测） |
+    | 409 | 并发 / 母版冲突 / 前置条件未满足 |
+    | 410 | 已撤回或已废止（曾经有效但已失效） |
+    | 413 | 文件超限 |
+    | 415 | 文件类型不允许 |
+    | 429 | 限流 |
+    | 500 | 服务器内部错误 |
+    | 503 | 依赖不可用或集成未接入 |
+  license:
+    name: Proprietary — VFIB internal handoff
+
+servers:
+  - url: http://127.0.0.1:9721
+    description: 本包生成时的隔离联调实例（**示例地址，非生产**）
+  - url: http://127.0.0.1:8080
+    description: 本地默认端口（示例）
+
+tags:
+  - name: Integration（Consumer 调用）
+    description: 需要服务身份签名 + 受限票据；供 Marketing OS 使用
+  - name: Integration Admin（Provider 内部）
+    description: 系统管理员会话 + CSRF；用于登记/轮换/撤销服务账户。**不对 Consumer 开放**
+  - name: Asset Admission Governance（Provider 内部）
+    description: 治理动作与**本人专属**最终审批票据签发。**不对 Consumer 开放**
+
+security:
+  - ServiceSignature: []
+    UserTicket: []
+
+paths:
+
+  /api/integrations/marketing/health:
+    get:
+      tags: [Integration（Consumer 调用）]
+      summary: 能力与限额声明
+      description: |
+        唯一在「集成关闭 / 无活跃服务账户」时也会作答的端点，避免无法区分「关闭」与「故障」。
+
+        - 集成总开关关闭 → 503 `INTEGRATION_DISABLED`
+        - 已启用但无活跃服务账户 → 503 `NO_SERVICE_ACCOUNT`
+
+        **不返回**任何内部地址、密钥、账号或人员信息。`publishedContentArchive` 恒为 `false`
+        （§J 边界：资料库不镜像发布成品）。
+      security:
+        - ServiceSignature: []
+      responses:
+        '200':
+          description: 服务正常
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/HealthData' }
+        '503':
+          description: 集成未接入
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Envelope' }
+
+  /api/integrations/marketing/tickets:
+    post:
+      tags: [Integration（Consumer 调用）]
+      summary: 服务账户为真实用户换取受限票据（kind=service）
+      description: |
+        **范围 = 请求范围 ∩ 服务账户范围**，再经 `serviceGrantable()` **永久剔除本人专属范围**
+        （`admission.final.decision`）。
+
+        因此本端点**在结构上不可能**签发最终审批票据 —— 这是「服务身份不可代签最终审批」
+        的落地机制，而不是流程约定。
+
+        票据与**签发它的服务账户绑定**：拿 A 账户签的票据去配 B 账户签名使用，
+        在业务端点会得到 403 `TICKET_ACCOUNT_MISMATCH`。
+      security:
+        - ServiceSignature: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, brandId]
+              properties:
+                userId:
+                  type: string
+                  description: 用户内部 id（`u_*`）或 `username`
+                brandId: { type: string, example: VFIB }
+                purpose: { type: string, example: "月度内容任务：素材检索" }
+                ttlSeconds:
+                  type: integer
+                  description: 超 `ticketMaxSeconds`（默认 900）被钳制
+                scopes:
+                  type: array
+                  description: 服务账户可授予的范围子集
+                  items: { $ref: '#/components/schemas/ServiceScope' }
+      responses:
+        '200':
+          description: 票据已签发
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          ticket: { type: string, description: "base64url(payload).base64url(HMAC-SHA256(payload))" }
+                          expiresAt: { type: string, format: date-time }
+                          scopes: { type: array, items: { type: string } }
+                          userId: { type: string }
+                          brandId: { type: string }
+                          note: { type: string }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403':
+          description: 服务账户未授予所申请范围（`SCOPE_NOT_GRANTED`）或品牌不在白名单（`BRAND_NOT_ALLOWED`）
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '404': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api/integrations/marketing/knowledge/search:
+    post:
+      tags: [Integration（Consumer 调用）]
+      summary: 已批准知识检索（含 AI 外发逐文档扣留）
+      description: |
+        ★ **阅读权 ≠ 外发授权**。只有整条 AI 出口链通过才下发正文片段：
+        `canSendToExternalAI(user, doc)` = 文档 `externalAiTransferPolicy=allowed`
+        **且**密级 ≤ Internal **且**调用主体持有 `ai.external.transfer` 独立授权。
+
+        被扣留时 `snippet=null` 且给出机器可读 `withholdReason`；**绝不静默省略**。
+        整篇批量外送被禁止（`contentPolicy.wholeDocumentExport = "forbidden"`）。
+
+        检索在打分**之前**先按 `canReadLibraryDoc` 过滤，因此无权内容不进入候选集
+        （不是「检索后再删」）。集成侧强制 `useVector=false` / `useIntent=false`，
+        **不触达任何外部模型服务**。
+      security:
+        - ServiceSignature: []
+          UserTicket: []
+      parameters:
+        - $ref: '#/components/parameters/TicketScopeKnowledgeSearch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query: { type: string, maxLength: 800 }
+                brandId:
+                  type: string
+                  description: 若提供，必须与票据品牌一致，否则 403 `BRAND_MISMATCH`
+                topK: { type: integer, minimum: 1, maximum: 50, default: 10 }
+                filters: { type: object, description: 透传给检索链路的筛选条件 }
+      responses:
+        '200':
+          description: 检索结果
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          query: { type: string }
+                          items: { type: array, items: { $ref: '#/components/schemas/KnowledgeHit' } }
+                          total: { type: integer }
+                          reachedThreshold: { type: boolean }
+                          minScore: { type: number, nullable: true }
+                          nextCursor: { type: string, nullable: true, description: 固定为 null（本端点不分页） }
+                          contentPolicy:
+                            type: object
+                            properties:
+                              snippetRequires: { type: string }
+                              wholeDocumentExport: { type: string, enum: [forbidden] }
+                              maxSnippetChars: { type: integer }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api/integrations/marketing/assets/search:
+    post:
+      tags: [Integration（Consumer 调用）]
+      summary: 可复用资产检索
+      description: |
+        只返回**同时满足**：`canUseReusableAsset(user, doc, {brandId})`
+        —— 即已入库 + 状态有效 + 对该主体与**该品牌**（严格相等）有复用授权。
+
+        **不含正文、不含文件路径**。分页用 `offset` / `nextCursor`（字符串数字）。
+      security:
+        - ServiceSignature: []
+          UserTicket: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query: { type: string }
+                categoryId: { type: string, example: '02' }
+                subcategoryId: { type: string, example: '02.04' }
+                marketingCategory: { $ref: '#/components/schemas/MarketingCategory' }
+                limit: { type: integer, maximum: 50, default: 50 }
+                offset: { type: integer, minimum: 0, default: 0 }
+      responses:
+        '200':
+          description: 资产元数据页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          items: { type: array, items: { $ref: '#/components/schemas/AssetMeta' } }
+                          total: { type: integer }
+                          nextCursor: { type: string, nullable: true }
+                          brandId: { type: string }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api/integrations/marketing/assets/{id}:
+    get:
+      tags: [Integration（Consumer 调用）]
+      summary: 资产受控解析（含历史版本）
+      description: |
+        `id` 可传 `libraryAssetId`（`VFIB-ASSET-*`）/ `documentId` / 内部 `d_*`。
+
+        **不可见与不存在同响应**：非营销资产、无权、不存在一律 404 `NOT_FOUND`
+        （避免探测）。已撤回/已废止则明确 410 `ASSET_GONE`，便于 Consumer 立即清缓存。
+
+        `?version=` 可按**版本 ID 或版本号**解析任意历史版本（旧生成任务对账用；
+        **只读、绝不改写既有记录**）。指定版本不存在时返回 404 `VERSION_NOT_FOUND`
+        —— **绝不回退到当前版本**。
+
+        ⚠ 响应**刻意不返回** `storedName` / 文件路径 / 下载 URL：`fileAccess: "not-exposed"`。
+      security:
+        - ServiceSignature: []
+          UserTicket: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: brandId
+          in: query
+          required: false
+          description: 缺省取票据品牌；提供时必须一致，否则 403 `BRAND_MISMATCH`
+          schema: { type: string }
+        - name: version
+          in: query
+          required: false
+          description: 版本 ID 或版本号
+          schema: { type: string }
+      responses:
+        '200':
+          description: 资产元数据 + 版本清单
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/AssetMeta'
+                          - type: object
+                            properties:
+                              requestedVersion: { type: string, nullable: true }
+                              resolvedVersion: { $ref: '#/components/schemas/AssetVersion', nullable: true }
+                              currentVersionId: { type: string, nullable: true }
+                              currentVersion: { type: string }
+                              versions: { type: array, items: { $ref: '#/components/schemas/AssetVersion' } }
+                              fileAccess: { type: string, enum: [not-exposed] }
+        '403':
+          description: '`BRAND_MISMATCH`（品牌与票据不一致）或 `NOT_REUSABLE_FOR_SUBJECT`（有读权但无复用授权）'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '404':
+          description: '`NOT_FOUND`（不存在/无权/非营销资产）或 `VERSION_NOT_FOUND`'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '410':
+          description: '`ASSET_GONE` — 资产已 REVOKED / DEPRECATED'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api/integrations/marketing/admissions:
+    post:
+      tags: [Integration（Consumer 调用）]
+      summary: 提交准入申请（幂等）
+      description: |
+        **申请 ≠ 资产**：落库为 `db.admissionRequests` 中 `DRAFT` 状态的**不可复用**候选，
+        不产生 Document / Asset ID。
+
+        幂等语义：`(originSystem, idempotencyKey)` 相同 → 返回**同一申请**且 `created=false`，
+        不新建、不更新。
+
+        母版保护：`contentHash` 与既有**已入库母版**相同但 `originObjectId` 不同
+        → 409 `ASSET_CONFLICT` 并**告知既有母版 ID**，不静默覆盖。
+      security:
+        - ServiceSignature: []
+          UserTicket: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/AdmissionInput'
+                - type: object
+                  properties:
+                    brandId: { type: string, description: 若提供必须与票据品牌一致，否则 403 `BRAND_MISMATCH` }
+      responses:
+        '200':
+          description: 申请已受理（新建或幂等复用）
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          admissionRequestId: { type: string, example: adm_xxx }
+                          state: { $ref: '#/components/schemas/AdmissionState' }
+                          stateLabel: { type: string }
+                          isReusable: { type: boolean, enum: [false] }
+                          created: { type: boolean }
+                          note: { type: string }
+        '400':
+          description: '`BAD_ADMISSION_INPUT` — 字段校验未通过（响应 message 含逐条原因）'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '403': { $ref: '#/components/responses/Error' }
+        '409':
+          description: '`ASSET_CONFLICT` — 内容与既有母版冲突'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api/integrations/marketing/admissions/{id}/submit:
+    post:
+      tags: [Integration（Consumer 调用）]
+      summary: 推进申请（提交 → 预检 → 复核 → 待最终审批）
+      description: |
+        **硬约束**：
+        ① 复核记录**不自动生成**，必须逐条给出 `reviewerUserId`，服务端校验其为真实且启用的员工
+           —— 不允许「提交即通过」。缺复核记录 → 409 `REVIEW_REQUIRED`。
+        ② 任一复核 `outcome=fail` → 落 `REVISION_REQUIRED`，不进入最终审批。
+        ③ 已到 `FINAL_APPROVAL_PENDING` 及之后的状态 → 直接返回现状（`idempotent=true`），
+           不重复推进、不重复记复核。
+
+        预检不通过时返回 `problems` 数组并停在 `REVISION_REQUIRED`。
+      security:
+        - ServiceSignature: []
+          UserTicket: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reviews:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: object
+                    required: [reviewerUserId]
+                    properties:
+                      reviewerUserId: { type: string, description: 用户 id 或 username }
+                      outcome: { type: string, enum: [pass, fail], default: pass }
+                      note: { type: string }
+      responses:
+        '200':
+          description: 推进结果
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          admissionRequestId: { type: string }
+                          state: { $ref: '#/components/schemas/AdmissionState' }
+                          stateLabel: { type: string }
+                          steps: { type: array, items: { type: string } }
+                          isReusable: { type: boolean }
+                          idempotent: { type: boolean }
+                          problems: { type: array, items: { type: string } }
+                          note: { type: string }
+        '400':
+          description: '`BAD_REVIEWER` — 复核人不存在或已停用'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '409':
+          description: '`REVIEW_REQUIRED` — 未提供复核记录'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '404': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api/integrations/marketing/admissions/{id}/artifact:
+    post:
+      tags: [Integration（Consumer 调用）]
+      summary: 推送母版文件 → 入库校验 → 产出正式 Asset ID
+      description: |
+        文件以 **base64 内嵌 JSON** 传输（避免二进制流导致请求体无法被签名覆盖）。
+
+        服务端复用与普通上传**同一套** SEC-10 校验（扩展名白名单 + 魔数），
+        随后由准入域完成五项校验：文件落地 / 服务端重算哈希 / 密级只升不降 /
+        AI 策略 rank≥3 强制 blocked / 幂等复用已有文档。
+
+        前置条件：必须已完成**独立最终审批**，否则 409 `FINAL_APPROVAL_REQUIRED`
+        —— 不允许「先入库后补批」。
+
+        **失败语义**：入库校验未通过时返回 **200** + `isReusable=false` + `retryable=true` +
+        `failureReason`，状态保持 `SYNC_FAILED`。因为「同步失败」是**状态**而非传输故障，
+        调用方应据此幂等重试或转人工对账。
+      security:
+        - ServiceSignature: []
+          UserTicket: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contentBase64]
+              properties:
+                contentBase64: { type: string, description: 母版文件内容（base64） }
+                fileName: { type: string, description: 缺省取申请上的 fileName }
+      responses:
+        '200':
+          description: 入库结果（**成功与「校验未通过」均为 200**，以后者 `isReusable` 区分）
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          admissionRequestId: { type: string }
+                          state: { $ref: '#/components/schemas/AdmissionState' }
+                          stateLabel: { type: string }
+                          isReusable: { type: boolean }
+                          libraryAssetId: { type: string, nullable: true, example: VFIB-ASSET-2026-0001 }
+                          libraryVersionId: { type: string, nullable: true, example: VFIB-ASSET-2026-0001-V1.0 }
+                          libraryDocumentId: { type: string, nullable: true, example: VFIB-2026-0003 }
+                          contentHash: { type: string, nullable: true }
+                          failureReason: { type: string, nullable: true }
+                          retryable: { type: boolean }
+                          note: { type: string }
+        '400':
+          description: '`MISSING_CONTENT` / `BAD_CONTENT`'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '409':
+          description: '`FINAL_APPROVAL_REQUIRED` — 尚未完成独立最终审批'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '410':
+          description: '`ASSET_GONE` — 申请已 REVOKED / DEPRECATED'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '413':
+          description: '`FILE_TOO_LARGE`'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '415':
+          description: '`EXT_NOT_ALLOWED` / `MAGIC_MISMATCH`'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '404': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api/integrations/marketing/admissions/{id}:
+    get:
+      tags: [Integration（Consumer 调用）]
+      summary: 准入申请状态查询（脱敏）
+      description: |
+        跨品牌返回 404（与不存在同响应，避免跨品牌探测）。
+        `failureReason` 对外可见但**已脱敏**：不含文件路径、内部存储名与人员信息。
+      security:
+        - ServiceSignature: []
+          UserTicket: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: 状态视图
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          admissionRequestId: { type: string }
+                          state: { $ref: '#/components/schemas/AdmissionState' }
+                          stateLabel: { type: string }
+                          isReusable: { type: boolean }
+                          inLibrary: { type: boolean }
+                          libraryAssetId: { type: string, nullable: true }
+                          libraryVersionId: { type: string, nullable: true }
+                          libraryDocumentId: { type: string, nullable: true }
+                          finalApprovalAt: { type: string, format: date-time, nullable: true }
+                          integrationStatus: { type: string }
+                          failureReason: { type: string, nullable: true }
+                          retryCount: { type: integer }
+                          reviewOutcomes: { type: array, items: { type: string, enum: [pass, fail] } }
+                          policyVersion: { type: string }
+                          updatedAt: { type: string, format: date-time }
+        '404': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api/integrations/marketing/admissions/{id}/final-decision:
+    post:
+      tags: [Integration（Consumer 调用）]
+      summary: 最终审批（**仅本人会话票据**）
+      description: |
+        ★★ 本端点要求 `kind=session` 的票据。服务账户经
+        `/api/integrations/marketing/tickets` 签发的票据**永远不含**该范围，
+        因此「服务身份代签最终审批」在此**结构上不可达**。
+
+        即便持 session 票据，仍须通过业务谓词 `canApproveMarketingAdmission(user)`
+        —— 即用户本人持有独立钥匙 `library.asset.approve.final`。
+        **管理员（admin）、P1 等角色不自动继承该权**。未持有 → 403 `FINAL_APPROVAL_FORBIDDEN`。
+
+        顺序保证：`kind` 校验**先于**对象查询 —— 用服务票据调本端点，
+        即使申请 ID 不存在也会先得到 403 `TICKET_KIND_MISMATCH`，不泄露对象是否存在。
+
+        ⚠ 请求体中的 `approvedBy` / `final_approver_user_id` 等字段**一律被忽略**；
+        审批身份只取服务端从票据解析出的真实用户。
+      security:
+        - ServiceSignature: []
+          UserTicket: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision: { type: string, enum: [approve, reject] }
+                comment: { type: string }
+      responses:
+        '200':
+          description: 决策已记录
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          admissionRequestId: { type: string }
+                          state: { $ref: '#/components/schemas/AdmissionState' }
+                          stateLabel: { type: string }
+                          isReusable: { type: boolean, description: 通过 ≠ 可复用（仍需入库校验） }
+                          finalApproverUserId: { type: string, nullable: true }
+                          finalApprovalAt: { type: string, format: date-time, nullable: true }
+                          note: { type: string }
+        '403':
+          description: '`TICKET_KIND_MISMATCH`（非本人会话票据）或 `FINAL_APPROVAL_FORBIDDEN`（无独立授权）'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api/integrations/marketing/skills/{id}:
+    get:
+      tags: [Integration（Consumer 调用）]
+      summary: 正式 Skill 版本解析（规则快照引用）
+      description: |
+        供 Consumer 生成任务取得**规则快照引用**：`snapshot(skillId, version, hash)`。
+
+        解析语义：
+        - 给了 `?version=` → 精确解析该版本（**含已废止/已撤回的历史版本**，供旧任务对账，只读）；
+          不存在 → **404 `VERSION_NOT_FOUND`**，**绝不回退到当前版本**（避免旧任务静默用到新规范）。
+        - 未给 `?version=` → 返回**当前生效版本**；若无生效版本 → **410 `ASSET_GONE`**，
+          含义是「当前没有任何可引用的生效版本」（从未生效 / 已废止 / 已撤回），
+          **而不是**悄悄退化成 DRAFT —— 否则 Consumer 会把草案误当现行规范。
+
+        `usable` 由服务端判定（`canUseEffectiveSkill`），调用方**不得自行推断**。
+
+        ⚠ 响应走 `publicView()`：**不含** `approvedBy` / 审批备注 / `documentId` / 内部留痕。
+      security:
+        - ServiceSignature: []
+          UserTicket: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, example: VFIB-SKILL-2026-0001 }
+        - name: version
+          in: query
+          required: false
+          schema: { type: string, example: V1.0 }
+        - name: brandId
+          in: query
+          required: false
+          description: 若提供必须与票据品牌一致，否则 403 `BRAND_MISMATCH`
+          schema: { type: string }
+      responses:
+        '200':
+          description: Skill 版本视图
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/SkillPublicView'
+                          - type: object
+                            properties:
+                              usable: { type: boolean }
+                              isCurrentEffective: { type: boolean }
+                              versions:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    version: { type: string }
+                                    status: { $ref: '#/components/schemas/SkillStatus' }
+                                    hash: { type: string, nullable: true }
+                                    effectiveAt: { type: string, format: date-time, nullable: true }
+                              note: { type: string }
+        '403': { $ref: '#/components/responses/Error' }
+        '404':
+          description: '`NOT_FOUND`（不可见/异品牌）或 `VERSION_NOT_FOUND`'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '410':
+          description: '`ASSET_GONE` — 当前没有生效版本'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /api/integrations/marketing/changes:
+    get:
+      tags: [Integration（Consumer 调用）]
+      summary: 增量变更事件轮询（cursor）
+      description: |
+        **机制是轮询（poll + cursor）**，本版本**不提供 webhook**。
+
+        事件只携带 **ID 级字段**（白名单），不含标题/摘要/正文/文件名。
+        品牌隔离：`admission.state.changed` / `skill.version.changed` 按票据品牌过滤；
+        全局类事件（`policy.version.changed` / `permission.changed` / `service_account.changed`）
+        对所有调用方可见（不含品牌业务内容）。
+
+        服务端环形缓冲上限 `MAX_EVENTS = 5000`；溢出时 `truncated=true` 并给出 `oldestCursor`，
+        Consumer 应据此**全量对账**。`pollIntervalHintSeconds = 60`。
+      security:
+        - ServiceSignature: []
+          UserTicket: []
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          description: 缺省 0（从头）。
+          schema: { type: integer, minimum: 0 }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        '200':
+          description: 增量事件页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                seq: { type: integer }
+                                at: { type: string, format: date-time }
+                                type: { $ref: '#/components/schemas/EventType' }
+                                data: { type: object, description: 仅 ID 级字段 }
+                          nextCursor: { type: integer }
+                          hasMore: { type: boolean }
+                          truncated: { type: boolean }
+                          oldestCursor: { type: integer }
+                          policyVersion: { type: string }
+                          pollIntervalHintSeconds: { type: integer, example: 60 }
+        '400':
+          description: '`BAD_CURSOR`'
+          content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  # ==================================================================
+  # Provider 内部端点（**不对 Consumer 开放**，此处列出仅为契约完整性
+  # 与审计可复核性；认证方式为登录会话 + CSRF，不是服务签名）
+  # ==================================================================
+
+  /api/integration-accounts/status:
+    get:
+      tags: [Integration Admin（Provider 内部）]
+      summary: 集成接入状态总览（系统管理员）
+      responses:
+        '200': { description: OK }
+        '403': { $ref: '#/components/responses/Error' }
+
+  /api/integration-accounts:
+    get:
+      tags: [Integration Admin（Provider 内部）]
+      summary: 服务账户列表（系统管理员；返回 `publicView`，**不含** `publicKeyPem`）
+      responses:
+        '200': { description: OK }
+        '403': { $ref: '#/components/responses/Error' }
+    post:
+      tags: [Integration Admin（Provider 内部）]
+      summary: 登记服务账户（系统管理员）
+      description: |
+        `body: { name, publicKey, scopes: [], description? }`。
+        返回**只有** `id` / `keyId` / `keyFingerprint`（SHA256 前 16 hex）——
+        机密材料始终留在调用方，服务端库内无可用于冒充的凭据。
+      responses:
+        '200': { description: OK }
+        '400': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+
+  /api/integration-accounts/{id}/public-key:
+    put:
+      tags: [Integration Admin（Provider 内部）]
+      summary: 轮换公钥（旧公钥立即失效）
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK }
+        '400': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+
+  /api/integration-accounts/{id}:
+    delete:
+      tags: [Integration Admin（Provider 内部）]
+      summary: 撤销服务账户（**立即生效，无需重启**）
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK }
+        '403': { $ref: '#/components/responses/Error' }
+
+  /api/asset-admission/tickets:
+    post:
+      tags: [Asset Admission Governance（Provider 内部）]
+      summary: 本人会话签发受限票据（**唯一**能签出 admission.final.decision 的入口）
+      description: |
+        申请 `admission.final.decision` 范围者，必须**确实持有**
+        `library.asset.approve.final`，否则 403 `FINAL_APPROVAL_FORBIDDEN`。
+        申请读取类范围者，必须至少能读到一份资料（避免凭票据探测）。
+      responses:
+        '200': { description: OK }
+        '403': { $ref: '#/components/responses/Error' }
+
+  /api/asset-admission/overview:
+    get: { tags: [Asset Admission Governance（Provider 内部）], summary: 治理视图, responses: { '200': { description: OK }, '403': { $ref: '#/components/responses/Error' } } }
+  /api/asset-admission/requests:
+    get: { tags: [Asset Admission Governance（Provider 内部）], summary: 申请列表, responses: { '200': { description: OK }, '403': { $ref: '#/components/responses/Error' } } }
+  /api/asset-admission/requests/{id}:
+    get:
+      tags: [Asset Admission Governance（Provider 内部）]
+      summary: 申请详情
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK }, '403': { $ref: '#/components/responses/Error' } }
+  /api/asset-admission/requests/{id}/final-decision:
+    post:
+      tags: [Asset Admission Governance（Provider 内部）]
+      summary: 治理端最终审批（浏览器本人操作）
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK }, '403': { $ref: '#/components/responses/Error' } }
+  /api/asset-admission/requests/{id}/revoke:
+    post:
+      tags: [Asset Admission Governance（Provider 内部）]
+      summary: 撤回资产（需 final 授权或 admin）
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK }, '403': { $ref: '#/components/responses/Error' } }
+  /api/asset-admission/requests/{id}/deprecate:
+    post:
+      tags: [Asset Admission Governance（Provider 内部）]
+      summary: 废止资产（需 final 授权或 admin）
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK }, '403': { $ref: '#/components/responses/Error' } }
+  /api/asset-admission/approvers:
+    get:
+      tags: [Asset Admission Governance（Provider 内部）]
+      summary: 独立授权名单（仅系统管理员）
+      responses: { '200': { description: OK }, '403': { $ref: '#/components/responses/Error' } }
+    post:
+      tags: [Asset Admission Governance（Provider 内部）]
+      summary: 授予独立授权（仅系统管理员）
+      responses: { '200': { description: OK }, '400': { $ref: '#/components/responses/Error' }, '403': { $ref: '#/components/responses/Error' } }
+  /api/asset-admission/approvers/{userId}:
+    delete:
+      tags: [Asset Admission Governance（Provider 内部）]
+      summary: 撤销独立授权（仅系统管理员，**立即生效**）
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK }, '403': { $ref: '#/components/responses/Error' } }
+
+  /api/skills/overview:
+    get: { tags: [Asset Admission Governance（Provider 内部）], summary: Skill 总览, responses: { '200': { description: OK } } }
+  /api/skills:
+    get: { tags: [Asset Admission Governance（Provider 内部）], summary: Skill 列表, responses: { '200': { description: OK } } }
+    post: { tags: [Asset Admission Governance（Provider 内部）], summary: '登记 Skill 版本（DRAFT）', responses: { '200': { description: OK }, '400': { $ref: '#/components/responses/Error' } } }
+  /api/skills/{id}:
+    get:
+      tags: [Asset Admission Governance（Provider 内部）]
+      summary: Skill 详情
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+  /api/skills/{id}/approve:
+    post: { tags: [Asset Admission Governance（Provider 内部）], summary: '批准（APPROVED；仍不可引用）', parameters: [{ name: id, in: path, required: true, schema: { type: string } }], responses: { '200': { description: OK }, '403': { $ref: '#/components/responses/Error' } } }
+  /api/skills/{id}/return:
+    post: { tags: [Asset Admission Governance（Provider 内部）], summary: 退回, parameters: [{ name: id, in: path, required: true, schema: { type: string } }], responses: { '200': { description: OK } } }
+  /api/skills/{id}/effective:
+    post: { tags: [Asset Admission Governance（Provider 内部）], summary: '生效（EFFECTIVE；服务端冻结 hash）', parameters: [{ name: id, in: path, required: true, schema: { type: string } }], responses: { '200': { description: OK }, '403': { $ref: '#/components/responses/Error' } } }
+  /api/skills/{id}/deprecate:
+    post: { tags: [Asset Admission Governance（Provider 内部）], summary: 废止, parameters: [{ name: id, in: path, required: true, schema: { type: string } }], responses: { '200': { description: OK } } }
+  /api/skills/{id}/revoke:
+    post: { tags: [Asset Admission Governance（Provider 内部）], summary: 撤回, parameters: [{ name: id, in: path, required: true, schema: { type: string } }], responses: { '200': { description: OK } } }
+
+components:
+
+  securitySchemes:
+    ServiceSignature:
+      type: apiKey
+      in: header
+      name: x-vfib-key-id
+      description: |
+        **Ed25519 请求签名（四头组，本 scheme 仅示意第一头）**：
+
+        ```
+        x-vfib-key-id    : svc_xxx            服务账户 keyId
+        x-vfib-timestamp : 1791892881          Unix 秒
+        x-vfib-nonce     : <随机 hex>          每次请求必须唯一
+        x-vfib-signature : base64(Ed25519.sign(canonicalString))
+        ```
+
+        `canonicalString`（**7 行、`\n` 连接、逐字节一致**）：
+
+        ```
+        v1
+        <keyId>
+        <METHOD 大写>
+        <pathname 不含 query string>
+        <timestamp>
+        <nonce>
+        <sha256(请求体原始字节) hex>
+        ```
+
+        **三个最容易写错的地方**：
+        1. **无请求体视作空字节** —— `sha256('')` = `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`。
+        2. **`pathname` 不含 query string** —— 服务端取 `url.pathname`；
+           `?brandId=…` 出现在 URL 上但**不参与签名**。
+        3. **不得重新序列化 JSON** —— 对**收到/发出的原始字节**取哈希，
+           键序、空格、Unicode 转义差异都会导致 `401 BAD_SIGNATURE`。
+        4. 使用 `crypto.sign(null, Buffer.from(canonicalString,'utf8'), privateKey)`
+           —— Ed25519 的 `algorithm` 参数必须为 `null`（**不是** HMAC）。
+
+    UserTicket:
+      type: apiKey
+      in: header
+      name: x-vfib-ticket
+      description: |
+        受限签名票据：`base64url(payload) + '.' + base64url(HMAC-SHA256(payload))`
+
+        payload = `{ v, kind, sid, uid, brand, purpose, scopes, iat, exp, jti, corr }`
+
+        `kind` 为 `session`（本人会话，唯一可含 `admission.final.decision`）
+        或 `service`（服务账户签发，该范围被永久剔除）。
+
+  parameters:
+    TicketScopeKnowledgeSearch:
+      name: x-vfib-ticket
+      in: header
+      required: true
+      schema: { type: string }
+      description: 票据必须含 `knowledge.search` 范围，否则 403 `TICKET_ACCOUNT_MISMATCH` 之外的范围类错误
+
+  responses:
+    Error:
+      description: 统一错误封套
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Envelope' }
+
+  schemas:
+
+    Envelope:
+      type: object
+      required: [ok, data, error, request_id, policy_version]
+      properties:
+        ok: { type: boolean }
+        data: { type: object, nullable: true }
+        error:
+          type: object
+          nullable: true
+          required: [code, message]
+          properties:
+            code: { $ref: '#/components/schemas/ErrorCode' }
+            message: { type: string }
+        request_id:
+          type: string
+          description: 原样回填 `x-vfib-correlation-id`，未提供时服务端生成 `req_*`
+        policy_version: { type: string, example: '1.0' }
+
+    ErrorCode:
+      type: string
+      description: |
+        由源码 `httpError(..., 'CODE')` 字面量全集提取。按域分组：
+
+        **签名 / 账户**：`BAD_SIGNATURE` `MISSING_SIGNATURE` `BAD_SIGNATURE_FORMAT`
+        `BAD_TIMESTAMP` `TIMESTAMP_OUT_OF_WINDOW` `NONCE_REPLAY` `BAD_SERVICE_ACCOUNT`
+        `ACCOUNT_KEY_UNUSABLE` `SERVICE_SCOPE_NOT_GRANTED` `RATE_LIMITED`
+        `INTEGRATION_DISABLED` `NO_SERVICE_ACCOUNT`
+
+        **票据**：`TICKET_MISSING` `TICKET_MALFORMED` `TICKET_BAD_VERSION` `TICKET_BAD_PAYLOAD`
+        `TICKET_BAD_SIGNATURE` `TICKET_EXPIRED` `TICKET_NO_USER` `TICKET_NO_BRAND`
+        `TICKET_USER_INACTIVE` `TICKET_KIND_MISMATCH` `TICKET_ACCOUNT_MISMATCH`
+        `SCOPE_NOT_GRANTED`
+
+        **品牌**：`BRAND_MISMATCH` `BRAND_NOT_ALLOWED`
+
+        **准入**：`ADMISSION_INCONSISTENT` `BAD_ADMISSION_INPUT` `ASSET_CONFLICT`
+        `FINAL_APPROVAL_REQUIRED` `FINAL_APPROVAL_FORBIDDEN` `REVIEW_REQUIRED` `BAD_REVIEWER`
+        `REVOKE_FORBIDDEN` `DEPRECATE_FORBIDDEN` `ASSET_IMMUTABLE` `MISSING_CONTENT`
+        `BAD_CONTENT` `EXT_NOT_ALLOWED` `MAGIC_MISMATCH` `FILE_TOO_LARGE` `NO_REVIEW`
+        `REVIEW_FAILED`
+
+        **Skill**：`SKILL_NOT_FOUND` `SKILL_ID_TAKEN` `SKILL_AUTHORITY_FORBIDDEN`
+        `BAD_SKILL_INPUT` `BAD_VERSION_SEQUENCE` `BAD_EFFECTIVE_AT` `EFFECTIVE_AT_TOO_FAR`
+        `VERSION_EXISTS` `VERSION_NOT_FOUND` `BAD_TRANSITION` `BAD_STATE` `BAD_STATUS`
+        `REASON_REQUIRED` `BAD_NAME`
+
+        **通用**：`NOT_FOUND` `ASSET_GONE` `NOT_REUSABLE_FOR_SUBJECT` `FORBIDDEN`
+        `BAD_CURSOR` `MISSING_QUERY` `QUERY_TOO_LONG` `MISSING_USER` `MISSING_BRAND`
+        `USER_NOT_FOUND` `BAD_DECISION` `BAD_PUBLIC_KEY` `BAD_SCOPES` `ERROR`
+      enum:
+        - ACCOUNT_KEY_UNUSABLE
+        - ADMISSION_INCONSISTENT
+        - ASSET_CONFLICT
+        - ASSET_GONE
+        - ASSET_IMMUTABLE
+        - BAD_ADMISSION_INPUT
+        - BAD_CONTENT
+        - BAD_CURSOR
+        - BAD_DECISION
+        - BAD_EFFECTIVE_AT
+        - BAD_NAME
+        - BAD_PUBLIC_KEY
+        - BAD_REVIEWER
+        - BAD_SCOPES
+        - BAD_SERVICE_ACCOUNT
+        - BAD_SIGNATURE
+        - BAD_SIGNATURE_FORMAT
+        - BAD_SKILL_INPUT
+        - BAD_STATE
+        - BAD_STATUS
+        - BAD_TIMESTAMP
+        - BAD_TRANSITION
+        - BAD_VERSION_SEQUENCE
+        - BRAND_MISMATCH
+        - BRAND_NOT_ALLOWED
+        - DEPRECATE_FORBIDDEN
+        - EFFECTIVE_AT_TOO_FAR
+        - ERROR
+        - EXT_NOT_ALLOWED
+        - FILE_TOO_LARGE
+        - FINAL_APPROVAL_FORBIDDEN
+        - FINAL_APPROVAL_REQUIRED
+        - FORBIDDEN
+        - INTEGRATION_DISABLED
+        - MAGIC_MISMATCH
+        - MISSING_BRAND
+        - MISSING_CONTENT
+        - MISSING_QUERY
+        - MISSING_SIGNATURE
+        - MISSING_USER
+        - NONCE_REPLAY
+        - NOT_FOUND
+        - NOT_REUSABLE_FOR_SUBJECT
+        - NO_REVIEW
+        - NO_SERVICE_ACCOUNT
+        - QUERY_TOO_LONG
+        - RATE_LIMITED
+        - REASON_REQUIRED
+        - REVIEW_FAILED
+        - REVIEW_REQUIRED
+        - REVOKE_FORBIDDEN
+        - SCOPE_NOT_GRANTED
+        - SERVICE_SCOPE_NOT_GRANTED
+        - SKILL_AUTHORITY_FORBIDDEN
+        - SKILL_ID_TAKEN
+        - SKILL_NOT_FOUND
+        - TICKET_ACCOUNT_MISMATCH
+        - TICKET_BAD_PAYLOAD
+        - TICKET_BAD_SIGNATURE
+        - TICKET_BAD_VERSION
+        - TICKET_EXPIRED
+        - TICKET_KIND_MISMATCH
+        - TICKET_MALFORMED
+        - TICKET_MISSING
+        - TICKET_NO_BRAND
+        - TICKET_NO_USER
+        - TICKET_USER_INACTIVE
+        - TIMESTAMP_OUT_OF_WINDOW
+        - USER_NOT_FOUND
+        - VERSION_EXISTS
+        - VERSION_NOT_FOUND
+
+    HealthData:
+      type: object
+      properties:
+        status: { type: string, enum: [UP] }
+        service: { type: string, enum: [vfib-enterprise-library] }
+        appVersion: { type: string, example: '1.1.7' }
+        policyVersion: { type: string, example: '1.0' }
+        capabilities:
+          type: object
+          properties:
+            knowledgeSearch: { type: boolean }
+            assetSearch: { type: boolean }
+            assetResolve: { type: boolean }
+            admissionSubmit: { type: boolean }
+            admissionSubmitWithReviews: { type: boolean }
+            admissionArtifactPush: { type: boolean }
+            admissionStatus: { type: boolean }
+            admissionFinalDecision:
+              type: string
+              enum: [session-ticket-only]
+              description: 明确声明最终审批**不接受**服务票据
+            skillResolve: { type: boolean }
+            changesPolling: { type: boolean }
+            tickets: { type: boolean }
+            publishedContentArchive:
+              type: boolean
+              enum: [false]
+              description: 恒为 false（§J：资料库不镜像发布成品）
+        scopes:
+          type: array
+          items: { $ref: '#/components/schemas/ServiceScope' }
+        limits:
+          type: object
+          properties:
+            maxPageSize: { type: integer }
+            maxSnippetChars: { type: integer }
+            ticketMaxSeconds: { type: integer }
+            rateLimitPerMinute: { type: integer }
+        signing:
+          type: object
+          properties:
+            ticketKeySource:
+              type: string
+              enum: [configured, ephemeral-random-per-boot]
+              description: 如实披露票据密钥来源；`ephemeral-random-per-boot` 意味着**重启后既有票据全部失效**
+            requestSignature: { type: string, enum: [ed25519] }
+        changesCursor: { type: integer }
+
+    ServiceScope:
+      type: string
+      enum:
+        - knowledge.search
+        - assets.search
+        - assets.read
+        - admissions.write
+        - admissions.read
+        - skills.read
+        - changes.read
+        - tickets.issue
+
+    TicketScope:
+      type: string
+      description: 票据范围 = 服务账户范围 ∩ 请求范围，再剔除 session-only 项
+      enum:
+        - knowledge.search
+        - assets.search
+        - assets.read
+        - admissions.write
+        - admissions.read
+        - skills.read
+        - changes.read
+        - admission.final.decision
+
+    Classification:
+      type: object
+      description: 密级（四级）。`rank` 越大越敏感。
+      properties:
+        key: { type: string, enum: [open, internal, restricted, executive] }
+        label: { type: string }
+        labelZh: { type: string }
+        rank: { type: integer }
+
+    KnowledgeHit:
+      type: object
+      properties:
+        documentId: { type: string, example: VFIB-2026-0001 }
+        libraryAssetId: { type: string, nullable: true }
+        title: { type: string }
+        version: { type: string }
+        classification: { $ref: '#/components/schemas/Classification' }
+        category: { type: object, nullable: true, properties: { id: { type: string }, name: { type: string } } }
+        subcategory: { type: object, nullable: true, properties: { id: { type: string }, name: { type: string } } }
+        approvedAt: { type: string, format: date-time, nullable: true }
+        policyVersion: { type: string }
+        isReusableAsset: { type: boolean }
+        snippet: { type: string, nullable: true, description: 仅当 `canSendToExternalAI` 全链通过时非空 }
+        contentWithheld: { type: boolean }
+        withholdReason: { type: string, nullable: true }
+
+    AssetMeta:
+      type: object
+      description: 只含可复用判定与追溯所需字段；**不含正文、不含文件路径**
+      properties:
+        libraryAssetId: { type: string, example: VFIB-ASSET-2026-0001 }
+        libraryVersionId: { type: string, example: VFIB-ASSET-2026-0001-V1.0 }
+        documentId: { type: string }
+        title: { type: string }
+        brandId: { type: string, nullable: true }
+        marketingCategory: { $ref: '#/components/schemas/MarketingCategory' }
+        libraryPrimaryCategory: { type: string, example: '02' }
+        librarySubcategory: { type: string, example: '02.04' }
+        classification: { $ref: '#/components/schemas/Classification' }
+        licenseStatus: { $ref: '#/components/schemas/LicenseStatus' }
+        reuseScope: { $ref: '#/components/schemas/ReuseScope' }
+        aiReusePolicy: { type: string, enum: [blocked, allowed] }
+        externalAiTransferPolicy: { type: string, enum: [blocked, allowed] }
+        documentLevel: { type: string }
+        version: { type: string }
+        admissionState: { $ref: '#/components/schemas/AdmissionState' }
+        isReusable: { type: boolean, enum: [true] }
+        approvedAt: { type: string, format: date-time, nullable: true }
+        policyVersion: { type: string }
+        originSystem: { type: string, description: '非 workspace 者为营销资产' }
+
+    AssetVersion:
+      type: object
+      properties:
+        id: { type: string }
+        version: { type: string }
+        status: { type: string }
+        size: { type: integer }
+        uploadedAt: { type: string, format: date-time }
+
+    MarketingCategory:
+      type: string
+      nullable: true
+      description: '资产类别 A01—A08。⚠ provisional 标记为 true —— 须与 SPECIAL-01 原件逐条对照'
+      enum: [A01, A02, A03, A04, A05, A06, A07, A08]
+
+    LicenseStatus:
+      type: string
+      nullable: true
+      description: '⚠ provisional 标记为 true（未经 SPECIAL-01 原件核验）'
+      enum: [cleared, pending, restricted, expired, unknown]
+
+    ReuseScope:
+      type: string
+      nullable: true
+      description: '⚠ provisional 标记为 true（未经 SPECIAL-01 原件核验）'
+      enum: [none, internal_reference, brand_kit, campaign_reuse, unrestricted]
+
+    AdmissionState:
+      type: string
+      description: |
+        状态机：`DRAFT → SUBMITTED → PRECHECK → REVIEWING → FINAL_APPROVAL_PENDING
+        → FINAL_APPROVED → ADMISSION_PENDING → ADMITTED`；
+        分支 `REVISION_REQUIRED` / `SYNC_FAILED` / `REJECTED` / `REVOKED` / `DEPRECATED`。
+
+        ★ `FINAL_APPROVED ≠ 可复用`：必须再经入库校验才成为 `ADMITTED`。
+      enum:
+        - DRAFT
+        - SUBMITTED
+        - PRECHECK
+        - REVIEWING
+        - FINAL_APPROVAL_PENDING
+        - FINAL_APPROVED
+        - ADMISSION_PENDING
+        - ADMITTED
+        - REVISION_REQUIRED
+        - REJECTED
+        - SYNC_FAILED
+        - REVOKED
+        - DEPRECATED
+
+    AdmissionInput:
+      type: object
+      description: |
+        ⚠ 同时接受 camelCase 与 snake_case；服务端以 `normalizeAdmissionInput()` 归一化。
+        校验未通过时响应 message 内含**逐条**错误原因。
+      required: [idempotencyKey, originSystem, originObjectId, libraryPrimaryCategory, classification, licenseStatus, title]
+      properties:
+        idempotencyKey:
+          type: string
+          description: 幂等键。1-120 位 `[A-Za-z0-9_.:-]`；`(originSystem, idempotencyKey)` 唯一确定一次提交
+        originSystem:
+          type: string
+          enum: [marketing_os]
+          description: 服务端对集成路径**强制**覆写为 `marketing_os`
+        originObjectId: { type: string, description: 来源对象 ID（幂等与母版冲突判定用） }
+        originVersionId: { type: string, nullable: true }
+        contentHash:
+          type: string
+          nullable: true
+          description: 64 位**小写** hex（sha256）；用于母版冲突检测。服务端入库时会**重算**哈希
+        brandId: { type: string, description: 缺省取票据品牌 }
+        marketingCategory: { $ref: '#/components/schemas/MarketingCategory' }
+        libraryPrimaryCategory: { type: string, description: 必须是七大资料区之一（01-07） }
+        librarySubcategory: { type: string, description: 必须位于所选的 libraryPrimaryCategory 下 }
+        classification: { type: string, enum: [open, internal, restricted, executive] }
+        licenseStatus: { $ref: '#/components/schemas/LicenseStatus' }
+        reuseScope: { $ref: '#/components/schemas/ReuseScope' }
+        aiReusePolicy: { type: string, enum: [blocked, allowed], default: blocked }
+        externalAiTransferPolicy: { type: string, enum: [blocked, allowed], default: blocked }
+        title: { type: string, maxLength: 180 }
+        fileName: { type: string, nullable: true, maxLength: 180 }
+        fileSize: { type: integer, nullable: true }
+        note: { type: string, maxLength: 500 }
+
+    SkillStatus:
+      type: string
+      description: 三道门：登记（DRAFT）→ 批准（APPROVED，**仍不可引用**）→ 生效（EFFECTIVE 才可用）
+      enum: [DRAFT, APPROVED, EFFECTIVE, DEPRECATED, REVOKED]
+
+    SkillPublicView:
+      type: object
+      description: |
+        `publicView()` —— **不含** `approvedBy` / 审批备注 / `documentId` / 内部留痕。
+        `hash` 在**生效瞬间**由服务端冻结，作为生成任务的规则快照引用。
+      properties:
+        skillId: { type: string, example: VFIB-SKILL-2026-0001 }
+        version: { type: string, example: V1.0 }
+        brandId: { type: string }
+        subcategoryId: { type: string, example: '02.01' }
+        classification: { type: string }
+        visibleBrands: { type: array, items: { type: string } }
+        title: { type: string }
+        summary: { type: string }
+        status: { $ref: '#/components/schemas/SkillStatus' }
+        hash: { type: string, nullable: true, description: 生效前为 null }
+        effectiveAt: { type: string, format: date-time, nullable: true }
+
+    EventType:
+      type: string
+      description: |
+        品牌隔离：`admission.state.changed` / `skill.version.changed` 按票据品牌过滤；
+        其余为全局类事件，对所有调用方可见（不含品牌业务内容）。
+      enum:
+        - policy.version.changed
+        - admission.state.changed
+        - asset.revoked
+        - asset.deprecated
+        - skill.version.changed
+        - permission.changed
+        - service_account.changed
