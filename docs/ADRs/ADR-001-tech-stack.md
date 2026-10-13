@@ -16,7 +16,7 @@
 
 > 「如现有仓库已有组织结构，**需优先兼容，不必强制覆盖**。」
 
-仓库诊断（见 `ARCHITECTURE_AUDIT.md`）显示：目标运行环境为**内网 / 无 npm 源**，现有 OA 已确立
+仓库诊断（见 `../history/ARCHITECTURE_AUDIT.md`）显示：目标运行环境为**内网 / 无 npm 源**，现有 OA 已确立
 **Node.js 原生 HTTP + 自建路由 + JSON 原子持久化 + 原生 ES module 前端**的零依赖技术栈，
 并已建成可复用的会话/CSRF/CIDR/上传校验等安全基座。
 

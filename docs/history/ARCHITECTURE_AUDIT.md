@@ -1,5 +1,9 @@
 # ARCHITECTURE_AUDIT.md — 现有仓库诊断（VFIB Marketing OS V0.1 · 步骤0）
 
+> ⚠ **已归档历史材料**（2026-10-13 迁入 `docs/history/`）。本文是整改前的仓库诊断与风险登记（R-01…R-07），
+> 描述的是**整改前的状态**，已被 [`../CURRENT_ARCHITECTURE.md`](../CURRENT_ARCHITECTURE.md) 取代（描述整改后现状）。
+> 保留原因：D-03「禁止删除历史审计、自测或 ADRs」。仍可作为风险来源追溯（git 历史保留）。
+
 > **⚠ 迁移后记（2026-10-11）**：本文是 BUILD-01 开工前对**母仓库**的诊断记录，其结论（复用零依赖栈、增量内建）
 > 在当时成立。此后业务方要求运营中台与母仓库彻底分离，工程已整体迁出为**独立仓库**，
 > 详见 [ADRs/ADR-002-standalone-repo.md](ADRs/ADR-002-standalone-repo.md)。

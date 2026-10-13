@@ -1,5 +1,8 @@
 # BUILD-02 审计结论与开发计划
 
+> ⚠ **已归档历史材料**（2026-10-13 迁入 `docs/history/`）。BUILD-02 已交付完成，本计划为当时的开发计划，
+> 其结论已被 `../BUILD-02_TEST_REPORT.md` 与 `../BUILD-02_SELF_AUDIT.md` 取代。保留原因：D-03（禁止删除历史材料）。
+
 **版本：** VFIB Marketing OS V0.1 · BUILD-02
 **日期：** 2026-10-12
 **依据：** `VFIB_Marketing_OS_V0.1_Codex_Build_Specification/`（00 主控、01 IA、02 数据模型、03 工作流、04 AI、05 发布、06 集成安全、07 UI、08 测试门槛、09 执行指导、11 检查表）

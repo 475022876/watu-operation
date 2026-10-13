@@ -100,9 +100,20 @@ bash tools/run-mos-tests.sh e2e03   # 只跑某一套：smoke | unit | sec | sch
 - 每套自带**随机数据目录**（`data-mos-*`）与**运行期随机口令**，跑完自动清理，绝不触碰 `data/`。
 - 结果落 `TEST_EVIDENCE_MOS_BUILD01/`（含 `summary.json`）；BUILD-02 / BUILD-03 端到端证据分落 `TEST_EVIDENCE_MOS_BUILD02/`、`TEST_EVIDENCE_MOS_BUILD03/`；UI 截图分落 `UI_EVIDENCE_MOS_BUILD01|02|03|04|05/`。
 - 任一断言失败 → 退出码非 0，可直接接入 CI。
-- 当前全绿：**472/472**（Phase 3 完成时）。
+- 当前全绿：**472/472**（Phase 0—4 整改完成时）。
 - **无凭据即 BLOCKED，不阻断本地构建**：`provider` 套件在无密钥时仍全绿（真实端到端如实记 BLOCKED）；
   `workspace` 套件为纯离线契约自检（真实联调 `NOT_VERIFIED`）。
+
+### 交付打包
+
+```bash
+bash tools/package-mos-source.sh    # → VFIB_MARKETING_OS_V0.1_REMEDIATED_SOURCE.zip + dist/SHA256SUMS.txt
+```
+
+打包脚本**逐项列举**源码与文档，并**强制剔除** `data/`、`config.json`、`.env`、`.workbuddy/`、`node_modules/`、
+`*.log`、`data-mos-*`；`mos.json` / `config.json` / `.env` 任一残留即**中止打包**。
+ZIP 由零依赖写入器 `tools/mos-zip.js` 生成（**正斜杠路径 + UTF-8 文件名**，跨平台可解压）。
+该 ZIP 与 `dist/` **不入版本库**（已 gitignore，可随时重新生成）。
 
 ---
 
@@ -186,15 +197,28 @@ bash tools/run-mos-tests.sh e2e03   # 只跑某一套：smoke | unit | sec | sch
 
 | 文档 | 内容 |
 |---|---|
-| [docs/ARCHITECTURE_AUDIT.md](docs/ARCHITECTURE_AUDIT.md) | 架构审计与风险登记 |
+| [docs/CURRENT_ARCHITECTURE.md](docs/CURRENT_ARCHITECTURE.md) | **当前架构与状态清单**（八中心导航映射、数据模型、迁移/回滚、安全边界） |
+| [docs/API_CONTRACT_AND_INTEGRATION_STATUS.md](docs/API_CONTRACT_AND_INTEGRATION_STATUS.md) | **API 契约与集成状态**（端点清单 + Mock/Real/BLOCKED 如实标注） |
+| [docs/INTEGRATION_WORKSPACE_CONTRACT.md](docs/INTEGRATION_WORKSPACE_CONTRACT.md) | 企业资料库集成适配说明（A-06：启用步骤、失败处理、诚实性声明） |
+| [docs/MOCK_REAL_MATRIX.md](docs/MOCK_REAL_MATRIX.md) | Mock / Real 集成矩阵（唯一权威） |
+| [docs/DELETION_AND_CHANGE_LIST.md](docs/DELETION_AND_CHANGE_LIST.md) | 整改**变更文件清单与删除清单**（含"零删除"结论与依据） |
+| [docs/history/README.md](docs/history/README.md) | 历史档案归档策略与索引 |
 | [docs/ADRs/ADR-001-tech-stack.md](docs/ADRs/ADR-001-tech-stack.md) | 技术栈决策（复用零依赖栈，不引 Next.js/PostgreSQL） |
 | [docs/ADRs/ADR-002-standalone-repo.md](docs/ADRs/ADR-002-standalone-repo.md) | 从企业 OA 仓库剥离为独立工程 |
-| [docs/MOCK_REAL_MATRIX.md](docs/MOCK_REAL_MATRIX.md) | Mock / Real 集成矩阵 |
 | [docs/BUILD-01_TEST_REPORT.md](docs/BUILD-01_TEST_REPORT.md) | BUILD-01 测试报告（含 10 项调试过程） |
 | [docs/BUILD-01_SELF_AUDIT.md](docs/BUILD-01_SELF_AUDIT.md) | BUILD-01 自审报告 |
-| [docs/BUILD-02_PLAN.md](docs/BUILD-02_PLAN.md) | BUILD-02 代码审计与开发计划 |
 | [docs/BUILD-02_TEST_REPORT.md](docs/BUILD-02_TEST_REPORT.md) | BUILD-02 测试报告（E2E-03/04 + SEC-02 真实篡改路径） |
 | [docs/BUILD-02_SELF_AUDIT.md](docs/BUILD-02_SELF_AUDIT.md) | BUILD-02 自审报告（含 A-09…A-15 缺陷处置） |
-| [docs/BUILD-03_PLAN.md](docs/BUILD-03_PLAN.md) | BUILD-03 代码审计与开发计划 |
 | [docs/BUILD-03_TEST_REPORT.md](docs/BUILD-03_TEST_REPORT.md) | BUILD-03 测试报告（E2E-05 + SEC 全量 + Analytics 缺失语义） |
 | [docs/BUILD-03_SELF_AUDIT.md](docs/BUILD-03_SELF_AUDIT.md) | BUILD-03 自审报告（含 A-16…A-27 缺陷处置） |
+| [docs/history/ARCHITECTURE_AUDIT.md](docs/history/ARCHITECTURE_AUDIT.md) | （归档）整改前架构审计与风险登记 R-01…R-07 |
+| [docs/history/BUILD-02_PLAN.md](docs/history/BUILD-02_PLAN.md) | （归档）BUILD-02 代码审计与开发计划 |
+| [docs/history/BUILD-03_PLAN.md](docs/history/BUILD-03_PLAN.md) | （归档）BUILD-03 代码审计与开发计划 |
+
+**阶段报告（`reports/`）**：[PHASE0_BASELINE.md](reports/PHASE0_BASELINE.md)、
+[PHASE1_SECURITY.md](reports/PHASE1_SECURITY.md)、[PHASE2_UX.md](reports/PHASE2_UX.md)、
+[PHASE3_INTEGRATIONS.md](reports/PHASE3_INTEGRATIONS.md)、
+[FINAL_AUDIT.md](reports/FINAL_AUDIT.md)、[OPEN_ITEMS.md](reports/OPEN_ITEMS.md)。
+
+**交付源码包**：`VFIB_MARKETING_OS_V0.1_REMEDIATED_SOURCE.zip`（由 `bash tools/package-mos-source.sh` 生成，
+含完整源码 + 分阶段报告 + 测试证据 + UI 截图；不入版本库）。

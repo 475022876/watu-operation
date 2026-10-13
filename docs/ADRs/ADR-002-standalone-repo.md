@@ -74,7 +74,7 @@ D:\运营系统\VFIB-Marketing-OS\
 **负面 / 需要接受**
 
 - **共享安全基座出现多份拷贝**（母仓库一份、本工程一份）。修复一处安全缺陷需要**人工同步到另一处**。
-  → 新增风险 **R-07：安全基座双份漂移**（登记于 `ARCHITECTURE_AUDIT.md`）。缓解措施：两侧的
+  → 新增风险 **R-07：安全基座双份漂移**（登记于 `../history/ARCHITECTURE_AUDIT.md`）。缓解措施：两侧的
   `lib/{util,net,security,password}.js` 顶部注释互相标注来源，安全类改动必须在提交信息中写明是否需要同步。
 - 母仓库原有的 `tools/secret-scan-v113.js` 等自检不再覆盖本工程 → 本工程内置 `tools/secret-scan.js`。
 

@@ -14,7 +14,7 @@
 | 批次 | BUILD-01（基础 + 策划） |
 | 版本 | MOS `0.1.0`；OA 主库 schema 仍为 `3`（未变） |
 | 对应门禁 | Gate A |
-| 前置文档 | `ARCHITECTURE_AUDIT.md`、`ADRs/ADR-001-tech-stack.md`、`MOCK_REAL_MATRIX.md`、`BUILD-01_TEST_REPORT.md` |
+| 前置文档 | `../history/ARCHITECTURE_AUDIT.md`、`ADRs/ADR-001-tech-stack.md`、`MOCK_REAL_MATRIX.md`、`BUILD-01_TEST_REPORT.md` |
 
 ---
 
@@ -107,7 +107,7 @@ tools/run-mos-tests.sh      # 统一入口，产出 TEST_EVIDENCE_MOS_BUILD01/su
 
 ### 新增 — 文档与配置（4 个）
 ```
-docs/ARCHITECTURE_AUDIT.md      # 步骤 0 仓库诊断（含风险登记 R-01…R-06）
+docs/history/ARCHITECTURE_AUDIT.md      # 步骤 0 仓库诊断（含风险登记 R-01…R-06）
 docs/ADRs/ADR-001-tech-stack.md # 技术栈 ADR（Accepted）
 docs/MOCK_REAL_MATRIX.md        # Mock/Real 矩阵（含代码级诚实性边界）
 docs/BUILD-01_TEST_REPORT.md    # 本批次测试报告
