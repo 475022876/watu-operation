@@ -27,6 +27,7 @@ const SHOT_DIR = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD01');
 const SHOT_DIR_B02 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD02');
 const SHOT_DIR_B03 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD03');
 const SHOT_DIR_B04 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD04');
+const SHOT_DIR_B05 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD05');
 const OUT_DIR = path.join(ROOT, 'TEST_EVIDENCE_MOS_BUILD01');
 
 const ADMIN_PW = 'MosUI-' + crypto.randomBytes(9).toString('base64url');
@@ -167,7 +168,8 @@ async function main() {
     const r = await cdp.send('Page.captureScreenshot', { format: 'png' });
     const dir = name.indexOf('B02-') === 0 ? SHOT_DIR_B02
       : (name.indexOf('B03-') === 0 ? SHOT_DIR_B03
-        : (name.indexOf('B04-') === 0 ? SHOT_DIR_B04 : SHOT_DIR));
+        : (name.indexOf('B04-') === 0 ? SHOT_DIR_B04
+          : (name.indexOf('B05-') === 0 ? SHOT_DIR_B05 : SHOT_DIR)));
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, name), Buffer.from(r.data, 'base64'));
   };
@@ -772,6 +774,62 @@ async function main() {
     const sharedAsset = await evalJs('!!document.getElementById("rbQ") && document.body.innerText.indexOf("MOCK 资料库")>=0');
     check('BUILD-04 Reference Library 复用共享资产浏览组件（M-02）', sharedAsset, '');
     await shot('B04-49-brand-reference-shared.png');
+
+    /* ================= Phase 3（BUILD-05）：A-01 情报采集调度 UI =================
+     * 目标：验证调度面板在真实浏览器里如实展示「默认关闭 / 单实例限制 / 不会自动采集的原因」，
+     *       并且「立即巡检」确实调用后端、结果不粉饰（DEMO 来源全部不可调度 → 执行 0 / 跳过 N）。 */
+    await evalJs('(function(){var b=document.querySelector(\'[data-route="intelligence"]\');if(b)b.click();return true;})()');
+    await waitFor('document.querySelector(\'[data-t="sources"]\')', 'Intelligence 页签', 15000);
+    await evalJs('(function(){var b=document.querySelector(\'[data-t="sources"]\');if(b)b.click();return true;})()');
+    await waitFor('document.getElementById("schedCard") && document.getElementById("schedCard").innerText.indexOf("采集调度")>=0', '调度面板挂载', 15000);
+    await waitFor('document.getElementById("schedCard").innerText.indexOf("单实例限制")>=0', '调度面板数据到达', 15000);
+
+    const schedText = await evalJs('document.getElementById("schedCard").innerText');
+    check('Phase3 调度面板：默认关闭且如实声明单实例限制',
+      String(schedText).indexOf('未运行') !== -1 && String(schedText).indexOf('单实例限制') !== -1
+        && String(schedText).indexOf('只支持单实例') !== -1 && String(schedText).indexOf('默认关闭') !== -1,
+      String(schedText).slice(0, 200));
+
+    const blockedCount = await evalJs('(function(){var t=document.getElementById("schedCard").innerText;var m=t.match(/不会自动采集的来源（(\\d+)）/);return m?Number(m[1]):-1;})()');
+    check('Phase3 到期预览逐条给出「不会自动采集」的原因（未核验 / MANUAL 频率）',
+      blockedCount >= 2, 'blocked=' + blockedCount);
+
+    const jobsText = await evalJs('document.getElementById("jobsCard").innerText');
+    check('Phase3 作业记录卡渲染（空态也给出明确说明，不显示假数据）',
+      String(jobsText).indexOf('采集作业记录') !== -1,
+      String(jobsText).slice(0, 160));
+
+    // 真实调用后端：立即执行一轮巡检（DEMO 来源均不可调度 → 执行 0）
+    await evalJs('(function(){document.getElementById("schedTick").click();return true;})()');
+    await waitFor('document.getElementById("schedOut") && document.getElementById("schedOut").innerText.indexOf("本轮巡检")>=0', '巡检结果', 15000);
+    const tickOut = await evalJs('document.getElementById("schedOut").innerText');
+    const ranM = String(tickOut).match(/执行\s*(\d+)\s*个来源/);
+    const skipM = String(tickOut).match(/跳过\s*(\d+)\s*个/);
+    check('Phase3 「立即巡检」真实执行且不粉饰：DEMO 来源全部不可调度 → 执行 0、跳过 N',
+      !!ranM && Number(ranM[1]) === 0 && !!skipM && Number(skipM[1]) >= 2,
+      String(tickOut).replace(/\s+/g, ' ').slice(0, 200));
+    await shot('B05-50-intelligence-scheduler.png');
+
+    // 运行时开关（开启 → 运行中 → 关闭 → 未运行）
+    await evalJs('(function(){document.getElementById("schedToggle").click();return true;})()');
+    await waitFor('document.getElementById("schedCard") && document.getElementById("schedCard").innerText.indexOf("运行中")>=0', '调度开启', 15000);
+    const onText = await evalJs('document.getElementById("schedCard").innerText');
+    check('Phase3 运行时可开启自动采集（状态如实变为运行中）',
+      String(onText).indexOf('运行中') !== -1 && String(onText).indexOf('关闭自动采集') !== -1,
+      String(onText).slice(0, 160));
+    await shot('B05-51-scheduler-enabled.png');
+
+    await evalJs('(function(){document.getElementById("schedToggle").click();return true;})()');
+    await waitFor('document.getElementById("schedCard") && document.getElementById("schedCard").innerText.indexOf("未运行")>=0', '调度关闭', 15000);
+    const offText = await evalJs('document.getElementById("schedCard").innerText');
+    check('Phase3 关闭后恢复未运行（开关双向可用，不残留自动出站）',
+      String(offText).indexOf('未运行') !== -1, String(offText).slice(0, 160));
+
+    // 来源表展示频率与「不自动」标识
+    const srcTableText = await evalJs('(function(){var t=document.querySelectorAll(".card");for(var i=0;i<t.length;i++){if(t[i].innerText.indexOf("来源登记表")>=0)return t[i].innerText;}return "";})()');
+    check('Phase3 来源登记表展示采集频率与「不自动」标识',
+      String(srcTableText).indexOf('频率') !== -1 && String(srcTableText).indexOf('不自动') !== -1,
+      String(srcTableText).slice(0, 200));
 
     check('无页面级未捕获异常', pageErrors.length === 0, pageErrors.slice(0, 3).join(' | '));
     check('无控制台 error 输出', consoleErrors.length === 0, consoleErrors.slice(0, 5).join(' | '));

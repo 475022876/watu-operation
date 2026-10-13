@@ -21,6 +21,7 @@ const mosRouter = require('./lib/mos/router');
 require('./lib/mos/routes');
 const mosConfig = require('./lib/mos/config');
 const mosStore = require('./lib/mos/store');
+const mosScheduler = require('./lib/mos/scheduler');
 
 const cfg = getConfig();
 const VERSION = cfg.appVersion;
@@ -217,6 +218,17 @@ function banner(actualPort) {
     + ' text=' + mosCfg.integrations.textProvider
     + ' image=' + mosCfg.integrations.imageProvider
     + '（mock/real 详见 docs/MOCK_REAL_MATRIX.md）');
+  {
+    let sline = '未启用（Marketing OS 已禁用）';
+    if (mosCfg.enabled) {
+      try {
+        const ss = mosScheduler.status();
+        sline = (ss.running ? '运行中（每 ' + ss.intervalMinutes + ' 分钟）' : '未运行（默认关闭）')
+          + ' · 单实例限制 · 已执行 ' + ss.tickCount + ' 次巡检';
+      } catch (_) { sline = '状态未知'; }
+    }
+    lines.push('  采集调度：' + sline);
+  }
   lines.push('  访问白名单：' + ((live.allowedNetworks || []).length
     ? live.allowedNetworks.join(' , ')
     : '未限制（生产建议配置 IP 白名单 / VPN / Zero Trust）'));
@@ -237,6 +249,11 @@ function start() {
   const mosCfg = mosConfig.getMosConfig();
   if (mosCfg.enabled) {
     mosStore.load(); // 首次初始化会打印引导口令与 DEMO 凭据（仅一次，不落盘）
+    // 情报采集调度（A-01）：**默认关闭**；只有 config.json / MOS_SCHEDULER_ENABLED 显式开启才自动出站。
+    const sc = mosScheduler.start();
+    console.log('[mos-scheduler] ' + (sc.started
+      ? '已启动（间隔 ' + sc.intervalMinutes + ' 分钟）：' + sc.note
+      : '未启动（' + sc.reason + '）：' + sc.note));
   } else {
     console.log('[mos] 已禁用（config.json → mos.enabled=false）');
   }
@@ -267,6 +284,7 @@ function start() {
 
   const shutdown = (signal) => {
     console.log('\n[exit] 收到 ' + signal + '，正在保存数据并关闭服务...');
+    try { mosScheduler.stop(); } catch (_) { /* ignore：释放调度锁 */ }
     try { mosStore.saveNow(); } catch (_) { /* ignore */ }
     server.close(() => process.exit(0));
     setTimeout(() => process.exit(0), 3000).unref();

@@ -494,22 +494,54 @@ t('U-18c Mock 网关：缺摘要/缺分类/许可未核验 → 引擎级拒绝�
   eq(unv.errorCode, 'LICENSE_UNVERIFIED');
 });
 
-/* ---------------- U-19 schema v3 迁移（只增不改；不预置任何已批准资产） ---------------- */
-t('U-19 schema 版本为 3，且 asset_admissions / library_asset_refs 在基线形状中', () => {
+/* ---------------- U-19 schema v3/v4 迁移（只增不改；不预置任何已批准资产/作业） ---------------- */
+t('U-19 schema 版本为 4，且 asset_admissions / library_asset_refs / ingest_jobs 在基线形状中', () => {
   const store = require('../lib/mos/store');
-  eq(store.MOS_SCHEMA_VERSION, 3);
+  eq(store.MOS_SCHEMA_VERSION, 4);
   ok(Array.isArray(store.BASE_SHAPE.asset_admissions), 'asset_admissions 必须是顶级集合');
   ok(Array.isArray(store.BASE_SHAPE.library_asset_refs), 'library_asset_refs 必须是顶级集合');
+  ok(Array.isArray(store.BASE_SHAPE.ingest_jobs), 'ingest_jobs 必须是顶级集合（A-01 采集作业记录）');
 });
 
-t('U-19b migrate：v2 文档补齐 v3 形状，且**不注入**任何已批准资产（08 §6）', () => {
+t('U-19b migrate：v2 文档补齐 v3/v4 形状，且**不注入**任何已批准资产或作业记录（08 §6）', () => {
   const store = require('../lib/mos/store');
   const legacy = { mosSchemaVersion: 2, brands: [], users: [] };
   const changed = store.migrate(legacy);
   ok(changed === true, '应报告已迁移');
-  eq(legacy.mosSchemaVersion, 3);
+  eq(legacy.mosSchemaVersion, 4);
   eq(legacy.asset_admissions.length, 0, '迁移不得预置申请');
   eq(legacy.library_asset_refs.length, 0, '迁移不得预置已批准资产引用');
+  eq(legacy.ingest_jobs.length, 0, '迁移不得预置采集作业记录');
+});
+
+t('U-19c v3 → v4 迁移幂等且只新增 ingest_jobs，既有集合零改写', () => {
+  const store = require('../lib/mos/store');
+  const doc = {
+    mosSchemaVersion: 3,
+    campaigns: [{ id: 'c1', title: '既有 Campaign' }],
+    master_topics: [{ id: 't1' }],
+    source_registry: [{ id: 'src1' }],
+    source_items: [{ id: 'si1' }],
+    publication_records: [{ id: 'p1' }],
+    review_cases: [{ id: 'r1' }],
+    asset_admissions: [{ id: 'ad1' }]
+  };
+  const before = JSON.stringify({
+    campaigns: doc.campaigns, master_topics: doc.master_topics, source_registry: doc.source_registry,
+    source_items: doc.source_items, publication_records: doc.publication_records,
+    review_cases: doc.review_cases, asset_admissions: doc.asset_admissions
+  });
+  store.migrate(doc);
+  const after = JSON.stringify({
+    campaigns: doc.campaigns, master_topics: doc.master_topics, source_registry: doc.source_registry,
+    source_items: doc.source_items, publication_records: doc.publication_records,
+    review_cases: doc.review_cases, asset_admissions: doc.asset_admissions
+  });
+  eq(after, before, '既有集合与内容必须零改写');
+  eq(doc.mosSchemaVersion, 4);
+  eq(doc.ingest_jobs.length, 0);
+  const second = store.migrate(doc);
+  eq(second, false, '二次迁移应报告无变更（幂等）');
 });
 
 /* ---------------- U-20 S04 Marketing Brief（A-02）与共享组件（M-01/M-02/M-03） ---------------- */
@@ -618,6 +650,213 @@ t('U-20h 共享组件文件存在且导出契约齐备（M-01 / M-02 / M-03）',
     for (const sym of expect[file]) ok(src.indexOf('export function ' + sym) !== -1 || src.indexOf('export async function ' + sym) !== -1
       || src.indexOf('export const ' + sym) !== -1, file + ' 应导出 ' + sym);
   }
+});
+
+/* ---------------- U-21 专业字典 provisional 核验（F-07） ---------------- */
+const dictVerify = require('../lib/mos/dictverify');
+
+function verifyDb() {
+  return { mosSchemaVersion: 4, settings: {}, audit_events: [] };
+}
+
+t('U-21 provisional 项全部登记在册，且归属权威原件（SPECIAL-01 V1.1 / Visual Skill V1.2）', () => {
+  const rows = dictVerify.registry(null);
+  ok(rows.length >= 30, '待核验项数量应 ≥30，实际 ' + rows.length);
+  const keys = new Set(rows.map((r) => r.dictKey));
+  for (const k of ['pillars', 'narratives', 'visuals', 'motions', 'assetCategories', 'templateCodes', 'displays']) {
+    ok(keys.has(k), '登记表应覆盖 ' + k);
+  }
+  for (const r of rows) {
+    ok(r.sourceDocument === 'SPECIAL_01' || r.sourceDocument === 'VISUAL_SKILL_V12',
+      r.dictKey + ':' + r.code + ' 应归属受控原件，实际 ' + r.sourceDocument);
+    ok(r.sourceVersionRequired === 'V1.1' || r.sourceVersionRequired === 'V1.2',
+      r.dictKey + ':' + r.code + ' 应给出原件版本');
+  }
+});
+
+t('U-21b 未取得原件时：所有 provisional 项保持「待核验」，不存在被伪造的官方标签', () => {
+  const rows = dictVerify.registry(null);
+  const dict = require('../lib/mos/dict');
+  ok(rows.every((r) => r.status === 'UNVERIFIED'), '所有项都应是 UNVERIFIED');
+  ok(rows.every((r) => !r.sourceVersion && !r.evidenceRef), '未核验项不得带来源版本/证据引用');
+  // 字典里 provisional 项的显示名必须仍是「待核验」——不得凭 AI 创作填成正式名
+  for (const k of dictVerify.PROVISIONAL_KEYS) {
+    for (const e of dict.DICTIONARIES[k]) {
+      ok(e.provisional === true, k + ':' + e.code + ' 应为 provisional');
+      ok(e.label === '待核验', k + ':' + e.code + ' 的标签必须是「待核验」，实际 ' + e.label);
+      ok(e.source === 'provisional', k + ':' + e.code + ' 的 source 必须是 provisional');
+    }
+  }
+});
+
+t('U-21c 权威原件登记如实声明「本轮未随包提供」（不得含糊）', () => {
+  const s = dictVerify.summary(null);
+  ok(s.sourceDocuments.length === 2, '应有 2 份权威原件登记');
+  ok(s.sourceDocuments.every((d) => d.providedToDev === false), '本轮两件原件都未随包提供');
+  ok(s.sourceDocuments.some((d) => /SPECIAL|指导手册/.test(d.title)), '应登记 SPECIAL-01 手册');
+  ok(s.sourceDocuments.some((d) => /Visual Brand Guardian/.test(d.title)), '应登记 Visual Skill V1.2');
+});
+
+t('U-21d 配置只给字符串标签 → 仅改显示名，条目**仍然待核验**（封堵"一行配置洗成正式"）', () => {
+  const entries = dict.DICTIONARIES.pillars.slice(0, 2);
+  const res = dictVerify.applyOverrides('pillars', entries, { C01: '假设的栏目名' });
+  const c01 = res.items.find((e) => e.code === 'C01');
+  eq(c01.label, '假设的栏目名', '显示名应被覆盖');
+  eq(c01.provisional, true, 'provisional 必须保持 true');
+  eq(c01.source, 'config_unverified', '来源应标为 config_unverified');
+  eq(c01.verificationRejected, 'EVIDENCE_REQUIRED', '应记录被拒原因');
+  eq(res.rejected.length, 1, '应产生 1 条被拒记录');
+  eq(c01.provisional === false, false, '绝不允许变为正式');
+});
+
+t('U-21e 缺证据的"核验"一律拒绝：只给 sourceVersion 或只给 evidenceRef 都不行', () => {
+  const onlyVersion = dictVerify.validateEvidence('pillars', { sourceVersion: 'V1.1' });
+  ok(!onlyVersion.ok && onlyVersion.code === 'MISSING_EVIDENCE_REF', '缺证据引用应被拒');
+  const onlyEvidence = dictVerify.validateEvidence('pillars', { evidenceRef: 'p.12' });
+  ok(!onlyEvidence.ok && onlyEvidence.code === 'MISSING_SOURCE_VERSION', '缺来源版本应被拒');
+  const noFlag = dictVerify.validateEvidence('pillars', { sourceVersion: 'V1.1', evidenceRef: 'p.12' });
+  ok(!noFlag.ok && noFlag.code === 'ORIGINAL_NOT_PROVIDED', '未声明已取得原件时应被拒');
+  const good = dictVerify.validateEvidence('pillars', { sourceVersion: 'V1.1', evidenceRef: 'p.12', confirmedOriginalProvided: 'true' });
+  ok(good.ok, '证据齐备且声明已取得原件时应通过：' + JSON.stringify(good));
+});
+
+t('U-21f 证据齐备时才标记为已核验，并把来源版本 + 证据引用写回条目（可追溯）', () => {
+  const entries = dict.DICTIONARIES.narratives.slice(0, 1);
+  const res = dictVerify.applyOverrides('narratives', entries, {
+    N01: { label: '正式叙事名（示例）', sourceVersion: 'V1.1', evidenceRef: 'SPECIAL-01 §3.2 p.12', confirmedOriginalProvided: 'true' }
+  });
+  const n01 = res.items[0];
+  eq(n01.label, '正式叙事名（示例）', '应录入正式名称');
+  eq(n01.provisional, false, '证据齐备才可置非 provisional');
+  eq(n01.source, 'SPECIAL_01@V1.1', '来源应带原件版本');
+  eq(n01.evidenceRef, 'SPECIAL-01 §3.2 p.12', '应保留证据引用');
+  ok(!!n01.verifiedAt, '应记录核验时间');
+});
+
+t('U-21g 运行时核验登记：缺证据被拒且不写库；证据齐备则写入并可汇总/撤销', () => {
+  const db = verifyDb();
+  const bad = dictVerify.verify(db, { dictKey: 'visuals', code: 'V01', label: '正式视觉名' });
+  ok(!bad.ok && bad.code === 'MISSING_SOURCE_VERSION', '缺来源版本应被拒：' + JSON.stringify(bad));
+  ok(!db.settings.dictionaryVerifications, '被拒时不得写入任何记录');
+
+  const noLabel = dictVerify.verify(db, {
+    dictKey: 'visuals', code: 'V01', label: '待核验',
+    sourceVersion: 'V1.2', evidenceRef: 'hash-abc', confirmedOriginalProvided: 'true'
+  });
+  ok(!noLabel.ok && noLabel.code === 'MISSING_LABEL', '核验通过必须给出正式名称');
+
+  const good = dictVerify.verify(db, {
+    dictKey: 'visuals', code: 'V01', label: '正式视觉语言名（示例）',
+    sourceVersion: 'V1.2', evidenceRef: 'VisualSkill V1.2 §4 hash-abc',
+    confirmedOriginalProvided: 'true', verifiedById: 'u_demo', verifiedByName: '示例核验人'
+  });
+  ok(good.ok, '证据齐备应登记成功：' + JSON.stringify(good));
+  const rows = dictVerify.registry(db);
+  const v01 = rows.find((r) => r.dictKey === 'visuals' && r.code === 'V01');
+  eq(v01.status, 'VERIFIED', 'V01 应变为已核验');
+  eq(v01.sourceVersion, 'V1.2', '应记录来源版本');
+  eq(v01.verifiedBy, 'u_demo', '应记录核验人');
+  eq(dictVerify.summary(db).unverified, rows.length - 1, '未核验数应减少 1');
+
+  const rv = dictVerify.unverify(db, 'visuals', 'V01');
+  ok(rv.ok, '应可撤销核验');
+  const back = dictVerify.registry(db).find((r) => r.dictKey === 'visuals' && r.code === 'V01');
+  eq(back.status, 'UNVERIFIED', '撤销后应回到待核验');
+});
+
+t('U-21h 字典 API 输出不含任何伪造正式标签，且给出覆盖拒绝审计', () => {
+  const helpers = require('../lib/mos/routes/helpers');
+  const d = helpers.dictionaries(null);
+  for (const k of dictVerify.PROVISIONAL_KEYS) {
+    ok(Array.isArray(d[k]) && d[k].length > 0, k + ' 应返回条目');
+    for (const e of d[k]) {
+      if (e.provisional) eq(e.label, '待核验', k + ':' + e.code + ' 未核验时标签必须是「待核验」');
+    }
+  }
+  ok(!Object.prototype.hasOwnProperty.call(d, '__verificationAudit'), '字典对象不应夹带审计字段');
+  const audit = helpers.dictionaryAudit();
+  ok(Array.isArray(audit.applied) && Array.isArray(audit.rejected), '应返回覆盖审计结构');
+});
+
+/* ---------------- A-05：Provider 统一契约纯函数 ---------------- */
+t('U-22 Provider 契约：失败码分类与可重试判定稳定（429/5xx/4xx/AbortError）', () => {
+  const pc = require('../lib/mos/providercontract');
+  eq(pc.classifyHttp(429), pc.ERROR_CODES.RATE_LIMITED);
+  eq(pc.classifyHttp(503), pc.ERROR_CODES.HTTP_ERROR);
+  eq(pc.classifyHttp(401), pc.ERROR_CODES.BAD_REQUEST);
+  eq(pc.classifyError(Object.assign(new Error('aborted'), { name: 'AbortError' })), pc.ERROR_CODES.TIMEOUT);
+  eq(pc.classifyError(new Error('socket hang up')), pc.ERROR_CODES.NETWORK_ERROR);
+  ok(pc.isRetryable(pc.ERROR_CODES.TIMEOUT) && pc.isRetryable(pc.ERROR_CODES.RATE_LIMITED), '超时/限流应可重试');
+  ok(!pc.isRetryable(pc.ERROR_CODES.BAD_REQUEST) && !pc.isRetryable(pc.ERROR_CODES.BLOCKED_DATA_CLASS), '参数/分级拒绝不可重试');
+});
+
+t('U-22b Provider 费用回执：无供应商回执一律 null，绝不凭空推算（04 §5）', () => {
+  const pc = require('../lib/mos/providercontract');
+  const absent = pc.costReceipt({});
+  eq(absent.amount, null);
+  eq(absent.confirmed, false);
+  const present = pc.costReceipt({ cost: { amount: 0.12, currency: 'USD' } });
+  eq(present.amount, 0.12);
+  eq(present.confirmed, true);
+});
+
+t('U-22c Provider 限流头解析：缺失字段一律 null，不臆测配额', () => {
+  const pc = require('../lib/mos/providercontract');
+  const rl = pc.parseRateLimit({ get: (k) => ({ 'x-ratelimit-remaining': '3' }[k] === undefined ? null : '3') });
+  eq(rl.remaining, 3);
+  eq(rl.limit, null);
+  eq(rl.retryAfterSec, null);
+});
+
+t('U-22d 未配置 Provider：contract health 状态为 NOT_CONFIGURED 且不回传密钥', async () => {
+  const image = require('../lib/mos/adapters/image');
+  const h = await image.health();
+  ok(['NOT_CONFIGURED', 'MOCK', 'CONFIGURED', 'HEALTHY', 'UNHEALTHY'].indexOf(h.state) !== -1, 'state 必须来自受控集合');
+  ok(!Object.prototype.hasOwnProperty.call(h, 'apiKey'), 'health 不得含 apiKey 字段');
+});
+
+/* ---------------- A-06：企业资料库契约纯函数 ---------------- */
+t('U-23 Workspace 契约：canonicalString 与 sha256 原始字节语义对齐 Workspace 源码', () => {
+  const wc = require('../lib/mos/workspace-contract');
+  eq(wc.canonicalString('svc_a', 'get', '/p', '1', 'n', 'H'), 'v1\nsvc_a\nGET\n/p\n1\nn\nH');
+  eq(wc.EMPTY_BODY_HASH, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+  ok(wc.bodyHashOf('') !== wc.bodyHashOf('{}'), '无体请求不得等价于空对象');
+});
+
+t('U-23b Workspace 契约：封套校验拒绝「失败却夹带业务数据」', () => {
+  const wc = require('../lib/mos/workspace-contract');
+  ok(wc.isEnvelope({ ok: true, data: {}, error: null, request_id: 'r', policy_version: '1.0' }));
+  ok(!wc.isEnvelope({ ok: false, data: { leak: 1 }, error: { code: 'X' }, request_id: 'r', policy_version: '1.0' }));
+  ok(!wc.isEnvelope({ ok: true, data: {} }), '缺键即非法');
+});
+
+t('U-23c Workspace 契约：服务账户 scope 表不含 admission.final.decision（双重闭合第一重）', () => {
+  const wc = require('../lib/mos/workspace-contract');
+  ok(wc.SERVICE_SCOPES.indexOf('admission.final.decision') === -1, '服务账户 scope 不得含最终审批');
+  ok(wc.TICKET_SCOPES.indexOf('admission.final.decision') !== -1, '票据 scope 表应列出（仅本人会话可得）');
+  eq(JSON.stringify(wc.serviceGrantable(['assets.read', 'admission.final.decision'])), JSON.stringify(['assets.read']));
+});
+
+t('U-23d Workspace 适配器 fail closed：未配置凭据时零出站且恒 INTEGRATION_NOT_CONFIGURED', async () => {
+  const ws = require('../lib/mos/adapters/workspace');
+  const st = ws.status();
+  ok(st.configured === false, '默认必须未配置');
+  ok(st.missing.length > 0, '应如实列出缺失项');
+  const r = await ws.assetsSearch({ query: 'q', brandId: 'VFIB' });
+  eq(r.state, 'INTEGRATION_NOT_CONFIGURED');
+  ok(!Object.prototype.hasOwnProperty.call(st, 'privateKeyPem') && !Object.prototype.hasOwnProperty.call(st, 'ticket'),
+    'status 不得回传私钥/票据字段');
+  const fd = await ws.finalDecision();
+  eq(fd.state, 'FINAL_DECISION_REQUIRES_SESSION');
+});
+
+t('U-23e Workspace 端点表与契约一致（含 skills；final-decision 要求 session 票据）', () => {
+  const wc = require('../lib/mos/workspace-contract');
+  eq(Object.keys(wc.ENDPOINTS).length, 12);
+  eq(wc.ENDPOINTS.ADMISSION_FINAL_DECISION.ticketKind, 'session');
+  eq(wc.ENDPOINTS.SKILL_GET.serviceScope, 'skills.read');
+  eq(wc.CONTRACT_VERSION, '1.0');
+  ok(wc.NOT_PROVIDED.indexOf('publishedContentArchive') !== -1, 'Published Content 归档不在资料库侧');
 });
 
 /* ---------------- 汇总 ---------------- */

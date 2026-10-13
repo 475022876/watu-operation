@@ -81,23 +81,28 @@ node server.js
 
 ```bash
 bash tools/run-mos-tests.sh all     # 全部套件
-bash tools/run-mos-tests.sh e2e03   # 只跑某一套：smoke | unit | sec | e2e | e2e02 | e2e03 | ui
+bash tools/run-mos-tests.sh e2e03   # 只跑某一套：smoke | unit | sec | sched | provider | workspace | e2e | e2e02 | e2e03 | ui
 ```
 
 | 套件 | 覆盖内容 | 断言数 |
 |---|---|---|
 | `smoke` | 接口可用性与鉴权闭环（登录、改密闸门、字典、日历、审计） | 13 |
-| `unit` | 字典 / 状态机 / RBAC / SSRF / RSS 解析 / 去重 / 脱敏 / 内容哈希 / 业务编码 / **入库状态机 · 可复用判定 · 预检 · 数据分级 · Mock 网关幂等 · schema v3 迁移 · S04 Marketing Brief 核验** | 51 |
+| `unit` | 字典 / 状态机 / RBAC / SSRF / RSS 解析 / 去重 / 脱敏 / 内容哈希 / 业务编码 / 入库状态机 · 可复用判定 · 预检 · 数据分级 · Mock 网关幂等 · schema v4 迁移 · S04 Marketing Brief 核验 · **F-07 字典核验门禁 · A-05 Provider 契约 · A-06 资料库契约** | 69 |
 | `sec` | **出站采集安全**：SSRF 拦截矩阵、重定向逐跳、DNS 重绑定、压缩/体积上限、生产闸门（不依赖公网 DNS） | 17 |
+| `sched` | **A-01 轻量来源调度**：默认关闭、可调度判定、真实抓取、时间桶幂等、跨重启不补发、退避与有界重试、永久失败、单实例锁、fail closed、schema v4 | 20 |
+| `provider` | **A-05 Provider 统一契约**：离线诚实性（未配置→NOT_CONFIGURED、零出站、密钥不外泄）、本地桩验证 invoke/timeout/rateLimit/costReceipt/errorCode、真实端到端（有凭据时；否则按 BLOCKED 如实记录） | 21 |
+| `workspace` | **A-06 企业资料库适配层契约**：canonicalString/封套/错误码表对齐 Workspace V1.1.7；Ed25519 签名互通与篡改检测；本地桩验签+防重放+GET query 不参与签名；fail closed；服务账户无最终审批权 | 30 |
 | `e2e` | E2E-01 外部信息→Master Topic、E2E-02 月度计划→Calendar、跨品牌越权、SSRF、审计、**重启后数据与会话不丢失（含落盘前置条件）** | 48 |
 | `e2e02` | **E2E-03 AI 创作与审核链、E2E-04 排期/人工发布/归档**、SEC-02 真实改盘篡改、SEC-04 未批准不得发布、预算闸门、幂等、无自动发布 | 63 |
-| `e2e03` | **E2E-05 资产入库全流程**（申请→预检→最终审批→资料库同步→失败恢复）、SEC-01/02/07/08/09/10 全量、Analytics 真实聚合与缺失语义、治理收口 | 75 |
-| `ui` | **CDP 驱动本机真实 Chrome**：页面内完成写操作 → `Page.reload` → 数据仍在（含 BUILD-02 五个页面、**BUILD-03 运营分析 / 治理与资产**、**Phase 2 Campaign Marketing Brief / Deliverables / All Tasks 深链接 / VFIB·U CARD 营销工作区**） | 90 |
+| `e2e03` | **E2E-05 资产入库全流程**（申请→预检→最终审批→资料库同步→失败恢复）、SEC-01/02/07/08/09/10 全量、Analytics 真实聚合与缺失语义、治理收口、**调度 API / 字典核验 API / Provider 与资料库状态** | 94 |
+| `ui` | **CDP 驱动本机真实 Chrome**：页面内完成写操作 → `Page.reload` → 数据仍在（含 BUILD-02 五个页面、**BUILD-03 运营分析 / 治理与资产**、**Phase 2 Campaign Marketing Brief / Deliverables / All Tasks 深链接 / VFIB·U CARD 营销工作区**、**Phase 3 情报页采集调度面板**） | 97 |
 
 - 每套自带**随机数据目录**（`data-mos-*`）与**运行期随机口令**，跑完自动清理，绝不触碰 `data/`。
-- 结果落 `TEST_EVIDENCE_MOS_BUILD01/`（含 `summary.json`）；BUILD-02 / BUILD-03 端到端证据分落 `TEST_EVIDENCE_MOS_BUILD02/`、`TEST_EVIDENCE_MOS_BUILD03/`；UI 截图分落 `UI_EVIDENCE_MOS_BUILD01|02|03|04/`。
+- 结果落 `TEST_EVIDENCE_MOS_BUILD01/`（含 `summary.json`）；BUILD-02 / BUILD-03 端到端证据分落 `TEST_EVIDENCE_MOS_BUILD02/`、`TEST_EVIDENCE_MOS_BUILD03/`；UI 截图分落 `UI_EVIDENCE_MOS_BUILD01|02|03|04|05/`。
 - 任一断言失败 → 退出码非 0，可直接接入 CI。
-- 当前全绿：**357/357**（Phase 2 完成时）。
+- 当前全绿：**472/472**（Phase 3 完成时）。
+- **无凭据即 BLOCKED，不阻断本地构建**：`provider` 套件在无密钥时仍全绿（真实端到端如实记 BLOCKED）；
+  `workspace` 套件为纯离线契约自检（真实联调 `NOT_VERIFIED`）。
 
 ---
 

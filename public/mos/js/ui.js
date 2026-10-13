@@ -225,6 +225,9 @@ export function integrationBarHtml(integrations) {
   parts.push(tag('情报采集', integrations.sourceIngest.mode, false));
   parts.push(tag('文本模型', integrations.textProvider.mode, integrations.textProvider.mock));
   parts.push(tag('图像模型', integrations.imageProvider.mode, false));
+  const el = integrations.enterpriseLibrary;
+  parts.push('<span class="ib-item">企业资料库：<span class="ib-tag">'
+    + esc(el ? (el.configured ? 'CONFIGURED（未联调）' : 'NOT_CONFIGURED') : '未接通') + '</span></span>');
   parts.push('<span class="ib-item">OA 接口：<span class="ib-tag">未接通</span></span>');
   return '沙盒环境 · 集成状态：' + parts.join('')
     + '<span class="ib-item muted">（未接通项一律按 MOCK 展示，不得视为生产可用）</span>';

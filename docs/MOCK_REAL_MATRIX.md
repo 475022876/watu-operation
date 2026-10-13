@@ -1,4 +1,4 @@
-# Marketing OS V0.1 — Mock / Real 集成矩阵（BUILD-01 + BUILD-02 + BUILD-03）
+# Marketing OS V0.1 — Mock / Real 集成矩阵（BUILD-01 + BUILD-02 + BUILD-03 + V0.1 整改 Phase 1—3）
 
 > 单一权威来源：`lib/mos/config.js` 的 `DEFAULT.integrations`（可被 `config.json` 的 `mos.integrations` 与环境变量 `MOS_*` 覆盖）。
 > **任何一处从 `mock` 改成 `real`，都必须同步更新本文件并补充验证证据。**
@@ -18,6 +18,9 @@
 | 8 | 视频自动渲染 / 配音 / 剪辑 | **明确不实现**（04 §2 首期范围） | 不适用 | 视频工作区仅支持 Brief/脚本/分镜/字幕/关键帧/成片上传；界面明示「不提供自动渲染」 | 待后续阶段立项评估 |
 | 9 | 平台指标 API（BUILD-03 Analytics） | 未接通 | `未接通` | Analytics 不使用任何占位数字：无数据来源的指标一律显示「缺失」并附原因（`missing[]`）；渠道指标只能人工/导入登记（带来源与统计时点） | 平台开放 API + 授权 + 指标口径确认；在此之前不得以 0 或示例值填充 |
 | 10 | 获客成本 / 漏斗 / 行为归因（CAC 等） | **明确不在本期范围**（MARK-S05） | 不适用 | Analytics 的 `scopeNote` 显式排除；前后端均无菜单、无数据、无入口 | 待后续阶段立项评估 |
+| 11 | **企业资料库真实集成**（Enterprise Workspace 适配层，A-06） | `lib/mos/adapters/workspace.js` + `lib/mos/workspace-contract.js` | **`not_configured`**（默认关闭，fail closed） | `GET /api/mos/workspace/status` 返回 `configured:false` + `missing[]` + `realJointTest:"NOT_VERIFIED"`；顶栏集成条显示「企业资料库：NOT_CONFIGURED」；**未配置时零出站**，所有方法恒 `INTEGRATION_NOT_CONFIGURED` | 服务账户登记（Ed25519 公钥）+ 私钥/票据注入 + 真实服务可用；**真实联调 NOT_VERIFIED → 必须补验后才可标 real** |
+| 12 | **轻量情报采集调度**（A-01） | `lib/mos/scheduler.js` + `lib/mos/ingest.js` | **默认关闭**（`scheduler.enabled=false`） | 情报页「采集调度」卡片显示「未运行（默认关闭）」；开启后仅调度 `ACTIVE` + 非 `MANUAL` 频率 + 域名在出站白名单内的来源；**明确单实例限制**（心跳锁） | 运营授权开启 + 来源许可/robots 核验完成；多实例需先解决单文件存储架构 |
+| 13 | **专业字典 provisional 项**（F-07） | `lib/mos/dictverify.js` | **全部 `UNVERIFIED`**（权威原件未随包提供） | 字典条目 `provisional:true` + 标签显示「待核验」；`GET /api/mos/dictionaries/verification` 如实声明 `providedToDev:false`；配置覆盖**只改显示名**、不洗成正式 | 取得 SPECIAL-01 V1.1 / Visual Skill V1.2 原件 + 逐条证据引用，经 `POST /api/mos/dictionaries/verify` 登记 |
 
 ## 2. 关键诚实性边界（代码级）
 

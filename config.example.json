@@ -37,6 +37,41 @@
       "maxItemsPerRun": 40
     },
     "dictionaries": {},
+    "scheduler": {
+      "_comment": "A-01 轻量采集调度：默认关闭；开启后仅调度 ACTIVE + 非 MANUAL 频率 + 域名在出站白名单内的来源。单实例限制（心跳锁）。",
+      "enabled": false,
+      "intervalMinutes": 60,
+      "maxPerTick": 3,
+      "backoffBaseMs": 300000,
+      "backoffCapMs": 21600000,
+      "maxFailures": 5,
+      "lockStaleMinutes": 10
+    },
+    "text": {
+      "_comment": "A-05 文本 Provider 服务端配置。apiKey 只在服务端；未配置密钥时保持 NOT_CONFIGURED。",
+      "apiKey": "",
+      "baseUrl": "",
+      "model": "",
+      "timeoutMs": 30000
+    },
+    "image": {
+      "_comment": "A-05 图像 Provider 服务端配置。字段语义同 text。",
+      "apiKey": "",
+      "baseUrl": "",
+      "model": "",
+      "timeoutMs": 60000
+    },
+    "workspace": {
+      "_comment": "A-06 企业资料库（Enterprise Workspace）集成。默认关闭 → fail closed。凭据只在服务端；baseUrl 只由运维配置。",
+      "enabled": false,
+      "baseUrl": "",
+      "keyId": "",
+      "privateKeyPem": "",
+      "privateKeyPath": "",
+      "ticket": "",
+      "timeoutMs": 15000,
+      "correlationIdPrefix": "mos"
+    },
     "budget": {
       "brandMonthlyUsd": 0,
       "perJobUsdMax": 0

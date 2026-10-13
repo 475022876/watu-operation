@@ -22,7 +22,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname, '..');
-const PORT = 9700 + Math.floor(Math.random() * 25);
+// 端口收敛到声明的自检区段 9500-9699（原 9700-9724 越界，Phase 3 自审修正 B05-05）
+const PORT = 9690 + Math.floor(Math.random() * 10);
 const BASE = 'http://127.0.0.1:' + PORT;
 const DATA_DIR = path.join(ROOT, 'data-mos-b03-' + crypto.randomBytes(3).toString('hex'));
 const OUT_DIR = path.join(ROOT, 'TEST_EVIDENCE_MOS_BUILD03');
@@ -625,7 +626,128 @@ async function main() {
     secText.indexOf('"password"') === -1 && secText.indexOf('"token"') === -1, '');
 
   const meta2 = await admin.call('GET', '/api/mos/meta');
-  check('GOV-06 schema 版本已推进到 v3（只增不改）', meta2.json.schemaVersion === 3, 'schema=' + meta2.json.schemaVersion);
+  check('GOV-06 schema 版本已推进到 v4（只增不改；v4 = A-01 采集作业记录）', meta2.json.schemaVersion === 4, 'schema=' + meta2.json.schemaVersion);
+
+  /* ==================== Phase 3：A-01 采集调度 API（真实 HTTP） ==================== */
+  section('Phase 3 · A-01 情报采集调度（服务端 API，默认关闭 + 单实例限制）');
+
+  const sched0 = await admin.call('GET', '/api/mos/ingest/scheduler' + B);
+  check('SCH-API-01 调度总览可读，且默认关闭、如实声明单实例限制',
+    sched0.status === 200 && sched0.json.scheduler.configured === false
+      && sched0.json.scheduler.running === false && sched0.json.scheduler.singleInstanceOnly === true,
+    'configured=' + (sched0.json.scheduler && sched0.json.scheduler.configured)
+      + ' singleInstance=' + (sched0.json.scheduler && sched0.json.scheduler.singleInstanceOnly));
+
+  const dueDemo = sched0.json.due || [];
+  check('SCH-API-02 到期预览逐条给出不可调度原因（DEMO 来源：未核验 / MANUAL 频率）',
+    dueDemo.length >= 2 && dueDemo.every((x) => typeof x.schedulable === 'boolean')
+      && dueDemo.filter((x) => !x.schedulable).length >= 2,
+    dueDemo.map((x) => x.name + ':' + (x.schedulable ? 'schedulable' : x.reason.slice(0, 18))).join(' | '));
+
+  const tick = await admin.call('POST', '/api/mos/ingest/scheduler/tick' + B, {});
+  check('SCH-API-03 手工巡检真实执行且不粉饰：DEMO 来源全部不可调度 → 执行 0',
+    tick.status === 200 && tick.json.summary.ran === 0 && tick.json.summary.skipped >= 2,
+    'ran=' + (tick.json.summary && tick.json.summary.ran) + ' skipped=' + (tick.json.summary && tick.json.summary.skipped));
+
+  const jobs0 = await admin.call('GET', '/api/mos/ingest/jobs' + B);
+  check('SCH-API-04 采集作业记录接口可用（无假数据：无作业时为空数组并给出说明）',
+    jobs0.status === 200 && Array.isArray(jobs0.json.items) && !!jobs0.json.note,
+    'items=' + (jobs0.json.items && jobs0.json.items.length));
+
+  // 未核验来源的手工采集必须被阻断（fail closed），并留下 BLOCKED 作业记录
+  const srcList = await admin.call('GET', '/api/mos/sources' + B);
+  const pendingSrc = (srcList.json.items || []).find((s) => s.status === 'PENDING_VERIFICATION');
+  const ingestTry = await admin.call('POST', '/api/mos/sources/' + pendingSrc.id + '/ingest', {});
+  check('SCH-API-05 未核验来源的手工采集被阻断（fail closed，不伪造采集成功）',
+    ingestTry.status === 200 && ingestTry.json.ok === false
+      && ingestTry.json.status === 'SOURCE_PENDING_VERIFICATION' && ingestTry.json.inserted === 0,
+    'HTTP ' + ingestTry.status + ' status=' + (ingestTry.json && ingestTry.json.status));
+
+  const jobs1 = await admin.call('GET', '/api/mos/ingest/jobs' + B + '&sourceId=' + pendingSrc.id);
+  check('SCH-API-06 被阻断的采集同样留下作业记录（BLOCKED + 失败码，可审计）',
+    jobs1.status === 200 && jobs1.json.items.length >= 1
+      && jobs1.json.items[0].status === 'BLOCKED'
+      && jobs1.json.items[0].failureCode === 'SOURCE_PENDING_VERIFICATION',
+    'job=' + (jobs1.json.items[0] && (jobs1.json.items[0].status + '/' + jobs1.json.items[0].failureCode)));
+
+  const schedOn = await admin.call('POST', '/api/mos/ingest/scheduler' + B, { enabled: true });
+  const schedOff = await admin.call('POST', '/api/mos/ingest/scheduler' + B, { enabled: false });
+  check('SCH-API-07 调度开关双向可用（开启后可关闭，且状态如实回读）',
+    schedOn.status === 200 && schedOn.json.enabled === true && schedOn.json.scheduler.running === true
+      && schedOff.status === 200 && schedOff.json.scheduler.running === false,
+    'on=' + (schedOn.json.scheduler && schedOn.json.scheduler.running)
+      + ' off=' + (schedOff.json.scheduler && schedOff.json.scheduler.running));
+
+  const schedBad = await admin.call('POST', '/api/mos/ingest/scheduler' + B, { enabled: 'yes' });
+  check('SCH-API-08 非法开关取值被拒绝（400，不做宽松解析）',
+    schedBad.status === 400 && schedBad.json.code === 'BAD_ENABLED',
+    'HTTP ' + schedBad.status + ' code=' + (schedBad.json && schedBad.json.code));
+
+  // P3（发布角色）权限集**不含** source.manage —— 用于验证调度动作受服务端 RBAC 强制（03 §5）
+  const schedPerm = await cPublisher.call('POST', '/api/mos/ingest/scheduler/tick' + B, {});
+  check('SCH-API-09 无 source.manage 权限的主体不能触发巡检（403，服务端强制）',
+    schedPerm.status === 403, 'HTTP ' + schedPerm.status + ' code=' + (schedPerm.json && schedPerm.json.code));
+
+  /* ==================== Phase 3：F-07 字典待核验项登记 API ==================== */
+  section('Phase 3 · F-07 专业字典 provisional 核验（不伪造官方标签）');
+
+  const dv = await admin.call('GET', '/api/mos/dictionaries/verification' + B);
+  const dvItems = dv.json.items || [];
+  check('DV-01 待核验项登记接口可用，且全部保持 UNVERIFIED（未取得原件）',
+    dv.status === 200 && dvItems.length >= 30 && dvItems.every((r) => r.status === 'UNVERIFIED'),
+    'items=' + dvItems.length + ' verified=' + (dv.json.summary && dv.json.summary.verified));
+
+  check('DV-02 权威原件登记如实声明「本轮未随包提供」',
+    (dv.json.summary.sourceDocuments || []).length === 2
+      && dv.json.summary.sourceDocuments.every((d) => d.providedToDev === false),
+    JSON.stringify((dv.json.summary.sourceDocuments || []).map((d) => d.title + '@' + d.version)));
+
+  const dvBad = await admin.call('POST', '/api/mos/dictionaries/verify' + B,
+    { dictKey: 'pillars', code: 'C01', label: '假设的正式栏目名' });
+  check('DV-03 缺证据的核验请求被拒绝（400，不写入任何记录）',
+    dvBad.status === 400 && dvBad.json.code === 'MISSING_SOURCE_VERSION',
+    'HTTP ' + dvBad.status + ' code=' + (dvBad.json && dvBad.json.code));
+
+  const metaAfter = await admin.call('GET', '/api/mos/meta');
+  const c01 = ((metaAfter.json.dictionaries || {}).pillars || []).find((e) => e.code === 'C01');
+  check('DV-04 字典输出中 provisional 项标签仍为「待核验」（不存在伪造的官方名称）',
+    !!c01 && c01.provisional === true && c01.label === '待核验',
+    'label=' + (c01 && c01.label) + ' provisional=' + (c01 && c01.provisional));
+
+
+  /* ==================== Phase 3：A-05 Provider 契约 / A-06 资料库适配层状态 ==================== */
+  section('Phase 3 · A-05 Provider 契约探针与 A-06 资料库适配层状态');
+
+  const ph = await admin.call('GET', '/api/mos/providers/health' + B);
+  check('A05-01 Provider 契约探针可用，声明 7 项契约面且给出错误码表',
+    ph.status === 200 && Array.isArray(ph.json.contract) && ph.json.contract.length === 7
+      && !!ph.json.errorCodes && ph.json.errorCodes.TIMEOUT === 'PROVIDER_TIMEOUT',
+    'contract=' + JSON.stringify(ph.json.contract));
+  check('A05-02 未配置供应商时如实为 NOT_CONFIGURED（不含任何密钥字段）',
+    ph.json.text.health.state === 'NOT_CONFIGURED' && ph.json.image.health.state === 'NOT_CONFIGURED'
+      && JSON.stringify(ph.json).indexOf('apiKey') === -1,
+    'text=' + ph.json.text.health.state + ' image=' + ph.json.image.health.state);
+
+  const wsst = await admin.call('GET', '/api/mos/workspace/status' + B);
+  check('A06-01 资料库适配层状态可用：未配置凭据 → configured=false 且如实列出缺失项',
+    wsst.status === 200 && wsst.json.status.configured === false
+      && wsst.json.status.missing.length > 0,
+    'missing=' + JSON.stringify(wsst.json.status.missing));
+  check('A06-02 能力声明不夸大：真实联调 NOT_VERIFIED、服务账户无最终审批权、无归档能力',
+    wsst.json.contract.realJointTest === 'NOT_VERIFIED'
+      && wsst.json.capabilities.finalDecisionByServiceAccount === false
+      && wsst.json.capabilities.publishedContentArchive === false,
+    'joint=' + wsst.json.contract.realJointTest);
+  check('A06-03 资料库适配层状态不含私钥/票据字段（密钥只在服务端）',
+    JSON.stringify(wsst.json).indexOf('PRIVATE KEY') === -1
+      && !Object.prototype.hasOwnProperty.call(wsst.json.status, 'privateKeyPem'),
+    'len=' + JSON.stringify(wsst.json).length);
+
+  const metaP3 = await admin.call('GET', '/api/mos/meta');
+  check('A06-04 meta 集成状态矩阵新增企业资料库项，且未配置时如实为 not_configured',
+    !!metaP3.json.integrations.enterpriseLibrary
+      && metaP3.json.integrations.enterpriseLibrary.configured === false,
+    'mode=' + (metaP3.json.integrations.enterpriseLibrary || {}).mode);
 
   /* ==================== 审计修正 A-25：Topic 复用视图必须真实聚合 ==================== */
   section('A-25 Topic 复用视图（真实聚合，不再是空壳）');
