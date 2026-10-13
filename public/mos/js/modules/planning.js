@@ -253,7 +253,8 @@ async function renderCalendar() {
 
   const shift = (n) => {
     const d = new Date(anchor + 'T00:00:00');
-    if (calView === 'month') d.setMonth(d.getMonth() + n);
+    if (calView === 'day') d.setDate(d.getDate() + n);
+    else if (calView === 'month') d.setMonth(d.getMonth() + n);
     else if (calView === 'week') d.setDate(d.getDate() + n * 7);
     else d.setMonth(d.getMonth() + n);
     anchor = d.toISOString().slice(0, 10);
@@ -261,6 +262,7 @@ async function renderCalendar() {
   };
 
   let html = '<div class="filters">'
+    + '<button class="btn btn-sm" data-cv="day">日</button>'
     + '<button class="btn btn-sm" data-cv="month">月</button>'
     + '<button class="btn btn-sm" data-cv="week">周</button>'
     + '<button class="btn btn-sm" data-cv="list">列表</button>'
@@ -293,7 +295,7 @@ async function renderCalendar() {
     }
     const today = new Date().toISOString().slice(0, 10);
 
-    html += '<div class="card"><div class="card-head"><h2>日历（' + esc(calView === 'week' ? '周' : '月') + '）</h2>'
+    html += '<div class="card"><div class="card-head"><h2>日历（' + esc(calView === 'day' ? '日' : (calView === 'week' ? '周' : '月')) + '）</h2>'
       + '<div class="ch-actions"><span class="small muted">点击条目查看所属计划/任务</span></div></div><div class="card-body">';
     html += '<div class="cal-week-head"><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div></div>';
     html += '<div class="cal-grid">';

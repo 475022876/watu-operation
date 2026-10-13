@@ -1,0 +1,226 @@
+{
+  "suite": "v012-editorial",
+  "phase": "V0.1.2 Phase C（编辑域：批准入池 / 批准并安排幂等 Saga / 同源视图）",
+  "total": 43,
+  "passed": 43,
+  "failed": 0,
+  "ranAt": "2026-10-13T22:16:06.783Z",
+  "base": "http://127.0.0.1:9676",
+  "results": [
+    {
+      "name": "SV-01 服务器启动并探活",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SV-02 引导管理员登录",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SV-03 改密并重登",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "U-01 P1(VFIB) 登录",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "U-02 P2(VFIB) 登录",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "U-03 创作者(VFIB) 登录",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "U-04 P2(UCARD) 登录",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "AP-01 AI_RECOMMENDED 直接批准入池 → 409（须先提交审核）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "AP-02 批准入池 → 200 且 Topic state=APPROVED_UNSCHEDULED",
+      "ok": true,
+      "detail": "{\"id\":\"topic_mv78pq6r_c6600eb3c989\",\"title\":\"Pool topic udirq\",\"state\":\"APPROVED_UNSCHEDULED\",\"pillarCode\":\"C02\",\"narrativeCode\":\"N01\",\"riskGrade\":\"G1\"}"
+    },
+    {
+      "name": "AP-03 栏目映射正确（C02）且叙事 N01",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "AP-04 证据如实计数（无真实来源条目 → linked=0/skipped=0，不伪造）",
+      "ok": true,
+      "detail": "{\"linked\":0,\"skipped\":0}"
+    },
+    {
+      "name": "AP-05 重复批准入池 → 409（不重复建 Topic）",
+      "ok": true,
+      "detail": "status=409"
+    },
+    {
+      "name": "AP-06 正式 Topic 恰好 1 条且带溯源",
+      "ok": true,
+      "detail": "items=1"
+    },
+    {
+      "name": "AP-07 P2 尝试批准入池 → 403（默认拒绝）",
+      "ok": true,
+      "detail": "status=403"
+    },
+    {
+      "name": "AP-08 UCARD 用户操作 VFIB 提案 → 404 防枚举",
+      "ok": true,
+      "detail": "status=404"
+    },
+    {
+      "name": "SC-01 缺 idempotencyKey → 400",
+      "ok": true,
+      "detail": "status=400 code=MISSING_IDEMPOTENCY_KEY"
+    },
+    {
+      "name": "SC-02 无平台交付物 → 400（改用批准入池）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SC-03 非法平台 → 400",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SC-04 负责人不是真实在职用户 → 400",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SC-05 缺制作期限 → 400",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SC-06 工作日期格式非法 → 400",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SC-07 全部负例后提案仍为 PENDING（fail-fast 未触碰状态）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SG-01 Saga 完成 → 200，Topic state=ASSIGNED",
+      "ok": true,
+      "detail": "{\"id\":\"topic_mv78pq79_b40af60c7d7d\",\"title\":\"Scheduled topic fvp4t\",\"state\":\"ASSIGNED\"}"
+    },
+    {
+      "name": "SG-02 两个平台任务 PLANNED 且编号不同",
+      "ok": true,
+      "detail": "LINKEDIN:MOS-TASK-0003 / X:MOS-TASK-0004"
+    },
+    {
+      "name": "SG-03 自动创建月度计划（autoCreated=true）+ 2 个 PlanItem",
+      "ok": true,
+      "detail": "{\"id\":\"plan_mv78pq79_7d391562c8d0\",\"code\":\"VFIB-2026-11-v1\",\"year\":2026,\"month\":11,\"autoCreated\":true}"
+    },
+    {
+      "name": "SG-04 提案 APPROVED 且回链 Topic",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SG-05 同 idempotencyKey 重放 → replay=true 且返回首次快照",
+      "ok": true,
+      "detail": "replay=true"
+    },
+    {
+      "name": "SG-06 重放后正式 Topic 仍恰好 1 条（双击/重试不重复建题）",
+      "ok": true,
+      "detail": "items=1"
+    },
+    {
+      "name": "SG-07 已 APPROVED 提案换 key 再派工 → 409（状态机防护）",
+      "ok": true,
+      "detail": "status=409"
+    },
+    {
+      "name": "SG-08 P2 尝试批准并安排 → 403（默认拒绝）",
+      "ok": true,
+      "detail": "status=403"
+    },
+    {
+      "name": "VW-01 月视图含 11-05 的 2 个事项且按状态聚合",
+      "ok": true,
+      "detail": "{\"total\":2,\"byStatus\":{\"PLANNED\":2},\"scheduled\":0}"
+    },
+    {
+      "name": "VW-02 月视图范围覆盖整月",
+      "ok": true,
+      "detail": "{\"from\":\"2026-11-01\",\"to\":\"2026-11-30\"}"
+    },
+    {
+      "name": "VW-03 日视图恰为当日 2 项",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "VW-04 周视图包含同一 2 项（同源过滤，非复制）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "VW-05 空时段如实为 0（不伪造条目）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "VW-06 跨品牌读视图 → 404 防枚举",
+      "ok": true,
+      "detail": "status=404"
+    },
+    {
+      "name": "TK-01 LinkedIn 任务独立推进 → IN_PRODUCTION",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "TK-02 X 任务不受影响（仍 PLANNED，平台独立退回/推进）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "TK-03 视图聚合随任务状态真实更新（IN_PRODUCTION=1 / PLANNED=1）",
+      "ok": true,
+      "detail": "{\"total\":2,\"byStatus\":{\"IN_PRODUCTION\":1,\"PLANNED\":1},\"scheduled\":0}"
+    },
+    {
+      "name": "AU-01 editorial.approve_to_pool 已落审计",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "AU-02 editorial.saga_completed 已落审计",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "AU-03 plan.created(autoBySaga) 已落审计",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "AU-04 proposal.decision 已落审计",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

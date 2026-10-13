@@ -717,7 +717,11 @@ function drawProposal(dr, p) {
 
   let btns = '';
   if (p.status === 'AI_RECOMMENDED') btns += '<button class="btn btn-sm btn-primary" data-act="submit">提交编辑审核</button>';
-  if (p.canDecide && p.status === 'PENDING_EDITORIAL_REVIEW') btns += '<button class="btn btn-sm btn-primary" data-act="decide">一屏审核</button>';
+  if (p.canDecide && p.status === 'PENDING_EDITORIAL_REVIEW') {
+    btns += '<button class="btn btn-sm btn-primary" data-act="pool">批准入池</button>'
+      + '<button class="btn btn-sm btn-primary" data-act="schedule">批准并安排</button>'
+      + '<button class="btn btn-sm" data-act="decide">退回 / 暂缓 / 拒绝</button>';
+  }
   if (!btns) btns = '<div class="small muted">当前状态无可用操作' + (p.canDecide ? '' : '（你没有 editorial.approve 权限）') + '</div>';
   acts.innerHTML = '<div class="row" style="flex-wrap:wrap">' + btns + '</div>';
 
@@ -726,6 +730,59 @@ function drawProposal(dr, p) {
       b.disabled = true;
       try { await api.post('/api/mos/topic-proposals/' + p.id + '/submit', {}); toast('已提交审核', 'ok'); refresh(); }
       catch (err) { toast(err.message, 'err'); b.disabled = false; }
+    } else if (b.dataset.act === 'pool') {
+      b.disabled = true;
+      openModal({
+        title: '批准入池：' + p.code,
+        okText: '批准（APPROVED_UNSCHEDULED）',
+        body: '<div class="hint">创建正式 Master Topic（不入计划、不派工）。研究证据中无法回溯到真实来源条目的部分会被如实跳过，不伪造证据。</div>'
+          + '<label class="field"><span>叙事（可选，默认 N01）</span><input id="plN" type="text" placeholder="N01-N05"></label>'
+          + '<label class="field"><span>审批意见</span><input id="plC" type="text"></label>',
+        onOk: async (bd) => {
+          try {
+            const r = await api.post('/api/mos/topic-proposals/' + p.id + '/approve-to-pool', {
+              narrativeCode: bd.querySelector('#plN').value.trim() || 'N01',
+              comments: bd.querySelector('#plC').value
+            });
+            toast('已入池：' + (r.topic ? r.topic.title : ''), 'ok');
+            refresh();
+          } catch (err) { toast(err.message, 'err'); return false; }
+        },
+        onCancel: () => { b.disabled = false; }
+      });
+    } else if (b.dataset.act === 'schedule') {
+      b.disabled = true;
+      openModal({
+        title: '批准并安排：' + p.code,
+        okText: '执行（幂等 Saga）',
+        body: '<div class="hint">一个事务性操作：批准候选 + 选定/自动创建月度计划 + 唯一 Topic + 每平台独立任务与计划事项。'
+          + '派工必填真实负责人与制作期限；重复提交由 idempotencyKey 防重（自动生成）。</div>'
+          + '<label class="field"><span>工作日期</span><input id="scD" type="date"></label>'
+          + '<label class="field"><span>平台交付物（每行：平台,负责人ID,制作期限YYYY-MM-DD）</span>'
+          + '<textarea id="scP" rows="3" placeholder="LINKEDIN, user_xxx, 2026-11-05&#10;X, user_xxx, 2026-11-05"></textarea></label>'
+          + '<label class="field"><span>审批意见</span><input id="scC" type="text"></label>',
+        onOk: async (bd) => {
+          const lines = bd.querySelector('#scP').value.split('\n').map((l) => l.trim()).filter(Boolean);
+          const deliverables = [];
+          for (const line of lines) {
+            const parts = line.split(',').map((x) => x.trim());
+            if (parts.length < 3) { toast('每行需：平台,负责人ID,制作期限', 'err'); return false; }
+            deliverables.push({ platform: parts[0], ownerId: parts[1], productionDue: parts[2] });
+          }
+          if (!deliverables.length) { toast('至少 1 个平台交付物', 'err'); return false; }
+          try {
+            const r = await api.post('/api/mos/topic-proposals/' + p.id + '/approve-and-schedule', {
+              idempotencyKey: 'sched-' + p.id + '-' + Date.now(),
+              workDate: bd.querySelector('#scD').value,
+              deliverables,
+              comments: bd.querySelector('#scC').value
+            });
+            toast(r.replay ? '重复请求已幂等返回（无新增）' : '已安排：Topic + ' + (r.tasks || []).length + ' 个平台任务', 'ok');
+            refresh();
+          } catch (err) { toast(err.message, 'err'); return false; }
+        },
+        onCancel: () => { b.disabled = false; }
+      });
     } else if (b.dataset.act === 'decide') {
       b.disabled = true;
       openModal({

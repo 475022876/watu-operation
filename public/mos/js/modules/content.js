@@ -40,12 +40,22 @@ function renderError(err, retry) {
 /* ==================== 页面骨架 ==================== */
 
 function head() {
+  /* V0.1.2 Phase C：任务工作空间四标签（04 §一个任务工作空间）。
+   * Brief 与 Content 为本页两栏（左 Brief / 中正文）；Visuals & Video、Review & Delivery
+   * 跳转到既有专用模块（visual / reviews），不在本页复制第二套功能。 */
+  const wsTab = (id, label, active) => '<button class="btn btn-sm' + (active ? ' btn-primary' : '') + '" data-ws="' + id + '">' + label + '</button>';
   return '<div class="page-head"><div class="crumb">创意工作室 / 内容编辑器</div>'
     + '<div class="ph-row"><h1>内容编辑器</h1>'
     + '<div class="ph-actions">'
     + '<button class="btn btn-sm" id="ceRefresh">刷新</button>'
     + '<button class="btn btn-sm btn-primary" id="ceNew">新建草稿版本</button>'
     + '</div></div>'
+    + '<div class="row" style="gap:6px;flex-wrap:wrap;margin:-4px 0 10px" id="wsTabs">'
+    + wsTab('brief', '任务要求 Brief')
+    + wsTab('content', '内容制作 Content', true)
+    + wsTab('visual', '图片与视频 Visuals & Video')
+    + wsTab('review', '审核与交付 Review & Delivery')
+    + '</div>'
     + '<div class="ph-desc">版本一旦送审即冻结：正文与引用资产不可再改，只能派生新版本。'
     + '批准对象由 Manifest 哈希绑定，事后改动会导致审批失败（SEC-02）。</div></div>';
 }
@@ -94,6 +104,18 @@ async function loadAssistants() {
 function bindHead() {
   const n = hostEl.querySelector('#ceNew'); if (n) n.addEventListener('click', newDraftDialog);
   const r = hostEl.querySelector('#ceRefresh'); if (r) r.addEventListener('click', async () => { current = null; await render(); toast('已刷新', 'ok'); });
+  /* V0.1.2 Phase C：工作空间四标签导航 */
+  hostEl.querySelectorAll('[data-ws]').forEach((b) => b.addEventListener('click', () => {
+    const ws = b.dataset.ws;
+    if (ws === 'brief') {
+      const el = hostEl.querySelector('#wsBrief');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (ws === 'visual') {
+      ctxRef.navigate('visual-studio');
+    } else if (ws === 'review') {
+      ctxRef.navigate('my-reviews');
+    }
+  }));
   const sel = hostEl.querySelector('#ceTask');
   if (sel) sel.addEventListener('change', async () => {
     if (dirty && !(await confirmDialog('放弃未保存修改？', '当前草稿有未保存的正文修改。', '放弃并切换'))) { sel.value = taskId; return; }
@@ -133,7 +155,7 @@ function paint() {
 function paintLeft(task) {
   const el = hostEl.querySelector('#ceLeft');
   const v = current && current.version;
-  let h = '<div class="card"><div class="card-head"><h2>任务 Brief</h2></div><div class="card-body">'
+  let h = '<div class="card" id="wsBrief"><div class="card-head"><h2>任务 Brief</h2></div><div class="card-body">'
     + '<dl class="kv">'
     + '<dt>编号</dt><dd class="mono">' + esc(task.code || '—') + '</dd>'
     + '<dt>标题</dt><dd>' + esc(task.title || '—') + '</dd>'
