@@ -40,7 +40,7 @@ const TABS = [
 ];
 
 function head(ctx) {
-  return '<div class="page-head"><div class="crumb">Governance & Assets</div>'
+  return '<div class="page-head"><div class="crumb">治理与资产</div>'
     + '<div class="ph-row"><h1>治理与资产</h1>'
     + '<span class="pill">当前品牌 ' + esc(ctx.brand) + '</span>'
     + '<span class="pill">第三条链：Asset Admission</span>'

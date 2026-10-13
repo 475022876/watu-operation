@@ -30,7 +30,7 @@ function renderError(err, retry) {
 }
 
 function head() {
-  return '<div class="page-head"><div class="crumb">Governance / My Reviews</div>'
+  return '<div class="page-head"><div class="crumb">工作台 / 我的审核</div>'
     + '<div class="ph-row"><h1>我的审核</h1>'
     + '<div class="ph-actions"><button class="btn btn-sm" id="rvRefresh">刷新</button></div></div>'
     + '<div class="ph-desc">三条审批链相互独立：专业（金融事实）审核 / 发布审批 / 资产入库审核。'

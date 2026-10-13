@@ -19,8 +19,8 @@ let f = { q: '', status: '', platform: '', mine: false, campaignId: '', topicId:
 let relation = { campaignTitle: '', topicTitle: '' };
 
 function head(ctx) {
-  return '<div class="page-head"><div class="crumb">Planning Center / All Tasks</div>'
-    + '<div class="ph-row"><h1>All Tasks</h1>'
+  return '<div class="page-head"><div class="crumb">计划中心 / 全部任务</div>'
+    + '<div class="ph-row"><h1>全部任务</h1>'
     + '<div class="ph-actions">'
     + '<button class="btn btn-sm" id="newAdhoc">新建临时任务（AD_HOC）</button>'
     + '<button class="btn btn-sm btn-primary" id="newTask">新建任务</button>'

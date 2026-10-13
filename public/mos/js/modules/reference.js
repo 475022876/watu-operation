@@ -10,8 +10,8 @@ import { fetchApprovedAssets, brandReferenceHtml, bindAssetSearch } from '../com
 let ctxRef = null; let hostEl = null;
 
 function head() {
-  return '<div class="page-head"><div class="crumb">Brand Center / Reference Library</div>'
-    + '<div class="ph-row"><h1>Reference Library</h1><span class="badge badge-neutral">只读</span></div>'
+  return '<div class="page-head"><div class="crumb">品牌中心 / 参考资料库</div>'
+    + '<div class="ph-row"><h1>参考资料库</h1><span class="badge badge-neutral">只读</span></div>'
     + '<div class="ph-desc">只引用**已批准且授权范围内**的可复用资产（library.asset.read）。'
     + '与「治理与资产 → Approved Assets」共用同一检索与授权展示（M-02）。</div></div>';
 }

@@ -28,7 +28,7 @@ function renderError(err, retry) {
 }
 
 function head() {
-  return '<div class="page-head"><div class="crumb">Creative Studio / Visual Studio</div>'
+  return '<div class="page-head"><div class="crumb">创意工作室 / 视觉工作室</div>'
     + '<div class="ph-row"><h1>视觉工作室</h1>'
     + '<div class="ph-actions"><button class="btn btn-sm" id="vsRefresh">刷新素材</button></div></div>'
     + '<div class="ph-desc">生成记录会保存 template_version 与 effective_rule_hash；'

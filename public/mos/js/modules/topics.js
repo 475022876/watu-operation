@@ -7,8 +7,8 @@ let ctxRef = null; let hostEl = null;
 let filters = { q: '', pillar: '', state: '' };
 
 function head(ctx) {
-  return '<div class="page-head"><div class="crumb">Planning Center / Master Topics</div>'
-    + '<div class="ph-row"><h1>Master Topics</h1>'
+  return '<div class="page-head"><div class="crumb">计划中心 / 专题内容包</div>'
+    + '<div class="ph-row"><h1>专题内容包</h1>'
     + '<div class="ph-actions"><button class="btn btn-sm btn-primary" id="newTopic">新建 Topic</button></div></div>'
     + '<div class="ph-desc">链路：Knowledge → Topic → Assets → Distribution → Reuse。证据必须可回溯到情报来源（No Evidence No Claim）。</div></div>';
 }

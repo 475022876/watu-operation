@@ -16,69 +16,69 @@ export const store = {
 };
 
 const CENTERS = [
-  { id: 'workspace', label: 'Workspace', items: ['my-work', 'my-reviews', 'active-projects'] },
-  { id: 'brand', label: 'Brand Center', items: ['brand-overview', 'brand-guidelines', 'brand-library'] },
-  { id: 'planning', label: 'Planning Center', items: ['planning', 'topics', 'intelligence', 'tasks'] },
-  { id: 'creative', label: 'Creative Studio', items: ['content-editor', 'visual-studio', 'video-workspace'] },
-  { id: 'publishing', label: 'Publishing Center', items: ['publishing'] },
+  { id: 'workspace', label: '工作台', items: ['my-work', 'my-reviews', 'active-projects'] },
+  { id: 'brand', label: '品牌中心', items: ['brand-overview', 'brand-guidelines', 'brand-library'] },
+  { id: 'planning', label: '计划中心', items: ['planning', 'topics', 'intelligence', 'tasks'] },
+  { id: 'creative', label: '创意工作室', items: ['content-editor', 'visual-studio', 'video-workspace'] },
+  { id: 'publishing', label: '发布中心', items: ['publishing'] },
   // F-05：Marketing Center = VFIB Banking Marketing / U CARD Marketing 两个品牌工作区 + Campaigns
-  { id: 'marketing', label: 'Marketing Center', items: ['marketing-vfib', 'marketing-ucard', 'campaigns'] },
-  { id: 'analytics', label: 'Analytics Center', items: ['analytics'] },
-  { id: 'governance', label: 'Governance & Assets', items: ['governance'] }
+  { id: 'marketing', label: '营销中心', items: ['marketing-vfib', 'marketing-ucard', 'campaigns'] },
+  { id: 'analytics', label: '运营分析中心', items: ['analytics'] },
+  { id: 'governance', label: '治理与资产', items: ['governance'] }
 ];
 
 const MODULES = [
-  { id: 'my-work', label: 'My Work', icon: '☰', center: 'workspace', context: '我负责的任务、草稿与下一步动作',
+  { id: 'my-work', label: '我的工作', icon: '☰', center: 'workspace', context: '我负责的任务、草稿与下一步动作',
     loader: () => import('./modules/workspace.js') },
-  { id: 'active-projects', label: 'Active Projects', icon: '◈', center: 'workspace', context: '进行中的 Campaign 与 Master Topic',
+  { id: 'active-projects', label: '进行中项目', icon: '◈', center: 'workspace', context: '进行中的 Campaign 与 Master Topic',
     loader: () => import('./modules/projects.js') },
 
-  { id: 'brand-overview', label: 'Brand Overview', icon: '◉', center: 'brand', context: '当前已批准版本与使用范围（只读）',
+  { id: 'brand-overview', label: '品牌总览', icon: '◉', center: 'brand', context: '当前已批准版本与使用范围（只读）',
     loader: () => import('./modules/brand.js') },
-  { id: 'brand-guidelines', label: 'Visual & Guidelines', icon: '◐', center: 'brand', context: 'V01–V05 / PPT-01–08 与模板（只读）',
+  { id: 'brand-guidelines', label: '视觉与规范', icon: '◐', center: 'brand', context: 'V01–V05 / PPT-01–08 与模板（只读）',
     loader: () => import('./modules/guidelines.js') },
-  { id: 'brand-library', label: 'Reference Library', icon: '▤', center: 'brand', context: '已批准可复用资产的受控引用',
+  { id: 'brand-library', label: '参考资料库', icon: '▤', center: 'brand', context: '已批准可复用资产的受控引用',
     loader: () => import('./modules/reference.js') },
 
-  { id: 'planning', label: 'Monthly Planning', icon: '▦', center: 'planning', context: '月度计划、PlanItem 与统一日历',
+  { id: 'planning', label: '月度计划', icon: '▦', center: 'planning', context: '月度计划、PlanItem 与统一日历',
     loader: () => import('./modules/planning.js') },
-  { id: 'topics', label: 'Master Topics', icon: '◎', center: 'planning', context: 'Research / Narrative / Deliverables / Reuse',
+  { id: 'topics', label: '专题内容包', icon: '◎', center: 'planning', context: 'Research / Narrative / Deliverables / Reuse',
     loader: () => import('./modules/topics.js') },
-  { id: 'intelligence', label: 'Intelligence', icon: '☍', center: 'planning', context: 'Feed / Sources / Create Topic',
+  { id: 'intelligence', label: '情报资讯', icon: '☍', center: 'planning', context: 'Feed / Sources / Create Topic',
     loader: () => import('./modules/intelligence.js') },
   // M-03：Content Tasks 收敛为跨中心共享的「All Tasks」综合视图（同一 ContentTask 对象 / 同一 API）
-  { id: 'tasks', label: 'All Tasks', icon: '✎', center: 'planning', context: '共享内容任务综合视图（可被 Campaign / Topic / Workspace 深链接）',
+  { id: 'tasks', label: '全部任务', icon: '✎', center: 'planning', context: '共享内容任务综合视图（可被 Campaign / Topic / Workspace 深链接）',
     loader: () => import('./modules/tasks.js') },
 
   // F-05 / 02 §2：W06 营销工作区 = 已选品牌下的过滤 + 模板视图，**不复制** Campaign API
-  { id: 'marketing-vfib', label: 'VFIB Banking Marketing', icon: '◈', center: 'marketing',
+  { id: 'marketing-vfib', label: 'VFIB 银行营销', icon: '◈', center: 'marketing',
     context: 'VFIB 银行营销工作区：Campaign、Marketing Brief、交付与进展',
     loader: () => import('./modules/marketing.js') },
-  { id: 'marketing-ucard', label: 'U CARD Marketing', icon: '◆', center: 'marketing',
+  { id: 'marketing-ucard', label: 'U CARD 营销', icon: '◆', center: 'marketing',
     context: 'U CARD 营销工作区：Campaign、Marketing Brief、交付与进展',
     loader: () => import('./modules/marketing.js') },
 
-  { id: 'campaigns', label: 'Campaigns', icon: '◆', center: 'marketing', context: '项目 Brief、Topic/Task 关联与进度',
+  { id: 'campaigns', label: '营销活动', icon: '◆', center: 'marketing', context: '项目 Brief、Topic/Task 关联与进度',
     loader: () => import('./modules/campaigns.js') },
 
   // BUILD-02：Creative Studio 拆为内容编辑器 / 视觉工作室 / 视频工作区（全部为真实可操作页面）
-  { id: 'content-editor', label: 'Content Editor', icon: '✎', center: 'creative', context: '内容编辑、版本冻结与送审',
+  { id: 'content-editor', label: '内容编辑器', icon: '✎', center: 'creative', context: '内容编辑、版本冻结与送审',
     loader: () => import('./modules/content.js') },
-  { id: 'visual-studio', label: 'Visual Studio', icon: '✦', center: 'creative', context: '图像生成、模板与工作素材',
+  { id: 'visual-studio', label: '视觉工作室', icon: '✦', center: 'creative', context: '图像生成、模板与工作素材',
     loader: () => import('./modules/visual.js') },
-  { id: 'video-workspace', label: 'Video Workspace', icon: '▶', center: 'creative', context: 'Brief / 脚本 / 分镜 / 字幕 / 成片',
+  { id: 'video-workspace', label: '视频工作区', icon: '▶', center: 'creative', context: 'Brief / 脚本 / 分镜 / 字幕 / 成片',
     loader: () => import('./modules/video.js') },
 
-  { id: 'my-reviews', label: 'My Reviews', icon: '⛨', center: 'workspace', context: '待我裁决的专业/发布/入库审核单',
+  { id: 'my-reviews', label: '我的审核', icon: '⛨', center: 'workspace', context: '待我裁决的专业/发布/入库审核单',
     loader: () => import('./modules/reviews.js') },
 
-  { id: 'publishing', label: 'Publishing', icon: '⇪', center: 'publishing', context: '日历、发布队列、渠道登记与 Published Archive',
+  { id: 'publishing', label: '发布管理', icon: '⇪', center: 'publishing', context: '日历、发布队列、渠道登记与 Published Archive',
     loader: () => import('./modules/publishing.js') },
 
   // BUILD-03：Analytics 与 Governance & Assets 转为真实页面（stage.js 占位页已删除）
-  { id: 'analytics', label: 'Analytics', icon: '▩', center: 'analytics', context: '内容 / 渠道 / 计划执行 / AI 成本（真实聚合）',
+  { id: 'analytics', label: '运营分析', icon: '▩', center: 'analytics', context: '内容 / 渠道 / 计划执行 / AI 成本（真实聚合）',
     loader: () => import('./modules/analytics.js') },
-  { id: 'governance', label: 'Governance & Assets', icon: '⛨', center: 'governance', context: '三条审批链、资产入库与已批准资产',
+  { id: 'governance', label: '治理与资产', icon: '⛨', center: 'governance', context: '三条审批链、资产入库与已批准资产',
     loader: () => import('./modules/governance.js') }
 ];
 
@@ -198,7 +198,7 @@ async function enterApp(me) {
   els.versionText.textContent = 'v' + ((store.meta && store.meta.mosVersion) || '0.1.1');
   els.syncText.textContent = '已连接服务';
   els.syncDot.classList.remove('bad');
-  els.envChip.textContent = 'SANDBOX · MOS V0.1';
+  els.envChip.textContent = '沙盒环境 · MOS V0.1';
 
   const h0 = parseHash().id;
   navigate(MODULES.some((m) => m.id === h0) ? h0 : 'my-work');

@@ -6,8 +6,8 @@ let ctxRef = null;
 let hostEl = null;
 
 function headHtml(ctx) {
-  return '<div class="page-head"><div class="crumb">Workspace / My Work</div>'
-    + '<div class="ph-row"><h1>My Work</h1>'
+  return '<div class="page-head"><div class="crumb">工作台 / 我的工作</div>'
+    + '<div class="ph-row"><h1>我的工作</h1>'
     + '<span class="small muted">' + esc(ctx.me.displayName) + ' · 品牌 '
     + esc(ctx.brand || '—') + '</span></div>'
     + '<div class="ph-desc">按 owner 与角色授权展示：我负责的任务、我起草的计划，以及明确的下一步动作。</div></div>';

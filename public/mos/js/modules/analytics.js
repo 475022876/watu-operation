@@ -239,7 +239,7 @@ function renderAiCost(s) {
 
 function head(ctx) {
   const md = data && data.missing ? data.missing : [];
-  return '<div class="page-head"><div class="crumb">Analytics Center / Analytics</div>'
+  return '<div class="page-head"><div class="crumb">运营分析中心 / 运营分析</div>'
     + '<div class="ph-row"><h1>运营分析</h1>'
     + '<span class="pill">当前品牌 ' + esc(ctx.brand) + '</span>'
     + '<span class="pill">数据源：本库真实记录</span>'

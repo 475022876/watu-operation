@@ -33,7 +33,7 @@ function renderError(err, retry) {
 }
 
 function head() {
-  return '<div class="page-head"><div class="crumb">Publishing Center / Publishing</div>'
+  return '<div class="page-head"><div class="crumb">发布中心 / 发布管理</div>'
     + '<div class="ph-row"><h1>发布中心</h1>'
     + '<div class="ph-actions"><button class="btn btn-sm" id="pbRefresh">刷新</button></div></div>'
     + '<div class="ph-desc"><b>系统不会自动发布。</b>到期只会提示，'
@@ -221,7 +221,7 @@ function viewChannels() {
 /* ---------- 归档视图 ---------- */
 
 function viewArchive() {
-  let h = '<div class="card"><div class="card-head"><h2>Published Archive</h2><span class="pill">' + pubs.length + '</span></div>';
+  let h = '<div class="card"><div class="card-head"><h2>发布归档（Published Archive）</h2><span class="pill">' + pubs.length + '</span></div>';
   if (!pubs.length) {
     h += '<div class="card-body">' + stateBlock('empty', {
       title: '还没有发布记录', desc: '发布记录只能由人工登记产生：需要真实 URL 或证据引用。'

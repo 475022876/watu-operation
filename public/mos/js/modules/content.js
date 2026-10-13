@@ -40,7 +40,7 @@ function renderError(err, retry) {
 /* ==================== 页面骨架 ==================== */
 
 function head() {
-  return '<div class="page-head"><div class="crumb">Creative Studio / Content Editor</div>'
+  return '<div class="page-head"><div class="crumb">创意工作室 / 内容编辑器</div>'
     + '<div class="ph-row"><h1>内容编辑器</h1>'
     + '<div class="ph-actions">'
     + '<button class="btn btn-sm" id="ceRefresh">刷新</button>'

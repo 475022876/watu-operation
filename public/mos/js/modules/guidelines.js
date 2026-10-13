@@ -6,8 +6,8 @@ let ctxRef = null; let hostEl = null;
 
 async function render() {
   const ctx = ctxRef;
-  hostEl.innerHTML = '<div class="page-head"><div class="crumb">Brand Center / Visual & Creative Guidelines</div>'
-    + '<div class="ph-row"><h1>Visual &amp; Creative Guidelines</h1><span class="badge badge-neutral">只读</span></div>'
+  hostEl.innerHTML = '<div class="page-head"><div class="crumb">品牌中心 / 视觉与创意规范</div>'
+    + '<div class="ph-row"><h1>视觉与创意规范</h1><span class="badge badge-neutral">只读</span></div>'
     + '<div class="ph-desc">五种视觉语言（V01–V05）、Motion（M01–M05）与视频类型（F01–F04）字典。标签为占位时表示待 SPECIAL-01 核验。</div></div>'
     + loadingHtml();
 
@@ -29,8 +29,8 @@ async function render() {
       + '</div></div>';
   };
 
-  hostEl.innerHTML = '<div class="page-head"><div class="crumb">Brand Center / Visual & Creative Guidelines</div>'
-    + '<div class="ph-row"><h1>Visual &amp; Creative Guidelines</h1><span class="badge badge-neutral">只读</span></div>'
+  hostEl.innerHTML = '<div class="page-head"><div class="crumb">品牌中心 / 视觉与创意规范</div>'
+    + '<div class="ph-row"><h1>视觉与创意规范</h1><span class="badge badge-neutral">只读</span></div>'
     + '<div class="ph-desc">字典为系统唯一来源（单一来源原则）；provisional 条目标签待业务核验后由 config.json 覆盖。</div></div>'
     + '<div class="callout mock">VFIB Visual Brand Guardian V1.2 在本阶段仅作为<strong>规范引用</strong>登记，尚未作为资料库 Skill 激活；'
     + '因此模板列表为空，正式品牌输出处于阻断状态（见 Brand Overview）。</div>'

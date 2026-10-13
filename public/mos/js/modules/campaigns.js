@@ -12,8 +12,8 @@ let ctxRef = null; let hostEl = null;
 let stateFilter = '';
 
 function head(ctx) {
-  return '<div class="page-head"><div class="crumb">Marketing Center / Campaigns</div>'
-    + '<div class="ph-row"><h1>Campaigns</h1>'
+  return '<div class="page-head"><div class="crumb">营销中心 / 营销活动</div>'
+    + '<div class="ph-row"><h1>营销活动</h1>'
     + '<div class="ph-actions"><button class="btn btn-sm btn-primary" id="newCamp">新建 Campaign</button></div></div>'
     + '<div class="ph-desc">品牌空间隔离：' + esc(ctx.brand) + ' 的 Campaign 不与其他品牌混用。'
     + 'Campaign 可与多个月度计划、多个 Master Topic 多对多关联，且**禁止跨品牌**关联。'

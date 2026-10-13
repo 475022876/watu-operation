@@ -7,8 +7,8 @@ let ctxRef = null; let hostEl = null;
 let approved = null;
 
 function head(ctx) {
-  return '<div class="page-head"><div class="crumb">Brand Center / Brand Overview</div>'
-    + '<div class="ph-row"><h1>Brand Overview</h1><span class="badge badge-neutral">只读</span></div>'
+  return '<div class="page-head"><div class="crumb">品牌中心 / 品牌总览</div>'
+    + '<div class="ph-row"><h1>品牌总览</h1><span class="badge badge-neutral">只读</span></div>'
     + '<div class="ph-desc">当前品牌上下文与已批准版本状态。品牌配置在本阶段**只读**（不提供编辑入口）。</div></div>';
 }
 

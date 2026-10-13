@@ -216,7 +216,7 @@ async function main() {
 
     const centers = await evalJs('Array.from(document.querySelectorAll(".nav-group-label")).map(function(e){return e.textContent;}).join("|")');
     check('工作中心名称齐全（含 Marketing Center，非 Growth Center）',
-      ['Workspace', 'Brand Center', 'Planning Center', 'Creative Studio', 'Publishing Center', 'Marketing Center', 'Analytics Center', 'Governance & Assets'].every((c) => String(centers).indexOf(c) !== -1),
+      ['工作台', '品牌中心', '计划中心', '创意工作室', '发布中心', '营销中心', '运营分析中心', '治理与资产'].every((c) => String(centers).indexOf(c) !== -1),
       centers);
     check('不存在 Growth Center', String(centers).indexOf('Growth') === -1, '');
 
@@ -230,19 +230,19 @@ async function main() {
      * 每个条目带**期望页头**：仅断言"有标题"是不够的 —— 路由不存在时 navigate() 会静默
      * 早返回、页面停留在上一模块，旧写法会把这种失效判为通过（BUILD-02 自检 A-12 已记录）。 */
     const visits = [
-      ['my-work', '04-workspace-my-work.png', 'My Work'],
-      ['active-projects', '05-workspace-projects.png', 'Active Projects'],
-      ['brand-overview', '06-brand-overview.png', 'Brand Overview'],
-      ['brand-guidelines', '07-brand-guidelines.png', 'Visual & Creative Guidelines'],
-      ['brand-library', '08-brand-reference.png', 'Reference Library'],
-      ['planning', '09-planning-list.png', 'Monthly Planning'],
-      ['topics', '10-topics.png', 'Master Topics'],
-      ['intelligence', '11-intelligence.png', 'Intelligence'],
-      ['tasks', '12-all-tasks.png', 'All Tasks'],
-      ['campaigns', '13-campaigns.png', 'Campaigns'],
+      ['my-work', '04-workspace-my-work.png', '我的工作'],
+      ['active-projects', '05-workspace-projects.png', '进行中项目'],
+      ['brand-overview', '06-brand-overview.png', '品牌总览'],
+      ['brand-guidelines', '07-brand-guidelines.png', '视觉与创意规范'],
+      ['brand-library', '08-brand-reference.png', '参考资料库'],
+      ['planning', '09-planning-list.png', '月度计划'],
+      ['topics', '10-topics.png', '专题内容包'],
+      ['intelligence', '11-intelligence.png', '情报资讯'],
+      ['tasks', '12-all-tasks.png', '全部任务'],
+      ['campaigns', '13-campaigns.png', '营销活动'],
       // Phase 2（F-05）：Marketing Center 新增品牌工作区（同一模块参数化）
-      ['marketing-vfib', 'B04-38-marketing-vfib.png', 'VFIB Banking Marketing'],
-      ['marketing-ucard', 'B04-39-marketing-ucard.png', 'U CARD Marketing'],
+      ['marketing-vfib', 'B04-38-marketing-vfib.png', 'VFIB 银行营销'],
+      ['marketing-ucard', 'B04-39-marketing-ucard.png', 'U CARD 营销'],
       ['content-editor', 'B02-14-content-editor.png', '内容编辑器'],
       ['visual-studio', 'B02-15-visual-studio.png', '视觉工作室'],
       ['video-workspace', 'B02-16-video-workspace.png', '视频工作区'],
@@ -789,7 +789,7 @@ async function main() {
     await sleep(900);
     const allTasksTitle = await evalJs('(document.querySelector(".page-head h1")||{}).textContent||""');
     const contextShown = await evalJs('document.body.innerText.indexOf("已按上下文过滤")>=0');
-    check('BUILD-04 All Tasks 页头与深链接上下文过滤齐备', allTasksTitle.indexOf('All Tasks') !== -1 && contextShown, allTasksTitle);
+    check('BUILD-04 All Tasks 页头与深链接上下文过滤齐备', allTasksTitle.indexOf('全部任务') !== -1 && contextShown, allTasksTitle);
     await shot('B04-45-all-tasks-deeplink.png');
 
     const filtered = await pageApi('/api/mos/tasks?brand=VFIB&campaignId=' + CAMP_ID);
@@ -803,7 +803,7 @@ async function main() {
     await waitFor('document.body.innerText.indexOf("VFIB_BANKING")>=0', 'VFIB 模板渲染', 15000);
     const vfibTitle = await evalJs('(document.querySelector(".page-head h1")||{}).textContent||""');
     check('BUILD-04 VFIB Banking Marketing 工作区渲染且展示品牌 Brief 模板',
-      vfibTitle.indexOf('VFIB Banking Marketing') !== -1, vfibTitle);
+      vfibTitle.indexOf('VFIB 银行营销') !== -1, vfibTitle);
     await shot('B04-46-marketing-vfib.png');
 
     await evalJs('(function(){var b=document.querySelector(\'[data-route="marketing-ucard"]\');if(b)b.click();return true;})()');

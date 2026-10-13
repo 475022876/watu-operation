@@ -13,8 +13,8 @@ import {
 } from '../components/campaignkit.js';
 
 const SCOPES = {
-  'marketing-vfib': { expected: 'VFIB', label: 'VFIB Banking Marketing', sub: 'VFIB BANK 机构级银行营销工作区' },
-  'marketing-ucard': { expected: 'UCARD', label: 'U CARD Marketing', sub: 'U CARD 卡产品营销工作区' }
+  'marketing-vfib': { expected: 'VFIB', label: 'VFIB 银行营销', sub: 'VFIB BANK 机构级银行营销工作区' },
+  'marketing-ucard': { expected: 'UCARD', label: 'U CARD 营销', sub: 'U CARD 卡产品营销工作区' }
 };
 
 let ctxRef = null; let hostEl = null;
@@ -25,7 +25,7 @@ let total = 0;
 
 function head(ctx) {
   const matched = !scope.expected || ctx.brand === scope.expected;
-  let h = '<div class="page-head"><div class="crumb">Marketing Center / ' + esc(scope.label) + '</div>'
+  let h = '<div class="page-head"><div class="crumb">营销中心 / ' + esc(scope.label) + '</div>'
     + '<div class="ph-row"><h1>' + esc(scope.label) + '</h1>'
     + '<span class="pill">当前品牌 ' + esc(ctx.brand || '—') + '</span>'
     + '<div class="ph-actions"><button class="btn btn-sm btn-primary" id="mwNew">新建 Campaign</button>'

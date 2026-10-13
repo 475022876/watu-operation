@@ -5,8 +5,8 @@ import { esc, loadingHtml, stateBlock, statusBadge, gradeBadge, demoBadge } from
 let ctxRef = null; let hostEl = null;
 
 function head(ctx) {
-  return '<div class="page-head"><div class="crumb">Workspace / Active Projects</div>'
-    + '<div class="ph-row"><h1>Active Projects</h1></div>'
+  return '<div class="page-head"><div class="crumb">工作台 / 进行中项目</div>'
+    + '<div class="ph-row"><h1>进行中项目</h1></div>'
     + '<div class="ph-desc">正在进行中的 Campaign 与 Master Topic（品牌范围：' + esc((ctx.me.brandCodes || []).join('、') || '—') + '）。</div></div>';
 }
 

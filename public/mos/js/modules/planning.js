@@ -10,8 +10,8 @@ let yearFilter = '';
 let monthFilter = '';
 
 function head(ctx) {
-  return '<div class="page-head"><div class="crumb">Planning Center / Monthly Planning</div>'
-    + '<div class="ph-row"><h1>Monthly Planning</h1>'
+  return '<div class="page-head"><div class="crumb">计划中心 / 月度计划</div>'
+    + '<div class="ph-row"><h1>月度计划</h1>'
     + '<div class="ph-actions">'
     + '<button class="btn btn-sm' + (view === 'list' ? ' btn-primary' : '') + '" data-v="list">计划列表</button>'
     + '<button class="btn btn-sm' + (view === 'calendar' ? ' btn-primary' : '') + '" data-v="calendar">统一日历</button>'

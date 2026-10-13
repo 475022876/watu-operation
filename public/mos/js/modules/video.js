@@ -29,7 +29,7 @@ function renderError(err, retry) {
 }
 
 function head() {
-  return '<div class="page-head"><div class="crumb">Creative Studio / Video Workspace</div>'
+  return '<div class="page-head"><div class="crumb">创意工作室 / 视频工作区</div>'
     + '<div class="ph-row"><h1>视频工作区</h1>'
     + '<div class="ph-actions"><button class="btn btn-sm" id="vwRefresh">刷新</button></div></div>'
     + '<div class="ph-desc">首期仅支持 Brief / 脚本 / 分镜 / 字幕 / 关键帧与成片上传；'

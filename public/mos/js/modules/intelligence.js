@@ -11,8 +11,8 @@ let sourceFilter = '';
 let lastTickHtml = '';
 
 function head(ctx) {
-  return '<div class="page-head"><div class="crumb">Planning Center / Intelligence</div>'
-    + '<div class="ph-row"><h1>Intelligence</h1>'
+  return '<div class="page-head"><div class="crumb">计划中心 / 情报资讯</div>'
+    + '<div class="ph-row"><h1>情报资讯</h1>'
     + '<div class="ph-actions"><button class="btn btn-sm' + (tab === 'feed' ? ' btn-primary' : '') + '" data-t="feed">情报流</button>'
     + '<button class="btn btn-sm' + (tab === 'sources' ? ' btn-primary' : '') + '" data-t="sources">来源登记</button></div></div>'
     + '<div class="ph-desc">外部内容一律按**不可信数据**处理；抓取受主机白名单与 SSRF 判定约束，失败即降级且如实展示。</div></div>';
