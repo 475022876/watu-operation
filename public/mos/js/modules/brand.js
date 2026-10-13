@@ -1,8 +1,10 @@
 /* W02-01 Brand Overview —— 当前已批准版本与使用范围（**只读**；BUILD-01 不提供品牌编辑）。 */
 import { api } from '../api.js';
 import { esc, loadingHtml, stateBlock, mockBadge } from '../ui.js';
+import { fetchApprovedAssets, bindAssetSearch } from '../components/assetkit.js';
 
 let ctxRef = null; let hostEl = null;
+let approved = null;
 
 function head(ctx) {
   return '<div class="page-head"><div class="crumb">Brand Center / Brand Overview</div>'
@@ -78,12 +80,42 @@ async function render() {
     + '<div class="checkline"><span class="ck">•</span><span>文本模型：<strong>' + esc(data.textProvider.mode) + '</strong>' + (data.textProvider.configured ? '' : '（尚未配置模型）') + '</span></div>'
     + '</div></div>';
 
+  // M-02：与 Reference Library / 治理页共用同一已批准资产检索与展示，此处仅保留品牌过滤
+  html += '<div class="card"><div class="card-head"><h2>本品牌已批准资产</h2>'
+    + '<div class="ch-actions"><span class="pill">品牌过滤 ' + esc(b.code) + '</span>'
+    + '<button class="btn btn-sm" id="boGoLibrary">打开 Reference Library</button></div></div><div class="card-body">'
+    + '<div class="filters" role="search">'
+    + '<input type="search" id="rbQ" placeholder="检索已批准资产…" value="" aria-label="检索已批准资产">'
+    + '<button class="btn btn-sm" id="rbGo">检索</button>'
+    + '<span class="badge badge-mock">MOCK 资料库</span>'
+    + '<span class="pill">结果 ' + ((approved && approved.items) ? approved.items.length : 0) + '</span>'
+    + '</div>'
+    + '<div class="callout mock">' + esc((approved && approved.note) || '') + '</div>'
+    + stateBlock('pending', {
+      title: '当前无可引用的正式资产',
+      desc: '企业资料库真实接口尚未接通（06 §1）；MOCK 下不返回任何资产，不伪造正式复用资产。'
+    }).html
+    + '</div></div>';
+
   html += '</div>';
   hostEl.innerHTML = html;
+
+  bindAssetSearch(hostEl, async (q) => {
+    try {
+      approved = await fetchApprovedAssets(ctx.brand, q);
+      await render();
+    } catch (_) { /* 静默：Brand Overview 为只读概览 */ }
+  });
+  const gl = hostEl.querySelector('#boGoLibrary');
+  if (gl) gl.addEventListener('click', () => ctx.navigate('brand-library'));
 }
 
 export default {
-  async mount(host, ctx) { ctxRef = ctx; hostEl = host; await render(); },
-  unmount() { hostEl = null; },
+  async mount(host, ctx) {
+    ctxRef = ctx; hostEl = host;
+    if (ctx.brand) { try { approved = await fetchApprovedAssets(ctx.brand, ''); } catch (_) { approved = null; } }
+    await render();
+  },
+  unmount() { hostEl = null; approved = null; },
   hasUnsaved() { return false; }
 };

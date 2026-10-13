@@ -9,6 +9,7 @@
  * 约束：零第三方依赖（CDP over 内置 WebSocket）；隔离数据目录 + 运行期随机口令；
  *       不触碰 data/ 与既有数据；结束清理实例、Chrome 与临时目录。
  * 截图：BUILD-01 → UI_EVIDENCE_MOS_BUILD01/ ；BUILD-02 → UI_EVIDENCE_MOS_BUILD02/
+ *       BUILD-03 → UI_EVIDENCE_MOS_BUILD03/ ；Phase 2（BUILD-04）→ UI_EVIDENCE_MOS_BUILD04/
  * ============================================================ */
 
 const { spawn } = require('node:child_process');
@@ -25,6 +26,7 @@ const DATA_DIR = path.join(ROOT, 'data-mos-ui-' + crypto.randomBytes(3).toString
 const SHOT_DIR = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD01');
 const SHOT_DIR_B02 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD02');
 const SHOT_DIR_B03 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD03');
+const SHOT_DIR_B04 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD04');
 const OUT_DIR = path.join(ROOT, 'TEST_EVIDENCE_MOS_BUILD01');
 
 const ADMIN_PW = 'MosUI-' + crypto.randomBytes(9).toString('base64url');
@@ -163,7 +165,9 @@ async function main() {
 
   const shot = async (name) => {
     const r = await cdp.send('Page.captureScreenshot', { format: 'png' });
-    const dir = name.indexOf('B02-') === 0 ? SHOT_DIR_B02 : (name.indexOf('B03-') === 0 ? SHOT_DIR_B03 : SHOT_DIR);
+    const dir = name.indexOf('B02-') === 0 ? SHOT_DIR_B02
+      : (name.indexOf('B03-') === 0 ? SHOT_DIR_B03
+        : (name.indexOf('B04-') === 0 ? SHOT_DIR_B04 : SHOT_DIR));
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, name), Buffer.from(r.data, 'base64'));
   };
@@ -232,8 +236,11 @@ async function main() {
       ['planning', '09-planning-list.png', 'Monthly Planning'],
       ['topics', '10-topics.png', 'Master Topics'],
       ['intelligence', '11-intelligence.png', 'Intelligence'],
-      ['tasks', '12-content-tasks.png', 'Content Tasks'],
+      ['tasks', '12-all-tasks.png', 'All Tasks'],
       ['campaigns', '13-campaigns.png', 'Campaigns'],
+      // Phase 2（F-05）：Marketing Center 新增品牌工作区（同一模块参数化）
+      ['marketing-vfib', 'B04-38-marketing-vfib.png', 'VFIB Banking Marketing'],
+      ['marketing-ucard', 'B04-39-marketing-ucard.png', 'U CARD Marketing'],
       ['content-editor', 'B02-14-content-editor.png', '内容编辑器'],
       ['visual-studio', 'B02-15-visual-studio.png', '视觉工作室'],
       ['video-workspace', 'B02-16-video-workspace.png', '视频工作区'],
@@ -627,6 +634,144 @@ async function main() {
     check('B03-UI 治理端点真实可用（含 availableBlockedReason 说明 Mock 阻塞原因）',
       gvApi.status === 200 && typeof (gvApi.json || {}).availableBlockedReason === 'string'
       && String(gvApi.json.availableBlockedReason).length > 0, 'HTTP ' + gvApi.status);
+
+    /* ================= Phase 2（BUILD-04）：架构降重 + S04 产品营销 =================
+     * 真实验证：Campaign Marketing Brief 结构化保存（含未核验宣称）、Deliverables 与
+     * ContentTask 共享（创建预填 Campaign）、Results 的 Unavailable 诚实态、
+     * All Tasks 深链接过滤、VFIB / U CARD 营销工作区品牌一致性。 */
+    const clickModalOk = "(function(){var m=document.querySelectorAll('.modal-mask');if(!m.length)return false;"
+      + "var b=m[m.length-1].querySelector('#__mok');if(b){b.click();return true;}return false;})()";
+
+    await evalJs('(function(){var b=document.querySelector(\'[data-route="campaigns"]\');if(b)b.click();return true;})()');
+    await waitFor('document.getElementById("newCamp")', 'Campaigns 工具条', 15000);
+    await sleep(400);
+    await shot('B04-40-campaigns-list.png');
+
+    // 1) 通过 UI 创建 Campaign（真实写操作）
+    const CAMP_TITLE = 'BUILD-04 UI 验证 Campaign ' + Date.now();
+    await evalJs('document.getElementById("newCamp").click()');
+    await waitFor('document.getElementById("ncT")', 'New Campaign 弹窗', 10000);
+    await evalJs('(function(){document.getElementById("ncT").value=' + JSON.stringify(CAMP_TITLE) + ';'
+      + 'document.getElementById("ncB").value="UI 验证：目标/受众需人工填写；不得承诺费用与收益。";return true;})()');
+    await evalJs(clickModalOk);
+    await waitFor('document.body.innerText.indexOf(' + JSON.stringify(CAMP_TITLE) + ')>=0', 'Campaign 入列', 15000);
+    check('BUILD-04 Campaign 通过 UI 真实创建并入列', true, '');
+
+    const campList = await pageApi('/api/mos/campaigns?brand=VFIB&pageSize=200');
+    const createdCamp = ((campList.json || {}).items || []).find((c) => c.title === CAMP_TITLE) || null;
+    check('BUILD-04 服务端存在该 Campaign（含品牌级 Marketing Brief 模板默认值）',
+      !!createdCamp && !!createdCamp.marketingBrief, createdCamp ? createdCamp.code : '未找到');
+    const CAMP_ID = createdCamp ? createdCamp.id : '';
+    check('BUILD-04 模板按品牌预填（VFIB → VFIB_BANKING）',
+      !!createdCamp && createdCamp.marketingBrief.templateCode === 'VFIB_BANKING',
+      createdCamp ? createdCamp.marketingBrief.templateCode : '');
+
+    // 2) 打开详情抽屉：五个标签齐备
+    await evalJs('(function(){var b=document.querySelector(\'[data-open-camp="' + CAMP_ID + '"]\');if(b)b.click();return true;})()');
+    await waitFor('document.querySelector(\'[data-ctab="brief"]\')', 'Campaign 详情抽屉', 15000);
+    await sleep(500);
+    const campTabs = await evalJs('Array.prototype.map.call(document.querySelectorAll("[data-ctab]"),function(x){return x.textContent;}).join("|")');
+    check('BUILD-04 Campaign 详情五段式（Brief/Deliverables/Schedule/Assets/Results）',
+      /Marketing Brief/.test(campTabs) && /Deliverables/.test(campTabs) && /Schedule/.test(campTabs)
+      && /Assets/.test(campTabs) && /Results/.test(campTabs), campTabs);
+    await shot('B04-41-campaign-brief.png');
+
+    // 3) Marketing Brief：写入一条**无来源**的产品宣称 → 服务端必须标 UNVERIFIED 且阻断正式输出
+    const CLAIM = 'UI 验证宣称：保证年化收益 8%（无来源）';
+    await evalJs('(function(){document.getElementById("mbObj").value="让机构客户理解跨境结算合规框架\\n提升品牌专业度";'
+      + 'document.getElementById("mbAddClaim").click();return true;})()');
+    await sleep(200);
+    await evalJs('(function(){var t=document.querySelectorAll(".claim-text");t[t.length-1].value=' + JSON.stringify(CLAIM) + ';return true;})()');
+    await evalJs('document.getElementById("mbSave").click()');
+    // 只有**保存成功后**服务端才会回填核验原因（未保存的新行没有 reason），据此等待避免竞态
+    await waitFor('document.body.innerText.indexOf("未关联已核准知识")>=0', 'Brief 保存后服务端重算核验状态', 15000);
+    const briefBlocked = await evalJs('document.body.innerText.indexOf("受阻")>=0');
+    check('BUILD-04 无来源产品宣称被标 UNVERIFIED 且 Brief 显示「受阻」（不冒充正式可用）', briefBlocked, '');
+    await shot('B04-42-campaign-brief-blocked.png');
+
+    const afterBrief = await pageApi('/api/mos/campaigns/' + CAMP_ID);
+    const mb = (afterBrief.json || {}).campaign ? afterBrief.json.campaign.marketingBrief : {};
+    check('BUILD-04 服务端计算：readyForOfficialUse=false 且 claimSummary.unverified>=1',
+      mb && mb.readyForOfficialUse === false && mb.claimSummary && mb.claimSummary.unverified >= 1,
+      JSON.stringify(mb.claimSummary || {}));
+
+    // 4) Deliverables：复用 ContentTask，创建时预填品牌 + Campaign 关联
+    await evalJs('(function(){var b=document.querySelector(\'[data-ctab="deliverables"]\');if(b)b.click();return true;})()');
+    await waitFor('document.getElementById("dvNewTask")', 'Deliverables 标签', 15000);
+    await evalJs('document.getElementById("dvNewTask").click()');
+    await waitFor('document.getElementById("ktT")', '新建交付任务弹窗', 15000);
+    const campPrefill = await evalJs('(function(){var s=document.getElementById("ktCamp");return s?s.value:"";})()');
+    check('BUILD-04 交付任务创建预填 Campaign 关联（M-03）', campPrefill === CAMP_ID, '预填=' + campPrefill);
+    const TASK_TITLE = 'BUILD-04 交付任务 ' + Date.now();
+    await evalJs('(function(){document.getElementById("ktT").value=' + JSON.stringify(TASK_TITLE) + ';return true;})()');
+    await evalJs(clickModalOk);
+    await waitFor('document.body.innerText.indexOf(' + JSON.stringify(TASK_TITLE) + ')>=0', '交付任务入列', 15000);
+    check('BUILD-04 交付任务创建成功并出现在 Campaign Deliverables', true, '');
+    await shot('B04-43-campaign-deliverables.png');
+
+    // 5) Results：渠道绩效必须 Unavailable（不伪造数字）
+    await evalJs('(function(){var b=document.querySelector(\'[data-ctab="results"]\');if(b)b.click();return true;})()');
+    await sleep(900);
+    const resultsBody = await evalJs('(document.querySelector("#campTab")||{}).innerText||""');
+    check('BUILD-04 Results 显示 NOT CONFIGURED 且不出现虚构绩效数字',
+      String(resultsBody).indexOf('NOT CONFIGURED') !== -1 || String(resultsBody).indexOf('不可用') !== -1, '');
+    await shot('B04-44-campaign-results.png');
+    await evalJs('(function(){var b=document.querySelector(".drawer [data-act=\'close\']");if(b)b.click();return true;})()');
+    await sleep(300);
+
+    // 6) All Tasks：深链接按 Campaign 过滤（同一 ContentTask 对象）
+    // 注意：直接改 hash 即触发路由（等价于用户刷新/粘贴深链接）；不要再去点导航项，
+    //       否则会被导航覆盖为无参路径 #/tasks（这是**正确**行为：点导航=进入干净页面）。
+    await evalJs('(function(){location.hash="#/tasks?campaignId=' + CAMP_ID + '";return true;})()');
+    await waitFor('document.querySelector(".page-head h1")', 'All Tasks 页头', 15000);
+    await waitFor('document.getElementById("fq")', 'All Tasks 工具条', 15000);
+    await sleep(900);
+    const allTasksTitle = await evalJs('(document.querySelector(".page-head h1")||{}).textContent||""');
+    const contextShown = await evalJs('document.body.innerText.indexOf("已按上下文过滤")>=0');
+    check('BUILD-04 All Tasks 页头与深链接上下文过滤齐备', allTasksTitle.indexOf('All Tasks') !== -1 && contextShown, allTasksTitle);
+    await shot('B04-45-all-tasks-deeplink.png');
+
+    const filtered = await pageApi('/api/mos/tasks?brand=VFIB&campaignId=' + CAMP_ID);
+    check('BUILD-04 tasks 端点按 campaignId 过滤（Deliverables 与 All Tasks 同源）',
+      filtered.status === 200 && ((filtered.json || {}).items || []).some((t) => t.title === TASK_TITLE),
+      'HTTP ' + filtered.status);
+
+    // 7) VFIB / U CARD 营销工作区：品牌一致性提示 + 切换
+    await evalJs('(function(){var b=document.querySelector(\'[data-route="marketing-vfib"]\');if(b)b.click();return true;})()');
+    await waitFor('document.querySelector(".page-head h1")', 'VFIB 营销工作区', 15000);
+    await waitFor('document.body.innerText.indexOf("VFIB_BANKING")>=0', 'VFIB 模板渲染', 15000);
+    const vfibTitle = await evalJs('(document.querySelector(".page-head h1")||{}).textContent||""');
+    check('BUILD-04 VFIB Banking Marketing 工作区渲染且展示品牌 Brief 模板',
+      vfibTitle.indexOf('VFIB Banking Marketing') !== -1, vfibTitle);
+    await shot('B04-46-marketing-vfib.png');
+
+    await evalJs('(function(){var b=document.querySelector(\'[data-route="marketing-ucard"]\');if(b)b.click();return true;})()');
+    await waitFor('document.querySelector(".page-head h1")', 'U CARD 营销工作区', 15000);
+    await sleep(700);
+    const ucardMismatch = await evalJs('(document.body.innerText.indexOf("品牌不匹配")>=0 && !!document.getElementById("mwSwitch"))');
+    check('BUILD-04 U CARD 工作区在品牌不匹配时给出提示与切换入口', ucardMismatch, '');
+    await shot('B04-47-marketing-ucard-mismatch.png');
+    await evalJs('(function(){var b=document.getElementById("mwSwitch");if(b)b.click();return true;})()');
+    // 等模板真正渲染（品牌不匹配提示消失得比数据渲染早，不能作为完成信号）
+    await waitFor('document.body.innerText.indexOf("UCARD_MARKETING")>=0', 'UCARD 模板渲染', 15000);
+    const ucardTpl = await evalJs('document.body.innerText.indexOf("UCARD_MARKETING")>=0');
+    const ucardMatched = await evalJs('document.body.innerText.indexOf("品牌不匹配")<0');
+    check('BUILD-04 切换到 UCARD 后工作区一致且使用 U CARD 模板', ucardTpl && ucardMatched, '');
+    await shot('B04-48-marketing-ucard.png');
+
+    // 还原品牌为 VFIB，避免影响后续断言
+    await evalJs('(function(){var b=document.querySelector(\'[data-route="marketing-vfib"]\');if(b)b.click();return true;})()');
+    await sleep(600);
+    await evalJs('(function(){var b=document.getElementById("mwSwitch");if(b)b.click();return true;})()');
+    await waitFor('document.body.innerText.indexOf("VFIB_BANKING")>=0', '回到 VFIB', 15000);
+
+    // 8) M-02：Brand Reference Library 与治理页共用同一浏览组件（品牌过滤可见）
+    await evalJs('(function(){var b=document.querySelector(\'[data-route="brand-library"]\');if(b)b.click();return true;})()');
+    await waitFor('document.getElementById("rbGo")', 'Reference Library 工具条', 15000);
+    await sleep(500);
+    const sharedAsset = await evalJs('!!document.getElementById("rbQ") && document.body.innerText.indexOf("MOCK 资料库")>=0');
+    check('BUILD-04 Reference Library 复用共享资产浏览组件（M-02）', sharedAsset, '');
+    await shot('B04-49-brand-reference-shared.png');
 
     check('无页面级未捕获异常', pageErrors.length === 0, pageErrors.slice(0, 3).join(' | '));
     check('无控制台 error 输出', consoleErrors.length === 0, consoleErrors.slice(0, 5).join(' | '));

@@ -81,22 +81,23 @@ node server.js
 
 ```bash
 bash tools/run-mos-tests.sh all     # 全部套件
-bash tools/run-mos-tests.sh e2e03   # 只跑某一套：smoke | unit | e2e | e2e02 | e2e03 | ui
+bash tools/run-mos-tests.sh e2e03   # 只跑某一套：smoke | unit | sec | e2e | e2e02 | e2e03 | ui
 ```
 
 | 套件 | 覆盖内容 | 断言数 |
 |---|---|---|
 | `smoke` | 接口可用性与鉴权闭环（登录、改密闸门、字典、日历、审计） | 13 |
-| `unit` | 字典 / 状态机 / RBAC / SSRF / RSS 解析 / 去重 / 脱敏 / 内容哈希 / 业务编码 / **入库状态机 · 可复用判定 · 预检 · 数据分级 · Mock 网关幂等 · schema v3 迁移** | 39 |
+| `unit` | 字典 / 状态机 / RBAC / SSRF / RSS 解析 / 去重 / 脱敏 / 内容哈希 / 业务编码 / **入库状态机 · 可复用判定 · 预检 · 数据分级 · Mock 网关幂等 · schema v3 迁移 · S04 Marketing Brief 核验** | 51 |
+| `sec` | **出站采集安全**：SSRF 拦截矩阵、重定向逐跳、DNS 重绑定、压缩/体积上限、生产闸门（不依赖公网 DNS） | 17 |
 | `e2e` | E2E-01 外部信息→Master Topic、E2E-02 月度计划→Calendar、跨品牌越权、SSRF、审计、**重启后数据与会话不丢失（含落盘前置条件）** | 48 |
 | `e2e02` | **E2E-03 AI 创作与审核链、E2E-04 排期/人工发布/归档**、SEC-02 真实改盘篡改、SEC-04 未批准不得发布、预算闸门、幂等、无自动发布 | 63 |
 | `e2e03` | **E2E-05 资产入库全流程**（申请→预检→最终审批→资料库同步→失败恢复）、SEC-01/02/07/08/09/10 全量、Analytics 真实聚合与缺失语义、治理收口 | 75 |
-| `ui` | **CDP 驱动本机真实 Chrome**：页面内完成写操作 → `Page.reload` → 数据仍在（含 BUILD-02 五个页面与 **BUILD-03 运营分析 / 治理与资产**） | 73 |
+| `ui` | **CDP 驱动本机真实 Chrome**：页面内完成写操作 → `Page.reload` → 数据仍在（含 BUILD-02 五个页面、**BUILD-03 运营分析 / 治理与资产**、**Phase 2 Campaign Marketing Brief / Deliverables / All Tasks 深链接 / VFIB·U CARD 营销工作区**） | 90 |
 
 - 每套自带**随机数据目录**（`data-mos-*`）与**运行期随机口令**，跑完自动清理，绝不触碰 `data/`。
-- 结果落 `TEST_EVIDENCE_MOS_BUILD01/`（含 `summary.json`）；BUILD-02 / BUILD-03 端到端证据分落 `TEST_EVIDENCE_MOS_BUILD02/`、`TEST_EVIDENCE_MOS_BUILD03/`；UI 截图分落 `UI_EVIDENCE_MOS_BUILD01|02|03/`。
+- 结果落 `TEST_EVIDENCE_MOS_BUILD01/`（含 `summary.json`）；BUILD-02 / BUILD-03 端到端证据分落 `TEST_EVIDENCE_MOS_BUILD02/`、`TEST_EVIDENCE_MOS_BUILD03/`；UI 截图分落 `UI_EVIDENCE_MOS_BUILD01|02|03|04/`。
 - 任一断言失败 → 退出码非 0，可直接接入 CI。
-- 当前全绿：**311/311**。
+- 当前全绿：**357/357**（Phase 2 完成时）。
 
 ---
 

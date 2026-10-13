@@ -512,6 +512,114 @@ t('U-19b migrate：v2 文档补齐 v3 形状，且**不注入**任何已批准�
   eq(legacy.library_asset_refs.length, 0, '迁移不得预置已批准资产引用');
 });
 
+/* ---------------- U-20 S04 Marketing Brief（A-02）与共享组件（M-01/M-02/M-03） ---------------- */
+const brieflib = require('../lib/mos/brieflib');
+
+/** 构造最小 db 桩：只包含 brieflib 核验所需集合 */
+function briefDb() {
+  return {
+    evidence_references: [
+      { id: 'ev-verified', verificationState: 'VERIFIED' },
+      { id: 'ev-missing', verificationState: 'MISSING' }
+    ],
+    library_asset_refs: [
+      { id: 'lar-mock', admissionId: 'adm-mock', permissionValid: false, assetState: 'ACTIVE', mock: true }
+    ],
+    asset_admissions: [
+      { id: 'adm-mock', finalApprovalStatus: 'PENDING', syncStatus: 'NOT_STARTED', approvalMode: 'MOCK', libraryId: null }
+    ]
+  };
+}
+
+t('U-20 品牌 Marketing Brief 模板存在，且**不预置任何产品宣称**（A-02）', () => {
+  const tpl = dict.MARKETING_BRIEF_TEMPLATES;
+  ok(tpl.VFIB && tpl.UCARD, 'VFIB / UCARD 都应有模板');
+  eq(tpl.VFIB.templateCode, 'VFIB_BANKING');
+  eq(tpl.UCARD.templateCode, 'UCARD_MARKETING');
+  for (const k of ['VFIB', 'UCARD']) {
+    ok(tpl[k].productClaims === undefined, k + ' 模板不得包含产品宣称');
+    ok(typeof tpl[k].regionComplianceNote === 'string' && tpl[k].regionComplianceNote.length > 0, k + ' 必须有合规提醒');
+    // 不得预置关于费用/收益/发卡/可用国家的能力承诺
+    const blob = tpl[k].regionComplianceNote + (tpl[k].objectives || []).join(' ');
+    ok(/禁止|不得/.test(blob), k + ' 模板应显式禁止未经核准的承诺');
+  }
+});
+
+t('U-20b normalizeMarketingBrief：未关联来源的宣称一律 UNVERIFIED，且阻断正式输出', () => {
+  const r = brieflib.normalizeMarketingBrief(briefDb(), {
+    templateCode: 'VFIB_BANKING',
+    objectives: ['目标一', '', '目标二'],
+    productClaims: [{ text: '无来源宣称' }]
+  }, 'VFIB');
+  eq(r.productClaims.length, 1);
+  eq(r.productClaims[0].verification, 'UNVERIFIED');
+  eq(r.readyForOfficialUse, false, '存在未核验宣称时不得用于正式输出');
+  eq(r.claimSummary.unverified, 1);
+  eq(r.objectives.length, 2, '空行应被清理');
+  eq(r.isTemplate, false);
+});
+
+t('U-20c 只有真实已核验证据才可让宣称 VERIFIED；Mock 资料库/知识库恒不可核验', () => {
+  const db = briefDb();
+  eq(brieflib.evaluateClaims(db, [{ text: 'a', sourceKind: 'EVIDENCE', sourceRef: 'ev-verified' }])[0].verification, 'VERIFIED');
+  eq(brieflib.evaluateClaims(db, [{ text: 'a', sourceKind: 'EVIDENCE', sourceRef: 'ev-missing' }])[0].verification, 'UNVERIFIED');
+  eq(brieflib.evaluateClaims(db, [{ text: 'a', sourceKind: 'LIBRARY', sourceRef: 'lar-mock' }])[0].verification, 'UNVERIFIED');
+  eq(brieflib.evaluateClaims(db, [{ text: 'a', sourceKind: 'KNOWLEDGE', sourceRef: 'k-1' }])[0].verification, 'UNVERIFIED');
+  eq(brieflib.evaluateClaims(db, [{ text: 'a', sourceKind: 'UNKNOWN', sourceRef: 'x' }])[0].verification, 'UNVERIFIED');
+});
+
+t('U-20d productRefs：已核准资料引用同样由服务端计算核验状态', () => {
+  const refs = brieflib.evaluateRefs(briefDb(), [
+    { refId: 'lar-mock', sourceKind: 'LIBRARY', label: '产品手册' },
+    { refId: '', sourceKind: 'LIBRARY' }
+  ]);
+  eq(refs.length, 1, '空 refId 应被丢弃');
+  eq(refs[0].verification, 'UNVERIFIED');
+  ok(/不可复用/.test(refs[0].reason), 'Mock 条目应给出不可复用原因');
+});
+
+t('U-20e 全部宣称已核验时 readyForOfficialUse=true（可达，但 Mock 下不可达）', () => {
+  const r = brieflib.normalizeMarketingBrief(briefDb(), {
+    productClaims: [{ text: 'ok', sourceKind: 'EVIDENCE', sourceRef: 'ev-verified' }]
+  }, 'VFIB');
+  eq(r.claimSummary.verified, 1);
+  eq(r.readyForOfficialUse, true);
+});
+
+t('U-20f defaultMarketingBrief：按品牌回落到模板默认，且不带任何宣称', () => {
+  const d = brieflib.defaultMarketingBrief('UCARD');
+  eq(d.templateCode, 'UCARD_MARKETING');
+  eq(d.productClaims.length, 0);
+  eq(d.readyForOfficialUse, true);
+  eq(d.isTemplate, true);
+});
+
+t('U-20g Campaign 序列化器统一形状（M-03 / F-05：进展视图数据源一致）', () => {
+  // 不启动服务器：直接校验路由模块导出的序列化器契约
+  const campaignsRoute = require('../lib/mos/routes/campaigns');
+  ok(typeof campaignsRoute.serialize === 'function', 'campaigns 路由应导出 serialize');
+  const tasksRoute = require('../lib/mos/routes/tasks');
+  ok(typeof tasksRoute.serialize === 'function', 'tasks 路由应导出 serialize（供 Topic/Campaign 复用）');
+});
+
+t('U-20h 共享组件文件存在且导出契约齐备（M-01 / M-02 / M-03）', () => {
+  const fsMod = require('node:fs');
+  const compDir = path.join(ROOT, 'public', 'mos', 'js', 'components');
+  const expect = {
+    'reviewkit.js': ['caseTypeLabel', 'decisionButtons', 'openReviewCase', 'decideReviewCase', 'reviewHistoryTable'],
+    'assetkit.js': ['fetchApprovedAssets', 'fetchLibraryAssetRefs', 'governanceAssetsHtml', 'brandReferenceHtml'],
+    'taskkit.js': ['fetchTasks', 'taskTable', 'openCreateTaskDialog', 'openTaskDetail'],
+    'campaignkit.js': ['fetchCampaigns', 'openCampaignDetail', 'campaignTableHtml', 'fetchBriefTemplates']
+  };
+  for (const file of Object.keys(expect)) {
+    const p = path.join(compDir, file);
+    ok(fsMod.existsSync(p), file + ' 必须存在');
+    const src = fsMod.readFileSync(p, 'utf8');
+    for (const sym of expect[file]) ok(src.indexOf('export function ' + sym) !== -1 || src.indexOf('export async function ' + sym) !== -1
+      || src.indexOf('export const ' + sym) !== -1, file + ' 应导出 ' + sym);
+  }
+});
+
 /* ---------------- 汇总 ---------------- */
 (async () => {
   await chain;

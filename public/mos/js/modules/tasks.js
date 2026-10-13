@@ -1,70 +1,76 @@
-/* Content Tasks —— 内容任务列表、状态机流转、独立临时任务（AD_HOC）。 */
+/* All Tasks —— 共享 ContentTask 综合视图（M-03 / F-06）。
+ *
+ * 收敛说明：原 Planning Center 的 "Content Tasks" 页收敛为跨中心共享的 **All Tasks** 综合视图。
+ * 任务对象与 API 只有一份（lib/mos/routes/tasks.js）；Campaign Deliverables、
+ * Master Topic Deliverables、Workspace 与 My Work 都引用**同一个 ContentTask**。
+ * 支持深链接：`#/tasks?campaignId=…` / `#/tasks?topicId=…` / `#/tasks?create=1`，
+ * 从上下文进入时创建按钮会**预填品牌与关联 ID**（02 §2 / M-03）。
+ */
 import { api, withBrand } from '../api.js';
-import { esc, toast, openModal, loadingHtml, stateBlock, statusBadge, gradeBadge, platformLabel, demoBadge, dictOptions, fmtDate, fmtDateTime } from '../ui.js';
+import {
+  esc, loadingHtml, stateBlock, toast, openModal, dictOptions
+} from '../ui.js';
+import {
+  TASK_STATUSES, fetchTasks, taskTable, bindTaskRows, openCreateTaskDialog
+} from '../components/taskkit.js';
 
 let ctxRef = null; let hostEl = null;
-let f = { q: '', status: '', platform: '', mine: false };
-
-const STATUSES = ['IDEA', 'PLANNED', 'IN_PRODUCTION', 'IN_REVIEW', 'READY', 'COMPLETED', 'ON_HOLD', 'CANCELLED'];
+let f = { q: '', status: '', platform: '', mine: false, campaignId: '', topicId: '' };
+let relation = { campaignTitle: '', topicTitle: '' };
 
 function head(ctx) {
-  return '<div class="page-head"><div class="crumb">Planning Center / Content Tasks</div>'
-    + '<div class="ph-row"><h1>Content Tasks</h1>'
+  return '<div class="page-head"><div class="crumb">Planning Center / All Tasks</div>'
+    + '<div class="ph-row"><h1>All Tasks</h1>'
     + '<div class="ph-actions">'
     + '<button class="btn btn-sm" id="newAdhoc">新建临时任务（AD_HOC）</button>'
     + '<button class="btn btn-sm btn-primary" id="newTask">新建任务</button>'
     + '</div></div>'
-    + '<div class="ph-desc">任务可关联 0/1 个 Campaign 与 0/1 个 Topic；状态迁移由服务端强制。内容编辑器与版本冻结在「Creative Studio → 内容编辑器」交付。</div></div>';
+    + '<div class="ph-desc">共享 ContentTask 综合视图：Campaign Deliverables、Master Topic Deliverables、'
+    + 'Workspace 与本页使用**同一对象与同一 API**。任务可关联 0/1 Campaign 与 0/1 Topic；状态迁移由服务端强制。'
+    + '品牌上下文：' + esc(ctx.brand) + '。内容编辑器与版本冻结在「Creative Studio → 内容编辑器」交付。</div></div>';
 }
 
-/** 数据区容器：加载骨架只出现一次，数据到达后整体替换（避免骨架残留） */
-function bodyEl() {
-  return hostEl.querySelector('#mosBody') || hostEl;
-}
-function setBody(html) {
-  const el = bodyEl();
-  el.innerHTML = html;
+function bodyEl() { return hostEl.querySelector('#mosBody') || hostEl; }
+function setBody(html) { bodyEl().innerHTML = html; }
+
+function relationContextHtml() {
+  const chips = [];
+  if (f.campaignId) chips.push('Campaign：' + esc(relation.campaignTitle || f.campaignId));
+  if (f.topicId) chips.push('Topic：' + esc(relation.topicTitle || f.topicId));
+  if (!chips.length) return '';
+  return '<div class="callout info">已按上下文过滤：' + chips.join(' · ')
+    + ' <button class="btn-link" id="clrRel">清除关联过滤</button></div>';
 }
 
 async function render() {
   const ctx = ctxRef;
   hostEl.innerHTML = head(ctx) + '<div id="mosBody">' + loadingHtml() + '</div>';
   let data;
-  try { data = await api.get(withBrand('/api/mos/tasks', ctx.brand, { q: f.q, status: f.status, platform: f.platform, mine: f.mine ? 1 : '' })); }
+  try { data = await fetchTasks(ctx.brand, f); }
   catch (err) {
-    const s = stateBlock(err.status === 404 ? 'denied' : 'error', { title: err.status === 404 ? '无权访问该品牌' : '加载失败', desc: err.message, actions: [{ label: '重试', primary: true, onClick: render }] });
+    const s = stateBlock(err.status === 404 ? 'denied' : 'error', {
+      title: err.status === 404 ? '无权访问该品牌' : '加载失败', desc: err.message,
+      actions: [{ label: '重试', primary: true, onClick: render }]
+    });
     setBody(s.html); s.bind(bodyEl()); return;
   }
   const d = (ctx.meta && ctx.meta.dictionaries) || {};
 
-  let html = '<div class="filters">'
-    + '<input type="search" id="fq" placeholder="编号/标题" value="' + esc(f.q) + '">'
-    + '<select id="fs"><option value="">全部状态</option>' + STATUSES.map((s) => '<option value="' + s + '"' + (f.status === s ? ' selected' : '') + '>' + esc(s) + '</option>').join('') + '</select>'
-    + '<select id="fp">' + dictOptions(d.platforms, f.platform, '全部平台') + '</select>'
+  let html = relationContextHtml();
+  html += '<div class="filters">'
+    + '<input type="search" id="fq" placeholder="编号/标题" value="' + esc(f.q) + '" aria-label="搜索任务">'
+    + '<select id="fs" aria-label="状态"><option value="">全部状态</option>' + TASK_STATUSES.map((s) =>
+      '<option value="' + s + '"' + (f.status === s ? ' selected' : '') + '>' + esc(s) + '</option>').join('') + '</select>'
+    + '<select id="fp" aria-label="平台">' + dictOptions(d.platforms, f.platform, '全部平台') + '</select>'
     + '<label class="row" style="gap:5px"><input type="checkbox" id="fm"' + (f.mine ? ' checked' : '') + '> 仅我的</label>'
     + '<button class="btn btn-sm" id="fgo">筛选</button>'
     + '<span class="pill">共 ' + data.total + '</span></div>';
 
-  html += '<div class="card"><div class="card-head"><h2>任务列表</h2></div>';
-  if (!data.items.length) {
-    html += '<div class="card-body">' + stateBlock('empty', { title: '没有符合条件的任务', desc: '可在 Master Topic 中由选题生成任务，或点击右上角新建。' }).html + '</div>';
-  } else {
-    html += '<div class="table-wrap"><table class="tbl"><thead><tr>'
-      + '<th>编号</th><th>标题</th><th>平台</th><th>风险</th><th>状态</th><th>制作截止</th><th>计划发布</th><th>负责人</th><th></th></tr></thead><tbody>';
-    for (const t of data.items) {
-      html += '<tr><td class="mono">' + esc(t.code) + '</td>'
-        + '<td>' + esc(t.title) + ' ' + demoBadge(t.demo) + '</td>'
-        + '<td>' + esc(platformLabel(t.platform)) + '</td>'
-        + '<td>' + gradeBadge(t.riskGrade) + '</td>'
-        + '<td>' + statusBadge(t.status) + '</td>'
-        + '<td class="mono small">' + esc(fmtDate(t.productionDue)) + '</td>'
-        + '<td class="mono small">' + esc(fmtDate(t.plannedPublishAt)) + '</td>'
-        + '<td class="small">' + esc(t.ownerName) + '</td>'
-        + '<td class="actions"><button class="btn btn-sm" data-open="' + esc(t.id) + '">详情</button></td></tr>';
-    }
-    html += '</tbody></table></div>';
-  }
-  html += '</div>';
+  html += '<div class="card"><div class="card-head"><h2>任务列表（All Tasks）</h2>'
+    + '<div class="ch-actions"><span class="small muted">同一 ContentTask 对象 · 多入口同源</span></div></div>'
+    + '<div class="card-body tight">'
+    + taskTable(data.items || [], { emptyTitle: '没有符合条件的任务', emptyDesc: '可在 Master Topic 中由选题生成任务，或在 Campaign Deliverables 中按 Campaign 创建。' })
+    + '</div></div>';
   setBody(html);
 
   const go = () => {
@@ -76,38 +82,15 @@ async function render() {
   };
   hostEl.querySelector('#fgo').addEventListener('click', go);
   hostEl.querySelector('#fq').addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
-  hostEl.querySelector('#newTask').addEventListener('click', newTaskDialog);
+  const clr = hostEl.querySelector('#clrRel');
+  if (clr) clr.addEventListener('click', () => { f.campaignId = ''; f.topicId = ''; relation = {}; render(); });
+  hostEl.querySelector('#newTask').addEventListener('click', () => openCreateTaskDialog({
+    brand: ctx.brand, meta: ctx.meta,
+    prefill: { campaignId: f.campaignId, campaignTitle: relation.campaignTitle, topicId: f.topicId, topicTitle: relation.topicTitle },
+    onCreated: render
+  }));
   hostEl.querySelector('#newAdhoc').addEventListener('click', newAdhocDialog);
-  hostEl.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => openTask(b.dataset.open)));
-}
-
-function newTaskDialog() {
-  const d = (ctxRef.meta && ctxRef.meta.dictionaries) || {};
-  openModal({
-    title: '新建内容任务',
-    okText: '创建（IDEA）',
-    body: '<label class="field"><span>标题</span><input id="ktT" type="text"></label>'
-      + '<label class="field"><span>平台</span><select id="ktP">' + dictOptions(d.platforms, 'LINKEDIN', null) + '</select></label>'
-      + '<label class="field"><span>栏目</span><select id="ktC">' + dictOptions(d.pillars, 'C01', null) + '</select></label>'
-      + '<label class="field"><span>叙事</span><select id="ktN">' + dictOptions(d.narratives, 'N01', null) + '</select></label>'
-      + '<label class="field"><span>风险等级</span><select id="ktG">' + dictOptions(d.riskGrades, 'G1', null) + '</select></label>'
-      + '<label class="field"><span>制作截止</span><input id="ktD" type="date"></label>'
-      + '<label class="field"><span>计划发布</span><input id="ktPub" type="date"></label>',
-    onOk: async (b) => {
-      try {
-        await api.post(withBrand('/api/mos/tasks', ctxRef.brand), {
-          title: b.querySelector('#ktT').value,
-          platform: b.querySelector('#ktP').value,
-          pillarCode: b.querySelector('#ktC').value,
-          narrativeCode: b.querySelector('#ktN').value,
-          riskGrade: b.querySelector('#ktG').value,
-          productionDue: b.querySelector('#ktD').value || null,
-          plannedPublishAt: b.querySelector('#ktPub').value || null
-        });
-        toast('任务已创建', 'ok'); render();
-      } catch (err) { toast(err.message, 'err'); return false; }
-    }
-  });
+  bindTaskRows(hostEl, render);
 }
 
 function newAdhocDialog() {
@@ -128,41 +111,38 @@ function newAdhocDialog() {
   });
 }
 
-async function openTask(id) {
-  let data;
-  try { data = await api.get('/api/mos/tasks/' + id); }
-  catch (err) { toast(err.message, 'err'); return; }
-  const t = data.task;
-
-  const m = { title: '任务 ' + t.code, okText: '关闭' };
-  const mo = openModal({
-    title: m.title,
-    okText: m.okText,
-    body: '<dl class="kv"><dt>标题</dt><dd>' + esc(t.title) + ' ' + demoBadge(t.demo) + '</dd>'
-      + '<dt>平台</dt><dd>' + esc(platformLabel(t.platform)) + '</dd>'
-      + '<dt>状态</dt><dd>' + statusBadge(t.status) + '</dd>'
-      + '<dt>风险等级</dt><dd>' + gradeBadge(t.riskGrade) + '</dd>'
-      + '<dt>Topic</dt><dd>' + esc(t.topicTitle || '—') + '</dd>'
-      + '<dt>Campaign</dt><dd>' + esc(t.campaignTitle || '—') + '</dd>'
-      + '<dt>制作截止</dt><dd class="mono">' + esc(fmtDate(t.productionDue)) + '</dd>'
-      + '<dt>审核截止</dt><dd class="mono">' + esc(fmtDate(t.reviewDue)) + '</dd>'
-      + '<dt>计划发布</dt><dd class="mono">' + esc(fmtDate(t.plannedPublishAt)) + '</dd>'
-      + '<dt>创建</dt><dd class="small muted">' + esc(fmtDateTime(t.createdAt)) + '</dd>'
-      + '</dl>'
-      + '<div class="divider"></div>'
-      + '<div class="row" style="flex-wrap:wrap">' + (t.allowedTransitions || []).map((s) =>
-        '<button class="btn btn-sm" data-tt="' + esc(s) + '">迁移到 ' + esc(s) + '</button>').join('') + '</div>'
-      + '<div class="hint">进入 IN_REVIEW / READY 需要 content.submit 权限；版本冻结与专业/发布审核在「Creative Studio → 内容编辑器」发起。</div>'
-  });
-
-  mo.body.querySelectorAll('[data-tt]').forEach((b) => b.addEventListener('click', async () => {
-    try { await api.post('/api/mos/tasks/' + id + '/transition', { status: b.dataset.tt }); toast('状态已更新为 ' + b.dataset.tt, 'ok'); mo.close(); render(); }
-    catch (err) { toast(err.message, 'err'); }
-  }));
+/** 解析深链接上下文（campaignId / topicId / create） */
+async function applyParams(ctx) {
+  const p = (ctx && ctx.params) || {};
+  if (p.campaignId) f.campaignId = String(p.campaignId);
+  if (p.topicId) f.topicId = String(p.topicId);
+  try {
+    if (f.campaignId) {
+      const d = await api.get('/api/mos/campaigns/' + f.campaignId).catch(() => null);
+      relation.campaignTitle = d && d.campaign ? d.campaign.title : '';
+    }
+    if (f.topicId) {
+      const d = await api.get('/api/mos/topics/' + f.topicId).catch(() => null);
+      relation.topicTitle = d && d.topic ? d.topic.title : '';
+    }
+  } catch (_) { /* 上下文获取失败不阻断 */ }
+  if (p.create === '1') {
+    await openCreateTaskDialog({
+      brand: ctx.brand, meta: ctx.meta,
+      prefill: { campaignId: f.campaignId, campaignTitle: relation.campaignTitle, topicId: f.topicId, topicTitle: relation.topicTitle },
+      onCreated: render
+    });
+  }
 }
 
 export default {
-  async mount(host, ctx) { ctxRef = ctx; hostEl = host; await render(); },
+  async mount(host, ctx) {
+    ctxRef = ctx; hostEl = host;
+    f = { q: '', status: '', platform: '', mine: false, campaignId: '', topicId: '' };
+    relation = {};
+    await applyParams(ctx);
+    await render();
+  },
   unmount() { hostEl = null; },
   hasUnsaved() { return false; }
 };

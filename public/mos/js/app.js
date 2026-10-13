@@ -21,7 +21,8 @@ const CENTERS = [
   { id: 'planning', label: 'Planning Center', items: ['planning', 'topics', 'intelligence', 'tasks'] },
   { id: 'creative', label: 'Creative Studio', items: ['content-editor', 'visual-studio', 'video-workspace'] },
   { id: 'publishing', label: 'Publishing Center', items: ['publishing'] },
-  { id: 'marketing', label: 'Marketing Center', items: ['campaigns'] },
+  // F-05：Marketing Center = VFIB Banking Marketing / U CARD Marketing 两个品牌工作区 + Campaigns
+  { id: 'marketing', label: 'Marketing Center', items: ['marketing-vfib', 'marketing-ucard', 'campaigns'] },
   { id: 'analytics', label: 'Analytics Center', items: ['analytics'] },
   { id: 'governance', label: 'Governance & Assets', items: ['governance'] }
 ];
@@ -45,8 +46,17 @@ const MODULES = [
     loader: () => import('./modules/topics.js') },
   { id: 'intelligence', label: 'Intelligence', icon: '☍', center: 'planning', context: 'Feed / Sources / Create Topic',
     loader: () => import('./modules/intelligence.js') },
-  { id: 'tasks', label: 'Content Tasks', icon: '✎', center: 'planning', context: '内容任务与制作排期',
+  // M-03：Content Tasks 收敛为跨中心共享的「All Tasks」综合视图（同一 ContentTask 对象 / 同一 API）
+  { id: 'tasks', label: 'All Tasks', icon: '✎', center: 'planning', context: '共享内容任务综合视图（可被 Campaign / Topic / Workspace 深链接）',
     loader: () => import('./modules/tasks.js') },
+
+  // F-05 / 02 §2：W06 营销工作区 = 已选品牌下的过滤 + 模板视图，**不复制** Campaign API
+  { id: 'marketing-vfib', label: 'VFIB Banking Marketing', icon: '◈', center: 'marketing',
+    context: 'VFIB 银行营销工作区：Campaign、Marketing Brief、交付与进展',
+    loader: () => import('./modules/marketing.js') },
+  { id: 'marketing-ucard', label: 'U CARD Marketing', icon: '◆', center: 'marketing',
+    context: 'U CARD 营销工作区：Campaign、Marketing Brief、交付与进展',
+    loader: () => import('./modules/marketing.js') },
 
   { id: 'campaigns', label: 'Campaigns', icon: '◆', center: 'marketing', context: '项目 Brief、Topic/Task 关联与进度',
     loader: () => import('./modules/campaigns.js') },
@@ -75,8 +85,31 @@ const MODULES = [
 const els = {};
 let activeModule = null;
 let mounted = null;
+let activeHash = '';
 
 function $(id) { return document.getElementById(id); }
+
+/* ---------------- 路由解析（支持 #/route?k=v 深链接，M-03 / F-09） ---------------- */
+
+function parseHash() {
+  const raw = String(location.hash || '').replace(/^#\/?/, '');
+  const qi = raw.indexOf('?');
+  const id = qi === -1 ? raw : raw.slice(0, qi);
+  const qs = qi === -1 ? '' : raw.slice(qi + 1);
+  const params = {};
+  try { new URLSearchParams(qs).forEach((v, k) => { params[k] = v; }); } catch (_) { /* ignore */ }
+  return { id, qs, params };
+}
+
+function buildQuery(query) {
+  if (!query) return '';
+  if (typeof query === 'string') return query.replace(/^\?/, '');
+  const p = new URLSearchParams();
+  for (const k of Object.keys(query)) {
+    if (query[k] !== undefined && query[k] !== null && query[k] !== '') p.set(k, query[k]);
+  }
+  return p.toString();
+}
 
 /* ---------------- 初始化 ---------------- */
 
@@ -167,8 +200,8 @@ async function enterApp(me) {
   els.syncDot.classList.remove('bad');
   els.envChip.textContent = 'SANDBOX · MOS V0.1';
 
-  const hash = (location.hash || '').replace(/^#\/?/, '');
-  navigate(MODULES.some((m) => m.id === hash) ? hash : 'my-work');
+  const h0 = parseHash().id;
+  navigate(MODULES.some((m) => m.id === h0) ? h0 : 'my-work');
 }
 
 function renderBrandSwitch() {
@@ -233,9 +266,23 @@ function bindChrome() {
   if (els.menuBtn) els.menuBtn.addEventListener('click', () => { els.sidebar.classList.add('open'); els.mask.classList.add('show'); });
   if (els.mask) els.mask.addEventListener('click', () => { els.sidebar.classList.remove('open'); els.mask.classList.remove('show'); });
   window.addEventListener('hashchange', () => {
-    const h = (location.hash || '').replace(/^#\/?/, '');
-    if (h && MODULES.some((m) => m.id === h) && (!activeModule || activeModule.id !== h)) navigate(h);
+    const { id, qs } = parseHash();
+    if (!id) return;
+    if (!MODULES.some((m) => m.id === id)) return;
+    if (location.hash === activeHash) return;
+    applyRoute(id, qs);
   });
+}
+
+/** 供模块切换品牌（如营销工作区提示切换），需用户确认时由模块自行确认 */
+function setBrand(code) {
+  if (!store.brands.some((b) => b.code === code)) return false;
+  if (code === store.brand) return true;
+  store.brand = code;
+  localStorage.setItem('mos.brand', code);
+  renderBrandSwitch();
+  remount();
+  return true;
 }
 
 function changePwdDialog() {
@@ -281,8 +328,9 @@ function renderNav() {
     for (const id of c.items) {
       const m = byId[id];
       if (!m) continue;
-      html += '<button class="nav-item' + (m.stage ? ' soon' : '') + '" data-route="' + m.id + '" title="' + esc(m.context) + '">'
-        + '<span class="nav-ico">' + m.icon + '</span><span class="nav-label">' + esc(m.label) + '</span>'
+      html += '<button type="button" class="nav-item' + (m.stage ? ' soon' : '') + '" data-route="' + m.id + '"'
+        + ' title="' + esc(m.context) + '" aria-label="' + esc(c.label + ' · ' + m.label) + '">'
+        + '<span class="nav-ico" aria-hidden="true">' + m.icon + '</span><span class="nav-label">' + esc(m.label) + '</span>'
         + (m.stage ? '<span class="soon-tag">' + esc(m.stage) + '</span>' : '') + '</button>';
     }
     html += '</div>';
@@ -305,14 +353,24 @@ function highlightNav() {
 
 /* ---------------- 路由 / 挂载 ---------------- */
 
-export function navigate(id) {
+export function navigate(id, query) {
   const mod = MODULES.find((m) => m.id === id);
   if (!mod) return;
-  if (activeModule && activeModule.id === mod.id && mounted) { highlightNav(); return; }
+  const qs = buildQuery(query);
+  const targetHash = '#/' + id + (qs ? '?' + qs : '');
+  if (activeModule && activeModule.id === mod.id && mounted && activeHash === targetHash) { highlightNav(); return; }
+  if (location.hash !== targetHash) location.hash = targetHash;
+  return applyRoute(id, qs);
+}
+
+/** 依据已解析的 hash 切换模块（保留深链接参数，不重写 hash） */
+function applyRoute(id, qs) {
+  const mod = MODULES.find((m) => m.id === id);
+  if (!mod) return;
   activeModule = mod;
-  if (location.hash !== '#/' + id) location.hash = '#/' + id;
+  activeHash = '#/' + id + (qs ? '?' + qs : '');
   highlightNav();
-  remount();
+  return remount();
 }
 
 async function remount() {
@@ -335,6 +393,8 @@ async function remount() {
       integrations: store.integrations,
       brands: store.brands,
       navigate,
+      setBrand,
+      params: parseHash().params,
       module: activeModule,
       refreshShell: async () => { renderBrandSwitch(); }
     });

@@ -34,9 +34,10 @@ async function render() {
 
   html += '<div class="grid grid-2">';
 
-  // 我的任务
+  // 我的任务（M-03：与 All Tasks / Campaign Deliverables 为同一 ContentTask 对象）
   html += '<div class="card"><div class="card-head"><h2>我的未完成任务</h2>'
-    + '<div class="ch-actions"><span class="badge badge-neutral">' + tasks.length + '</span></div></div>';
+    + '<div class="ch-actions"><span class="badge badge-neutral">' + tasks.length + '</span>'
+    + '<button class="btn btn-sm" data-go-tasks="1">打开 All Tasks</button></div></div>';
   if (!tasks.length) {
     html += '<div class="card-body">' + stateBlock('empty', { title: '当前没有指派给你的未完成任务', desc: data.emptyHints && data.emptyHints.tasks }).html + '</div>';
   } else {
@@ -92,6 +93,7 @@ async function render() {
   hostEl.innerHTML = html;
 
   hostEl.querySelectorAll('[data-go-reviews]').forEach((b) => b.addEventListener('click', () => ctx.navigate('my-reviews')));
+  hostEl.querySelectorAll('[data-go-tasks]').forEach((b) => b.addEventListener('click', () => ctx.navigate('tasks')));
   hostEl.querySelectorAll('[data-open-plan]').forEach((b) => b.addEventListener('click', () => ctx.navigate('planning')));
   hostEl.querySelectorAll('[data-task-act]').forEach((b) => b.addEventListener('click', () => taskAction(b.dataset.taskId, b.dataset.taskAct)));
 }

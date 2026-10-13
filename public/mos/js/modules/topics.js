@@ -1,6 +1,7 @@
 /* W03-03 Master Topics —— Research / Narrative / Deliverables / Reuse。 */
 import { api, withBrand } from '../api.js';
 import { esc, toast, openDrawer, openModal, loadingHtml, stateBlock, statusBadge, gradeBadge, demoBadge, dictOptions, fmtDate } from '../ui.js';
+import { taskTable, bindTaskRows, openCreateTaskDialog } from '../components/taskkit.js';
 
 let ctxRef = null; let hostEl = null;
 let filters = { q: '', pillar: '', state: '' };
@@ -141,13 +142,20 @@ function renderTopic(dr, data) {
   }
 
   html += '<div class="divider"></div>';
+  html += '<div class="row between"><h3>Narrative / 叙事框架</h3></div>';
+  html += '<dl class="kv"><dt>栏目</dt><dd class="mono">' + esc(t.pillarCode) + '</dd>'
+    + '<dt>叙事</dt><dd class="mono">' + esc(t.narrativeCode) + '</dd>'
+    + '<dt>风险等级</dt><dd>' + gradeBadge(t.riskGrade) + '</dd></dl>'
+    + '<div class="hint">N/V/M 标签若显示「待核验」，表示 SPECIAL-01 未提供、待业务核验（不臆造官方名）。</div>';
+
+  html += '<div class="divider"></div>';
   html += '<div class="row between"><h3>Deliverables / 内容任务（' + data.tasks.length + '）</h3>'
     + (canManage ? '<button class="btn btn-sm btn-primary" id="mkTask">生成内容任务</button>' : '') + '</div>';
-  html += data.tasks.length
-    ? '<div class="table-wrap"><table class="tbl"><thead><tr><th>编号</th><th>标题</th><th>状态</th></tr></thead><tbody>'
-      + data.tasks.map((x) => '<tr><td class="mono">' + esc(x.code) + '</td><td>' + esc(x.title) + '</td><td>' + statusBadge(x.status) + '</td></tr>').join('')
-      + '</tbody></table></div>'
-    : '<div class="hint">还没有内容任务。可由本 Topic 直接生成，或在 Content Tasks 中新建。</div>';
+  html += '<div class="hint">与「All Tasks」「Campaign Deliverables」为**同一 ContentTask 对象**（M-03）。'
+    + (canManage ? '' : '') + '</div>';
+  html += '<div style="margin-top:6px">' + taskTable(data.tasks || [], {
+    emptyTitle: '还没有内容任务', emptyDesc: '可由本 Topic 直接生成，或在 All Tasks 中新建。'
+  }) + '</div>';
 
   html += '<div class="divider"></div>';
   html += '<div class="row between"><h3>Reuse</h3><button class="btn btn-sm" id="reuseBtn">查看可复用历史</button></div>';
@@ -157,12 +165,17 @@ function renderTopic(dr, data) {
 
   if (canManage) {
     dr.body.querySelector('#addEv').addEventListener('click', () => addEvidenceDialog(t, dr));
-    dr.body.querySelector('#mkTask').addEventListener('click', () => makeTaskDialog(t, dr));
+    dr.body.querySelector('#mkTask').addEventListener('click', () => openCreateTaskDialog({
+      brand: t.brandCode, meta: ctxRef.meta,
+      prefill: { topicId: t.id, topicTitle: t.title, title: t.title + ' · 内容任务', pillarCode: t.pillarCode, narrativeCode: t.narrativeCode, riskGrade: t.riskGrade },
+      onCreated: async () => { await dr.reload(); render(); }
+    }));
     dr.body.querySelectorAll('[data-del-ev]').forEach((b) => b.addEventListener('click', async () => {
       try { await api.del('/api/mos/topics/' + t.id + '/evidence/' + b.dataset.delEv); toast('已移除证据', 'ok'); await dr.reload(); render(); }
       catch (err) { toast(err.message, 'err'); }
     }));
   }
+  bindTaskRows(dr.body, async () => { await dr.reload(); render(); });
   dr.body.querySelector('#reuseBtn').addEventListener('click', async () => {
     const box = dr.body.querySelector('#reuseBox');
     box.innerHTML = loadingHtml();
@@ -221,28 +234,6 @@ async function addEvidenceDialog(t, dr) {
       try {
         await api.post('/api/mos/topics/' + t.id + '/evidence', { sourceItemId: sel.value, claimLocator: b.querySelector('#evL').value });
         toast('证据已引用', 'ok'); await dr.reload(); render();
-      } catch (err) { toast(err.message, 'err'); return false; }
-    }
-  });
-}
-
-function makeTaskDialog(t, dr) {
-  const d = (ctxRef.meta && ctxRef.meta.dictionaries) || {};
-  openModal({
-    title: '由 Topic 生成内容任务',
-    okText: '生成任务',
-    body: '<div class="hint">任务将继承 Topic 的栏目/叙事与风险等级。</div>'
-      + '<label class="field"><span>任务标题</span><input id="mtT" type="text" value="' + esc(t.title + ' · 内容任务') + '"></label>'
-      + '<label class="field"><span>平台</span><select id="mtP">' + dictOptions(d.platforms, 'LINKEDIN', null) + '</select></label>'
-      + '<label class="field"><span>制作截止</span><input id="mtD" type="date"></label>',
-    onOk: async (b) => {
-      try {
-        await api.post('/api/mos/topics/' + t.id + '/create-task', {
-          title: b.querySelector('#mtT').value,
-          platform: b.querySelector('#mtP').value,
-          productionDue: b.querySelector('#mtD').value || null
-        });
-        toast('内容任务已生成', 'ok'); await dr.reload(); render();
       } catch (err) { toast(err.message, 'err'); return false; }
     }
   });
