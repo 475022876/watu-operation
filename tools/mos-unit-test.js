@@ -415,12 +415,21 @@ t('U-15b 仅当 REAL 回执 + 权限核验 + ACTIVE + 审批通过 + 同步完�
 });
 
 /* ---------------- U-16 预检：只做可确定判断，重复内容必须拒绝 ---------------- */
+/* V1.1 B1：预检新增三项 Provider 必填字段检查，故测试夹具必须显式给出枚举值。
+ * V1.1 提供方答复 D-06.5：`reuseScope` 缺省/`none` 会被 Provider 预检判「无复用意义」→
+ * REVISION_REQUIRED，而该状态**无重提入口**（B-4）→ 申请永久卡死。故本侧预检亦将其列为硬条件，
+ * 夹具必须显式给出**非 none** 的复用范围。 */
+const ADM_FIELDS = {
+  libraryPrimaryCategory: '02', classification: 'internal',
+  licenseStatus: 'cleared', reuseScope: 'campaign_reuse'
+};
+
 t('U-16 预检 not_duplicate：同品牌同摘要已存在引用则 FAIL（其余检查全通过）', () => {
   const al = require('../lib/mos/admissionlib');
-  const admission = {
+  const admission = Object.assign({
     id: 'adm_1', brandCode: 'VFIB', workingAssetId: 'wa_1', assetSha256: 'D1',
     categoryCode: 'A01', submissionMetadata: { license: 'LICENSED' }, precheck: null
-  };
+  }, ADM_FIELDS);
   const db = {
     working_assets: [{ id: 'wa_1', brandCode: 'VFIB', sha256: 'D1', origin: 'UPLOADED', mock: false }],
     library_asset_refs: []
@@ -432,17 +441,103 @@ t('U-16 预检 not_duplicate：同品牌同摘要已存在引用则 FAIL（其�
   ok(dup.failureReasons.join('|').indexOf('not_duplicate') !== -1, '必须点明 not_duplicate');
 });
 
-t('U-16b 预检 license=UNVERIFIED 必须拒绝（资料库不受理）', () => {
+t('U-16b 预检 license 待人工核定（历史自由文本保守转 unknown）必须拒绝', () => {
   const al = require('../lib/mos/admissionlib');
   const db = { working_assets: [{ id: 'wa_1', brandCode: 'VFIB', sha256: 'D1', origin: 'UPLOADED' }], library_asset_refs: [] };
-  const admission = { id: 'a', brandCode: 'VFIB', workingAssetId: 'wa_1', assetSha256: 'D1', categoryCode: 'A01', submissionMetadata: { license: 'UNVERIFIED' } };
+  const admission = Object.assign({
+    id: 'a', brandCode: 'VFIB', workingAssetId: 'wa_1', assetSha256: 'D1', categoryCode: 'A01',
+    submissionMetadata: { license: 'UNVERIFIED' }, licenseNeedsManualReview: true, licenseLegacyText: 'UNVERIFIED'
+  }, ADM_FIELDS);
   eq(al.precheck(db, admission).verdict, 'FAIL');
+});
+
+t('U-16b2 预检缺 libraryPrimaryCategory / classification 必须拒绝（不得猜测补齐）', () => {
+  const al = require('../lib/mos/admissionlib');
+  const db = { working_assets: [{ id: 'wa_1', brandCode: 'VFIB', sha256: 'D1', origin: 'UPLOADED' }], library_asset_refs: [] };
+  const noPrimary = Object.assign({
+    id: 'a', brandCode: 'VFIB', workingAssetId: 'wa_1', assetSha256: 'D1', categoryCode: 'A01', submissionMetadata: {}
+  }, ADM_FIELDS, { libraryPrimaryCategory: null });
+  eq(al.precheck(db, noPrimary).verdict, 'FAIL', '缺资料区必须 FAIL');
+  const noClass = Object.assign({}, noPrimary, { libraryPrimaryCategory: '02', classification: null });
+  eq(al.precheck(db, noClass).verdict, 'FAIL', '缺密级必须 FAIL');
+  const incomplete = al.providerFieldsComplete(noClass);
+  eq(incomplete.complete, false);
+  ok(incomplete.missing.indexOf('classification') !== -1, '必须点名缺失字段');
+});
+
+/* V1.1 提供方答复 D-06.5：reuseScope 缺省 / none 会让申请在 Provider 侧永久卡死 → 预检必须 FAIL */
+t('U-16b4 预检 reuseScope 缺省 / none 必须 FAIL（D-06.5：否则申请在资料库侧永久卡死）', () => {
+  const al = require('../lib/mos/admissionlib');
+  const db = { working_assets: [{ id: 'wa_1', brandCode: 'VFIB', sha256: 'D1', origin: 'UPLOADED' }], library_asset_refs: [] };
+  const base = {
+    id: 'a', brandCode: 'VFIB', workingAssetId: 'wa_1', assetSha256: 'D1', categoryCode: 'A01', submissionMetadata: {}
+  };
+  const noReuse = Object.assign({}, base, ADM_FIELDS, { reuseScope: undefined });
+  const r1 = al.precheck(db, noReuse);
+  eq(r1.verdict, 'FAIL', '缺 reuseScope 必须 FAIL');
+  ok(r1.failureReasons.join('|').indexOf('reuse_scope_usable') !== -1, '必须点明 reuse_scope_usable');
+
+  const noneReuse = Object.assign({}, base, ADM_FIELDS, { reuseScope: 'none' });
+  const r2 = al.precheck(db, noneReuse);
+  eq(r2.verdict, 'FAIL', 'reuseScope=none 必须 FAIL');
+  ok(al.reuseScopeUsable({ reuseScope: 'none' }).reason === 'REUSE_SCOPE_NONE', 'reason 必须可审计');
+  ok(al.reuseScopeUsable({}).reason === 'MISSING_REUSE_SCOPE', '缺失与 none 必须区分');
+  eq(al.reuseScopeUsable({ reuseScope: 'campaign_reuse' }).ok, true);
+});
+
+/* V1.1 提供方答复 D-06.4：licenseStatus ∈ {expired, unknown} 会被 Provider 预检阻断入库 */
+t('U-16b5 预检 licenseStatus=unknown / expired 必须 FAIL，并说明是「人工确认闸门」而非占位值', () => {
+  const al = require('../lib/mos/admissionlib');
+  const db = { working_assets: [{ id: 'wa_1', brandCode: 'VFIB', sha256: 'D1', origin: 'UPLOADED' }], library_asset_refs: [] };
+  const base = {
+    id: 'a', brandCode: 'VFIB', workingAssetId: 'wa_1', assetSha256: 'D1', categoryCode: 'A01', submissionMetadata: {}
+  };
+  const unk = Object.assign({}, base, ADM_FIELDS, { licenseStatus: 'unknown' });
+  const r = al.precheck(db, unk);
+  eq(r.verdict, 'FAIL', 'unknown 必须 FAIL（无法完成准入）');
+  ok(r.failureReasons.join('|').indexOf('license_admissible') !== -1, '必须点明 license_admissible');
+  eq(al.licenseAdmissionGate({ licenseStatus: 'expired' }).blocking, true);
+  eq(al.licenseAdmissionGate({ licenseStatus: 'cleared' }).blocking, false);
+});
+
+t('U-16b3 normalizeProviderFields：自由文本许可绝不映射为 cleared，一律保守转 unknown', () => {
+  const al = require('../lib/mos/admissionlib');
+  const r = al.normalizeProviderFields({ libraryPrimaryCategory: '02', classification: 'internal', licenseStatus: 'INTERNAL_DRAFT' });
+  eq(r.value.licenseStatus, 'unknown', '自由文本必须保守转 unknown');
+  eq(r.value.licenseNeedsManualReview, true, '必须标记待人工核定');
+  eq(r.ok, false, '自由文本不得视为合法入参');
+  // 显式声明 unknown 是合法值（用户明确选择，不是猜测）
+  const explicit = al.normalizeProviderFields({ libraryPrimaryCategory: '02', classification: 'internal', licenseStatus: 'unknown' });
+  eq(explicit.ok, true);
+  eq(explicit.value.licenseNeedsManualReview, false);
+  // 密级不接受猜测：为空必须 missing，不提供默认值
+  const noClass = al.normalizeProviderFields({ libraryPrimaryCategory: '02', classification: '', licenseStatus: 'cleared' });
+  eq(noClass.ok, false);
+  ok(noClass.missing.indexOf('classification') !== -1);
+});
+
+t('U-16b4 toProviderAdmissionInput：不发送 originSystem（服务端强制覆写），且字段名与契约一致', () => {
+  const al = require('../lib/mos/admissionlib');
+  const body = al.toProviderAdmissionInput(Object.assign({
+    id: 'adm_1', brandCode: 'VFIB', workingAssetId: 'wa_1', assetSha256: 'a'.repeat(64),
+    categoryCode: 'A01', submissionMetadata: { title: 'T' }, idempotencyKey: 'k-1'
+  }, ADM_FIELDS));
+  eq(body.originSystem, undefined, '不得自报 originSystem');
+  eq(body.brandId, 'VFIB');
+  eq(body.libraryPrimaryCategory, '02');
+  eq(body.classification, 'internal');
+  eq(body.licenseStatus, 'cleared');
+  eq(body.marketingCategory, 'A01');
+  eq(body.contentHash, 'a'.repeat(64));
+  ok(!/[^A-Za-z0-9_.:-]/.test(body.originObjectId), 'originObjectId 必须满足服务端 ID_RE');
 });
 
 t('U-16c 预检 digest 不匹配（素材被替换）必须拒绝', () => {
   const al = require('../lib/mos/admissionlib');
   const db = { working_assets: [{ id: 'wa_1', brandCode: 'VFIB', sha256: 'D2', origin: 'UPLOADED' }], library_asset_refs: [] };
-  const admission = { id: 'a', brandCode: 'VFIB', workingAssetId: 'wa_1', assetSha256: 'D1', categoryCode: 'A01', submissionMetadata: { license: 'LICENSED' } };
+  const admission = Object.assign({
+    id: 'a', brandCode: 'VFIB', workingAssetId: 'wa_1', assetSha256: 'D1', categoryCode: 'A01', submissionMetadata: { license: 'LICENSED' }
+  }, ADM_FIELDS);
   eq(al.precheck(db, admission).verdict, 'FAIL');
 });
 
@@ -494,27 +589,36 @@ t('U-18c Mock 网关：缺摘要/缺分类/许可未核验 → 引擎级拒绝�
   eq(unv.errorCode, 'LICENSE_UNVERIFIED');
 });
 
-/* ---------------- U-19 schema v3/v4 迁移（只增不改；不预置任何已批准资产/作业） ---------------- */
-t('U-19 schema 版本为 4，且 asset_admissions / library_asset_refs / ingest_jobs 在基线形状中', () => {
+/* ---------------- U-19 schema v3/v4/v5 迁移（只增不改；不预置任何已批准资产/作业） ---------------- */
+t('U-19 schema 版本为 5，且 asset_admissions / library_asset_refs / ingest_jobs / 四项集成态集合在基线形状中', () => {
   const store = require('../lib/mos/store');
-  eq(store.MOS_SCHEMA_VERSION, 4);
+  eq(store.MOS_SCHEMA_VERSION, 5);
   ok(Array.isArray(store.BASE_SHAPE.asset_admissions), 'asset_admissions 必须是顶级集合');
   ok(Array.isArray(store.BASE_SHAPE.library_asset_refs), 'library_asset_refs 必须是顶级集合');
   ok(Array.isArray(store.BASE_SHAPE.ingest_jobs), 'ingest_jobs 必须是顶级集合（A-01 采集作业记录）');
+  // V1.1 B2/B3：集成态四集合（票据元数据 / 事件游标 / 失效登记 / 准入作业）
+  ok(Array.isArray(store.BASE_SHAPE.library_tickets), 'library_tickets 必须是顶级集合（票据**元数据**，不含密文）');
+  ok(Array.isArray(store.BASE_SHAPE.library_event_cursors), 'library_event_cursors 必须是顶级集合（持久化 seq 游标）');
+  ok(Array.isArray(store.BASE_SHAPE.library_invalidations), 'library_invalidations 必须是顶级集合（撤回/停用失效登记）');
+  ok(Array.isArray(store.BASE_SHAPE.library_admission_jobs), 'library_admission_jobs 必须是顶级集合（准入推送作业记录）');
 });
 
-t('U-19b migrate：v2 文档补齐 v3/v4 形状，且**不注入**任何已批准资产或作业记录（08 §6）', () => {
+t('U-19b migrate：v2 文档补齐 v3/v4/v5 形状，且**不注入**任何已批准资产或作业记录（08 §6）', () => {
   const store = require('../lib/mos/store');
   const legacy = { mosSchemaVersion: 2, brands: [], users: [] };
   const changed = store.migrate(legacy);
   ok(changed === true, '应报告已迁移');
-  eq(legacy.mosSchemaVersion, 4);
+  eq(legacy.mosSchemaVersion, 5);
   eq(legacy.asset_admissions.length, 0, '迁移不得预置申请');
   eq(legacy.library_asset_refs.length, 0, '迁移不得预置已批准资产引用');
   eq(legacy.ingest_jobs.length, 0, '迁移不得预置采集作业记录');
+  eq(legacy.library_tickets.length, 0, '迁移不得预置票据元数据');
+  eq(legacy.library_event_cursors.length, 0, '迁移不得预置事件游标');
+  eq(legacy.library_invalidations.length, 0, '迁移不得预置失效登记');
+  eq(legacy.library_admission_jobs.length, 0, '迁移不得预置准入作业记录');
 });
 
-t('U-19c v3 → v4 迁移幂等且只新增 ingest_jobs，既有集合零改写', () => {
+t('U-19c v3 → v5 迁移幂等且只新增集合，既有业务集合零改写', () => {
   const store = require('../lib/mos/store');
   const doc = {
     mosSchemaVersion: 3,
@@ -526,22 +630,52 @@ t('U-19c v3 → v4 迁移幂等且只新增 ingest_jobs，既有集合零改写'
     review_cases: [{ id: 'r1' }],
     asset_admissions: [{ id: 'ad1' }]
   };
-  const before = JSON.stringify({
+  // 注意：`asset_admissions` **有意**被 v4→v5 保守回填（见 U-19d），故不在"零改写"集合内；
+  // 这里约束的是其余业务集合必须逐字节不变，且申请行的**身份与既有键**不得丢失。
+  const zeroRewrite = () => JSON.stringify({
     campaigns: doc.campaigns, master_topics: doc.master_topics, source_registry: doc.source_registry,
     source_items: doc.source_items, publication_records: doc.publication_records,
-    review_cases: doc.review_cases, asset_admissions: doc.asset_admissions
+    review_cases: doc.review_cases
   });
+  const before = zeroRewrite();
   store.migrate(doc);
-  const after = JSON.stringify({
-    campaigns: doc.campaigns, master_topics: doc.master_topics, source_registry: doc.source_registry,
-    source_items: doc.source_items, publication_records: doc.publication_records,
-    review_cases: doc.review_cases, asset_admissions: doc.asset_admissions
-  });
-  eq(after, before, '既有集合与内容必须零改写');
-  eq(doc.mosSchemaVersion, 4);
+  eq(zeroRewrite(), before, '既有业务集合与内容必须零改写');
+  eq(doc.mosSchemaVersion, 5);
   eq(doc.ingest_jobs.length, 0);
+  eq(doc.library_tickets.length, 0);
+  eq(doc.library_event_cursors.length, 0);
+  eq(doc.library_invalidations.length, 0);
+  eq(doc.library_admission_jobs.length, 0);
+  eq(doc.asset_admissions.length, 1, '申请行不得被删除');
+  eq(doc.asset_admissions[0].id, 'ad1', '申请行身份不得被改写');
   const second = store.migrate(doc);
   eq(second, false, '二次迁移应报告无变更（幂等）');
+});
+
+t('U-19d v4 → v5 保守回填：不猜测密级、自由文本许可绝不映射 cleared、标记待人工核定', () => {
+  const store = require('../lib/mos/store');
+  const doc = {
+    mosSchemaVersion: 4,
+    asset_admissions: [
+      { id: 'ad-old', state: 'SUBMITTED', submissionMetadata: { title: '历史申请', license: 'INTERNAL_DRAFT' } },
+      // 已带 v5 标记的行必须**原样保留**（幂等，不重复回填）
+      { id: 'ad-new', admissionFieldsSchema: 5, libraryPrimaryCategory: '03', classification: 'executive', licenseStatus: 'cleared' }
+    ]
+  };
+  store.migrate(doc);
+  eq(doc.mosSchemaVersion, 5);
+  const old = doc.asset_admissions.find((a) => a.id === 'ad-old');
+  eq(old.libraryPrimaryCategory, null, '资料区**不得猜测**');
+  eq(old.classification, null, '密级**不得猜测降级**');
+  eq(old.licenseStatus, 'unknown', '自由文本许可绝不映射为 cleared');
+  eq(old.licenseLegacyText, 'INTERNAL_DRAFT', '原始许可文本必须留痕');
+  eq(old.needsManualReview, true, '必须标记待人工核定');
+  eq(old.admissionFieldsSchema, 5);
+  const fresh = doc.asset_admissions.find((a) => a.id === 'ad-new');
+  eq(fresh.classification, 'executive', '已带 v5 标记的行不得被改写');
+  eq(fresh.licenseStatus, 'cleared', '已带 v5 标记的行不得被改写');
+  const again = store.migrate(doc);
+  eq(again, false, '回填幂等：已迁移文档二次调用不产生变更');
 });
 
 /* ---------------- U-20 S04 Marketing Brief（A-02）与共享组件（M-01/M-02/M-03） ---------------- */

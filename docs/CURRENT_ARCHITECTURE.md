@@ -77,6 +77,11 @@
 | v1 → v2 | 新增 16 个空集合（创作/发布/入库域） | 删除新增集合字段，版本号改回 1 |
 | v2 → v3 | 不新增集合，仅固定 `asset_admissions` / `library_asset_refs` 形状 | 版本号改回 2 |
 | **v3 → v4** | **新增 1 个空集合 `ingest_jobs`** | 删除 `ingest_jobs` 字段，版本号改回 3 |
+| **v4 → v5** | **新增 4 个空集合** `library_tickets` / `library_event_cursors` / `library_invalidations` / `library_admission_jobs`；并对既有 `asset_admissions` 做**保守回填**（`libraryPrimaryCategory=null`、`classification=null`、`licenseStatus='unknown'`、保留 `licenseLegacyText`、`needsManualReview=true`） | 删除上述 4 个集合字段，版本号改回 4 |
+
+**保守回填语义（v4 → v5，不可放宽）**：历史申请的自由文本许可（如 `INTERNAL_DRAFT`）**绝不**被映射为 `cleared`；
+密级与资料区**不猜测**，一律置 `null` 并标 `needsManualReview=true`，须由人工经
+`POST /api/mos/asset-admissions/:id/admission-fields` 显式补齐。已带 `admissionFieldsSchema=5` 的行**零改写**（幂等）。
 
 **迁移幂等**：`store.migrate()` 二次调用报告「无变更」。
 **不预置任何业务数据**（不伪造历史、不预置「已批准资产」）。
@@ -88,19 +93,22 @@
 
 1. **停服**（Windows 下 `SIGTERM` 为硬终止，务必先停）。
 2. 备份 `data/mos.json`（系统亦自动生成 `mos.json.bak-*`）。
-3. 启动新版本 → `store.load()` 自动执行 `migrate()` 并落盘（v3→v4 增空集合，既有数据零改写）。
-4. 验证：`GET /api/mos/meta` 的 `schemaVersion === 4`。
+3. 启动新版本 → `store.load()` 自动执行 `migrate()` 并落盘（v3→v4 增空集合、v4→v5 增空集合 + 保守回填，既有数据零改写）。
+4. 验证：`GET /api/mos/meta` 的 `schemaVersion === 5`。
 
 ### 5.2 回滚
 
 | 场景 | 操作 |
 |---|---|
 | 快速回滚 | 停服 → 还原 `data/mos.json.bak-*` → 装回旧版本 |
-| 就地降级 | 停服 → 编辑 `data/mos.json`：删除 `ingest_jobs` 字段、`mosSchemaVersion` 改回 `3` → 装回 v3 代码 |
+| 就地降级 | 停服 → 编辑 `data/mos.json`：删除 `ingest_jobs` / `library_tickets` / `library_event_cursors` / `library_invalidations` / `library_admission_jobs` 字段、`mosSchemaVersion` 改回 `3` → 装回旧版本代码 |
 | 调度数据 | `ingest_jobs` 为审计日志，删除不影响业务；采集条目在 `source_items`，**保留** |
+| 集成态数据 | `library_event_cursors` 丢失＝下轮从 0 重放（幂等，安全）；`library_invalidations` 丢失＝失效登记需在下一轮轮询/`verifyAssetUsable()` 时重建；票据元数据丢失无影响（票据密文本就只在内存） |
 | 字典核验 | 删除 `settings.dictionaryVerifications` → 字典回落为「全部待核验」（不会产生错误标签） |
 
-> 回滚**不丢业务数据**：v3 代码不引用 `ingest_jobs` 与 `dictionaryVerifications`，可直接读取同库。
+> 回滚**不丢业务数据**：v3 代码不引用上述新增集合与 `dictionaryVerifications`，可直接读取同库。
+> **注意**：v4→v5 的保守回填会把历史申请的 `classification` 置为 `null`。降级回 v4 后这些行仍可读
+> （旧代码不识别这些键），但**不要**在 v5 环境下把 `needsManualReview` 当作可忽略的噪音。
 
 ## 6. 安全边界（Phase 1 加固后）
 

@@ -41,9 +41,13 @@ copy public
 copy tools
 copy docs
 copy reports
+# ---------- 1b. V1.1 三包整改交付物（MARKETING_HANDOFF_BUNDLE_V1.1 + 联合验收报告） ----------
+copy MARKETING_HANDOFF_BUNDLE_V1.1
+copy JOINT_ACCEPTANCE_REPORT.md
 
 # ---------- 2. 测试证据（必需交付物 ⑤） ----------
 for d in TEST_EVIDENCE_MOS_BUILD01 TEST_EVIDENCE_MOS_BUILD02 TEST_EVIDENCE_MOS_BUILD03 \
+         TEST_EVIDENCE_MOS_BUILD04 \
          UI_EVIDENCE_MOS_BUILD01 UI_EVIDENCE_MOS_BUILD02 UI_EVIDENCE_MOS_BUILD03 \
          UI_EVIDENCE_MOS_BUILD04 UI_EVIDENCE_MOS_BUILD05; do
   [ -d "$d" ] && copy "$d"

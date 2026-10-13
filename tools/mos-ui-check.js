@@ -555,15 +555,27 @@ async function main() {
     check('B03-UI 前置：页面内上传工作素材成功（真实落盘、带 sha256）',
       upRes.status === 200 && !!waId, 'HTTP ' + upRes.status + ' id=' + waId);
 
+    // B1：三项 Provider 必填字段（资料区 / 密级 / 许可状态）缺失会被服务端 400 拒绝
     const admReg = waId ? await pageApi('/api/mos/asset-admissions?brand=VFIB', 'POST', {
       workingAssetId: waId, categoryCode: 'A01',
+      libraryPrimaryCategory: '02', classification: 'internal', licenseStatus: 'cleared',
       submissionMetadata: { title: 'UI-B03 入库申请', license: 'LICENSED', description: '浏览器内发起' }
     }) : { status: 0, json: null };
     const uiAdmId = admReg.json && admReg.json.admission && admReg.json.admission.id;
     check('B03-UI 前置：页面内创建入库申请成功（进入 SUBMITTED）',
       admReg.status === 200 && !!uiAdmId, 'HTTP ' + admReg.status + ' id=' + uiAdmId);
+    check('B1-UI 前置：新建申请落库含三项 Provider 必填字段且完整',
+      !!uiAdmId && admReg.json.admission.libraryPrimaryCategory === '02'
+      && admReg.json.admission.classification === 'internal'
+      && admReg.json.admission.licenseStatus === 'cleared'
+      && admReg.json.admission.providerFieldsComplete === true,
+      'complete=' + (admReg.json && admReg.json.admission && admReg.json.admission.providerFieldsComplete));
 
-    // --- Governance & Assets：三标签 + MOCK 诚实边界 ---
+    /* ---- B1-UI：新建申请对话框的六项下拉**逐项对齐契约枚举** + 前端必填预检 ----
+     * 位置说明：必须在 `goRoute('governance')` **之后**执行 —— 治理模块的 `assets` 列表
+     * 在其 `load()` 中装载，且 `#admNew` 按钮由 admission 标签渲染。 */
+    const ctJson = (await pageApi('/api/mos/integration/contract')).json || {};
+    const sameArr = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     await goRoute('governance');
     const gvReady = await waitFor('document.querySelectorAll(".tabs [data-tab]").length>=3', '治理标签', 15000);
     check('B03-UI 治理与资产渲染（Asset Admission / Approved Assets / Review History）', gvReady, '');
@@ -583,6 +595,53 @@ async function main() {
     const rowVisible = await waitFor(
       'document.querySelectorAll("[data-open]").length>=1', '入库申请行渲染', 12000);
     check('B03-UI 治理与资产：新申请的表格行真实渲染（来自服务端记录）', rowVisible, '');
+
+    /* ---- B1-UI：新建申请对话框（治理页已挂载、assets 已装载）---- */
+    await evalJs('(function(){var b=document.getElementById("admNew");if(b)b.click();return true;})()');
+    const dlgReady = await waitFor('document.querySelector("#admPrimary")', '新建入库申请对话框', 12000);
+    check('B1-UI 新建申请对话框渲染（含资料区/密级/许可状态三项必填）', dlgReady, '');
+    const optRaw = await evalJs('(function(){'
+      + 'var g=function(id){var e=document.getElementById(id);if(!e)return null;'
+      + 'return Array.from(e.options).map(function(o){return o.value;}).filter(function(v){return v!=="";});};'
+      + 'return JSON.stringify({primary:g("admPrimary"),cls:g("admClass"),lic:g("admLicenseStatus"),'
+      + 'reuse:g("admReuse"),ai:g("admAi")});})()');
+    let opt = {};
+    try { opt = JSON.parse(optRaw || '{}'); } catch (_) { opt = {}; }
+    const ctPrimary = (ctJson.libraryCategories || []).map((c) => c.id);
+    check('B1-UI 资料区下拉 = 契约 01–07（编号引用不自创）',
+      sameArr(opt.primary, ctPrimary) && ctPrimary.length === 7, JSON.stringify(opt.primary));
+    check('B1-UI 密级下拉 = 契约四级（open/internal/restricted/executive）',
+      sameArr(opt.cls, ctJson.classifications || []), JSON.stringify(opt.cls));
+    check('B1-UI 许可状态下拉 = 契约五项（cleared/pending/restricted/expired/unknown）',
+      sameArr(opt.lic, ctJson.licenseStatuses || []), JSON.stringify(opt.lic));
+    check('B1-UI 复用范围 / 外部 AI 策略下拉 = 契约枚举',
+      sameArr(opt.reuse, ctJson.reuseScopes || [])
+      && sameArr(opt.ai, ctJson.externalAiTransferPolicies || []),
+      'reuse=' + JSON.stringify(opt.reuse) + ' ai=' + JSON.stringify(opt.ai));
+
+    // 资料区 → 二级目录联动必须来自契约，切换后为非空
+    const subLink = await evalJs('(function(){var s=document.getElementById("admPrimary");'
+      + 'var sub=document.getElementById("admSub");if(!s||!sub)return "missing";'
+      + 's.value="03";s.dispatchEvent(new Event("change"));'
+      + 'return String(sub.options.length);})()');
+    check('B1-UI 资料区选择后二级目录联动加载（选项来自契约，非空）',
+      Number(subLink) > 1, 'subOptions=' + subLink);
+    await shot('B1-38-admission-dialog.png');
+
+    // 必填项留空时点击「提交申请」→ 前端预检拦截（对话框仍在、给出提示、不发请求）
+    const intercept = await evalJs('(function(){var b=document.getElementById("__mok");if(b)b.click();return "clicked";})()');
+    await sleep(500);
+    const stillOpen = await evalJs('!!document.querySelector("#admPrimary")');
+    const toastTxt = await evalJs('(function(){var r=document.getElementById("toastRoot");return r?r.innerText:"";})()');
+    check('B1-UI 缺必填项时前端预检拦截：对话框不关闭且给出明确提示（不发出必然被拒的请求）',
+      intercept === 'clicked' && stillOpen === true
+      && /资料区|密级|许可状态|资产分类/.test(String(toastTxt)),
+      'stillOpen=' + stillOpen + ' toast=' + String(toastTxt).slice(0, 40));
+    await evalJs('(function(){var c=document.querySelector(".modal-mask [data-act=cancel]");if(c)c.click();return true;})()');
+    await sleep(250);
+    check('B1-UI 取消后对话框已关闭（无残留遮罩）',
+      (await evalJs('document.querySelectorAll(".modal-mask").length')) === 0, '');
+
     await evalJs('(function(){var b=document.querySelector("[data-open]");if(b)b.click();return true;})()');
     const drawerOpen = await waitFor('document.querySelector(".drawer")', '入库申请抽屉', 12000);
     check('B03-UI 治理与资产：抽屉展示预检/回执/可复用资格/流程历史', drawerOpen

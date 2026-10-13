@@ -126,8 +126,9 @@ async function main() {
   let db = store.getDb();
 
   /* 1. schema 与默认关闭 */
-  ok('SCH-01 schema 升 v4 且存在 ingest_jobs 集合',
-    store.MOS_SCHEMA_VERSION === 4 && Array.isArray(db.ingest_jobs),
+  ok('SCH-01 schema 已升到 v5，且存在 ingest_jobs 与四项集成态集合',
+    store.MOS_SCHEMA_VERSION === 5 && Array.isArray(db.ingest_jobs)
+      && Array.isArray(db.library_tickets) && Array.isArray(db.library_event_cursors),
     'schemaVersion=' + store.MOS_SCHEMA_VERSION + ' ingest_jobs=' + (Array.isArray(db.ingest_jobs) ? 'array' : 'missing'));
 
   const st0 = scheduler.status();

@@ -22,6 +22,7 @@ require('./lib/mos/routes');
 const mosConfig = require('./lib/mos/config');
 const mosStore = require('./lib/mos/store');
 const mosScheduler = require('./lib/mos/scheduler');
+const mosEventConsumer = require('./lib/mos/eventconsumer');
 
 const cfg = getConfig();
 const VERSION = cfg.appVersion;
@@ -149,7 +150,7 @@ async function handleRequest(req, res) {
       const status = err && err.status ? err.status : 500;
       const message = err && err.message ? err.message : '服务器内部错误';
       if (status >= 500) console.error('[api] ' + req.method + ' ' + pathname + ' -> ' + (err && err.stack ? err.stack : message));
-      if (!res.headersSent) sendError(res, status, message, err && err.code);
+      if (!res.headersSent) sendError(res, status, message, err && err.code, err && err.details);
       else { try { res.end(); } catch (_) { /* ignore */ } }
     }
     return;
@@ -254,6 +255,11 @@ function start() {
     console.log('[mos-scheduler] ' + (sc.started
       ? '已启动（间隔 ' + sc.intervalMinutes + ' 分钟）：' + sc.note
       : '未启动（' + sc.reason + '）：' + sc.note));
+    // 企业资料库变更事件消费（B3）：**默认关闭**；开启后由独立轮询作业维护撤回/权限失效。
+    const ec = mosEventConsumer.start();
+    console.log('[mos-event] ' + (ec.started
+      ? '已启动（间隔 ' + ec.intervalSeconds + ' 秒）：' + ec.note
+      : '未启动（' + ec.reason + '）：' + ec.note));
   } else {
     console.log('[mos] 已禁用（config.json → mos.enabled=false）');
   }
@@ -285,6 +291,7 @@ function start() {
   const shutdown = (signal) => {
     console.log('\n[exit] 收到 ' + signal + '，正在保存数据并关闭服务...');
     try { mosScheduler.stop(); } catch (_) { /* ignore：释放调度锁 */ }
+    try { mosEventConsumer.stop(); } catch (_) { /* ignore：释放轮询锁与定时器 */ }
     try { mosStore.saveNow(); } catch (_) { /* ignore */ }
     server.close(() => process.exit(0));
     setTimeout(() => process.exit(0), 3000).unref();

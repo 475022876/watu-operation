@@ -1,0 +1,2 @@
+# 给运营中台Codex直接粘贴
+请在当前VFIB Marketing OS独立仓库执行B包全部文件，按C_Shared_Contract中的**Provider原样OpenAPI**和已记录的CONTRACT_DIFF对齐，不得修改OA仓库。先完成本侧三项资产准入必填字段（类别/密级/许可）的UI、数据和契约校验；实现服务账号Ed25519+真实用户受限票据、事件轮询与资产撤回fail-closed；再接收资料库Codex的LIBRARY_HANDOFF_BUNDLE_V1.1，在独立Staging中跑**真实HTTP双系统端到端**，并验证Published Archive绝不自动进入资料库。SPECIAL-01和Visual Skill须使用正式原件、真实审批，缺条件标BLOCKED。真实文字及图像API没有授权则标BLOCKED，不得伪造。不得增S05、声誉专项、线索闭环。完整执行浏览器与安全回归，提交MARKETING_HANDOFF_BUNDLE_V1.1和双方确认的JOINT_ACCEPTANCE_REPORT，记录所有证据、版本和遗留阻断；未经授权不得部署生产。

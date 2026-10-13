@@ -318,6 +318,8 @@ async function main() {
   const mkAdm = await cCreator.call('POST', '/api/mos/asset-admissions' + B, {
     workingAssetId: asset1.id, categoryCode: 'A01',
     submissionMetadata: { title: 'E2E 机构形象底纹', license: 'LICENSED', description: 'E2E 用例' },
+    /* V1.1 B1：三项 Provider 必填字段 */
+    libraryPrimaryCategory: '02', librarySubcategory: '02.04', classification: 'internal', licenseStatus: 'cleared', reuseScope: 'campaign_reuse',
     idempotencyKey: idemKey
   });
   const adm = mkAdm.json && mkAdm.json.admission;
@@ -337,6 +339,32 @@ async function main() {
   });
   check('E2E05-04 非法资产分类被拒绝（A01–A08 字典强制）',
     badCat.status === 400 && badCat.json.code === 'BAD_CATEGORY', 'HTTP ' + badCat.status);
+
+  /* ---- V1.1 B1：三项 Provider 必填字段缺失 → 400 BAD_ADMISSION_INPUT + missing[]（绝不猜测补齐） ---- */
+  const missFields = await cCreator.call('POST', '/api/mos/asset-admissions' + B, {
+    workingAssetId: asset1.id, categoryCode: 'A01',
+    submissionMetadata: { title: '缺三项必填字段', license: 'LICENSED' },
+    idempotencyKey: 'missfields-' + Date.now()
+  });
+  const missArr = (missFields.json && missFields.json.missing) || [];
+  check('E2E05-04b 缺 libraryPrimaryCategory/classification/licenseStatus → 400 BAD_ADMISSION_INPUT 且回传 missing[]',
+    missFields.status === 400 && missFields.json.code === 'BAD_ADMISSION_INPUT'
+      && missArr.indexOf('libraryPrimaryCategory') !== -1 && missArr.indexOf('classification') !== -1
+      && missArr.indexOf('licenseStatus') !== -1,
+    'HTTP ' + missFields.status + ' missing=' + JSON.stringify(missArr));
+
+  /* ---- V1.1 B1：自由文本许可**绝不**被猜成 cleared，保守转 unknown 并标记待人工核定 ---- */
+  const freeText = await cCreator.call('POST', '/api/mos/asset-admissions' + B, {
+    workingAssetId: asset1.id, categoryCode: 'A01',
+    libraryPrimaryCategory: '02', classification: 'internal', licenseStatus: 'INTERNAL_DRAFT',
+    submissionMetadata: { title: '自由文本许可反例', license: 'INTERNAL_DRAFT' },
+    idempotencyKey: 'freetext-' + Date.now()
+  });
+  check('E2E05-04c 自由文本许可被拒且给出保守替代值建议（suggested.licenseStatus=unknown），绝不映射 cleared',
+    freeText.status === 400 && freeText.json.code === 'BAD_ADMISSION_INPUT'
+      && freeText.json.suggested && freeText.json.suggested.licenseStatus === 'unknown'
+      && (freeText.json.fieldErrors || []).join(';').indexOf('unknown') !== -1,
+    'HTTP ' + freeText.status + ' suggested=' + JSON.stringify(freeText.json && freeText.json.suggested));
 
   const preNoPerm = await cCreator.call('POST', '/api/mos/asset-admissions/' + adm.id + '/precheck' + B, {});
   check('E2E05-05 无 asset.review 权限者不能执行预检（403）',
@@ -382,7 +410,8 @@ async function main() {
   const asset2 = up2.json.asset;
   const adm2mk = await cDual.call('POST', '/api/mos/asset-admissions' + B, {
     workingAssetId: asset2.id, categoryCode: 'A02',
-    submissionMetadata: { title: 'E2E 职责分离用例', license: 'LICENSED' }, idempotencyKey: 'dual-' + Date.now()
+    submissionMetadata: { title: 'E2E 职责分离用例', license: 'LICENSED' }, idempotencyKey: 'dual-' + Date.now(),
+    libraryPrimaryCategory: '02', classification: 'internal', licenseStatus: 'cleared', reuseScope: 'campaign_reuse'
   });
   const adm2 = adm2mk.json.admission;
   // 预检由**资产预检员**执行（P2 不含 asset.review）；提交人仍是 dual —— 用于验证「提交人不得自批」
@@ -471,7 +500,8 @@ async function main() {
   const dupAsset = dupUp.json && dupUp.json.asset;
   const dupAdmMk = await cCreator.call('POST', '/api/mos/asset-admissions' + B, {
     workingAssetId: dupAsset.id, categoryCode: 'A01',
-    submissionMetadata: { title: '同内容副本', license: 'LICENSED' }, idempotencyKey: 'dup-' + Date.now()
+    submissionMetadata: { title: '同内容副本', license: 'LICENSED' }, idempotencyKey: 'dup-' + Date.now(),
+    libraryPrimaryCategory: '02', classification: 'internal', licenseStatus: 'cleared', reuseScope: 'campaign_reuse'
   });
   const dupAdm = dupAdmMk.json.admission;
   // 预检需 asset.review（P2 不含），故由资产预检员执行
@@ -564,7 +594,8 @@ async function main() {
   const asset3 = up3.json.asset;
   const a3mk = await c2.call('POST', '/api/mos/asset-admissions' + B, {
     workingAssetId: asset3.id, categoryCode: 'A03',
-    submissionMetadata: { title: 'E2E 同步失败用例', license: 'LICENSED' }, idempotencyKey: 'sec08-' + Date.now()
+    submissionMetadata: { title: 'E2E 同步失败用例', license: 'LICENSED' }, idempotencyKey: 'sec08-' + Date.now(),
+    libraryPrimaryCategory: '02', classification: 'internal', licenseStatus: 'cleared', reuseScope: 'campaign_reuse'
   });
   const a3 = a3mk.json.admission;
   await c2.call('POST', '/api/mos/asset-admissions/' + a3.id + '/precheck' + B, {});
@@ -626,7 +657,7 @@ async function main() {
     secText.indexOf('"password"') === -1 && secText.indexOf('"token"') === -1, '');
 
   const meta2 = await admin.call('GET', '/api/mos/meta');
-  check('GOV-06 schema 版本已推进到 v4（只增不改；v4 = A-01 采集作业记录）', meta2.json.schemaVersion === 4, 'schema=' + meta2.json.schemaVersion);
+  check('GOV-06 schema 版本已推进到 v5（只增不改；v4 = A-01 采集作业记录，v5 = B2/B3 集成态四集合）', meta2.json.schemaVersion === 5, 'schema=' + meta2.json.schemaVersion);
 
   /* ==================== Phase 3：A-01 采集调度 API（真实 HTTP） ==================== */
   section('Phase 3 · A-01 情报采集调度（服务端 API，默认关闭 + 单实例限制）');

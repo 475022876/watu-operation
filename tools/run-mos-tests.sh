@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # VFIB Marketing OS V0.1 —— BUILD-01/02/03 + V0.1 综合整改 回归测试统一入口
 #
-# 用法: bash tools/run-mos-tests.sh [smoke|unit|sec|sched|provider|workspace|e2e|e2e02|e2e03|ui|all]
+# 用法: bash tools/run-mos-tests.sh [smoke|unit|sec|sched|provider|workspace|dual|e2e|e2e02|e2e03|ui|joint|all]
+#       注：`joint`（双系统真实 HTTP 端到端）需要同机存在企业资料库源码，故不纳入 all。
 #
 # 设计要点：
 #   - 每个子套件自带「独立数据目录 + 运行期随机口令」，互不干扰，也不触碰 data/。
@@ -45,17 +46,21 @@ if [ "$SUITES" = "all" ] || [ "$SUITES" = "sec"   ]; then run_one sec   tools/mo
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "sched" ]; then run_one sched tools/mos-scheduler-test.js; fi
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "provider" ]; then run_one provider tools/mos-provider-contract-test.js; fi
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "workspace" ]; then run_one workspace tools/mos-workspace-contract-test.js; fi
+if [ "$SUITES" = "all" ] || [ "$SUITES" = "dual" ]; then run_one dual tools/mos-dual-identity-test.js; fi
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "e2e"   ]; then run_one e2e   tools/mos-e2e-test.js;   fi
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "e2e02" ]; then run_one e2e02 tools/mos-e2e-build02.js; fi
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "e2e03" ]; then run_one e2e03 tools/mos-e2e-build03.js; fi
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "ui"    ]; then run_one ui    tools/mos-ui-check.js;   fi
+# `joint` 需要同机存在资料库源码，因此**不纳入 all**（避免在他机 CI 上出现假失败）；按需显式运行：
+#   bash tools/run-mos-tests.sh joint
+if [ "$SUITES" = "joint" ]; then run_one joint tools/mos-e2e-build04-dual.js; fi
 
 # 汇总：把各套件 JSON 归并成 summary.json（BUILD-01 / 02 / 03 证据目录合并统计）
 "$NODE" -e '
 const fs = require("fs");
 const path = require("path");
 const root = process.argv[1];
-const dirs = ["TEST_EVIDENCE_MOS_BUILD01", "TEST_EVIDENCE_MOS_BUILD02", "TEST_EVIDENCE_MOS_BUILD03"];
+const dirs = ["TEST_EVIDENCE_MOS_BUILD01", "TEST_EVIDENCE_MOS_BUILD02", "TEST_EVIDENCE_MOS_BUILD03", "TEST_EVIDENCE_MOS_BUILD04"];
 const files = {
   smoke: "smoke-result.json",
   unit: "unit-result.json",
@@ -63,10 +68,12 @@ const files = {
   sched: "scheduler-result.json",
   provider: "provider-contract-result.json",
   workspace: "workspace-contract-result.json",
+  dual: "dual-identity-result.json",
   e2e: "e2e-result.json",
   e2e02: "e2e-build02-result.json",
   e2e03: "e2e-build03-result.json",
-  ui: "ui-check-result.json"
+  ui: "ui-check-result.json",
+  joint: "dual-e2e-result.json"
 };
 const suites = {};
 let total = 0, passed = 0, failed = 0;
