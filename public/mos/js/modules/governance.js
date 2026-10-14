@@ -144,7 +144,7 @@ async function openAdmission(id) {
     ? '<dl class="kv"><dt>回执号</dt><dd class="mono small">' + esc(a.receipt.receiptId) + '</dd>'
       + '<dt>回执状态</dt><dd>' + esc(a.receipt.state) + (a.receipt.deduplicated ? ' · 幂等去重' : '') + '</dd>'
       + '<dt>资产 ID</dt><dd class="mono small">' + esc(a.receipt.assetId || '—') + '</dd>'
-      + '<dt>错误</dt><dd class="small">' + esc(a.receipt.errorCode || '—') + ' ' + esc(a.receipt.error || '') + '</dd></dl>'
+      + '<dt>错误</dt><dd class="small" data-notranslate>' + esc(a.receipt.errorCode || '—') + ' ' + esc(a.receipt.error || '') + '</dd></dl>'
     : '<div class="muted small">尚未调用资料库。</div>';
 
   body += '<h3 style="margin:12px 0 6px">可复用资格（服务端计算）</h3>'
@@ -312,7 +312,7 @@ function newAdmissionDialog() {
       + '「无复用意义」并退回修订，而该状态<b>没有重提入口</b>，申请将永久卡死（需另建申请）。'
       + '许可状态选 <b>unknown / expired</b> 同样无法完成准入，会停在上游等待人工补齐许可信息。</div>'
       + '<label class="field"><span>工作素材</span><select id="admAsset">'
-      + assets.map((a) => '<option value="' + esc(a.id) + '">' + esc(a.fileName) + (a.mock ? '（MOCK）' : '') + '</option>').join('')
+      + assets.map((a) => '<option value="' + esc(a.id) + '" data-notranslate>' + esc(a.fileName) + (a.mock ? '（MOCK）' : '') + '</option>').join('')
       + '</select></label>'
       + '<label class="field"><span>资产分类（A01–A08 · provisional）</span><select id="admCat">'
       + dictOptions(cats, '', '请选择') + '</select></label>'

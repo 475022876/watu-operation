@@ -326,6 +326,133 @@ async function main() {
     await shot('p3-01-publishing.png');
     step({ label: 'P3 打开发布管理', module: await currentModule(), ok: true });
 
+    /* ==================== Phase C：员工端品牌减法 / 双语编辑态 / 窄屏与键盘 ==================== */
+    if (PHASE === 'C') {
+      /* ---- 场景 5：配图对话框「品牌减法」——只暴露 品牌/平台/用途/视觉类型/效果预览 ---- */
+      await loginAs('ux.p2', P2_PW);
+      await gotoModule('content-editor');
+      let ok5 = await waitFor('document.querySelector("#ceText")', 'P2 正文可编辑', 6000);
+      if (!ok5) {
+        await evalJs('(function(){var b=document.querySelector("#tsStart")||document.querySelector("#ceNew");if(b)b.click();return true;})()');
+        await waitFor('document.getElementById("__mok")', '确认弹窗', 8000);
+        await evalJs('(function(){var b=document.getElementById("__mok");if(b)b.click();return true;})()');
+        await sleep(1500);
+        ok5 = await waitFor('document.querySelector("#ceText")', '正文可编辑', 6000);
+      }
+      await evalJs('(function(){var b=document.querySelector(\'[data-ts="IMAGE"]\');if(b)b.click();return true;})()');
+      await sleep(800);
+      await shot('c-01-image-tab.png');
+      const genDisabled = await evalJs('(function(){var b=document.getElementById("tiGen");return b?!!b.disabled:null;})()');
+      const uploadPresent = await evalJs('!!document.getElementById("tiUp")');
+      const noticeShown = await evalJs('(function(){var p=document.querySelector("#tsPane");return p?/未配置|手工上传/.test(p.textContent):false;})()');
+      step({
+        label: 'Phase C 图片页：手工上传始终可用；AI 生成按钮状态与说明一致（模板/色号不暴露）',
+        generateDisabled: genDisabled, uploadAvailable: uploadPresent, notice: !!noticeShown,
+        aiButtonEnabled: genDisabled === false,
+        // 关键：无论 AI 是否可用，「手工上传」路径都必须存在（无 AI 也能完成交付）
+        ok: uploadPresent === true && (genDisabled !== true || noticeShown === true)
+      });
+
+      /* 打开配图对话框（若可打开）验证「效果预览 / 高级收纳」 */
+      const canOpen = await evalJs('(function(){var b=document.getElementById("tiGen");if(!b||b.disabled)return false;b.click();return true;})()');
+      let dlg = null;
+      if (canOpen) {
+        await waitFor('document.getElementById("__use")', '配图对话框', 5000);
+        dlg = await evalJs('(function(){'
+          + 'var b=document.getElementById("__mb");if(!b)return null;'
+          + 'var tpl=document.getElementById("__tpl");'
+          + 'return {hasUse:!!document.getElementById("__use"),hasVis:!!document.getElementById("__vis"),'
+          + 'preview:(document.getElementById("__prev")||{}).textContent||"",'
+          + 'tplInAdvanced: tpl?!!tpl.closest("details.adv"):true,'
+          + 'advClosed: tpl?(tpl.closest("details.adv")||{}).open===false:true,'
+          + 'noColorCode: !/#([0-9a-fA-F]{6})/.test(b.textContent),'
+          // 不暴露任何技术输入项（prompt/色号/字体/供应商密钥等）
+          + 'noTechInputs: !b.querySelector("input[id*=prompt],input[id*=color],input[id*=font],'
+          + 'input[id*=key],input[id*=seed],select[id*=provider]"),'
+          + 'fields: Array.prototype.map.call(b.querySelectorAll("label.field > span"),function(x){return x.textContent;})};})()');
+        await shot('c-02-image-dialog.png');
+        await evalJs('(function(){var b=document.querySelector(\'[data-act="cancel"]\');if(b)b.click();return true;})()');
+        await sleep(400);
+      }
+      step({
+        label: 'Phase C 配图对话框：用途/视觉类型/效果预览可见，模板与色号收进高级',
+        dialogOpened: !!canOpen, ...(dlg || {}),
+        ok: canOpen ? (dlg && dlg.hasUse && dlg.hasVis && dlg.preview.length > 0
+          && dlg.tplInAdvanced && dlg.advClosed && dlg.noColorCode && dlg.noTechInputs === true) : true
+      });
+
+      /* ---- 场景 6：LANG-01 —— 英文界面下**编辑中的草稿不被翻译/不被丢弃** ---- */
+      /* 先切回「正文」页签（中间区按当前交付物渲染，图片页签下不存在 #ceText） */
+      await evalJs('(function(){var b=document.querySelector(\'[data-ts="TEXT"]\');if(b)b.click();return true;})()');
+      await sleep(700);
+      let textPaneOk = await waitFor('document.querySelector("#ceText")', '正文页签', 6000);
+      if (!textPaneOk) {
+        await evalJs('(function(){var b=document.querySelector("#tsStart")||document.querySelector("#ceNew");if(b)b.click();return true;})()');
+        await sleep(1200);
+        await evalJs('(function(){var b=document.getElementById("__mok");if(b)b.click();return true;})()');
+        await sleep(1500);
+        await evalJs('(function(){var b=document.querySelector(\'[data-ts="TEXT"]\');if(b)b.click();return true;})()');
+        await sleep(600);
+        textPaneOk = await waitFor('document.querySelector("#ceText")', '正文页签（创建草稿后）', 6000);
+      }
+      const seeded = await evalJs('(function(){'
+        + 'var e=document.getElementById("ceText");if(!e)return null;'
+        + 'e.dataset.langMark="kept";'          // 元素身份标记：remount 会丢掉它
+        + 'var sample="草稿 完成 图片 摘要 Draft";'
+        + 'e.value=sample;'
+        + 'e.dispatchEvent(new Event("input",{bubbles:true}));'
+        + 'return {value:e.value};})()');
+      await shot('c-03-zh-editing.png');
+      const zhTabLabelBefore = await evalJs('(function(){var b=document.querySelector(\'[data-ts="TEXT"]\');return b?b.textContent:"";})()');
+      await evalJs('(function(){document.getElementById("langBtn").click();return true;})()');
+      await sleep(1200);
+      const afterEn = await evalJs('(function(){'
+        + 'var e=document.getElementById("ceText");'
+        + 'return {present:!!e,value:e?e.value:"(gone)",mark:e?(e.dataset.langMark||""):"(gone)",'
+        + 'tabLabel:(document.querySelector(\'[data-ts="TEXT"]\')||{}).textContent||""};})()');
+      await shot('c-04-en-editing-kept.png');
+      await evalJs('(function(){document.getElementById("langBtn").click();return true;})()');
+      await sleep(1200);
+      const backZh = await evalJs('(function(){var e=document.getElementById("ceText");return {value:e?e.value:"(gone)",mark:e?(e.dataset.langMark||""):"(gone)"};})()');
+      await shot('c-05-back-to-zh.png');
+      step({
+        label: 'Phase C 双语：编辑中草稿跨语言切换保持原样（不被翻译、不丢状态）',
+        seededValue: seeded && seeded.value,
+        enValue: afterEn && afterEn.value,
+        enElementKept: afterEn && afterEn.mark === 'kept',
+        zhTabLabelBefore,
+        enTabLabel: afterEn && afterEn.tabLabel,
+        backValue: backZh && backZh.value,
+        ok: !!seeded && afterEn && afterEn.value === '草稿 完成 图片 摘要 Draft'
+          && afterEn.mark === 'kept' && backZh.value === '草稿 完成 图片 摘要 Draft'
+      });
+      /* 草稿确实落盘（不是仅停在前端）—— 便于人工复核「双语切换不丢编辑」 */
+      await evalJs('(function(){var b=document.getElementById("ceSave");if(b)b.click();return true;})()');
+      await sleep(1200);
+
+      /* ---- 场景 7：窄屏（720px）与键盘导航 ---- */
+      await cdp.send('Emulation.setDeviceMetricsOverride', { width: 720, height: 900, deviceScaleFactor: 1, mobile: false });
+      await sleep(600);
+      await shot('c-06-narrow-720.png');
+      const narrow = await evalJs('(function(){var h=document.querySelector("#content .page-head h1");'
+        + 'return {header:!!h,contentWidth:document.getElementById("content").clientWidth,'
+        + 'navVisible:!!document.querySelector(".nav-item"),'
+        + 'overflowX:document.documentElement.scrollWidth-document.documentElement.clientWidth};})()');
+      step({ label: 'Phase C 窄屏 720px：页头/导航/内容仍可用', ...narrow, ok: narrow.header === true && narrow.navVisible === true && narrow.overflowX <= 24 });
+
+      let focused = 0;
+      for (let i = 0; i < 8; i += 1) {
+        await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9, nativeVirtualKeyCode: 9 });
+        await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9, nativeVirtualKeyCode: 9 });
+        const tag = await evalJs('(function(){var a=document.activeElement;return a?(a.tagName+"|"+(a.id||"")+"|"+(a.getAttribute("aria-label")||"")):"(none)";})()');
+        if (tag && tag !== '(none)' && tag.indexOf('BODY') !== 0) focused += 1;
+      }
+      await shot('c-07-keyboard-focus.png');
+      step({ label: 'Phase C 键盘导航：Tab 可连续聚焦可交互元素', focused, ok: focused >= 5 });
+      await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1680, height: 1050, deviceScaleFactor: 1, mobile: false });
+      await sleep(400);
+    }
+
     /* ---- 写出步骤日志 ---- */
     const out = {
       phase: PHASE,

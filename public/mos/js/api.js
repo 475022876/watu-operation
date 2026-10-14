@@ -1,7 +1,13 @@
 /* Marketing OS —— 前端 API 客户端。
  * 会话凭据只存在于服务端 HttpOnly Cookie（mos_sid），前端不持有令牌。
  * 状态变更请求带 x-mos-csrf 双提交令牌（服务端由 lib/security.js 校验）。
+ *
+ * V0.1.3 Phase C：错误文案走统一错误码映射（执行包 05 §统一状态/错误码映射）。
+ * `err.message` 按当前语言返回员工可读文案；服务端原文保留在 `err.rawMessage`
+ * （日志/排查用，永不翻译），因此既有 100+ 处 `err.message` 调用点无需逐个改造。
  */
+import { errorLabel } from './i18n.js';
+
 const CSRF_COOKIE = 'mos_csrf';
 const CSRF_HEADER = 'x-mos-csrf';
 const SAFE = new Set(['GET', 'HEAD', 'OPTIONS']);
@@ -12,6 +18,13 @@ export class ApiError extends Error {
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
+    /** 服务端原始文案（不翻译；用于日志、排查与测试断言） */
+    this.rawMessage = message;
+    Object.defineProperty(this, 'message', {
+      configurable: true,
+      enumerable: false,
+      get() { return errorLabel(code, message); }
+    });
   }
 }
 
@@ -49,7 +62,9 @@ async function parse(res) {
   let json = null;
   try { json = text ? JSON.parse(text) : null; } catch (_) { /* 非 JSON */ }
   if (!res.ok) {
-    throw new ApiError((json && (json.error || json.message)) || ('请求失败（HTTP ' + res.status + '）'), res.status, json && json.code);
+    const msg = (json && (json.error || json.message)) || null;
+    const code = (json && json.code) || ('HTTP_' + res.status);
+    throw new ApiError(msg, res.status, code);
   }
   return json;
 }

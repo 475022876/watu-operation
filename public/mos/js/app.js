@@ -229,7 +229,16 @@ function bindLangToggle() {
     renderIntegrationBar();
     els.syncText.textContent = t('已连接服务');
     els.envChip.textContent = t('沙盒环境') + ' · MOS V0.1';
-    if (mounted && activeModule) { await remount(); } else { applyDom(document.body); }
+    /* 执行包 05：切换语言**不得丢失编辑状态**。
+     * 有未保存内容时只重绑 UI 资源（bindDom 受保护节点规则保证草稿/来源/AI 原文不被改），
+     * 不 remount，避免丢弃正在进行的编辑；无未保存内容时才整页重渲染。 */
+    const unsaved = mounted && typeof mounted.hasUnsaved === 'function' && mounted.hasUnsaved();
+    if (mounted && activeModule && !unsaved) {
+      await remount();
+    } else {
+      applyDom(document.body);
+      if (unsaved) toast(t('notice.locale_kept_edits'), 'ok');
+    }
   };
 }
 
@@ -431,7 +440,7 @@ async function remount() {
       module: activeModule,
       refreshShell: async () => { renderBrandSwitch(); }
     });
-    /* V0.1.2 Phase A：en-US 下对刚渲染的模块做精确匹配翻译（用户内容/专名不受影响） */
+    /* V0.1.2 Phase A：en-US 下对刚渲染的模块做键匹配翻译（用户内容/专名不受影响） */
     applyDom(host);
   } catch (err) {
     if (!(err instanceof ApiError) || err.status !== 401) console.error('[mos] mount 异常', err);

@@ -380,7 +380,7 @@ async function openPublication(id) {
       + '<dt>状态</dt><dd>' + statusBadge(p.status) + '</dd>'
       + '<dt>正文哈希</dt><dd class="mono small">' + esc(String(p.textHash || '').slice(0, 20)) + '</dd>'
       + '<dt>清单哈希</dt><dd class="mono small">' + esc(String(p.manifestHash || '').slice(0, 20)) + '</dd>'
-      + '<dt>归档文件</dt><dd class="small">' + esc((p.artifacts || []).map((a) => a.kind + ':' + a.fileName).join(', ') || '—') + '</dd>'
+      + '<dt>归档文件</dt><dd class="small" data-notranslate>' + esc((p.artifacts || []).map((a) => a.kind + ':' + a.fileName).join(', ') || '—') + '</dd>'
       + '</dl>'
       + (p.archivedBodyAvailable === false ? '<div class="block-note">归档正文文件不可读（可能已被外部清理）。</div>' : '')
       + (d.archivedBody ? '<div class="divider"></div><div class="small muted">归档正文（只读快照）</div>'

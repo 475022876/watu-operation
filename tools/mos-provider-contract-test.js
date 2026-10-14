@@ -150,6 +150,44 @@ async function main() {
       && typeof text.status().hasServerKey === 'boolean',
     'text.hasServerKey=' + text.status().hasServerKey);
 
+  /* ==================== V0.1.3 Phase C：就绪度（执行包 06 §真实Provider判定） ====================
+   * 判定口径：REAL / CONFIGURED_NOT_TESTED / NOT_CONFIGURED / NOT_IMPLEMENTED / BLOCKED。
+   * 关键诚实性：**MOCK 不是真实模型能力**，就绪度仍为 NOT_CONFIGURED；视频 AI 成片
+   * **未实现**，就绪度为 NOT_IMPLEMENTED 且不得宣称可生成成片。 */
+  section('V0.1.3 Phase C 就绪度（不得把 MOCK / 未实现 说成 REAL）');
+
+  applyEnv({ MOS_IMAGE_PROVIDER: 'none', MOS_IMAGE_API_KEY: '' });
+  ok('PC-06a 图像：未配置 → readiness=NOT_CONFIGURED',
+    image.status().readiness === 'NOT_CONFIGURED',
+    'readiness=' + image.status().readiness);
+
+  applyEnv({ MOS_IMAGE_PROVIDER: 'mock', MOS_IMAGE_API_KEY: '' });
+  const iMockStat = image.status();
+  ok('PC-06b 图像：MOCK 不被标为 REAL（readiness 仍 NOT_CONFIGURED，且标注 simulated）',
+    iMockStat.readiness === 'NOT_CONFIGURED' && iMockStat.simulated === true && iMockStat.mock === true,
+    'readiness=' + iMockStat.readiness + ' simulated=' + iMockStat.simulated);
+
+  applyEnv({ MOS_IMAGE_PROVIDER: 'openai', MOS_IMAGE_API_KEY: 'sk-image-readiness' });
+  const iKeyStat = image.status();
+  ok('PC-06c 图像：已选真实供应商且有密钥 → CONFIGURED_NOT_TESTED（未联调不称 REAL）',
+    iKeyStat.readiness === 'CONFIGURED_NOT_TESTED',
+    'readiness=' + iKeyStat.readiness);
+
+  const vStat = image.videoStatus();
+  ok('PC-06d 视频：AI 成片未实现 → readiness=NOT_IMPLEMENTED，且只声明手工流程能力',
+    vStat.readiness === 'NOT_IMPLEMENTED' && vStat.manualWorkflow === true
+      && vStat.capabilities.indexOf('FINAL_CUT_UPLOAD') !== -1
+      && vStat.capabilities.indexOf('AI_RENDER') === -1,
+    'readiness=' + vStat.readiness + ' caps=' + vStat.capabilities.join('/'));
+
+  applyEnv({ MOS_IMAGE_PROVIDER: 'none', MOS_IMAGE_API_KEY: '' });
+  const helpers = require('../lib/mos/routes/helpers');
+  const integ = helpers.integrationStatus();
+  ok('PC-06e 集成状态矩阵暴露 imageProvider.readiness 与 videoProvider（BLOCKED 不被隐去）',
+    !!integ.imageProvider.readiness && integ.videoProvider
+      && integ.videoProvider.readiness === 'NOT_IMPLEMENTED',
+    'image=' + integ.imageProvider.readiness + ' video=' + integ.videoProvider.readiness);
+
   /* ==================== 契约纯函数 ==================== */
   section('契约纯函数（分类/限流/费用回执的诚实性）');
   ok('PC-07 classifyHttp：429→RATE_LIMITED，5xx→HTTP_ERROR，4xx→BAD_REQUEST',

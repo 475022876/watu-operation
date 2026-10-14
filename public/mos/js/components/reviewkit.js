@@ -147,7 +147,7 @@ export function reviewHistoryTable(items) {
       + '<td class="mono small">' + esc(d.subjectId) + '</td>'
       + '<td class="small">' + esc(d.actorName || d.actorId) + '</td>'
       + '<td class="small muted">' + esc((d.actingAuthority || []).join(' / ')) + '</td>'
-      + '<td class="small">' + esc(String(d.remarks || '').slice(0, 80)) + '</td></tr>').join('')
+      + '<td class="small" data-notranslate>' + esc(String(d.remarks || '').slice(0, 80)) + '</td></tr>').join('')
     + '</tbody></table></div>';
 }
 
@@ -187,7 +187,7 @@ export async function openReviewCase(id, brand) {
       + (s.body !== undefined ? '<div class="divider"></div><div class="small muted">正文（批准对象）</div>'
         + '<pre class="mono small" style="white-space:pre-wrap;background:var(--muted);padding:9px;border-radius:7px;max-height:220px;overflow:auto">' + esc(s.body || '（空）') + '</pre>' : '')
       + (s.assets && s.assets.length ? '<div class="small muted">引用资产</div>'
-        + s.assets.map((a) => '<div class="checkline no"><span class="ck">·</span><span>' + esc(a.fileName || a.id)
+        + s.assets.map((a) => '<div class="checkline no" data-notranslate><span class="ck">·</span><span>' + esc(a.fileName || a.id)
           + ' <span class="mono muted">' + esc(String(a.sha256 || '').slice(0, 10)) + '</span>'
           + (a.mock ? ' <span class="badge badge-mock">MOCK</span>' : '') + '</span></div>').join('') : '')
       + (s.evidence && s.evidence.length ? '<div class="small muted" style="margin-top:6px">证据引用</div>'
@@ -197,7 +197,7 @@ export async function openReviewCase(id, brand) {
       + ((c.decisions || []).length ? '<div class="divider"></div><div class="small muted">决策记录</div>'
         + c.decisions.map((x) => '<div class="checkline no"><span class="ck">·</span><span>' + esc(x.action)
           + ' · ' + esc(x.actorName || x.actorId) + ' · ' + esc(fmtDateTime(x.createdAt))
-          + (x.remarks ? '<br><span class="muted">' + esc(x.remarks) + '</span>' : '') + '</span></div>').join('') : '')
+          + (x.remarks ? '<br><span class="muted" data-notranslate>' + esc(x.remarks) + '</span>' : '') + '</span></div>').join('') : '')
   });
 }
 

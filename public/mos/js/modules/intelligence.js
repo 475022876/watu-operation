@@ -2,6 +2,8 @@
  * 关键诚实性：采集失败、被 SSRF 阻断、来源未核验时必须显示明确状态，绝不伪造"采集成功"。 */
 import { api, withBrand } from '../api.js';
 import { esc, toast, openDrawer, openModal, loadingHtml, stateBlock, statusBadge, demoBadge, dictOptions, fmtDateTime, fmtDate } from '../ui.js';
+/* V0.1.3 Phase C：状态/错误码统一映射来自 i18n 资源（不再各页各写一套中文标签） */
+import { t, statusLabel, completionLabel, readinessLabel, jobStageLabel, availabilityLabel, gapLabel, kindLabel } from '../i18n.js';
 
 let ctxRef = null; let hostEl = null;
 let tab = 'feed';       // feed | sources | research | proposals
@@ -68,11 +70,11 @@ async function renderFeed() {
     html += '<div class="card"><div class="card-head"><h2>情报条目</h2></div><div class="card-body tight">';
     for (const it of data.items) {
       html += '<div class="list-item"><div class="li-main">'
-        + '<div class="li-title">' + esc(it.title) + ' ' + demoBadge(it.demo) + '</div>'
+        + '<div class="li-title" data-notranslate>' + esc(it.title) + ' ' + demoBadge(it.demo) + '</div>'
         + '<div class="li-sub">' + esc(it.sourceName) + ' · ' + esc(it.tier) + ' · 发布 ' + esc(fmtDate(it.publishedAt))
         + ' · 采集 ' + esc(fmtDate(it.fetchedAt)) + ' · 许可 <span class="pill">' + esc(it.licenseState) + '</span></div>'
-        + '<div class="li-sub">' + esc(String(it.summary || '').slice(0, 160)) + '</div>'
-        + '<div class="li-sub">AI 摘要：' + (it.aiSummary ? esc(it.aiSummary) : '<span class="muted">' + esc(aiStateLabel(it.aiSummaryState)) + '</span>') + '</div>'
+        + '<div class="li-sub" data-notranslate>' + esc(String(it.summary || '').slice(0, 160)) + '</div>'
+        + '<div class="li-sub" data-notranslate>AI 摘要：' + (it.aiSummary ? esc(it.aiSummary) : '<span class="muted">' + esc(aiStateLabel(it.aiSummaryState)) + '</span>') + '</div>'
         + '</div><div class="li-actions">'
         + '<a class="btn btn-sm" href="' + esc(it.canonicalUrl) + '" target="_blank" rel="noopener noreferrer">原文链接</a>'
         + '<button class="btn btn-sm btn-primary" data-mktopic="' + esc(it.id) + '">建 Topic</button>'
@@ -480,24 +482,18 @@ function reportBadge(st) {
     RETRIEVAL_ONLY: 'badge-warn', BLOCKED: 'badge-warn', FAILED: 'badge-danger',
     PENDING: 'badge-info', RUNNING: 'badge-info'
   };
-  const label = {
-    AI_RESEARCH_COMPLETE: 'AI 研究完成', RETRIEVAL_ONLY: '仅检索（未分析）',
-    BLOCKED: '已阻断', COMPLETED: '已完成'
-  }[st] || st;
+  const label = (st === 'AI_RESEARCH_COMPLETE' || st === 'RETRIEVAL_ONLY')
+    ? completionLabel(st) : statusLabel(st);
   return '<span class="badge ' + (map[st] || 'badge-neutral') + '">' + esc(label) + '</span>';
 }
 
 /** Provider 就绪状态（06 §真实Provider判定；**不隐去 BLOCKED**） */
 function readinessBadge(readiness) {
-  const map = {
-    REAL: ['badge-ok', '已真实联调'],
-    CONFIGURED_NOT_TESTED: ['badge-info', '已配置·未联调'],
-    NOT_CONFIGURED: ['badge-warn', '未配置'],
-    NOT_IMPLEMENTED: ['badge-warn', '适配器未实现'],
-    BLOCKED: ['badge-danger', '已阻断']
-  };
-  const hit = map[readiness] || ['badge-neutral', readiness || '未知'];
-  return '<span class="badge ' + hit[0] + '">' + esc(hit[1]) + '</span>';
+  const cls = {
+    REAL: 'badge-ok', CONFIGURED_NOT_TESTED: 'badge-info',
+    NOT_CONFIGURED: 'badge-warn', NOT_IMPLEMENTED: 'badge-warn', BLOCKED: 'badge-danger'
+  }[readiness] || 'badge-neutral';
+  return '<span class="badge ' + cls + '">' + esc(readinessLabel(readiness)) + '</span>';
 }
 
 /** 作业状态徽章（异步研究作业） */
@@ -506,30 +502,17 @@ function jobBadge(st) {
     QUEUED: 'badge-info', RUNNING: 'badge-info', COMPLETED: 'badge-ok',
     BLOCKED: 'badge-warn', FAILED: 'badge-danger', CANCELLED: 'badge-neutral'
   };
-  const label = { QUEUED: '排队中', RUNNING: '执行中', COMPLETED: '已完成', BLOCKED: '已阻断', FAILED: '失败', CANCELLED: '已取消' };
-  return '<span class="badge ' + (map[st] || 'badge-neutral') + '">' + esc(label[st] || st) + '</span>';
+  return '<span class="badge ' + (map[st] || 'badge-neutral') + '">' + esc(statusLabel(st)) + '</span>';
 }
 
 /** 阶段中文名（首屏不出现技术阶段码） */
 function stageLabel(stage) {
-  return {
-    QUEUED: '排队', SEARCHING: '检索外部来源', FETCHING: '读取受限网页', VERIFYING: '证据核验',
-    ANALYZING: '结构化分析', DONE: '完成', CANCELLED: '已取消', FAILED: '失败', BLOCKED: '已阻断'
-  }[stage] || stage || '';
+  return jobStageLabel(stage) || '';
 }
 
-const AVAILABILITY_LABEL = {
-  AVAILABLE: '可读全文', NOT_FOUND: '页面不存在（404）', HTTP_ERROR: '上游错误',
-  BLOCKED: '被安全策略阻断', UNAVAILABLE: '不可用', UNSUPPORTED_TYPE: '非文本内容'
-};
-
-const GAP_LABEL = {
-  NOT_FOUND: '证据缺口', DATE_UNKNOWN: '发布时间未知', SINGLE_SOURCE: '单一来源',
-  CONFLICT: '来源间存在矛盾', TIME_SENSITIVE: '时间敏感·需重新核验', STALE: '可能已过时'
-};
 function proposalBadge(st) {
   const map = { AI_RECOMMENDED: 'badge-info', PENDING_EDITORIAL_REVIEW: 'badge-warn', APPROVED: 'badge-ok', REVISION_REQUESTED: 'badge-warn', ON_HOLD: 'badge-neutral', REJECTED: 'badge-danger' };
-  return '<span class="badge ' + (map[st] || 'badge-neutral') + '">' + esc(st) + '</span>';
+  return '<span class="badge ' + (map[st] || 'badge-neutral') + '">' + esc(statusLabel(st)) + '</span>';
 }
 function verificationBadge(v) {
   const map = { VERIFIED: 'badge-ok', NEEDS_VERIFICATION: 'badge-warn', UNVERIFIED: 'badge-neutral' };
@@ -602,7 +585,7 @@ async function renderResearch() {
     for (const r of shown) {
       html += '<div class="list-item"><div class="li-main">'
         + '<div class="li-title">' + esc(r.code) + ' · ' + reportBadge(r.status) + ' ' + demoBadge(r.demo) + '</div>'
-        + '<div class="li-sub">' + esc(String(r.title || r.query || '').slice(0, 140)) + '</div>'
+        + '<div class="li-sub" data-notranslate>' + esc(String(r.title || r.query || '').slice(0, 140)) + '</div>'
         + '<div class="li-sub small muted">证据 ' + ((r.sources || []).length) + ' 条 · 发现 ' + (r.findingCount || 0)
         + ' 条 · 候选选题 ' + ((r.editorialOpportunities || []).length) + ' 条 · 未决 ' + ((r.unresolvedClaims || []).length) + ' 项 · '
         + esc(fmtDateTime(r.createdAt)) + '</div>'
@@ -636,7 +619,7 @@ function jobRowHtml(j) {
   return '<div class="list-item" data-job="' + esc(j.id) + '">'
     + '<div class="li-main"><div class="li-title">' + esc(j.code) + ' · ' + jobBadge(j.status) + ' · '
     + esc(stageLabel(j.stage)) + ' <span class="pill">' + pct + '%</span></div>'
-    + '<div class="li-sub">' + esc(String(j.query || '').slice(0, 120)) + '</div>'
+    + '<div class="li-sub" data-notranslate>' + esc(String(j.query || '').slice(0, 120)) + '</div>'
     + '<div class="progress"><i style="width:' + pct + '%"></i></div>'
     + '<div class="li-sub small muted">检索 trace ' + esc(String(j.providerTraceId || '—'))
     + ' · 证据 ' + (j.evidenceCount || 0) + ' · 发现 ' + (j.findingCount || 0) + '</div>'
@@ -739,8 +722,8 @@ async function openReport(id) {
     let h = '<dl class="kv">'
       + '<dt>模式 / 完成度</dt><dd>' + esc(r.mode) + ' ' + reportBadge(r.status)
       + (r.completion && r.completion !== r.status ? ' <span class="pill">' + esc(r.completion) + '</span>' : '') + '</dd>'
-      + '<dt>主题</dt><dd>' + esc(r.title || r.query || '') + '</dd>'
-      + (r.objective ? '<dt>研究目标</dt><dd>' + esc(r.objective) + '</dd>' : '')
+      + '<dt>主题</dt><dd data-notranslate>' + esc(r.title || r.query || '') + '</dd>'
+      + (r.objective ? '<dt>研究目标</dt><dd data-notranslate>' + esc(r.objective) + '</dd>' : '')
       + '<dt>时间范围</dt><dd>' + esc(r.period && (r.period.from || r.period.to)
         ? (fmtDate(r.period.from) + ' ~ ' + fmtDate(r.period.to)) : '未限定') + '</dd>'
       + '<dt>提供方 / 模型</dt><dd><span class="mono">' + esc(r.provider || '—') + '</span> · '
@@ -748,26 +731,26 @@ async function openReport(id) {
       + '<dt>创建</dt><dd>' + esc(fmtDateTime(r.createdAt)) + '</dd>'
       + '</dl>';
 
-    if (r.blockedReason) h += '<div class="callout warn"><strong>已阻断</strong><br>' + esc(r.blockedReason) + '</div>';
+    if (r.blockedReason) h += '<div class="callout warn"><strong>已阻断</strong><br><span data-notranslate>' + esc(r.blockedReason) + '</span></div>';
     if (r.completion === 'RETRIEVAL_ONLY') {
       h += '<div class="callout warn"><strong>仅检索（未分析）</strong><br>'
         + '本次没有可用的分析模型，因此只提供检索与证据留档。<b>这不是 AI 研究结论</b>，不得直接对外使用。</div>';
     }
 
-    if (r.executiveSummary) h += '<div class="divider"></div><h3>摘要</h3><div class="small">' + esc(r.executiveSummary) + '</div>';
-    if (r.industryImplications) h += '<h3>行业含义</h3><div class="small">' + esc(r.industryImplications) + '</div>';
-    if (r.vfibRelevance) h += '<h3>与本机构的相关性</h3><div class="small">' + esc(r.vfibRelevance) + '</div>';
+    if (r.executiveSummary) h += '<div class="divider"></div><h3>摘要</h3><div class="small" data-notranslate>' + esc(r.executiveSummary) + '</div>';
+    if (r.industryImplications) h += '<h3>行业含义</h3><div class="small" data-notranslate>' + esc(r.industryImplications) + '</div>';
+    if (r.vfibRelevance) h += '<h3>与本机构的相关性</h3><div class="small" data-notranslate>' + esc(r.vfibRelevance) + '</div>';
 
     h += '<div class="divider"></div><h3>来源与证据（' + ((r.sources || []).length) + '）</h3>';
     if (!(r.sources || []).length) h += '<div class="small muted">无来源记录。</div>';
     for (const s of (r.sources || [])) {
       h += '<div class="list-item"><div class="li-main">'
-        + '<div class="li-title">' + esc(s.title || '(无标题)') + ' <span class="badge '
-        + (s.availability === 'AVAILABLE' ? 'badge-ok' : 'badge-warn') + '">' + esc(AVAILABILITY_LABEL[s.availability] || s.availability) + '</span></div>'
+        + '<div class="li-title" data-notranslate>' + esc(s.title || '(无标题)') + ' <span class="badge '
+        + (s.availability === 'AVAILABLE' ? 'badge-ok' : 'badge-warn') + '">' + esc(availabilityLabel(s.availability)) + '</span></div>'
         + '<div class="li-sub small muted">' + esc(s.sourceName || '') + ' · 发布 ' + esc(s.publishedAt ? fmtDate(s.publishedAt) : 'Unknown')
         + ' · 抓取 ' + esc(fmtDate(s.retrievedAt)) + ' · 许可 ' + esc(s.licenseState || 'UNKNOWN')
         + ' · 指纹 <span class="mono">' + esc(String(s.contentHash || '').slice(0, 10)) + '</span></div>'
-        + '<div class="li-sub small"><a href="' + esc(s.url) + '" target="_blank" rel="noopener noreferrer">打开原文</a></div>'
+        + '<div class="li-sub small" data-notranslate><a href="' + esc(s.url) + '" target="_blank" rel="noopener noreferrer">打开原文</a></div>'
         + '</div></div>';
     }
 
@@ -778,11 +761,11 @@ async function openReport(id) {
         + '<div class="li-title">' + esc(kindLabel(f.kind)) + ' ' + verificationBadge(f.verificationState)
         + (f.origin === 'RETRIEVAL' ? ' <span class="pill">检索留档</span>' : '')
         + (f.downgraded ? ' <span class="pill">已降级</span>' : '') + '</div>'
-        + '<div class="li-sub">' + esc(String(f.statement || '').slice(0, 400)) + '</div>'
-        + (f.confidenceRationale ? '<div class="li-sub small muted">依据说明：' + esc(String(f.confidenceRationale).slice(0, 200)) + '</div>' : '')
-        + ((f.notes || []).length ? '<div class="li-sub small muted">校验：' + esc((f.notes || []).join('；')) + '</div>' : '');
+        + '<div class="li-sub" data-notranslate>' + esc(String(f.statement || '').slice(0, 400)) + '</div>'
+        + (f.confidenceRationale ? '<div class="li-sub small muted" data-notranslate>依据说明：' + esc(String(f.confidenceRationale).slice(0, 200)) + '</div>' : '')
+        + ((f.notes || []).length ? '<div class="li-sub small muted" data-notranslate>校验：' + esc((f.notes || []).join('；')) + '</div>' : '');
       for (const ev of (f.evidence || [])) {
-        h += '<div class="li-sub small muted">证据：' + esc(ev.sourceName || ev.url) + ' · <a href="' + esc(ev.url) + '" target="_blank" rel="noopener noreferrer">链接</a>'
+        h += '<div class="li-sub small muted" data-notranslate>证据：' + esc(ev.sourceName || ev.url) + ' · <a href="' + esc(ev.url) + '" target="_blank" rel="noopener noreferrer">链接</a>'
           + ' · 指纹 <span class="mono">' + esc(String(ev.digest || ev.contentHash || '').slice(0, 12)) + '</span></div>';
       }
       h += '</div></div>';
@@ -796,15 +779,15 @@ async function openReport(id) {
     if (!gaps.length) h += '<div class="small muted">无未决项。</div>';
     for (const g of gaps) {
       h += '<div class="list-item"><div class="li-main"><div class="li-title">'
-        + '<span class="badge ' + (g.kind === 'CONFLICT' ? 'badge-danger' : 'badge-warn') + '">' + esc(GAP_LABEL[g.kind] || g.kind) + '</span>'
+        + '<span class="badge ' + (g.kind === 'CONFLICT' ? 'badge-danger' : 'badge-warn') + '">' + esc(gapLabel(g.kind)) + '</span>'
         + (g.origin === 'MODEL' ? ' <span class="pill">模型识别</span>' : ' <span class="pill">规则识别</span>') + '</div>'
-        + '<div class="li-sub">' + esc(String(g.claim || '').slice(0, 300)) + '</div>'
-        + (g.reason ? '<div class="li-sub small muted">' + esc(String(g.reason).slice(0, 200)) + '</div>' : '')
+        + '<div class="li-sub" data-notranslate>' + esc(String(g.claim || '').slice(0, 300)) + '</div>'
+        + (g.reason ? '<div class="li-sub small muted" data-notranslate>' + esc(String(g.reason).slice(0, 200)) + '</div>' : '')
         + '</div></div>';
     }
     if ((r.reverifyDue || []).length) {
       h += '<div class="callout warn">时间敏感结论需重新核验（' + r.reverifyDue.length + ' 项）：'
-        + esc(r.reverifyDue.map((x) => x.claim).join('；')).slice(0, 300) + '</div>';
+        + '<span data-notranslate>' + esc(r.reverifyDue.map((x) => x.claim).join('；')).slice(0, 300) + '</span></div>';
     }
 
     const ops = r.editorialOpportunities || [];
@@ -812,15 +795,15 @@ async function openReport(id) {
     if (!ops.length) h += '<div class="small muted">无候选选题（降级报告不产出推荐）。</div>';
     for (const o of ops) {
       h += '<div class="list-item"><div class="li-main">'
-        + '<div class="li-title">' + esc(o.primaryCategory) + ' · ' + esc(o.headlineEn || '')
+        + '<div class="li-title" data-notranslate>' + esc(o.primaryCategory) + ' · ' + esc(o.headlineEn || '')
         + (o.needsVerification ? ' <span class="badge badge-warn">待事实核验</span>' : '') + '</div>'
-        + '<div class="li-sub">' + esc(String(o.summaryZh || '').slice(0, 300)) + '</div>'
-        + '<div class="li-sub small muted">理由：' + esc(String(o.rationale || '').slice(0, 200)) + '</div>'
+        + '<div class="li-sub" data-notranslate>' + esc(String(o.summaryZh || '').slice(0, 300)) + '</div>'
+        + '<div class="li-sub small muted" data-notranslate>理由：' + esc(String(o.rationale || '').slice(0, 200)) + '</div>'
         + '<div class="li-sub small muted">渠道 ' + esc((o.channels || []).join('/') || '—') + ' · 交付物 '
         + esc((o.deliverables || []).join('/') || '—') + ' · 风险 ' + esc(o.riskLevel || '—')
         + ' · 证据 ' + ((o.evidenceIds || []).length) + ' 条 · 报告版本 v' + esc(String(o.reportVersion || 1)) + '</div>'
-        + ((o.factCheckNeeds || []).length ? '<div class="li-sub small muted">待核验：' + esc(o.factCheckNeeds.join('；')) + '</div>' : '')
-        + ((o.special01Notes || []).length ? '<div class="li-sub small muted">栏目规则：' + esc(o.special01Notes.join('；')) + '</div>' : '')
+        + ((o.factCheckNeeds || []).length ? '<div class="li-sub small muted" data-notranslate>待核验：' + esc(o.factCheckNeeds.join('；')) + '</div>' : '')
+        + ((o.special01Notes || []).length ? '<div class="li-sub small muted" data-notranslate>栏目规则：' + esc(o.special01Notes.join('；')) + '</div>' : '')
         + '</div></div>';
     }
 
@@ -868,10 +851,6 @@ async function openReport(id) {
   bind();
 }
 
-function kindLabel(k) {
-  return { FACT: '事实', INTERPRETATION: '推断', RECOMMENDATION: '建议' }[k] || k;
-}
-
 /* ==================== V0.1.2 Phase B：选题建议（Proposal 状态机 + 一屏审核） ==================== */
 
 let proposalStatusFilter = '';
@@ -908,7 +887,7 @@ async function renderProposals() {
         + '<div class="li-title">' + esc(p.code) + ' · ' + esc(p.suggestedTitleEN) + ' ' + proposalBadge(p.status) + '</div>'
         + '<div class="li-sub">' + esc(CATEGORY_LABELS[p.primaryCategory] || p.primaryCategory) + ' · ' + esc(RISK_LABELS[p.riskGrade] || p.riskGrade)
         + ' · 来源 ' + esc(p.source) + (p.needsVerification ? ' <span class="badge badge-warn">待核验</span>' : '') + '</div>'
-        + '<div class="li-sub small muted">' + esc(String(p.summaryZH || '').slice(0, 140)) + '</div>'
+        + '<div class="li-sub small muted" data-notranslate>' + esc(String(p.summaryZH || '').slice(0, 140)) + '</div>'
         + '</div><div class="li-actions"><button class="btn btn-sm" data-pp="' + esc(p.id) + '">详情/审核</button></div></div>';
     }
     html += '</div></div>';

@@ -1,6 +1,8 @@
 /* Marketing OS —— UI 基础件（无框架）。
  * 统一：转义、Toast、模态、抽屉、五种状态块（Loading/Empty/Error/Denied/IntegrationPending）。
  */
+import { statusLabel as statusLabelI18n } from './i18n.js';
+
 
 export function esc(v) {
   return String(v === undefined || v === null ? '' : v)
@@ -171,7 +173,15 @@ const STATUS_LABELS = {
   PENDING_VERIFICATION: '待核验', DISABLED: '已停用', ERROR: '异常',
   MISSING: '缺失', PARTIAL: '部分', SUFFICIENT: '充分'
 };
-export function statusLabel(s) { return STATUS_LABELS[s] || s || '—'; }
+/* V0.1.3 Phase C：状态文案统一取自 i18n 资源（status.*），避免各页各写一套中文标签。
+ * 样式类仍由本文件的 STATUS_CLS 决定（视觉关注点，与语言无关）。 */
+export function statusLabel(s) {
+  const k = String(s === undefined || s === null ? '' : s);
+  if (!k) return '—';
+  const hit = statusLabelI18n(k);
+  if (hit && hit !== k) return hit;
+  return STATUS_LABELS[k] || k;
+}
 
 export function statusBadge(s) {
   const cls = {

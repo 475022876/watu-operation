@@ -238,6 +238,75 @@ async function main() {
     const zhNavBack = await evalJs('Array.from(document.querySelectorAll(".nav-group-label")).map(function(e){return e.textContent;}).join("|")');
     check('切回中文后导航恢复且不丢数据', zhNavBack === zhNavBefore, zhNavBack);
 
+    /* --- V0.1.3 Phase C：LANG-01 不可翻译节点保护（真实浏览器，key-based i18n） ---
+     * 旧实现是「全局文本节点匹配」——任何文本只要长得像字典词就会被翻译，
+     * 因此**用户草稿正文/AI 原文/来源/URL/文件名会被误翻译**。
+     * 新实现只翻译显式标记或精确命中且**不在受保护子树**内的文本。 */
+    const netLog = [];
+    await cdp.send('Network.enable');
+    cdp.on((m) => {
+      if (m.method === 'Network.requestWillBeSent' && m.params && m.params.request) {
+        netLog.push(String(m.params.request.method) + ' ' + String(m.params.request.url).replace(BASE, ''));
+      }
+    });
+
+    await evalJs('(function(){document.getElementById("langBtn").click();return true;})()');
+    await sleep(700);
+
+    await evalJs('(function(){'
+      + 'var h=document.createElement("div");h.id="__langProbe";document.body.appendChild(h);'
+      + 'function mk(tag,id,attrs,text){var e=document.createElement(tag);e.id=id;'
+      + 'if(attrs){for(var k in attrs){e.setAttribute(k,attrs[k]);}}'
+      + 'if(text!==undefined)e.textContent=text;h.appendChild(e);return e;}'
+      + 'mk("div","__p1",null,"草稿");'
+      + 'mk("div","__p2",{"data-notranslate":"1"},"草稿");'
+      + 'var n=mk("div","__p3",{"data-notranslate":"1"},null);var sp=document.createElement("span");sp.textContent="草稿";n.appendChild(sp);'
+      + 'mk("pre","__p4",null,"草稿");'
+      + 'mk("textarea","__p5",null,"草稿");'
+      + 'mk("div","__p6",{"contenteditable":"true"},"草稿");'
+      + 'var inp=mk("input","__p7",null,null);inp.value="草稿";'
+      + 'mk("div","__p8",{"data-i18n":"status.DRAFT"},"");'
+      + 'mk("button","__p9",{"data-i18n-aria-label":"status.APPROVED"},null);'
+      + 'mk("div","__p10",{"data-i18n":"error.generic_with_code","data-i18n-params":"{\\"code\\":\\"DEMO_X\\"}"},"");'
+      + 'return true;})()');
+
+    const probe = await evalJs('(async function(){var m=await import("/mos/js/i18n.js");m.bindDom(document.body);'
+      + 'function g(id){var e=document.getElementById(id);return e?(e.textContent===null?"":e.textContent):"(missing)";}'
+      + 'function v(id){var e=document.getElementById(id);return e?String(e.value):"(missing)";}'
+      + 'var p9=document.getElementById("__p9");'
+      + 'return {locale:m.getLocale(),p1:g("__p1"),p2:g("__p2"),p3:g("__p3"),p4:g("__p4"),'
+      + 'p5:v("__p5"),p6:g("__p6"),p7:v("__p7"),p8:g("__p8"),'
+      + 'p9:(p9&&p9.getAttribute("aria-label"))||"(missing)",p10:g("__p10"),'
+      + 'sel:m.NO_I18N_SELECTOR,maps:[typeof m.statusLabel,typeof m.errorLabel,typeof m.readinessLabel].join(",")};})()');
+
+    check('LANG-01a 英文界面下 UI 文案被翻译（草稿 → Draft）', probe && probe.p1 === 'Draft', JSON.stringify(probe && probe.p1));
+    check('LANG-01b data-notranslate 容器内的用户内容**不被翻译**', probe && probe.p2 === '草稿', JSON.stringify(probe && probe.p2));
+    check('LANG-01c data-notranslate 保护**向下继承到子节点**', probe && probe.p3 === '草稿', JSON.stringify(probe && probe.p3));
+    check('LANG-01d <pre> 代码/原文块不被翻译', probe && probe.p4 === '草稿', JSON.stringify(probe && probe.p4));
+    check('LANG-01e <textarea> 已保存正文不被翻译', probe && probe.p5 === '草稿', JSON.stringify(probe && probe.p5));
+    check('LANG-01f contenteditable 编辑区不被翻译', probe && probe.p6 === '草稿', JSON.stringify(probe && probe.p6));
+    check('LANG-01g <input> 值与内容不被改动', probe && probe.p7 === '草稿', JSON.stringify(probe && probe.p7));
+    check('LANG-01h 显式键绑定 data-i18n 生效（含 ARIA）',
+      probe && probe.p8 === 'Draft' && probe.p9 === 'Approved',
+      'p8=' + JSON.stringify(probe && probe.p8) + ' aria=' + JSON.stringify(probe && probe.p9));
+    check('LANG-01i 参数插值生效（error.generic_with_code）',
+      probe && probe.p10 === 'Request failed (code: DEMO_X)', JSON.stringify(probe && probe.p10));
+    check('LANG-01j 引擎导出 NO_I18N_SELECTOR 与统一状态映射 API',
+      probe && /\[data-notranslate\]/.test(probe.sel) && /input/.test(probe.sel)
+      && /textarea/.test(probe.sel) && /\[contenteditable\]/.test(probe.sel)
+      && probe.maps === 'function,function,function',
+      String(probe && probe.sel).slice(0, 80));
+    check('LANG-01k 语言切换只写偏好接口（未对业务文本发起写入）',
+      netLog.filter((x) => /^PUT .*\/auth\/preferences/.test(x)).length >= 1
+      && netLog.filter((x) => /^(POST|PUT|DELETE) /.test(x)).every((x) => /\/auth\/preferences/.test(x)),
+      netLog.filter((x) => /^(POST|PUT|DELETE) /.test(x)).join(' | ') || '(无写请求)');
+
+    await evalJs('(function(){var p=document.getElementById("__langProbe");if(p)p.remove();return true;})()');
+    await evalJs('(function(){document.getElementById("langBtn").click();return true;})()');
+    await sleep(700);
+    const probeCleared = await evalJs('document.getElementById("__langProbe")===null');
+    check('LANG-01l 探测节点已清理且切回中文成功', probeCleared === true, '');
+
     const integrationBarText = await evalJs('document.getElementById("integrationBar").textContent');
     check('集成状态提示条显示 MOCK/未接通', String(integrationBarText).indexOf('MOCK') !== -1 && String(integrationBarText).indexOf('未接通') !== -1, String(integrationBarText).slice(0, 120));
 

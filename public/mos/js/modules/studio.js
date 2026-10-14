@@ -17,6 +17,8 @@ import {
   esc, toast, openModal, confirmDialog, loadingHtml, stateBlock, statusBadge, gradeBadge,
   platformLabel, demoBadge, mockBadge, fmtDateTime, relTime
 } from '../ui.js';
+/* V0.1.3 Phase C：key-based i18n —— 状态/按钮/提示走资源键与统一状态映射 */
+import { t, purposeLabel, visualTypeLabel, readinessLabel } from '../i18n.js';
 
 let ctxRef = null; let hostEl = null;
 let taskId = '';
@@ -187,11 +189,19 @@ function advancedBlock() {
   const sk = a.skill || {};
   const row = (k, v) => '<div class="small" style="display:flex;justify-content:space-between;gap:10px">'
     + '<span class="muted">' + esc(k) + '</span><span class="mono">' + esc(String(v)) + '</span></div>';
-  return '<div class="card" style="margin-bottom:10px"><div class="card-head"><h2>高级（技术参数）</h2>'
-    + '<span class="hint">普通制作不需要这些；仅在排障与合规审计时查看</span></div><div class="card-body">'
-    + row('文本模型', ((ps.textProvider || {}).mode) || 'none')
-    + row('图像模型', ((ps.imageProvider || {}).mode) || 'none')
-    + row('品牌 Skill', (sk.skillCode || '—') + ' v' + (sk.version || '—') + ' / ' + (sk.state || 'MISSING'))
+  /* 就绪度统一映射（执行包 06）：REAL / CONFIGURED_NOT_TESTED / NOT_CONFIGURED /
+   * NOT_IMPLEMENTED / BLOCKED —— Mock 不计为 REAL，BLOCKED 不隐去。 */
+  const providerRow = (p) => {
+    const o = p || {};
+    const rd = o.readiness || (o.mode === 'none' || !o.mode ? 'NOT_CONFIGURED' : 'CONFIGURED_NOT_TESTED');
+    return readinessLabel(rd) + ' · ' + (o.mode || 'none');
+  };
+  return '<div class="card" style="margin-bottom:10px"><div class="card-head"><h2>' + t('studio.advanced_title') + '</h2>'
+    + '<span class="hint">' + t('studio.advanced_hint') + '</span></div><div class="card-body">'
+    + row(t('studio.row_text_model'), providerRow(ps.textProvider))
+    + row(t('studio.row_image_model'), providerRow(ps.imageProvider))
+    + row(t('studio.row_video_model'), providerRow(ps.videoProvider))
+    + row(t('brand.skill'), (sk.skillCode || '—') + ' v' + (sk.version || '—') + ' / ' + (sk.state || 'MISSING'))
     + '<div class="small muted" style="margin-top:6px">' + esc(sk.reason || '') + '</div>'
     + '</div></div>';
 }
@@ -208,7 +218,7 @@ function paintLeft() {
   if (leftOpen) {
     h += '<div class="card-body" id="wsBrief"><dl class="kv">'
       + '<dt>编号</dt><dd class="mono">' + esc(b.code || '—') + '</dd>'
-      + '<dt>标题</dt><dd>' + esc(b.title || '—') + '</dd>'
+      + '<dt>标题</dt><dd data-notranslate>' + esc(b.title || '—') + '</dd>'
       + '<dt>平台</dt><dd>' + esc(platformLabel(b.platform)) + '</dd>'
       + '<dt>负责人</dt><dd>' + esc(b.ownerName || '—') + '</dd>'
       + '<dt>风险等级</dt><dd>' + gradeBadge(b.riskGrade) + '</dd>'
@@ -221,17 +231,17 @@ function paintLeft() {
   h += '<div class="card"><div class="card-head"><h2>研究依据</h2>'
     + (r ? '<span class="pill">' + esc(r.evidenceCount + ' 条来源') + '</span>' : '') + '</div><div class="card-body">';
   if (r) {
-    h += '<div class="small"><b>' + esc(r.topicTitle || '') + '</b></div>'
+    h += '<div class="small" data-notranslate><b>' + esc(r.topicTitle || '') + '</b></div>'
       + '<div class="small muted">栏目 ' + esc(r.pillarCode || '—')
       + (r.report ? ' · 报告 ' + esc(r.report.code + '（' + r.report.mode + '）') : '') + '</div>';
-    if (r.reviewComments) h += '<div class="block-note info" style="margin-top:8px">上级审核意见：' + esc(r.reviewComments) + '</div>';
+    if (r.reviewComments) h += '<div class="block-note info" style="margin-top:8px">上级审核意见：<span data-notranslate>' + esc(r.reviewComments) + '</span></div>';
     if (r.needsVerification) h += '<div class="block-note danger" style="margin-top:8px">含待核验事实：发布前必须补充依据</div>';
     h += '<div class="divider"></div><div class="small muted">关键事实与来源</div>';
     if (!r.findings.length) h += '<div class="hint">该选题暂无逐条发现（研究以元数据形式提供）。</div>';
     for (const f of r.findings.slice(0, 8)) {
       h += '<div class="src-item"><div class="src-h">' + statusBadge(f.verificationState)
         + '<span class="badge badge-neutral">' + esc(f.kind) + '</span></div>'
-        + '<div class="src-t">' + esc(String(f.statement || '').slice(0, 160)) + '</div>'
+        + '<div class="src-t" data-notranslate>' + esc(String(f.statement || '').slice(0, 160)) + '</div>'
         + (f.evidence || []).map((e) => e.url
           ? '<a class="small" href="' + esc(e.url) + '" target="_blank" rel="noopener">' + esc(e.sourceName || '来源') + '</a>'
           : '').join(' ')
@@ -240,8 +250,8 @@ function paintLeft() {
   } else if (studio && studio.businessBasis) {
     const bb = studio.businessBasis;
     h += '<div class="block-note info">业务依据（无研究来源任务）<br>'
-      + '<b>' + esc(bb.kind) + '</b><br><span class="small">' + esc(bb.note) + '</span>'
-      + (bb.ref ? '<br><span class="small muted">引用：' + esc(bb.ref) + '</span>' : '') + '</div>';
+      + '<b>' + esc(bb.kind) + '</b><br><span class="small" data-notranslate>' + esc(bb.note) + '</span>'
+      + (bb.ref ? '<br><span class="small muted" data-notranslate>引用：' + esc(bb.ref) + '</span>' : '') + '</div>';
   } else {
     h += '<div class="hint">此任务没有关联研究主题。</div>'
       + '<button class="btn btn-sm" id="tsBasis" style="margin-top:8px">登记业务依据</button>'
@@ -254,7 +264,7 @@ function paintLeft() {
   h += '<div class="card"><div class="card-head"><h2>上级备注</h2><span class="pill">' + notes.length + '</span></div><div class="card-body">';
   if (!notes.length) h += '<div class="hint">暂无备注。</div>';
   else h += notes.slice().reverse().map((n) => '<div class="checkline no"><span class="ck">·</span><span>'
-    + esc(n.text) + '<br><span class="muted small">' + esc(n.authorName || '') + ' · ' + esc(relTime(n.createdAt)) + '</span></span></div>').join('');
+    + '<span data-notranslate>' + esc(n.text) + '</span><br><span class="muted small">' + esc(n.authorName || '') + ' · ' + esc(relTime(n.createdAt)) + '</span></span></div>').join('');
   h += '<div class="divider"></div>'
     + '<label class="field"><span>添加备注</span><input id="tsNote" type="text" placeholder="给制作同学的具体说明…"></label>'
     + '<button class="btn btn-sm" id="tsNoteAdd">保存备注</button>'
@@ -420,7 +430,7 @@ function paintImage(pane) {
   if (!imgs.length) h += '<div class="hint">还没有配图。可手工上传，或在配置图像模型后一键生成。</div>';
   else {
     h += '<div class="grid-3">' + imgs.map((a) => '<div class="card"><div class="card-body">'
-      + '<div class="small mono">' + esc(a.fileName) + '</div>'
+      + '<div class="small mono" data-notranslate>' + esc(a.fileName) + '</div>'
       + '<div class="ed-meta"><span>' + Math.round((a.bytes || 0) / 1024) + ' KB</span>'
       + '<span>' + esc(a.origin) + '</span>' + (a.mock ? '<span class="badge badge-mock">MOCK</span>' : '') + '</div>'
       + '<a class="btn btn-sm" href="' + esc(a.contentUrl) + '" target="_blank" rel="noopener" style="margin-top:6px">查看</a>'
@@ -750,45 +760,99 @@ async function aiAssist(v) {
   void v;
 }
 
-/** 图片生成（用途/视觉类型可选；无模型时禁用并说明） */
+/** 图片生成（品牌减法：普通员工只看到 品牌/平台/用途/视觉类型/效果预览） */
 async function imageDialog() {
   const b = (studio && studio.brief) || {};
   const tmpls = await api.get(withBrand('/api/mos/templates', ctxRef.brand, { platform: b.platform })).catch(() => ({ items: [] }));
   const opts = (tmpls.items || []).map((t) => '<option value="' + esc(t.code) + '">' + esc(t.name || t.code) + '</option>').join('');
-  const picked = await new Promise((resolve) => {
-    openModal({
-      title: '生成配图', okText: '生成', cancelText: '取消',
-      body: '<label class="field"><span>用途</span><select id="__use">'
-        + '<option value="LINKEDIN_COVER">LinkedIn 封面</option><option value="CAROUSEL">Carousel</option>'
-        + '<option value="YOUTUBE_THUMB">YouTube 缩略图</option><option value="DIAGRAM">图解</option></select></label>'
-        + '<label class="field"><span>视觉类型</span><select id="__vis">'
-        + '<option value="ARCHITECTURE">建筑</option><option value="PROCESS">流程</option>'
-        + '<option value="DATA">数据</option><option value="INSTITUTION">机构</option></select></label>'
-        + (opts ? '<label class="field"><span>模板（可留空）</span><select id="__tpl"><option value="">默认</option>' + opts + '</select></label>' : '')
-        + '<label class="field"><span>画面说明</span><textarea id="__br" class="ed-body" style="min-height:80px"></textarea></label>'
-        + '<div class="small muted">品牌规则由系统自动继承；如品牌 Skill 未生效，只能作为测试草稿。</div>',
-      onOk: (body) => resolve({
-        use: body.querySelector('#__use').value, vis: body.querySelector('#__vis').value,
+
+  /* 用途 → 建议画幅/输出尺寸（= 「效果预览」，员工无需理解模板编号与色号） */
+  const USE_PREVIEW = {
+    LINKEDIN_COVER: { w: 1200, h: 627, ratio: '1.91:1' },
+    CAROUSEL: { w: 1080, h: 1080, ratio: '1:1' },
+    YOUTUBE_THUMB: { w: 1280, h: 720, ratio: '16:9' },
+    DIAGRAM: { w: 1200, h: 800, ratio: '3:2' }
+  };
+  const ip = ((studio && studio.advanced && studio.advanced.providerStatus) || {}).imageProvider || { mode: 'none' };
+  const userOpts = Object.keys(USE_PREVIEW).map((k) =>
+    '<option value="' + k + '">' + esc(purposeLabel(k)) + '</option>').join('');
+
+  const modal = openModal({
+    title: t('studio.image_dialog_title'),
+    okText: t('action.generate_image'), cancelText: t('action.cancel'),
+    body: '<div class="callout" style="margin:0 0 10px">'
+      + t('common.brand') + '：<b>' + esc(ctxRef.brand || '—') + '</b> · ' + t('common.platform') + '：<b>' + esc(platformLabel(b.platform)) + '</b>'
+      + '<br><span class="small muted">' + t('studio.brand_inherit') + '</span></div>'
+      + '<label class="field"><span>' + t('field.purpose') + '</span><select id="__use">' + userOpts + '</select></label>'
+      + '<label class="field"><span>' + t('field.visual_type') + '</span><select id="__vis">'
+      + ['ARCHITECTURE', 'PROCESS', 'DATA', 'INSTITUTION'].map((k) =>
+        '<option value="' + k + '">' + esc(visualTypeLabel(k)) + '</option>').join('') + '</select></label>'
+      + '<div class="block-note info" id="__prev" data-notranslate></div>'
+      + '<label class="field"><span>' + t('field.image_brief') + '</span><textarea id="__br" class="ed-body" style="min-height:80px" data-notranslate></textarea></label>'
+      + '<details class="adv"><summary>' + t('studio.advanced_template') + '</summary>'
+      + '<span class="small muted">' + t('studio.advanced_template_hint') + '</span>'
+      + (opts ? '<label class="field"><span>' + t('studio.template') + '</span><select id="__tpl"><option value="">' + t('studio.default') + '</option>' + opts + '</select></label>'
+        : '<div class="hint">' + t('studio.no_templates') + '</div>')
+      + '</details>'
+      + '<div class="small muted">' + t('studio.skill_note') + '</div>',
+    onOk: (body) => {
+      const use = body.querySelector('#__use').value;
+      const pv = USE_PREVIEW[use] || {};
+      return {
+        use, vis: body.querySelector('#__vis').value, w: pv.w, h: pv.h,
         tpl: body.querySelector('#__tpl') ? body.querySelector('#__tpl').value : '',
         brief: body.querySelector('#__br').value
-      }),
-      onCancel: () => resolve(null)
-    });
+      };
+    },
+    onCancel: () => null
+  });
+
+  /* 效果预览实时联动（用途/视觉类型 → 画幅与输出尺寸） */
+  const useEl = modal.body.querySelector('#__use');
+  const visEl = modal.body.querySelector('#__vis');
+  const prevEl = modal.body.querySelector('#__prev');
+  const paintPreview = () => {
+    const k = useEl.value;
+    const pv = USE_PREVIEW[k] || {};
+    prevEl.textContent = t('studio.preview') + '：' + purposeLabel(k)
+      + (visEl ? ' · ' + visualTypeLabel(visEl.value) : '')
+      + ' · ' + pv.ratio + ' · ' + pv.w + '×' + pv.h
+      + ' · ' + (ip.mode === 'none' ? t('studio.preview_manual') : t('studio.preview_auto'));
+  };
+  if (useEl) useEl.addEventListener('change', paintPreview);
+  if (visEl) visEl.addEventListener('change', paintPreview);
+  paintPreview();
+
+  const picked = await new Promise((resolve) => {
+    const prevOk = modal.body.parentElement.querySelector('#__mok');
+    const prevCancel = modal.body.parentElement.querySelector('[data-act="cancel"]');
+    if (prevOk) prevOk.addEventListener('click', () => resolve(pickedValue()));
+    if (prevCancel) prevCancel.addEventListener('click', () => resolve(null));
+    function pickedValue() {
+      const use = useEl ? useEl.value : 'LINKEDIN_COVER';
+      const pv = USE_PREVIEW[use] || {};
+      return {
+        use, vis: visEl ? visEl.value : 'ARCHITECTURE', w: pv.w, h: pv.h,
+        tpl: modal.body.querySelector('#__tpl') ? modal.body.querySelector('#__tpl').value : '',
+        brief: (modal.body.querySelector('#__br') || {}).value || ''
+      };
+    }
   });
   if (!picked) return;
   try {
     const r = await api.post(withBrand('/api/mos/generation-jobs', ctxRef.brand), {
       kind: 'IMAGE', taskId, brief: picked.brief || b.title, platform: b.platform,
-      templateCode: picked.tpl || undefined, aspect: picked.use, outputIntent: 'TEST_DRAFT',
+      templateCode: picked.tpl || undefined, aspect: picked.use, width: picked.w, height: picked.h,
+      visualType: picked.vis, outputIntent: 'TEST_DRAFT',
       dataClass: 'INTERNAL',
       idempotencyKey: 'img-' + taskId + '-' + Date.now()
     });
     const j = r.job || {};
     if (j.status === 'SUCCEEDED') {
-      toast(j.mock ? '已生成 MOCK 配图（非真实模型输出）' : '配图已生成', 'ok');
+      toast(j.mock ? t('studio.mock_image_created') : t('studio.image_created'), 'ok');
       await loadAssets(); paintRight(); if (tab === 'IMAGE') paintMid();
-    } else if (j.status === 'NOT_CONFIGURED') toast('图像模型未配置：请手工上传图片', 'err');
-    else toast('生成失败：' + j.status + ' ' + (j.errorMessage || ''), 'err');
+    } else if (j.status === 'NOT_CONFIGURED') toast(t('studio.image_not_configured_upload'), 'err');
+    else toast(t('studio.gen_failed') + j.status + ' ' + (j.errorMessage || ''), 'err');
   } catch (err) { toast(err.message, 'err'); }
 }
 

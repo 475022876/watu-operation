@@ -189,7 +189,7 @@ function paintLeft(task) {
     + (ch.length ? '<div class="tag-list">' + ch.map((c) => '<span class="badge badge-neutral">' + esc(platformLabel(c.platform) + ' ' + (c.handle || '')) + '</span>').join('') + '</div>' : '<div class="hint">未选择渠道</div>')
     + '<div class="divider"></div>'
     + '<div class="small muted">引用资产（' + as.length + '）</div>'
-    + (as.length ? '<div class="tag-list">' + as.map((a) => '<span class="badge badge-neutral">' + esc(a.fileName || a.id) + '</span>' + (a.mock ? ' <span class="badge badge-mock">MOCK</span>' : '') + '').join('') + '</div>' : '<div class="hint">未引用资产</div>')
+    + (as.length ? '<div class="tag-list" data-notranslate>' + as.map((a) => '<span class="badge badge-neutral">' + esc(a.fileName || a.id) + '</span>' + (a.mock ? ' <span class="badge badge-mock">MOCK</span>' : '') + '').join('') + '</div>' : '<div class="hint">未引用资产</div>')
     + '</div></div>';
   el.innerHTML = h;
 }
@@ -311,7 +311,7 @@ function paintCases() {
       + dec.map((d) => '<div class="checkline no"><span class="ck">·</span><span>'
         + esc(decisionLabel(d.action)) + ' · ' + esc(d.actorName || d.actorId || '—')
         + ' <span class="muted small">' + esc(fmtDateTime(d.createdAt)) + '</span>'
-        + (d.remarks ? '<br><span class="muted small">' + esc(d.remarks) + '</span>' : '')
+        + (d.remarks ? '<br><span class="muted small" data-notranslate>' + esc(d.remarks) + '</span>' : '')
         + '</span></div>').join('');
   }
   el.innerHTML = h;

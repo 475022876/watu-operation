@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # VFIB Marketing OS V0.1.1 —— BUILD-01/02/03 + V0.1 综合整改 + V1.2 整改 回归测试统一入口
 #
-# 用法: bash tools/run-mos-tests.sh [smoke|unit|sec|sched|provider|workspace|dual|e2e|e2e02|e2e03|ui|research|editorial|studio|research013|build06|joint|all]
+# 用法: bash tools/run-mos-tests.sh [smoke|unit|sec|sched|provider|workspace|dual|e2e|e2e02|e2e03|ui|research|editorial|studio|research013|i18n|build06|joint|all]
 #       注：`joint`（双系统真实 HTTP 端到端）与 `build06`（V1.2 双系统真实 HTTP 安全负例）需要同机存在
 #           企业资料库源码，故**均不纳入 all**，需按需显式运行。
 #
@@ -61,6 +61,8 @@ if [ "$SUITES" = "all" ] || [ "$SUITES" = "editorial" ]; then run_one editorial 
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "studio" ]; then run_one studio tools/mos-e2e-v013-studio.js; fi
 # V0.1.3 Phase B：真实检索 / 受限网页读取 / 证据链 / 结构化研究作业（真实 HTTP 契约替身 + 多隔离实例；纳入 all）
 if [ "$SUITES" = "all" ] || [ "$SUITES" = "research013" ]; then run_one research013 tools/mos-e2e-v013-research.js; fi
+# V0.1.3 Phase C：key-based i18n 资源一致性与不可翻译保护（静态，无需浏览器；纳入 all）
+if [ "$SUITES" = "all" ] || [ "$SUITES" = "i18n" ]; then run_one i18n tools/mos-i18n-check.js; fi
 # `joint` / `build06` 需要同机存在资料库源码，因此**不纳入 all**（避免在他机 CI 上出现假失败）；按需显式运行：
 #   bash tools/run-mos-tests.sh joint      # V1.1 双系统真实 HTTP 正向端到端
 #   bash tools/run-mos-tests.sh build06    # V1.2 双系统真实 HTTP 安全负例 + B1 正式输出门禁
@@ -72,7 +74,7 @@ if [ "$SUITES" = "build06" ]; then run_one build06 tools/mos-e2e-build06-dual.js
 const fs = require("fs");
 const path = require("path");
 const root = process.argv[1];
-const dirs = ["TEST_EVIDENCE_MOS_BUILD01", "TEST_EVIDENCE_MOS_BUILD02", "TEST_EVIDENCE_MOS_BUILD03", "TEST_EVIDENCE_MOS_BUILD04", "TEST_EVIDENCE_MOS_BUILD06", "TEST_EVIDENCE_MOS_V012_RESEARCH", "TEST_EVIDENCE_MOS_V012_EDITORIAL", "TEST_EVIDENCE_MOS_V013_STUDIO", "TEST_EVIDENCE_MOS_V013_RESEARCH"];
+const dirs = ["TEST_EVIDENCE_MOS_BUILD01", "TEST_EVIDENCE_MOS_BUILD02", "TEST_EVIDENCE_MOS_BUILD03", "TEST_EVIDENCE_MOS_BUILD04", "TEST_EVIDENCE_MOS_BUILD06", "TEST_EVIDENCE_MOS_V012_RESEARCH", "TEST_EVIDENCE_MOS_V012_EDITORIAL", "TEST_EVIDENCE_MOS_V013_STUDIO", "TEST_EVIDENCE_MOS_V013_RESEARCH", "TEST_EVIDENCE_MOS_V013_I18N"];
 const files = {
   smoke: "smoke-result.json",
   unit: "unit-result.json",
@@ -89,6 +91,7 @@ const files = {
   editorial: "v012-editorial-result.json",
   studio: "v013-studio-result.json",
   research013: "v013-research-result.json",
+  i18n: "i18n-check-result.json",
   joint: "dual-e2e-result.json",
   build06: "dual-security-result.json"
 };
