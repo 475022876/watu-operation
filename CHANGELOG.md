@@ -11,6 +11,7 @@
 **目标/实际版本**：`0.1.3`（执行包 `VFIB_Marketing_OS_V0.1.3_AI_Research_UX_Remediation_Codex`，7 文件 + SHA256_MANIFEST 核验一致）
 **schema**：**仍为 v7** —— 本版**零新集合**，只在既有集合上增字段（`research_jobs` 增 `blockedEvent` 等）
 **接口契约**：**1.0 不变**
+**发布提交**：`b5412cc` ｜ **发布标签**：`v0.1.3`（annotated）｜ **源码包**：`VFIB_MARKETING_OS_V0.1.3_SOURCE.zip`（443 条目，SHA256 `7024229d…`）
 
 ### Phase 0 — 源码影响核验与基线（`6df37ba`）
 

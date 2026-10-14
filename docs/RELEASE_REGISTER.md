@@ -20,9 +20,9 @@
 | 上一版本 / 回滚目标 | **0.1.2** |
 | 基线 Git 提交 | `7001475`（`main`，应用版本 0.1.2，schema v7） |
 | 阶段提交链 | `6df37ba`(Phase 0) → `31d292a`(Phase A) → `b9edea8`(Phase B) → `ab2af8b`(Phase C) → 本发布提交 |
-| **发布 Git 提交** | **见 §1.4「提交回填」**（提交后回填全量 SHA；提交信息 `release(v0.1.3): …`） |
+| **发布 Git 提交** | **`b5412cc`**（Phase D 应用版本升版 + 证据修正 + 验收/遗留项文档；见 §1.4） |
 | 发布标签 | **`v0.1.3`**（annotated，指向发布提交） |
-| 交付源码包 | 由发布提交源码树生成，命令 `bash tools/package-mos-source.sh`；包内 `PACKAGE_MANIFEST.txt` 记录 `git: <发布提交>`。`*.zip` 与 `dist/` 已 gitignore，可随时重生成（见 §1.4） |
+| 交付源码包 | `VFIB_MARKETING_OS_V0.1.3_SOURCE.zip`（443 条目 / 26,609,092 字节 / SHA256 `7024229d…`），**由发布提交 `b5412cc` 源码树生成**；`*.zip` 与 `dist/` 已 gitignore，可随时重生成（详见 §1.4） |
 | 分支 | `main`（远端 `475022876/watu-operation`） |
 | 接口契约版本 | **1.0**（未变） |
 | 数据 schema 版本 | **v7**（**本版零新集合、零迁移**：仅在既有集合上新增可选字段，如 `research_jobs.blockedEvent`、`users[].prefs`。见 `MIGRATION_AND_ROLLBACK.md`） |
@@ -84,13 +84,15 @@
 | **发布审批（人工签署）** | ⬜ **未完成**（须由获得授权的正式身份签署） |
 | **生产部署授权** | ⬜ **未完成** —— 本轮**不部署生产** |
 
-### 1.4 提交回填（发布后填写）
+### 1.4 提交回填
 
 | 项 | 值 |
 | --- | --- |
-| 发布提交全量 SHA | ⬜ 提交后回填 |
-| 发布标签 | `v0.1.3` |
-| 交付源码包名 / SHA256 / 条目数 | ⬜ 打包后回填（`bash tools/package-mos-source.sh`） |
+| **发布提交全量 SHA** | **`b5412cc`**（提交信息 `release(v0.1.3): …`，Phase D 应用版本升版 + 证据修正 + 验收/遗留项文档） |
+| 发布后续提交 | `9b00b7a`（`chore(release): 打包脚本适配 0.1.3`，**仅调整打包脚本自身**，不含应用代码变更） |
+| 发布标签 | **`v0.1.3`**（annotated，指向 `9b00b7a`） |
+| 交付源码包 | `VFIB_MARKETING_OS_V0.1.3_SOURCE.zip`（**443 条目 26,609,092 字节**；SHA256 `7024229dc6f2a65404f8a4401d7ae6cda894a6ef9b8a5b61a1a2abaa1b6c3f2f`）**由发布提交 `b5412cc` 源码树生成**；包内 `PACKAGE_MANIFEST.txt` 记录 `git: b5412cc`。⚠ 包内 `tools/package-mos-source.sh` 为 `9b00b7a` 之前的版本（**不影响应用代码**；在 `v0.1.3` 重跑打包可生成含新脚本的等效包） |
+| 重建命令 | `bash tools/package-mos-source.sh`（`*.zip` 与 `dist/` 已 gitignore，可随时重生成） |
 
 ---
 

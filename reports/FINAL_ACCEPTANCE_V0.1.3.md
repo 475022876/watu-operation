@@ -3,6 +3,7 @@
 > 执行包：`VFIB_Marketing_OS_V0.1.3_AI_Research_UX_Remediation_Codex`（7 文件 + `SHA256_MANIFEST.txt`，逐文件核验一致）
 > 基线：应用版本 **0.1.2**（提交 `7001475`，schema v7，契约 1.0）
 > 本版：应用版本 **0.1.3**；**契约仍 1.0**；**schema 仍 v7（零迁移）**
+> 发布提交 **`b5412cc`** ｜ 发布标签 **`v0.1.3`** ｜ 源码包 `VFIB_MARKETING_OS_V0.1.3_SOURCE.zip`（443 条目 / SHA256 `7024229d…`）
 > 报告日期：2026-10-14 ｜ 交付形态：**Staging / 本地隔离实例，未部署生产**
 
 ---
@@ -151,7 +152,7 @@ Chromium 版本 **155.0.8059.79** 已记录，交互回归由真实浏览器完�
 | 测试证据 | `TEST_EVIDENCE_MOS_BUILD01/summary.json`（924/924）、`TEST_EVIDENCE_MOS_V013_{STUDIO,RESEARCH,I18N}/`、`TEST_EVIDENCE_MOS_BUILD04/`、`TEST_EVIDENCE_MOS_BUILD06/` |
 | 浏览器证据 | `UI_EVIDENCE/{PHASE0,PHASEA,PHASEC}/`（截图 + `steps.json`，0 控制台错误） |
 | AI 接口调用证据（脱敏） | `REAL_PROVIDER_EVIDENCE/{provider-contract-log-sanitized.json, research-job-trace-sanitized.json}` |
-| 源码包 | `bash tools/package-mos-source.sh` 生成（`*.zip` 已 gitignore，可重生成） |
+| 源码包 | `VFIB_MARKETING_OS_V0.1.3_SOURCE.zip`（**443 条目 / 26,609,092 字节**；SHA256 `7024229dc6f2a65404f8a4401d7ae6cda894a6ef9b8a5b61a1a2abaa1b6c3f2f`，由发布提交 `b5412cc` 源码树生成，包内 `PACKAGE_MANIFEST.txt` 记录 `git: b5412cc`）。`*.zip` 与 `dist/` 已 gitignore，可用 `bash tools/package-mos-source.sh` 重生成 |
 
 ---
 
