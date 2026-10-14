@@ -17,7 +17,7 @@
 | 双系统真实 HTTP 安全负例 `build06`（显式运行） | **61/61 通过** |
 | **汇总（`summary.json` 扫描全部证据目录 = 18 套件）** | **924/924 通过** |
 | 真实浏览器 UI（Chromium 155.0.8059.79，CDP） | **123/123 通过**（含双语保护 LANG-01a…l 12 条） |
-| 验收矩阵（执行包 06 §验收矩阵，17 项） | **PASS 12 / PASS(受限) 3 / BLOCKED 2 / FAIL 0 / NOT_TESTED 0** |
+| 验收矩阵（执行包 06 §验收矩阵，17 项） | **PASS 12 / PASS(受限,⚠) 4 / BLOCKED 1 / FAIL 0 / NOT_TESTED 0** |
 | **联合验收终裁** | **CONDITIONAL**（未获批准 → **不部署生产**；无任何 `PASS_REAL`） |
 
 > **口径纪律（三档不可混用）**：`all` = 797/797（16 套件）；`joint` = 66/66；`build06` = 61/61；
@@ -63,7 +63,11 @@
 | **SEC-01** | 服务端权限、SSRF、prompt injection、机密数据外发负例通过 | **PASS** | `sec` 17/17、`build06` 61/61、`dual` 51/51；连接层 SSRF（DNS 全解析 + `pinnedLookup` 防 rebinding）+ 不可信内容边界包裹实测 |
 | **REL-01** | 代码 0.1.3 版本一致，完整回归、Schema 升级、可回滚 | **PASS** | `VER-01`（五处版本一致）+ `VER-02`（=0.1.3）；全量 797/797；`docs/MIGRATION_AND_ROLLBACK.md`（**0.1.3 无需迁移**，回滚目标 0.1.2） |
 
-**统计**：`PASS` 12（UX-01…04、RES-01/05、ED-01/02、PLAN-01、PROD-01/02、SEC-01、REL-01 中 12 项）；`PASS（受限，带 ⚠ 备注）` 3（RES-03、RES-04、LANG-01）；`BLOCKED` 2（RES-02 与 RES-03/RES-04 的**商业供应商侧**统一为 `BLOCKED_NOT_CONFIGURED`）；`FAIL` 0；`NOT_TESTED` 0（长尾项另列 §5）。
+**统计（17 项 = 12 + 4 + 1 + 0 + 0）**：
+`PASS` **12**（UX-02、UX-03、UX-04、RES-01、RES-05、ED-01、ED-02、PLAN-01、PROD-01、PROD-02、SEC-01、REL-01）；
+`PASS（受限，带 ⚠）` **4**（UX-01 动作数未录屏计数、RES-03 / RES-04 的商业供应商侧未联调、LANG-01 历史长尾文案）；
+`BLOCKED` **1**（RES-02：真实授权 Web 搜索 API —— 无凭据无费用授权，**不记 PASS**）；
+`FAIL` **0**；`NOT_TESTED` **0**（另有 7 项非矩阵内的长尾验证项，见 `reports/OPEN_ITEMS_V0.1.3.md` §3）。
 
 ---
 
