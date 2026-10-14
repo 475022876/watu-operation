@@ -5,7 +5,83 @@
 
 ---
 
-## [0.1.2] — 2026-10-14 — AI Intelligence & Task-Driven UX（执行包四阶段）
+## [0.1.3] — 2026-10-14 — Real AI Research & Employee UX Remediation（执行包五阶段）
+
+**基线**：`7001475`（应用版本 0.1.2，schema v7）
+**目标/实际版本**：`0.1.3`（执行包 `VFIB_Marketing_OS_V0.1.3_AI_Research_UX_Remediation_Codex`，7 文件 + SHA256_MANIFEST 核验一致）
+**schema**：**仍为 v7** —— 本版**零新集合**，只在既有集合上增字段（`research_jobs` 增 `blockedEvent` 等）
+**接口契约**：**1.0 不变**
+
+### Phase 0 — 源码影响核验与基线（`6df37ba`）
+
+- `reports/PHASE0_BASELINE.md`：逐条核实执行包「现状」描述与源码是否一致，输出差异表；
+  导航/路由/权限/研究适配器/任务-审核-发布关系的基线截图与点击路径统计（`UI_EVIDENCE/PHASE0/`）。
+
+### Phase A — 一站式任务空间与交互减法（`31d292a`）
+
+- `content-editor` 由「内容编辑器」升级为**制作工作台**（模块 id 不变 → 深链接与既有测试零破坏）：
+  顶部固定任务头（标题/品牌/平台/状态/保存状态/截止）、左栏 Brief+已审研究+上级备注、
+  中间「正文｜图片｜视频｜审核」**在任务内**切换、右栏交付物与下一步；不再跳出任务重新选主题。
+- 新后端 `lib/mos/routes/studio.js`；新前端 `lib/mos/modules/studio.js`。
+- 新套件 `studio`（`tools/mos-e2e-v013-studio.js`）**29/29**；`ui` 套件 110→**111**；
+  证据 `UI_EVIDENCE/PHASEA/`（17 截图 + steps.json，18 步）；报告 `reports/PHASE_A_UX.md`。
+
+### Phase B — 真实授权搜索、受限网页读取、证据链与结构化研究作业（`b9edea8`）
+
+- **`lib/mos/adapters/websearch.js` 重写**：供应商注册表（`none/searxng/brave/bing/google/tavily`），
+  **不写死供应商**；`providerStatus()` 输出 `readiness`；预算门禁、429/5xx 退避重试、脱敏 trace。
+- **`lib/mos/research-fetch.js`（新）**：受限网页读取——复用连接层 SSRF、二进制拒绝、体积/超时上限、
+  不可信内容边界包裹（`<<<UNTRUSTED_EXTERNAL_CONTENT …>>>`）。
+- **`lib/mos/research-engine.js`（新）**：异步研究作业 `QUEUED→SEARCHING→FETCHING→VERIFYING→ANALYZING→DONE`；
+  jobId/进度/**取消**/重试/**幂等（actor+brand+payloadHash，冲突 409）**；`EV-n` 证据句柄解析。
+- **诚实性红线（不得回退）**：`RETRIEVAL_ONLY` 与 `AI_RESEARCH_COMPLETE` 同源写入、降级**绝不**冒充完成；
+  计费型供应商无预算 → **零出站**；MOCK 通道**拒绝**产出研究结论；FACT 无证据强制降级为 INTERPRETATION。
+- 同步 `/api/mos/research/web` 改走同一作业管线，并保留既有 `research.web_blocked` 审计事件。
+- 新套件 `research013`（`tools/mos-e2e-v013-research.js`）**79/79**；证据 `TEST_EVIDENCE_MOS_V013_RESEARCH/`、
+  `REAL_PROVIDER_EVIDENCE/`；报告 `reports/PHASE_B_REAL_RESEARCH.md`。
+
+### Phase C — key-based 双语、不可翻译保护、品牌减法与 Provider 就绪度（`ab2af8b`）
+
+- **i18n 重写为 key-based**：新增 `public/mos/i18n/zh-CN.js` / `en-US.js`（**各 451 键，一一对应**）；
+  `t(key, params)` 支持 `{name}` 插值；11 个统一映射函数（状态/错误码/就绪度/完成度/作业阶段/
+  证据缺口/结论类型/网页可读性/交付物/用途/视觉类型）；`bindDom()` 取代全局 DOM 文本匹配。
+- **不可翻译节点保护（V0.1.2 完全缺失的真实缺陷）**：`data-notranslate` + `input/textarea/select/option/
+  pre/code/script/style/samp/kbd/contenteditable`，逐节点判定且**向下继承**——用户输入、已保存正文、
+  AI 原始研究结果、引用原文、URL、上传文件名、日志在英文界面保持原样（真实浏览器 LANG-01a…l **12/12**）。
+- `ApiError.message` 经统一错误码映射（服务端原文保留在 `rawMessage`），既有 122 处调用点单点生效；
+  `ui.js` 的重复中文状态表改为委托 i18n 资源。
+- 语言切换按 `hasUnsaved()` 决定是否重渲染 → **不丢编辑状态**，且只写账户偏好接口。
+- **品牌减法**：配图对话框只暴露 品牌/平台/用途/视觉类型/画面说明 + **实时效果预览**；
+  模板收进折叠「高级」，无 `#rrggbb` 色号、无 Prompt/供应商输入项。
+- **Provider 就绪度**：`image.status().readiness`（MOCK **不计为 REAL**）+ 新 `videoStatus()` =
+  `NOT_IMPLEMENTED`（本轮**不做** AI 成片）；集成矩阵新增 `videoProvider`。
+- 新套件 `i18n`（`tools/mos-i18n-check.js`）**21/21**；`ui` 111→**123**；`provider` 新增 PC-06a…e。
+- 证据 `UI_EVIDENCE/PHASEC/`（24 图 / 23 步、0 控制台错误）；报告 `reports/PHASE_C_CONTENT_I18N.md`。
+- 本阶段首次真实浏览器证据即抓到真实缺陷：`studio.js` 使用 `purposeLabel()` 却未导入
+  （`node --check` 无法发现，仅浏览器报 `ReferenceError`），修复后固化为 `I18N-16` 断言。
+
+### Phase D — 全量回归、迁移/安全/回滚与 0.1.3 版本登记（本提交）
+
+- 应用版本统一升级 **0.1.3**：`package.json`、`lib/mos/config.js`（`MOS_VERSION`）、`lib/config.js`
+  （`appVersion`）、`public/mos.html`（侧栏显示）、`/api/mos/meta`、测试元数据。
+  新增 `VER-01/VER-02` 断言强制五处版本一致（禁止"只改包名"或"改了包名不改显示"）。
+- **零迁移**：schema 仍 v7（`docs/MIGRATION_AND_ROLLBACK.md` 结论：**0.1.3 无需数据迁移**）。
+- **`joint` 4 项失败断言逐一处置（无跳过、无隐瞒）**：
+  - `D4-15`/`D4-15b`：原断言从 `/api/mos/integration/workspace` 读枚举明细，但该端点只暴露
+    sha256 + 端点摘要 → 改为读权威端点 `/api/mos/integration/contract`，并交叉校验两端点 sha256 一致。
+  - `D4-26`：**测试夹具缺陷**（漏了 Provider 必填的 `reuseScope`/`externalAiTransferPolicy`）导致
+    预检 FAIL → 送审 409 → 用例**到不了目标代码路径**的假失败；补齐夹具并新增 **`D4-26a` 夹具完整性守卫**。
+  - `D4-44`：遗留硬编码 `schemaVersion===5`（v5 是 BUILD-04 时代基线）→ 改为「不低于集成态基线 v5
+    且 接口值 = 模块常量」，避免每次升版假失败。
+  - 复跑：**`joint 66/66`**。
+- **修复两处证据链缺陷**（本版真实缺陷）：① `studio` 证据文件名与汇总器不一致 → **29 条断言被静默漏统计**
+  （全量 895 → **924**）；② `summary.json` 头部元数据仍写 0.1.1 → 已改 0.1.3。
+- **0.1.2 登记行证据勘误**：其 `joint 64/64` 引用的是**更早一版脚本产出的陈旧证据**（明细串不同且缺
+  `D4-15b`），已在 `docs/RELEASE_REGISTER.md` 如实回填，**未删改历史证据文件**。
+- 最终口径：`all` **16 套件 797/797** ｜ `joint` **66/66** ｜ `build06` **61/61** ｜ 汇总 **924/924（18 套件）**。
+- 交付 `reports/FINAL_ACCEPTANCE_V0.1.3.md`、`reports/OPEN_ITEMS_V0.1.3.md`（**BLOCKED 一律不记 PASS**；
+  终裁 **CONDITIONAL**，**不部署生产**，无任何 `PASS_REAL`）。
+
 
 **基线**：`2fe3841`（应用版本 0.1.1，schema v5）
 **目标/实际版本**：`0.1.2`（执行包 `VFIB_Marketing_OS_V0.1.2_AI_Intelligence_Task_Driven_UX_Codex_Pack`，8 文件 SHA256 核验一致）

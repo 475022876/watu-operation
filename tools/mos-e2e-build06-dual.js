@@ -1029,7 +1029,7 @@ async function main() {
 
   const metaVer = (meta.json && meta.json.mosVersion) || '';
   const pkgVer = require(path.join(ROOT, 'package.json')).version;
-  check('D6-58 版本登记一致：package.json 版本 = /api/mos/meta 的 mosVersion（V1.2 目标 0.1.1）',
+  check('D6-58 版本登记一致：package.json 版本 = /api/mos/meta 的 mosVersion（不写死版本号，随升版自动适用）',
     !!metaVer && metaVer === pkgVer, 'package.json=' + pkgVer + ' api=' + metaVer);
 
   /* ---------------- 结论与证据 ---------------- */

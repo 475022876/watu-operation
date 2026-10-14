@@ -533,16 +533,25 @@ async function main() {
         && /不代表联调通过/.test(String(st.json.note || '')),
       'host=' + (cs.egress && cs.egress.host) + ' configured=' + cs.configured);
     const con = (st.json && st.json.contract) || {};
+    /* 枚举明细与错误码表的**权威来源是 `/api/mos/integration/contract`**（前端 `governance.js`
+     * 与 `tools/mos-ui-check.js` 同源消费）；`/api/mos/integration/workspace` 的 contract 只暴露
+     * sha256 + 端点摘要 + errorCodeCount，**不承载** OPENAPI_ERROR_CODE_ENUM / PROVIDER_DECLARED_ADDITIONS。
+     * 两个端点的 sha256 必须一致，否则说明本侧出现了第二份"契约真相"。 */
+    const ctRes = await admin2.call('GET', '/api/mos/integration/contract');
+    const ct = (ctRes.json || {});
     const C_OPENAPI_SHA = 'cd3cc198a9c568192dbec76429fb9a6dbc836f5e738377249bc14f73d8e825e3';
     check('D4-15 契约基线一致：本侧 OpenAPI SHA256 与 C 包共享契约逐字节相同（冻结枚举 71 项）',
-      con.openapiSha256 === C_OPENAPI_SHA && con.openapiErrorCodeCount === 71,
-      'sha=' + String(con.openapiSha256 || '').slice(0, 16) + ' openapiEnum=' + con.openapiErrorCodeCount);
+      con.openapiSha256 === C_OPENAPI_SHA && ct.openapiSha256 === C_OPENAPI_SHA
+        && ct.openapiErrorCodeCount === 71,
+      'sha=' + String(con.openapiSha256 || '').slice(0, 16)
+        + ' contractSha=' + String(ct.openapiSha256 || '').slice(0, 16)
+        + ' openapiEnum=' + ct.openapiErrorCodeCount);
     check('D4-15b 错误码表按提供方 D-03.2 补入新增码（非闭合枚举：71 + ' + 2 + ' 项），且明确不可重试兜底',
-      con.errorCodeCount === 73
-        && (con.providerDeclaredAdditions || []).indexOf('BAD_REVIEW_OUTCOME') !== -1
-        && (con.providerDeclaredAdditions || []).indexOf('TOO_MANY_REVIEWS') !== -1
-        && /非闭合/.test(String(con.errorCodePolicy || '')),
-      'runtime=' + con.errorCodeCount + ' additions=' + JSON.stringify(con.providerDeclaredAdditions));
+      ct.errorCodeCount === 73
+        && (ct.providerDeclaredAdditions || []).indexOf('BAD_REVIEW_OUTCOME') !== -1
+        && (ct.providerDeclaredAdditions || []).indexOf('TOO_MANY_REVIEWS') !== -1
+        && /非闭合/.test(String(ct.errorCodePolicy || '')),
+      'runtime=' + ct.errorCodeCount + ' additions=' + JSON.stringify(ct.providerDeclaredAdditions));
   }
 
   /* ---- B4. 真实 /health 探测（第一个"真的连上了"的证据） ---- */
@@ -625,20 +634,43 @@ async function main() {
     const mk2 = await cUnmapped.call('POST', '/api/mos/asset-admissions?brand=VFIB', {
       workingAssetId: up2.json.asset.id, categoryCode: 'A01',
       libraryPrimaryCategory: '02', classification: 'internal', licenseStatus: 'cleared',
+      /* 原生 Provider 必填字段必须与母版一致（reuseScope / externalAiTransferPolicy）。
+       * 若此处缺失：预检必然 FAIL → 送审 409 PRECHECK_REQUIRED → 审核单不产生 → 审批链走不完，
+       * 本用例就**根本到不了**「未映射用户同步」这一步，表现为看似"同步拒绝"的假失败。 */
+      reuseScope: 'campaign_reuse', externalAiTransferPolicy: 'allowed',
       submissionMetadata: { title: 'D4 未映射对照' }, idempotencyKey: 'd4-unmapped-' + RUN
     });
     const a2 = mk2.json.admission;
-    await cReviewer.call('POST', '/api/mos/asset-admissions/' + a2.id + '/precheck?brand=VFIB', {});
-    await cUnmapped.call('POST', '/api/mos/asset-admissions/' + a2.id + '/submit-final?brand=VFIB', {});
+    const pre2 = await cReviewer.call('POST', '/api/mos/asset-admissions/' + a2.id + '/precheck?brand=VFIB', {});
+    const sub2 = await cUnmapped.call('POST', '/api/mos/asset-admissions/' + a2.id + '/submit-final?brand=VFIB', {});
     // 未映射用户没有最终审批权 → 由 cFinal 走完；随后 sync 时 actor 仍是未映射者
     const cases = await admin2.call('GET', '/api/mos/review-cases?brand=VFIB&pageSize=50');
-    const c2 = ((cases.json && cases.json.items) || [])
+    const caseItems = ((cases.json && cases.json.items) || []);
+    const c2 = caseItems
       .filter((x) => x.subjectId === a2.id).sort((x, y) => (x.createdAt < y.createdAt ? 1 : -1))[0];
-    if (c2) await cFinal.call('POST', '/api/mos/review-cases/' + c2.id + '/decision?brand=VFIB', { action: 'APPROVE', approvalRef: a2.id });
+    const dec2 = c2
+      ? await cFinal.call('POST', '/api/mos/review-cases/' + c2.id + '/decision?brand=VFIB', { action: 'APPROVE', approvalRef: a2.id })
+      : null;
+    const pre2v = (pre2.json && pre2.json.precheck && pre2.json.precheck.verdict) || '';
+    const sub2Case = (sub2.json && sub2.json.reviewCase && sub2.json.reviewCase.id) || '';
+    /* 夹具完整性守卫：先证明"该走到的路径真的走到了"，再看拒绝语义。
+     * 没有这一步，"未映射者被如实拒绝"与"用例自己没准备好"在结果上无法区分。 */
+    check('D4-26a 未映射对照夹具自身就绪（预检 PASS + 送审产出审核单 + 由 cFinal 完成最终审批），'
+      + '否则 D4-26 到不了目标代码路径',
+      pre2.status === 200 && pre2v === 'PASS' && sub2.status === 200 && !!sub2Case
+        && !!dec2 && dec2.status === 200,
+      'mk2HTTP=' + mk2.status + ' admId=' + (a2 && a2.id) + ' pre=' + pre2.status + '/' + pre2v
+        + ' submitFinal=' + sub2.status + '/' + sub2Case
+        + ' cases=' + caseItems.length + ' hit=' + (c2 ? c2.id : 'none')
+        + ' dec=' + (dec2 ? dec2.status : 'skipped')
+        + ' preReasons=' + JSON.stringify(((pre2.json || {}).precheck || {}).failureReasons || []));
     const s2 = await cUnmapped.call('POST', '/api/mos/asset-admissions/' + a2.id + '/sync?brand=VFIB', {});
     check('D4-26 未映射 MOS 用户同步 → 如实拒绝（NO_PROVIDER_USER_MAPPING），绝不用服务身份顶替',
       s2.status === 200 && s2.json.receipt && s2.json.receipt.errorCode === 'NO_PROVIDER_USER_MAPPING',
-      'code=' + (s2.json && s2.json.receipt && s2.json.receipt.errorCode));
+      'code=' + (s2.json && s2.json.receipt && s2.json.receipt.errorCode) + ' syncHTTP=' + s2.status
+        + ' finalApproval=' + ((s2.json && s2.json.admission && s2.json.admission.finalApprovalStatus) || '')
+        + ' receiptState=' + ((s2.json && s2.json.receipt && s2.json.receipt.state) || '')
+        + ' errBody=' + JSON.stringify(s2.json).slice(0, 200));
   }
 
   /* ---- C1. 第一次真实同步：artifact 必被 409 拦下 ---- */
@@ -985,8 +1017,14 @@ async function main() {
       .filter((p) => perms.indexOf(p) !== -1);
     check('D4-43 MARK 项（客户增长/声誉/线索/代理/自动发布）**未开发**：权限表中不存在对应权限点',
       forbidden.length === 0, 'forbidden=' + JSON.stringify(forbidden) + ' perms=' + Object.keys(meta.permissions || {}).length);
-    check('D4-44 schema 已升到 v5（集成态四集合随迁移只增不改）',
-      meta.schemaVersion === 5, 'schemaVersion=' + meta.schemaVersion);
+    /* schema 基线：BUILD-04 引入集成态四集合时是 v5；此后 v5→v6（用户偏好）、
+     * v6→v7（研究域）均为**只增不改**。本断言因此校验「不低于集成态基线 + 接口与模块一致」，
+     * 而不是把一个会随版本推进会变动的字面量冻死在测试里（冻死会造成每次升版假失败）。 */
+    const schemaNow = require('../lib/mos/store').MOS_SCHEMA_VERSION;
+    check('D4-44 schema 未回退且不低于集成态基线 v5（当前 v' + schemaNow
+      + '；v5→v6→v7 随迁移只增不改）',
+      meta.schemaVersion === schemaNow && meta.schemaVersion >= 5,
+      'schemaVersion=' + meta.schemaVersion + ' module=' + schemaNow);
   }
 
   {

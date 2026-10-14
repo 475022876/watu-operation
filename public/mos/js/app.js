@@ -205,7 +205,7 @@ async function enterApp(me) {
   renderNav();
   renderIntegrationBar();
   bindLangToggle();
-  els.versionText.textContent = 'v' + ((store.meta && store.meta.mosVersion) || '0.1.2');
+  els.versionText.textContent = 'v' + ((store.meta && store.meta.mosVersion) || '0.1.3');
   els.syncText.textContent = t('已连接服务');
   els.syncDot.classList.remove('bad');
   els.envChip.textContent = t('沙盒环境') + ' · MOS V0.1';

@@ -156,7 +156,7 @@ V0.1.2 的 `applyDom()` 会遍历 `document.body` 下**所有**文本节点，�
 | `ui`（真实 Chrome） | **123/123** | 含 LANG-01a…l 12 条 |
 | `provider` | **26/26** | 含就绪度 5 条 |
 | 全量 `all` | 见 Phase D 最终回归 | 阶段内多次全绿 |
-| `MOS_UX_PHASE=C` 浏览器证据 | 23 步 / **0 控制台错误** | `UI_EVIDENCE/PHASEC/`（7 张 Phase C 专项截图 + steps.json，Chrome/155.0.8059.79） |
+| `MOS_UX_PHASE=C` 浏览器证据 | 23 步 / **0 控制台错误** | `UI_EVIDENCE/PHASEC/`（共 **24 图**：7 张 Phase C 专项 `c-01…c-07` + 17 张导航/P2/P3 + steps.json，Chrome/155.0.8059.79） |
 
 Phase C 专项截图：`c-01-image-tab`、`c-02-image-dialog`（品牌减法 + 效果预览）、
 `c-03-zh-editing`、`c-04-en-editing-kept`（英文界面下草稿原样）、`c-05-back-to-zh`、

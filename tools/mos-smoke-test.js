@@ -112,6 +112,21 @@ async function main() {
 
     const audit = await req('GET', '/api/mos/audit?limit=10');
     check('GET /api/mos/audit 返回审计事件', audit.status === 200 && Array.isArray(audit.json.items) && audit.json.items.length >= 1, 'n=' + (audit.json && audit.json.items && audit.json.items.length));
+
+    /* ---- V0.1.3 Phase D：版本一致性（REL-01；禁止"只改包名"或改了包名不改显示） ---- */
+    const pkgVer = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version;
+    const mosCfgSrc = fs.readFileSync(path.join(ROOT, 'lib', 'mos', 'config.js'), 'utf8');
+    const mosVer = (mosCfgSrc.match(/const MOS_VERSION = '([^']+)'/) || [])[1];
+    const baseCfgSrc = fs.readFileSync(path.join(ROOT, 'lib', 'config.js'), 'utf8');
+    const appVer = (baseCfgSrc.match(/appVersion: '([^']+)'/) || [])[1];
+    const htmlVer = (fs.readFileSync(path.join(ROOT, 'public', 'mos.html'), 'utf8')
+      .match(/id="versionText">v([0-9.]+)</) || [])[1];
+    const metaVer = String((meta.json && meta.json.mosVersion) || '');
+    check('VER-01 版本一致：package.json = MOS_VERSION = appVersion = 页面显示 = /api/mos/meta',
+      pkgVer === mosVer && mosVer === appVer && appVer === htmlVer && htmlVer === metaVer,
+      'pkg=' + pkgVer + ' mos=' + mosVer + ' app=' + appVer + ' html=' + htmlVer + ' meta=' + metaVer);
+    check('VER-02 版本已升级到 0.1.3（本轮目标；非 0.1.2）',
+      pkgVer === '0.1.3', 'version=' + pkgVer);
   } catch (err) {
     check('冒烟过程未抛异常', false, err.message);
   }
@@ -127,7 +142,7 @@ async function main() {
     const outDir = path.join(ROOT, 'TEST_EVIDENCE_MOS_BUILD01');
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(path.join(outDir, 'smoke-result.json'), JSON.stringify({
-      suite: 'mos-smoke', mosVersion: '0.1.2', ranAt: new Date().toISOString(),
+      suite: 'mos-smoke', mosVersion: '0.1.3', ranAt: new Date().toISOString(),
       total: results.length, passed: results.length - failed.length, failed: failed.length,
       cases: results
     }, null, 2), 'utf8');

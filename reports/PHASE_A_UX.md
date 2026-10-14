@@ -54,7 +54,7 @@
 | --- | --- | --- |
 | `bash tools/run-mos-tests.sh studio`（**新增** `tools/mos-e2e-v013-studio.js`） | **29/29** | 聚合 / 检查阻断与解除 / 依据不豁免审核 / 变体幂等与 RBAC / 备注 |
 | `bash tools/run-mos-tests.sh ui` | **111/111**（基线 110 + 1） | 真实 Chrome：新建草稿 → 写正文 → 保存 → 刷新仍在 → **先登记业务依据** → 提交审核冻结只读 |
-| 证据目录 | `TEST_EVIDENCE_MOS_V013_STUDIO/` | `studio-result.json` |
+| 证据目录 | `TEST_EVIDENCE_MOS_V013_STUDIO/` | `v013-studio-result.json` |
 
 新套件覆盖的关键负例：跨品牌读 studio 404（防枚举同形）、跨品牌变体 404、P3（无 `content.edit`）403、
 非法平台 400、缺幂等键 400、空备注 400、非法依据类型 400、幂等重放 `deduplicated:true` 零新增。
@@ -69,7 +69,7 @@
 | P2 落地页 → 正文可编辑 | 1 点击但不可编辑 | **2 个主要动作**（导航 + 开始制作确认；已有版本时 1 个） | ≤2 ✅ |
 | 控制台错误 | 0 | **0** | 0 ✅ |
 
-台账：`UI_EVIDENCE/PHASEA/steps.json`（18 步，`jumpOutTabs: 0`）；截图 20 张（含 `p2-04-tab-video/image/review.png`）。
+台账：`UI_EVIDENCE/PHASEA/steps.json`（18 步，`jumpOutTabs: 0`，`p2ActionsToEditor: 2`）；截图 **17 张**（10 张导航 + 7 张 P2/P3，含 `p2-04-tab-video/image/review.png`）。
 
 ---
 

@@ -205,7 +205,7 @@ async function main() {
       failed: results.filter((x) => !x.ok).length,
       results
     };
-    fs.writeFileSync(path.join(OUT_DIR, 'studio-result.json'), JSON.stringify(fsOut, null, 2));
+    fs.writeFileSync(path.join(OUT_DIR, 'v013-studio-result.json'), JSON.stringify(fsOut, null, 2));
     console.log('\nStudio e2e：' + fsOut.passed + '/' + fsOut.total + ' 通过');
     if (fsOut.failed) process.exitCode = 1;
   } finally {

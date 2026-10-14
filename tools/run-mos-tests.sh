@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# VFIB Marketing OS V0.1.1 —— BUILD-01/02/03 + V0.1 综合整改 + V1.2 整改 回归测试统一入口
+# VFIB Marketing OS V0.1.3 —— BUILD-01/02/03 + V0.1 综合整改 + V1.2 整改 + V0.1.3 五阶段 回归测试统一入口
 #
 # 用法: bash tools/run-mos-tests.sh [smoke|unit|sec|sched|provider|workspace|dual|e2e|e2e02|e2e03|ui|research|editorial|studio|research013|i18n|build06|joint|all]
 #       注：`joint`（双系统真实 HTTP 端到端）与 `build06`（V1.2 双系统真实 HTTP 安全负例）需要同机存在
@@ -112,9 +112,10 @@ for (const dir of dirs) {
   }
 }
 const out = {
-  project: "VFIB Marketing OS V0.1.1",
-  build: "BUILD-01 + BUILD-02 + BUILD-03 + V0.1 综合整改（Phase 1—3）+ V1.2 整改（真实 HTTP 安全负例 / 正式输出门禁）",
-  mosVersion: "0.1.1",
+  project: "VFIB Marketing OS V0.1.3",
+  build: "BUILD-01 + BUILD-02 + BUILD-03 + V0.1 综合整改（Phase 1—3）+ V1.2 整改（真实 HTTP 安全负例 / 正式输出门禁）"
+    + " + V0.1.3 五阶段（一站任务空间 / 真实 AI 研究 / key-based 双语与品牌减法 / 全量回归）",
+  mosVersion: "0.1.3",
   ranAt: new Date().toISOString(),
   suites, total, passed, failed,
   ok: failed === 0 && Object.keys(suites).length > 0
