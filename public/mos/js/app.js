@@ -66,8 +66,10 @@ const MODULES = [
     loader: () => import('./modules/campaigns.js') },
 
   // BUILD-02：Creative Studio 拆为内容编辑器 / 视觉工作室 / 视频工作区（全部为真实可操作页面）
-  { id: 'content-editor', label: '内容编辑器', icon: '✎', center: 'creative', context: '内容编辑、版本冻结与送审',
-    loader: () => import('./modules/content.js') },
+  // V0.1.3 Phase A：content-editor 升级为「制作工作台」一站式任务空间
+  //   （模块 id 保持不变 → 既有深链接 #/content-editor?task=<id> 与收藏天然兼容）
+  { id: 'content-editor', label: '制作工作台', icon: '✎', center: 'creative', context: '一个页面完成任务：正文 / 图片 / 视频脚本分镜 / 提交审核',
+    loader: () => import('./modules/studio.js') },
   { id: 'visual-studio', label: '视觉工作室', icon: '✦', center: 'creative', context: '图像生成、模板与工作素材',
     loader: () => import('./modules/visual.js') },
   { id: 'video-workspace', label: '视频工作区', icon: '▶', center: 'creative', context: 'Brief / 脚本 / 分镜 / 字幕 / 成片',

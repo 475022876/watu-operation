@@ -1,0 +1,155 @@
+{
+  "suite": "studio (V0.1.3 Phase A)",
+  "generatedAt": "2026-10-14T12:45:26.331Z",
+  "base": "http://127.0.0.1:9725",
+  "total": 29,
+  "passed": 29,
+  "failed": 0,
+  "results": [
+    {
+      "name": "A-00 引导管理员登录",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "A-01 P2(VFIB) 登录",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "A-02 P2(UCARD) 登录",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "A-03 P3(VFIB) 登录",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B-01 创建 AD_HOC 任务",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "B-02 studio 聚合 200（含 deliverables/nextActions）",
+      "ok": true,
+      "detail": "keys=TEXT,IMAGE,VIDEO"
+    },
+    {
+      "name": "B-03 无研究主题时 research=null 且未登记依据",
+      "ok": true,
+      "detail": "research=null"
+    },
+    {
+      "name": "B-04 技术参数收纳进 advanced（不在首屏字段）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "C-01 无版本 → body 阻断",
+      "ok": true,
+      "detail": "blocking=[\"source\",\"body\"]"
+    },
+    {
+      "name": "C-02 无版本且无依据 → source 阻断",
+      "ok": true,
+      "detail": "blocking=[\"source\",\"body\"]"
+    },
+    {
+      "name": "C-03 写入正文后 body 解除阻断",
+      "ok": true,
+      "detail": "blocking=[\"source\"]"
+    },
+    {
+      "name": "C-04 仍缺来源（source 阻断保持）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "D-01 非法依据类型 → 400",
+      "ok": true,
+      "detail": "status=400"
+    },
+    {
+      "name": "D-02 空说明 → 400",
+      "ok": true,
+      "detail": "status=400"
+    },
+    {
+      "name": "D-03 登记依据 → 200 且 requiresReview=true（不豁免审核）",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "D-04 登记依据后 source 解除阻断",
+      "ok": true,
+      "detail": "blocking=[]"
+    },
+    {
+      "name": "E-01 缺 idempotencyKey → 400",
+      "ok": true,
+      "detail": "status=400"
+    },
+    {
+      "name": "E-02 非法平台 → 400",
+      "ok": true,
+      "detail": "status=400"
+    },
+    {
+      "name": "E-03 创建 X 变体 → 200（独立任务）",
+      "ok": true,
+      "detail": "code=MOS-TASK-0004"
+    },
+    {
+      "name": "E-04 变体继承栏目/风险与平台切换",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "E-05 幂等重放 → deduplicated=true 零新增",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "E-06 第二平台变体（YOUTUBE）成功且任务数 +1",
+      "ok": true,
+      "detail": "total=5"
+    },
+    {
+      "name": "F-01 跨品牌读 studio → 404（防枚举，SEC-03 同形）",
+      "ok": true,
+      "detail": "status=404"
+    },
+    {
+      "name": "F-02 跨品牌创建变体 → 404",
+      "ok": true,
+      "detail": "status=404"
+    },
+    {
+      "name": "F-03 P3（无 content.edit）创建变体 → 403",
+      "ok": true,
+      "detail": "status=403"
+    },
+    {
+      "name": "F-04 P3 登记依据 → 403",
+      "ok": true,
+      "detail": "status=403"
+    },
+    {
+      "name": "G-01 添加备注 → 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "G-02 空备注 → 400",
+      "ok": true,
+      "detail": "status=400"
+    },
+    {
+      "name": "G-03 备注进入 studio 聚合（含作者与时间）",
+      "ok": true,
+      "detail": "notes=1"
+    }
+  ]
+}

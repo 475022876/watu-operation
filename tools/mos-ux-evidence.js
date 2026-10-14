@@ -276,26 +276,46 @@ async function main() {
     await shot('p2-02-after-nav.png');
     step({ label: 'P2 点击「内容编辑器」导航', clicks, module: afterNav, ok: afterNav === 'content-editor' });
 
-    const hasEditor = await waitFor('document.querySelector("#ceText")', '正文编辑器出现');
+    /* 目标：进入任务即可编辑（≤2 个主要动作）。
+     * 已有版本 → 自动选中，#ceText 直接出现；无版本 → 需「开始制作」+ 确认（2 个动作）。 */
+    let editorReady = await waitFor('document.querySelector("#ceText")', '正文可编辑', 4000);
+    if (!editorReady) {
+      const started = await evalJs('(function(){var b=document.querySelector("#tsStart")||document.querySelector("#ceNew");if(b){b.click();return true;}return false;})()');
+      if (started) {
+        clicks += 1;
+        await waitFor('document.getElementById("__mok")', '确认弹窗', 8000);
+        await evalJs('(function(){var b=document.getElementById("__mok");if(b)b.click();return true;})()');
+        await sleep(1500);
+      }
+      editorReady = await waitFor('document.querySelector("#ceText")', '正文可编辑（创建草稿后）');
+    }
     await shot('p2-03-editor.png');
-    step({ label: 'P2 进入正文编辑', clicks, editorVisible: !!hasEditor });
+    step({ label: 'P2 进入正文编辑', clicks, editorVisible: !!editorReady });
 
-    /* ============ 场景 3：任务内四标签是否跳出任务（Phase A 整改点基线） ============ */
+    /* ============ 场景 3：任务内页签是否留在任务（Phase A 整改点） ============ */
     const tabs = [
-      { ws: 'visual', label: '图片与视频 Visuals & Video' },
-      { ws: 'review', label: '审核与交付 Review & Delivery' }
+      { key: 'VIDEO', sel: '[data-ts="VIDEO"]', expect: '#tvSave', label: '视频（脚本/分镜）' },
+      { key: 'IMAGE', sel: '[data-ts="IMAGE"]', expect: '#tiGen', label: '图片' },
+      { key: 'REVIEW', sel: '[data-ts="REVIEW"]', expect: '#tsSubmit', label: '审核（提交）' }
     ];
     for (const t of tabs) {
       await gotoModule('content-editor');
-      await waitFor('document.querySelector(\'[data-ws="' + t.ws + '"]\')', 'tab ' + t.ws);
+      const found = await waitFor('document.querySelector(\'' + t.sel + '\')', 'tab ' + t.key);
+      if (!found) {
+        // 兼容旧版：任务内标签会跳到独立模块（V0.1.2 基线行为）
+        const legacy = await evalJs('!!document.querySelector(\'[data-ws="' + t.key.toLowerCase() + '"]\')');
+        step({ label: '任务内标签「' + t.label + '」', note: legacy ? '旧版跳转型标签' : '未找到标签', ok: false });
+        continue;
+      }
       const before = await currentModule();
-      await evalJs('(function(){var b=document.querySelector(\'[data-ws="' + t.ws + '"]\'); if(b) b.click(); return !!b;})()');
-      await sleep(1200);
+      await evalJs('(function(){document.querySelector(\'' + t.sel + '\').click();return true;})()');
+      await sleep(900);
       const after = await currentModule();
-      await shot('p2-04-tab-' + t.ws + '.png');
+      const paneReady = await waitFor('document.querySelector("' + t.expect + '")', t.key + ' 面板', 8000);
+      await shot('p2-04-tab-' + t.key.toLowerCase() + '.png');
       step({
         label: '任务内点击「' + t.label + '」', before, after,
-        jumpedOut: before !== after, ok: before === after
+        jumpedOut: before !== after, paneInTask: !!paneReady, ok: before === after && !!paneReady
       });
     }
 

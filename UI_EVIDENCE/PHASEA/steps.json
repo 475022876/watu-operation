@@ -1,0 +1,131 @@
+{
+  "phase": "A",
+  "generatedAt": "2026-10-14T12:40:42.572Z",
+  "chrome": "Chrome/155.0.8059.79",
+  "base": "http://127.0.0.1:9735",
+  "steps": [
+    {
+      "label": "导航 my-work",
+      "module": "my-work",
+      "title": "我的工作",
+      "buttons": 3,
+      "ok": true
+    },
+    {
+      "label": "导航 intelligence",
+      "module": "intelligence",
+      "title": "情报资讯",
+      "buttons": 6,
+      "ok": true
+    },
+    {
+      "label": "导航 planning",
+      "module": "planning",
+      "title": "月度计划",
+      "buttons": 6,
+      "ok": true
+    },
+    {
+      "label": "导航 tasks",
+      "module": "tasks",
+      "title": "全部任务",
+      "buttons": 5,
+      "ok": true
+    },
+    {
+      "label": "导航 content-editor",
+      "module": "content-editor",
+      "title": "制作工作台",
+      "buttons": 11,
+      "ok": true
+    },
+    {
+      "label": "导航 visual-studio",
+      "module": "visual-studio",
+      "title": "视觉工作室",
+      "buttons": 4,
+      "ok": true
+    },
+    {
+      "label": "导航 video-workspace",
+      "module": "video-workspace",
+      "title": "视频工作区",
+      "buttons": 7,
+      "ok": true
+    },
+    {
+      "label": "导航 publishing",
+      "module": "publishing",
+      "title": "发布中心",
+      "buttons": 7,
+      "ok": true
+    },
+    {
+      "label": "导航 analytics",
+      "module": "analytics",
+      "title": "运营分析",
+      "buttons": 5,
+      "ok": true
+    },
+    {
+      "label": "导航 my-reviews",
+      "module": "my-reviews",
+      "title": "我的审核",
+      "buttons": 1,
+      "ok": true
+    },
+    {
+      "label": "P2 登录落地页",
+      "module": "my-work",
+      "ok": true
+    },
+    {
+      "label": "P2 点击「内容编辑器」导航",
+      "clicks": 1,
+      "module": "content-editor",
+      "ok": true
+    },
+    {
+      "label": "等待超时：正文可编辑"
+    },
+    {
+      "label": "P2 进入正文编辑",
+      "clicks": 2,
+      "editorVisible": true
+    },
+    {
+      "label": "任务内点击「视频（脚本/分镜）」",
+      "before": "content-editor",
+      "after": "content-editor",
+      "jumpedOut": false,
+      "paneInTask": true,
+      "ok": true
+    },
+    {
+      "label": "任务内点击「图片」",
+      "before": "content-editor",
+      "after": "content-editor",
+      "jumpedOut": false,
+      "paneInTask": true,
+      "ok": true
+    },
+    {
+      "label": "任务内点击「审核（提交）」",
+      "before": "content-editor",
+      "after": "content-editor",
+      "jumpedOut": false,
+      "paneInTask": true,
+      "ok": true
+    },
+    {
+      "label": "P3 打开发布管理",
+      "module": "publishing",
+      "ok": true
+    }
+  ],
+  "consoleErrors": [],
+  "counts": {
+    "jumpOutTabs": 0,
+    "p2ActionsToEditor": 2
+  }
+}

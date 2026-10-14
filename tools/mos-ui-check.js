@@ -261,7 +261,7 @@ async function main() {
       // Phase 2（F-05）：Marketing Center 新增品牌工作区（同一模块参数化）
       ['marketing-vfib', 'B04-38-marketing-vfib.png', 'VFIB 银行营销'],
       ['marketing-ucard', 'B04-39-marketing-ucard.png', 'U CARD 营销'],
-      ['content-editor', 'B02-14-content-editor.png', '内容编辑器'],
+      ['content-editor', 'B02-14-content-editor.png', '制作工作台'],
       ['visual-studio', 'B02-15-visual-studio.png', '视觉工作室'],
       ['video-workspace', 'B02-16-video-workspace.png', '视频工作区'],
       ['my-reviews', 'B02-17-my-reviews.png', '我的审核'],
@@ -413,6 +413,16 @@ async function main() {
         'document.body.innerText.indexOf(' + JSON.stringify(UNIQ) + ')!==-1', '刷新后草稿仍在', 15000);
       check('B02-UI 内容编辑器：草稿保存后刷新仍在（真实持久化）', persisted, UNIQ);
       await shot('B02-22-content-editor-after-reload.png');
+
+      // V0.1.3 Phase A：制作工作台在「提交审核」前执行服务端检查（来源/正文/交付物）。
+      // 该草稿属于「无研究来源」的临时任务 → 按真实员工路径先登记业务依据（官方通知/内部已批准事实/临时任务）。
+      const selTask = await evalJs('(function(){var s=document.getElementById("ceTask");return s?s.value:"";})()');
+      const basisStatus = await evalJs('(async function(){'
+        + 'var c=document.cookie.match(/mos_csrf=([^;]+)/);var t=c?decodeURIComponent(c[1]):"";'
+        + 'var r=await fetch("/api/mos/tasks/' + selTask + '/basis?brand=VFIB",{method:"POST",credentials:"same-origin",'
+        + 'headers:{"Content-Type":"application/json","x-mos-csrf":t},'
+        + 'body:JSON.stringify({kind:"AD_HOC",note:"UI 回归证据：临时任务业务依据"})});return r.status;})()');
+      check('V0.1.3 制作工作台：登记业务依据（服务端 200）', basisStatus === 200, 'status=' + basisStatus);
 
       // 冻结送审：正文转为只读（不变量 1 的界面表现）
       await evalJs('(function(){var v=document.querySelector(".ver-item");if(v)v.click();return true;})()');
