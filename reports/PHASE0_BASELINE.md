@@ -1,176 +1,117 @@
-# PHASE 0｜基线审计与差异清单
+# Phase 0 — 源码影响核验与基线（VFIB Marketing OS V0.1.2 → V0.1.3）
 
-对应执行包：`VFIB_Marketing_OS_V0.1_Comprehensive_Remediation_V1.0`
-整改分支：`feat/v0.1-remediation`　基线分支：`main`
-审计日期：2026-10-13　执行人：Codex（自动整改）
-
----
-
-## 1. 环境与基线记录（Gate 0）
-
-| 项目 | 值 |
-|---|---|
-| 仓库 | `D:\运营系统\VFIB-Marketing-OS`（远端 `https://github.com/475022876/watu-operation`） |
-| 基线 commit | `567de9caf3a7f69e7b930164cc236d23a19d047e`（`feat: BUILD-02 + BUILD-03 交付…`） |
-| 分支 | 基线 `main` → 整改分支 `feat/v0.1-remediation` |
-| `package.json` version | `0.1.0` |
-| `lib/mos/config.js` MOS_VERSION | `0.1.0` |
-| `mosSchemaVersion` | **3** |
-| Node | v22.22.2（engines 声明 `>=18`） |
-| 依赖 | **零第三方依赖**（`dependencies: {}`），仅 Node 内置模块 |
-| 受版本控制文件数 | 94 |
-
-**配置脱敏摘要**（`config.json`，已 gitignore，不入库）：
-
-```
-mos.integrations = { identity: mock, knowledge: mock, library: mock,
-                     sourceIngest: real, textProvider: none, imageProvider: none }
-mos.egress       = { allowedHosts: [bis/imf/fsb/fatf/swift 共10条], allowHttp: false,
-                     fetchTimeoutMs: 12000, maxBytes: 2097152, maxItemsPerRun: 40 }
-auth             = { cookieName: mos_sid, csrfCookieName: mos_csrf,
-                     csrfHeader: x-mos-csrf, secureCookies: auto,
-                     allowedOrigins: [https://vfib-marketing-os.app.workbuddy.host] }
-budget           = { brandMonthlyUsd: 0, perJobUsdMax: 0 }
-```
-> 本报告不复制任何口令、令牌、密钥；上述均为非敏感配置项。
+- 执行包：`D:/企业数据后台/VFIB_Marketing_OS_V0.1.3_AI_Research_UX_Remediation_Codex/VFIB_Marketing_OS_V0.1.3_Codex_Execution_Pack`（7 文件 + SHA256 清单）
+- **执行包完整性**：`sha256sum -c SHA256_MANIFEST.txt` → **7/7 OK**
+- 源码基线：`66a23e5`（`main`）；`package.json` **0.1.2**；schema **v7**；双系统契约 **1.0**
+- 基线日期：2026-10-14
+- 唯一改动仓库：`D:/运营系统/VFIB-Marketing-OS`（**企业资料库 `oa-system` 零改动**）
+- 目录约定：V0.1 综合整改期的 `reports/*.md` 已按零删除约定 `git mv` 归档至 `reports/v0.1-remediation/`，
+  本轮 V0.1.3 交付占用 `REPORTS/`（Windows 大小写不敏感，二者为同一目录）。
 
 ---
 
-## 2. 版本识别结论
+## 1. 逐条核实执行包「现状」陈述 vs 实际源码
 
-- 执行包所述基线 `watu-operation-main.zip` 与本仓库**为同一份代码**（无需重新导入）。
-- 版本定位确认为 **V0.1 原型**：`package.json 0.1.0`，`docs/MOCK_REAL_MATRIX.md` 自述为 sandbox 原型。
-- 既有交付阶段：BUILD-01 / BUILD-02 / BUILD-03 已交付；**BUILD-04 未开工**（本轮整改不冠以 BUILD-04，按执行包定位为「V0.1 综合整改」）。
+> 规则：冲突以实际源码为准（00 README §项目及版本边界）。
 
----
-
-## 3. 与执行包所述内容的不符之处（重要）
-
-执行包 00 §1 记录：「既有测试日志显示：smoke、BUILD-01/02/03 E2E 通过；**unit 38/39**，存在 **U-07b SSRF 相关失败**；**UI 因 Chrome/Edge 环境缺失未运行**；**汇总 237/238、全量失败**」。
-
-**独立复跑结论：该记录是「审计环境受限」的结果，不是产品缺陷的完整画像。** 差异如下：
-
-| 项 | 执行包记录 | 本次独立复跑 | 判定 |
-|---|---|---|---|
-| unit | 38/39（U-07b 失败） | **39/39** | 差异，见 §3.1 |
-| ui | 未运行（缺浏览器） | **73/73** | 环境差异，本机有 Chrome 154.0.8037.93 |
-| 汇总 | 237/238（失败） | **311/311（全绿）** | 238 = 扣掉 ui 套件的断言总数（13+39+48+63+75） |
-
-### 3.1 U-07b 失败的根因（已定位）
-
-`tools/mos-unit-test.js:159` 的 U-07b 用例最后一项断言为：
-
-```js
-source.assertEgressAllowed('https://bis.org/press')  →  期望 ok === true
-```
-
-该断言**依赖公网 DNS 解析 `bis.org`**。在无外网/受限 DNS 的审计环境中必然得到 `DNS_FAILED`，从而失败。**这是测试隔离缺陷，不是 SSRF 判定缺陷**——SSRF 判定本身的正向/反向用例全部通过。
-
-执行包 F-01 已明确要求「补充**不依赖公网DNS**的测试」，本项列入 Phase 1。
-
-### 3.2 审计包未记录、但确实存在的问题
-
-| ID | 问题 | 证据 |
-|---|---|---|
-| P0-B01 | **空壳测试**（假通过）：`tools/mos-unit-test.js:158` `t('U-07b 非白名单主机被拒（fail closed）', async () => {})` —— 无任何断言，却会显示 PASS | 源码行 |
-| P0-B02 | **测试依赖公网 DNS**：U-07b 末项断言要求 `bis.org` 可解析 | 同上 §3.1 |
-| P0-B03 | **SSRF 校验与连接未绑定（TOCTOU）**：`source.js:82 assertEgressAllowed()` 解析出 `ip` 但 `fetchOnce()` 用 `hostname` 重新解析并连接，校验过的 IP 未固定；源码注释 §16 行亦自认「已知残留风险」 | `lib/mos/adapters/source.js:132,144-147` |
-| P0-B04 | **重定向一律拒绝**，未实现「逐跳重新校验」：`fetchOnce()` 遇 3xx 直接 `REDIRECT_BLOCKED`（fail closed 但不符合 F-01/SEC-13 的逐跳审查要求） | `lib/mos/adapters/source.js:156-160` |
-| P0-B05 | **未校验 URL 内嵌凭据**（`https://user:pass@host/`）与**非标准端口/主机形态** | `assertEgressAllowed()` 无相关分支 |
-| P0-B06 | **未处理响应压缩膨胀**：请求未发 `Accept-Encoding`，但若上游仍返回 `Content-Encoding: gzip`，`maxBytes` 只限制**压缩后**字节，存在解压炸弹面 | `lib/mos/adapters/source.js:166-181` |
-| P0-B07 | **未考虑代理环境**：本机常驻系统代理（`HTTP_PROXY/HTTPS_PROXY` 已设），Node `http.request` 不自动走代理，但环境不一致时行为不可预期，需显式声明并拒绝 | 环境变量 |
-| P0-B08 | **`MOS_EGRESS_ALLOW_LOOPBACK` 未在生产环境强制拒绝**：`source.js:119` 只读环境变量，无「生产禁用」闸门 | `lib/mos/adapters/source.js:119-126` |
-
-> 说明：P0-B01…B08 均属 F-01（P0）范围，将在 Phase 1 修复并补测。
+| # | 执行包陈述 | 实际源码 | 判定 |
+| --- | --- | --- | --- |
+| 1 | 源码已含 `lib/mos/adapters/websearch.js` | ✅ 存在（79 行）。`providerStatus()` / `isConfigured()` / `assertSafeUrl()` / `search()` | **一致** |
+| 2 | 开发方报告仍称 Web Search BLOCKED | ✅ 一致，但**比陈述更严重**：未配置 → `BLOCKED/NOT_CONFIGURED`；**已配置 → `PROVIDER_NOT_IMPLEMENTED`**（真实通道仅是注释占位，`search()` 无任何网络请求）。「只打开配置开关冒充实现」在此代码上不可能发生，但**有 Key 仍然不可用** | **差异（P0 实现缺口）** |
+| 3 | 已有 `research_reports / research_findings / source_evidence / topic_proposals` 对象 | ✅ v7 已建（实际为 5 集合，另含 `research_jobs`） | **一致** |
+| 4 | i18n 依赖 `public/mos/js/i18n.js` 的**全局 DOM 字符串匹配**翻译 | ✅ 一致：`applyDom()` 用 `TreeWalker` 精确匹配中文键 + `MutationObserver` 异步补译（133 行），**无资源文件/key** | **一致（须改 key-based）** |
+| 5 | 「Visuals & Video」「Review & Delivery」存在**跳转旧独立中心**的体验缺口 | ✅ **已实证**（Phase 0 真实浏览器）：点这两个标签后 `location.hash` 由 `content-editor` 变为 `visual-studio` / `my-reviews`，**离开任务上下文** | **一致（P0 缺口）** |
+| 6 | 一站式任务工作空间 | ❌ 现状：`content.js` 为三栏编辑器；视觉/视频/审核在**其他模块**（`video_artifacts` 由独立 `video-workspace` 维护） | **缺口（P0）** |
+| 7 | 视频需支持脚本/分镜/字幕/关键帧/素材上传 | ✅ **后端已实现**：`GET/PUT /api/mos/video/:taskId`，支持 `script / storyboard(≤120 shot) / subtitles / keyframeAssetIds / finalUpload` | **可复用为内嵌组件** |
+| 8 | SSRF 须在 DNS 解析/连接层屏蔽私网 | ⚠️ **采集侧已达标**：`lib/mos/adapters/source.js` 已实现 `pinnedLookup`（DNS 解析固定 IP + TOCTOU 修复）+ 白名单 + 重定向复核；**研究侧 `websearch.js` 只有 URL 字面正则，无连接层防护** | **差异（P0 缺口）** |
+| 9 | 文本 Provider | `text.js` 已实现 **deepseek 非流式真实通道**（`draft()`；无密钥 → `INTEGRATION_PENDING`）；`mock` 为确定性骨架并显式标注 | **可用**；当前 `config.json` `textProvider:"none"` |
+| 10 | 预算与费用门禁 | `config.json` 已有 `mos.budget={brandMonthlyUsd:0,perJobUsdMax:0}`，但**未接入**研究/生成链路（无预算实体、无用量累计） | **缺口（P0）** |
+| 11 | 异步研究 job、进度、取消、幂等重试 | ⚠️ `research_jobs` 仅记录**一次**调用结果（无状态机/进度/取消/轮询端点）；`generation-jobs` 有同步幂等键 | **缺口（P0）** |
+| 12 | 8 大业务中心归属不得改变 | ✅ 后端路由域与集合归属未变；前端 5 主 + 2 辅（模块 id 未变） | **一致** |
+| 13 | `text.js` 注释引用的 `lib/deepseek.js` | ❌ **该文件不存在**（注释过时）；真实调用直接用 `providercontract.fetchWithTimeout` 打 `api.deepseek.com` | **文档过时（非功能缺陷）** |
+| 14 | 普通员工无需理解技术对象 | ⚠️ 现状：内容编辑器右栏直接暴露 `textProvider/imageProvider` 模式、Skill 版本与状态、`rowVersion`/`textHash`；卡片展示 `Manifest 哈希` 等 | **缺口（P1 减法）** |
 
 ---
 
-## 4. 源码路径核对（执行包 02 §1 vs 实际仓库）
+## 2. 现状架构速览（Phase A—C 改动锚点）
 
-| 执行包声明 | 实际 | 结论 |
-|---|---|---|
-| 后端 `lib/mos/routes/{plans,campaigns,topics,tasks,content,creative,video,publishing,reviews,admissions,analytics,sources,channels}.js` | 全部存在 | ✅ 一致 |
-| 领域与策略 `lib/mos/{dict,rbac,reviewlib,admissionlib,skill,store,config}.js` | 全部存在 | ✅ 一致 |
-| 适配 `lib/mos/adapters/{identity,knowledge,library,source,text,image}.js` | 全部存在 | ✅ 一致 |
-| 前端 `public/mos/js/modules/{workspace,planning,campaigns,topics,tasks,content,visual,video,publishing,reviews,governance,brand,reference,analytics,intelligence}.js` | 全部存在 | ✅ 一致 |
-| 测试 `tools/run-mos-tests.sh`、`mos-unit-test.js`、`mos-ui-check.js` 及 E2E 脚本 | 全部存在 | ✅ 一致 |
+### 2.1 后端路由（`lib/mos/routes/`，19 文件）
 
-**实际仓库中执行包未列出的文件**（属正常，非缺失）：
+| 域 | 文件（行数） | 关键端点 |
+| --- | --- | --- |
+| 研究 | `research.js`（341） | `POST /research/daily`、`POST /research/web`、`GET /research/reports[/:id]`、`GET /research/provider-status`；`topic-proposals` 创建/列表/`submit`/`decision` |
+| 编辑派工 | `editorial.js`（405） | `approve-to-pool`、`approve-and-schedule`（幂等 Saga）、`GET /editorial/views` |
+| 内容版本 | `content.js`（459） | `content-versions` CRUD、`/lock` 冻结送审、`/revise` 派生 |
+| 视频 | `video.js` | `GET/PUT /video/:taskId`（脚本/分镜/字幕/关键帧/成片上传） |
+| 创作 | `creative.js`（727） | `prompt-preview`、`formal-output-check`、`generation-jobs`、`assets/upload` |
+| 审核 | `reviews.js`（461） | `review-cases[/:id]`、`:id/decision`、`review-history` |
+| 发布 | `publishing.js`（588） | `schedules`、`calendar`、`publications`（仅人工登记）、`corrections`、`metrics` |
+| 其他 | `tasks/plans/topics/sources/admin/auth/meta/analytics/channels/campaigns/admissions` | — |
 
-- 路由额外：`admin.js`、`auth.js`、`helpers.js`、`index.js`、`meta.js`
-- 领域额外：`audit.js`、`ids.js`、`manifest.js`、`router.js`、`seed.js`
-- 前端额外：`guidelines.js`、`projects.js`
-- 测试额外：`mos-e2e-build02.js`、`mos-e2e-build03.js`、`mos-smoke-build02.js`、`mos-seed-build02.js`、`mos-reset-password.js`、`secret-scan.js`
+### 2.2 适配器（`lib/mos/adapters/`）
 
-**结论：无路径缺失，不存在「凭空改写不存在的模块」的风险。**
+`websearch`（**待实现**）、`text`（deepseek/mock/none，含 data-class 闸门）、`image`、`source`（**含连接层 SSRF**）、`library`、`workspace`（契约 1.0 逐字节实现）、`identity`、`knowledge`。
 
----
+### 2.3 数据（schema v7）
 
-## 5. 全量测试独立复跑（Phase 0 强制项）
+`users[].prefs` · `content_versions` · `review_cases/decisions` · `video_artifacts` · `generation_jobs` · `working_assets` · `source_registry/items` · `research_reports/findings/source_evidence/topic_proposals/research_jobs` · `master_topics/plan_items/content_tasks` · `publishing_schedules/publication_records/published_artifacts`。
 
-命令：`bash tools/run-mos-tests.sh all`
-执行时间：2026-10-13　退出码：**0**　耗时：约 119s
+### 2.4 前端（`public/mos/js/`）
 
-| 套件 | 断言 | 结果 | 证据文件 |
-|---|---|---|---|
-| smoke | 13 | 13/13 | `TEST_EVIDENCE_MOS_BUILD01/smoke-result.json` |
-| unit | 39 | 39/39 | `TEST_EVIDENCE_MOS_BUILD01/unit-result.json` |
-| e2e（BUILD-01） | 48 | 48/48 | `TEST_EVIDENCE_MOS_BUILD01/e2e-result.json` |
-| e2e02（BUILD-02） | 63 | 63/63 | `TEST_EVIDENCE_MOS_BUILD02/e2e-build02-result.json` |
-| e2e03（BUILD-03） | 75 | 75/75 | `TEST_EVIDENCE_MOS_BUILD03/e2e-build03-result.json` |
-| ui（真实 Chrome CDP） | 73 | 73/73 | `TEST_EVIDENCE_MOS_BUILD01/ui-check-result.json` |
-| **合计** | **311** | **311/311** | `TEST_EVIDENCE_MOS_BUILD01/summary.json` |
-
-**精确失败清单：0 项。跳过清单：0 项。**（`ui` 套件在本机**未跳过**，Chrome 154.0.8037.93 可用。）
-
-> 所有套件均使用随机端口（9500-9699）与随机独立数据目录（`data-mos-*`），跑完自动清理，不触碰 `data/`。
+`app.js`(452 导航/路由) · `i18n.js`(133 DOM 匹配) · `ui.js` · `api.js` · `components/{taskkit,reviewkit,campaignkit,assetkit}.js` · `modules/*`(19)。关键：`content.js`(563 内容编辑器) · `intelligence.js`(822 情报/AI 研究/选题建议) · `video.js`(358) · `visual.js`(270)。
 
 ---
 
-## 6. 已有实现确认（避免重复开发）
+## 3. Phase 0 真实浏览器基线（证据 `UI_EVIDENCE/PHASE0/`）
 
-| 执行包条目 | 当前状态 | 结论 |
-|---|---|---|
-| 三独立审核链（Professional / Publication / AssetAdmission） | 已实现（`reviews.js` + `PERM_BY_TYPE`） | 保留，不重建 |
-| `library.asset.approve.final` 独立特权 | 已实现（A-16 已修）；P1/MOS_ADMIN 不自动获得 | 保留 |
-| AssetAdmission 双字段 + 计算式 `reuseEligibility` | 已实现（`admissionlib.js`） | 保留 |
-| Mock 资料库结构上不可产生 `AVAILABLE` | 已实现 | 保留 |
-| Published Archive 仅在中台 + 物理快照 + 更正 append-only | 已实现（`publishing.js`） | 保留 |
-| Analytics 真实聚合 + `missing[]`（无假 KPI） | 已实现（`analytics.js`） | 保留 |
-| 数据分级 RESTRICTED 外发阻断（SEC-10） | 已实现（`creative.js`） | 保留 |
-| 八工作中心（Workspace/Brand/Planning/Creative/Publishing/Marketing/Analytics/Governance & Assets） | 已实现，UI 套件已校验 | 保留 |
-| `docs/MOCK_REAL_MATRIX.md` | 已存在，10 行集成矩阵 | 更新而非重建 |
+- 真实浏览器：**Chrome/155.0.8059.79**（CDP；`tools/mos-ux-evidence.js`；隔离数据目录，未触碰 `data/`）
+- 台账：`UI_EVIDENCE/PHASE0/steps.json`（17 步，**控制台错误 0 条**）；截图 16 张
 
-**尚未实现 / 需新增：**
+**已量化基线事实：**
 
-- **无任何定时调度器**（全仓无 `setInterval`）→ A-01 需新增轻量来源调度。
-- **`source.js` SSRF 硬绑定与逐跳校验**（P0-B03/B04/B05/B06/B07/B08）→ Phase 1。
-- **Marketing Center 的 VFIB / U CARD 双品牌营销工作区 + Campaign Brief/Deliverables** → Phase 2（F-05/A-02）。
-- **`docs/CURRENT_ARCHITECTURE.md`、`docs/API_CONTRACT_AND_INTEGRATION_STATUS.md`** → Phase 4。
-- **企业资料库真实集成适配契约（与 Enterprise Workspace 最新源码一致）** → Phase 3（A-06）。
+| 指标 | V0.1.2 基线实测 | V0.1.3 目标 |
+| --- | --- | --- |
+| 任务内点「图片与视频」是否跳出任务 | **跳出**（`content-editor → visual-studio`） | 不跳出（UX-02） |
+| 任务内点「审核与交付」是否跳出任务 | **跳出**（`content-editor → my-reviews`） | 不跳出（UX-02） |
+| P2 落地页 → 内容编辑器 | 1 次点击；但编辑器**初始未选中版本**（无正文可编辑），需再选/建版本 | ≤2 动作直达可编辑（UX-02） |
+| 一级导航 | 5 主 + 2 辅（模块 id 未变） | 维持 |
+| 首屏技术参数条数（内容编辑器右栏） | Provider 模式 + Skill 版本/状态 + rowVersion + textHash ≥4 条 | ≤0（收纳进高级设置） |
 
-**已确认的边界（不得触碰）：**
+---
 
-- S05 客户增长、品牌声誉专项、营销线索移交闭环、代理后台、社媒自动发布 → **MARK，不开发**。
-- 不重构企业资料库、不重开发 OA、不接真实银行生产凭据。
+## 4. 现有测试口径（基线）
+
+`bash tools/run-mos-tests.sh all` → **773/773**，13 套件：`smoke · unit · sec · sched · provider · workspace · dual · e2e · e2e02 · e2e03 · ui · research(55) · editorial(43)`；`ui` 110/110（真实 Chrome）。独立：`joint` 64/64、`build06` 61/61。证据：`TEST_EVIDENCE_MOS_BUILD01..06`、`TEST_EVIDENCE_MOS_V012_{RESEARCH,EDITORIAL}`。
+
+---
+
+## 5. 本轮改动边界（红线，零违反承诺）
+
+- ✅ 不改企业资料库源码；✅ 不改双系统 API 契约 1.0（`adapters/workspace.js` 保持）
+- ✅ 不重建 8 大业务中心；不重造 OA 数据库；不改 Published Archive 权威归属
+- ✅ 不改最终资产审批权限（`library.asset.approve.final` 仅真实身份；选题审批不可代替）
+- ✅ 不擅自自动发布社媒；不偷加 S05/CRM/代理佣金
+- ✅ 不把 Mock 标为 REAL；未核验银行能力不作宣传；未获批准不部署生产
+- ✅ 保留**无 AI 时的手工完成全链路**（防 API 失效导致业务瘫痪）
+
+---
+
+## 6. 实施次序（对齐执行包 00 §执行节奏）
+
+| 阶段 | 目标 | 交付 |
+| --- | --- | --- |
+| **A** | 一站式任务空间（内嵌正文/图片/视频脚本分镜/审核提交，不跳出任务）+ 信息层级减法；先保证**无 AI 也可全链路完成** | `REPORTS/PHASE_A_UX.md` + `UI_EVIDENCE/PHASEA/` |
+| **B** | 真实授权搜索 Provider（可配置/不写死）+ 连接层 SSRF + 文档获取 + 证据链 + LLM 结构化研究 + 栏目推荐 + 异步 job/预算/取消 | `REPORTS/PHASE_B_REAL_RESEARCH.md` + `REAL_PROVIDER_EVIDENCE/` |
+| **C** | key-based 双语（`zh-CN`/`en-US` 资源 + `t(key,params)` + 状态/错误码映射）+ 品牌减法 + 响应式/无障碍 | `REPORTS/PHASE_C_CONTENT_I18N.md` |
+| **D** | 全量回归 + 双系统联调 + 迁移/安全/回滚 + 升版 **0.1.3** | `REPORTS/FINAL_ACCEPTANCE_V0.1.3.md` + `OPEN_ITEMS.md` + 源码包 |
 
 ---
 
 ## 7. Phase 0 结论
 
-1. **基线可信**：commit `567de9c`，零依赖，schema v3，311/311 全绿（含真实浏览器 UI）。
-2. **执行包所述「237/238 全量失败」不成立**——其中 1 项失败源于测试的公网 DNS 依赖，73 项 UI 断言源于审计环境缺浏览器。**产品侧无 P0 级失败**。
-3. **但确实存在真实 P0 问题**：空壳测试（假通过）、SSRF 校验与连接未绑定、重定向未逐跳校验、URL 凭据/端口未校验、解压膨胀面、环回开关未在生产禁用。→ 全部进入 Phase 1。
-4. **无阻断性环境缺失**：Chrome 可用，UI 套件可运行，无需标记 `BLOCKED`。
-5. 继续执行 Phase 1，不停止。
-
----
-
-## 附：Phase 0 复现命令
-
-```bash
-cd /d/运营系统/VFIB-Marketing-OS
-node -v                                   # v22.22.2
-git rev-parse HEAD                        # 567de9c...
-bash tools/run-mos-tests.sh all           # EXIT=0，311/311
-```
+- 执行包对现状的描述**基本准确**；核实发现 **3 处需修正**：
+  1. Web Search 不只是「BLOCKED 待密钥」——**真实通道未实现**（`PROVIDER_NOT_IMPLEMENTED`），属**实现缺口**而非配置问题；
+  2. 研究域**缺异步 job 状态机/进度/取消/预算门禁**；
+  3. `text.js` 注释引用的 `lib/deepseek.js` **不存在**（文档过时）。
+- 两项 P0 体验缺口的**真实浏览器实证已取得**（跳出现象 2/2，截图 16 张，零控制台错误）。
+- 结论：**可按 A→B→C→D 连续实施**，无需先修复环境问题。
