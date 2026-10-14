@@ -72,6 +72,29 @@
       "timeoutMs": 15000,
       "correlationIdPrefix": "mos"
     },
+    "websearch": {
+      "_comment": "V0.1.3 Phase B 真实检索 Provider。provider: none|searxng|brave|bing|google|tavily。默认 none → Web 研究 BLOCKED（零出站、零伪造）。apiKey 只在服务端，绝不入日志/导出物。计费型（brave/bing/google/tavily）必须同时配置 budget.perJobUsdMax>0，否则 fail closed。",
+      "provider": "none",
+      "apiKey": "",
+      "baseUrl": "",
+      "cx": "",
+      "timeoutMs": 15000,
+      "maxResults": 10,
+      "maxRetries": 1,
+      "lang": "en",
+      "research": {
+        "_comment": "研究文档抓取：连接层 SSRF 在 adapters/source.js 实现（DNS 固定 IP + 逐跳校验）。allowedHosts 留空=只做 SSRF（放行任意公网主机）；非空=更严的额外白名单。",
+        "enabled": true,
+        "fetchFullText": true,
+        "maxDocs": 6,
+        "docTimeoutMs": 12000,
+        "docMaxBytes": 1572864,
+        "allowCompressed": true,
+        "allowedHosts": [],
+        "excerptChars": 4000,
+        "maxEvidence": 16
+      }
+    },
     "budget": {
       "brandMonthlyUsd": 0,
       "perJobUsdMax": 0

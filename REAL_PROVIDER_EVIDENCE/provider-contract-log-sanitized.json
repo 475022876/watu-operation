@@ -1,0 +1,253 @@
+{
+  "note": "真实 HTTP 请求/响应（由本地契约替身记录）。凭据只记录\"是否存在\"，**值一律脱敏**；模型请求体只记录角色与字符数，不落提示词全文。",
+  "generatedAt": "2026-10-14T13:04:09.702Z",
+  "totals": {
+    "search": 4,
+    "model": 2,
+    "documents": 12
+  },
+  "entries": [
+    {
+      "at": "2026-10-14T13:04:02.337Z",
+      "method": "GET",
+      "path": "/search",
+      "query": "q=%E8%B7%A8%E5%A2%83%E6%94%AF%E4%BB%98%E7%9B%91%E7%AE%A1%E5%8A%A8%E6%80%81%E4%B8%8E%E7%A8%B3%E5%AE%9A%E5%B8%81%E7%9B%91%E7%AE%A1%E7%A2%8E%E7%89%87%E5%8C%96&format=json&language=en&time_range=year",
+      "authHeaderPresent": true,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 1569
+    },
+    {
+      "at": "2026-10-14T13:04:02.356Z",
+      "method": "GET",
+      "path": "/doc/regulator-a",
+      "query": "",
+      "authHeaderPresent": false,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 707
+    },
+    {
+      "at": "2026-10-14T13:04:02.360Z",
+      "method": "GET",
+      "path": "/doc/org-b",
+      "query": "",
+      "authHeaderPresent": false,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 755
+    },
+    {
+      "at": "2026-10-14T13:04:02.363Z",
+      "method": "GET",
+      "path": "/doc/org-c",
+      "query": "",
+      "authHeaderPresent": false,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 604
+    },
+    {
+      "at": "2026-10-14T13:04:02.365Z",
+      "method": "GET",
+      "path": "/doc/missing",
+      "query": "",
+      "authHeaderPresent": false,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 404,
+      "responseBytes": 22
+    },
+    {
+      "at": "2026-10-14T13:04:02.382Z",
+      "method": "POST",
+      "path": "/v1/chat/completions",
+      "query": "",
+      "authHeaderPresent": true,
+      "authValueRedacted": true,
+      "requestBytes": 5152,
+      "requestBodySanitized": {
+        "model": "fixture-research-model",
+        "stream": false,
+        "messages": [
+          {
+            "role": "system",
+            "chars": 1471
+          },
+          {
+            "role": "user",
+            "chars": 3344
+          }
+        ]
+      },
+      "responseStatus": 200,
+      "responseBytes": 4218
+    },
+    {
+      "at": "2026-10-14T13:04:02.554Z",
+      "method": "GET",
+      "path": "/search",
+      "query": "q=%E8%B7%A8%E5%A2%83%E6%94%AF%E4%BB%98%E7%9B%91%E7%AE%A1%E5%8A%A8%E6%80%81%E4%B8%8E%E7%A8%B3%E5%AE%9A%E5%B8%81%E7%9B%91%E7%AE%A1%E7%A2%8E%E7%89%87%E5%8C%96&format=json&language=en&time_range=year",
+      "authHeaderPresent": true,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 1569
+    },
+    {
+      "at": "2026-10-14T13:04:02.556Z",
+      "method": "GET",
+      "path": "/doc/regulator-a",
+      "query": "",
+      "authHeaderPresent": false,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 707
+    },
+    {
+      "at": "2026-10-14T13:04:02.558Z",
+      "method": "GET",
+      "path": "/doc/org-b",
+      "query": "",
+      "authHeaderPresent": false,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 755
+    },
+    {
+      "at": "2026-10-14T13:04:02.560Z",
+      "method": "GET",
+      "path": "/doc/org-c",
+      "query": "",
+      "authHeaderPresent": false,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 604
+    },
+    {
+      "at": "2026-10-14T13:04:02.561Z",
+      "method": "GET",
+      "path": "/doc/missing",
+      "query": "",
+      "authHeaderPresent": false,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 404,
+      "responseBytes": 22
+    },
+    {
+      "at": "2026-10-14T13:04:02.567Z",
+      "method": "POST",
+      "path": "/v1/chat/completions",
+      "query": "",
+      "authHeaderPresent": true,
+      "authValueRedacted": true,
+      "requestBytes": 5152,
+      "requestBodySanitized": {
+        "model": "fixture-research-model",
+        "stream": false,
+        "messages": [
+          {
+            "role": "system",
+            "chars": 1471
+          },
+          {
+            "role": "user",
+            "chars": 3344
+          }
+        ]
+      },
+      "responseStatus": 200,
+      "responseBytes": 4218
+    },
+    {
+      "at": "2026-10-14T13:04:04.504Z",
+      "method": "GET",
+      "path": "/search",
+      "query": "q=%E8%B7%A8%E5%A2%83%E6%94%AF%E4%BB%98%E7%9B%91%E7%AE%A1%E5%8A%A8%E6%80%81&format=json&language=en",
+      "authHeaderPresent": true,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 1542
+    },
+    {
+      "at": "2026-10-14T13:04:04.514Z",
+      "method": "GET",
+      "path": "/doc/regulator-a",
+      "query": "",
+      "authHeaderPresent": false,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 707
+    },
+    {
+      "at": "2026-10-14T13:04:04.517Z",
+      "method": "GET",
+      "path": "/doc/org-b",
+      "query": "",
+      "authHeaderPresent": false,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 755
+    },
+    {
+      "at": "2026-10-14T13:04:04.518Z",
+      "method": "GET",
+      "path": "/doc/org-c",
+      "query": "",
+      "authHeaderPresent": false,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 604
+    },
+    {
+      "at": "2026-10-14T13:04:04.519Z",
+      "method": "GET",
+      "path": "/doc/missing",
+      "query": "",
+      "authHeaderPresent": false,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 404,
+      "responseBytes": 22
+    },
+    {
+      "at": "2026-10-14T13:04:05.829Z",
+      "method": "GET",
+      "path": "/search",
+      "query": "q=slow-cancel+%E5%8F%96%E6%B6%88%E8%B4%9F%E4%BE%8B&format=json&language=en",
+      "authHeaderPresent": true,
+      "authValueRedacted": true,
+      "requestBytes": 0,
+      "requestBodySanitized": null,
+      "responseStatus": 200,
+      "responseBytes": 1542
+    }
+  ]
+}

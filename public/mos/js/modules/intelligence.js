@@ -475,9 +475,58 @@ const CHANNEL_LABELS = {
 };
 
 function reportBadge(st) {
-  const map = { COMPLETED: 'badge-ok', BLOCKED: 'badge-warn', FAILED: 'badge-danger', PENDING: 'badge-info', RUNNING: 'badge-info' };
-  return '<span class="badge ' + (map[st] || 'badge-neutral') + '">' + esc(st) + '</span>';
+  const map = {
+    COMPLETED: 'badge-ok', AI_RESEARCH_COMPLETE: 'badge-ok',
+    RETRIEVAL_ONLY: 'badge-warn', BLOCKED: 'badge-warn', FAILED: 'badge-danger',
+    PENDING: 'badge-info', RUNNING: 'badge-info'
+  };
+  const label = {
+    AI_RESEARCH_COMPLETE: 'AI 研究完成', RETRIEVAL_ONLY: '仅检索（未分析）',
+    BLOCKED: '已阻断', COMPLETED: '已完成'
+  }[st] || st;
+  return '<span class="badge ' + (map[st] || 'badge-neutral') + '">' + esc(label) + '</span>';
 }
+
+/** Provider 就绪状态（06 §真实Provider判定；**不隐去 BLOCKED**） */
+function readinessBadge(readiness) {
+  const map = {
+    REAL: ['badge-ok', '已真实联调'],
+    CONFIGURED_NOT_TESTED: ['badge-info', '已配置·未联调'],
+    NOT_CONFIGURED: ['badge-warn', '未配置'],
+    NOT_IMPLEMENTED: ['badge-warn', '适配器未实现'],
+    BLOCKED: ['badge-danger', '已阻断']
+  };
+  const hit = map[readiness] || ['badge-neutral', readiness || '未知'];
+  return '<span class="badge ' + hit[0] + '">' + esc(hit[1]) + '</span>';
+}
+
+/** 作业状态徽章（异步研究作业） */
+function jobBadge(st) {
+  const map = {
+    QUEUED: 'badge-info', RUNNING: 'badge-info', COMPLETED: 'badge-ok',
+    BLOCKED: 'badge-warn', FAILED: 'badge-danger', CANCELLED: 'badge-neutral'
+  };
+  const label = { QUEUED: '排队中', RUNNING: '执行中', COMPLETED: '已完成', BLOCKED: '已阻断', FAILED: '失败', CANCELLED: '已取消' };
+  return '<span class="badge ' + (map[st] || 'badge-neutral') + '">' + esc(label[st] || st) + '</span>';
+}
+
+/** 阶段中文名（首屏不出现技术阶段码） */
+function stageLabel(stage) {
+  return {
+    QUEUED: '排队', SEARCHING: '检索外部来源', FETCHING: '读取受限网页', VERIFYING: '证据核验',
+    ANALYZING: '结构化分析', DONE: '完成', CANCELLED: '已取消', FAILED: '失败', BLOCKED: '已阻断'
+  }[stage] || stage || '';
+}
+
+const AVAILABILITY_LABEL = {
+  AVAILABLE: '可读全文', NOT_FOUND: '页面不存在（404）', HTTP_ERROR: '上游错误',
+  BLOCKED: '被安全策略阻断', UNAVAILABLE: '不可用', UNSUPPORTED_TYPE: '非文本内容'
+};
+
+const GAP_LABEL = {
+  NOT_FOUND: '证据缺口', DATE_UNKNOWN: '发布时间未知', SINGLE_SOURCE: '单一来源',
+  CONFLICT: '来源间存在矛盾', TIME_SENSITIVE: '时间敏感·需重新核验', STALE: '可能已过时'
+};
 function proposalBadge(st) {
   const map = { AI_RECOMMENDED: 'badge-info', PENDING_EDITORIAL_REVIEW: 'badge-warn', APPROVED: 'badge-ok', REVISION_REQUESTED: 'badge-warn', ON_HOLD: 'badge-neutral', REJECTED: 'badge-danger' };
   return '<span class="badge ' + (map[st] || 'badge-neutral') + '">' + esc(st) + '</span>';
@@ -487,44 +536,83 @@ function verificationBadge(v) {
   return '<span class="badge ' + (map[v] || 'badge-neutral') + '">' + esc(v === 'NEEDS_VERIFICATION' ? '待核验' : v) + '</span>';
 }
 
+let researchJobs = [];
+let jobTimer = null;
+let reportFilter = '';
+
 async function renderResearch() {
   const ctx = ctxRef;
-  let data;
-  try { data = await api.get(withBrand('/api/mos/research/reports', ctx.brand)); }
-  catch (err) {
+  let data, prov, jobs;
+  try {
+    data = await api.get(withBrand('/api/mos/research/reports', ctx.brand));
+    prov = await api.get('/api/mos/research/providers');
+    jobs = await api.get(withBrand('/api/mos/research/jobs', ctx.brand));
+  } catch (err) {
     const s = stateBlock(err.status === 404 ? 'denied' : 'error', { title: err.status === 404 ? '无权访问该品牌' : '加载失败', desc: err.message, actions: [{ label: '重试', primary: true, onClick: renderResearch }] });
     setBody(s.html); s.bind(bodyEl()); return;
   }
+  researchJobs = jobs.items || [];
+  const p = prov.providers || {};
+  const bud = prov.budget || {};
 
-  const ws = data.webSearch || {};
   let html = '<div class="filters">'
-    + '<button class="btn btn-sm btn-primary" id="dailyBtn">汇编每日情报（可信来源）</button>'
-    + '<button class="btn btn-sm" id="webBtn">发起 Web 研究</button>'
+    + '<button class="btn btn-sm btn-primary" id="dailyBtn">汇编每日情报</button>'
+    + '<button class="btn btn-sm btn-primary" id="deepBtn">发起专题研究</button>'
+    + '<select id="rflt"><option value="">全部报告</option>'
+    + '<option value="AI_RESEARCH_COMPLETE"' + (reportFilter === 'AI_RESEARCH_COMPLETE' ? ' selected' : '') + '>AI 研究完成</option>'
+    + '<option value="RETRIEVAL_ONLY"' + (reportFilter === 'RETRIEVAL_ONLY' ? ' selected' : '') + '>仅检索（未分析）</option>'
+    + '<option value="BLOCKED"' + (reportFilter === 'BLOCKED' ? ' selected' : '') + '>已阻断</option></select>'
     + '<span class="pill">共 ' + data.items.length + ' 份报告</span></div>';
 
-  html += '<div class="callout ' + (ws.configured ? 'ok' : 'warn') + '">Web 研究通道：'
-    + (ws.configured ? '<span class="badge badge-ok">已配置</span>' : '<span class="badge badge-warn">未配置（BLOCKED）</span>')
-    + ' · ' + esc(ws.reason || '真实外部搜索需要 MOS_WEBSEARCH_PROVIDER + MOS_WEBSEARCH_API_KEY，未配置前系统拒绝执行、绝不以模拟冒充真实研究。')
-    + '</div>';
+  // 外部搜索状态（一屏；技术参数收进「高级」）
+  html += '<div class="callout ' + (p.readiness === 'REAL' ? 'ok' : (p.readiness === 'NOT_CONFIGURED' || p.readiness === 'NOT_IMPLEMENTED' ? 'warn' : '')) + '">'
+    + '外部搜索通道：' + readinessBadge(p.readiness) + ' · 供应商 <span class="mono">' + esc(p.provider || 'none') + '</span>'
+    + '<div class="small muted" style="margin-top:4px">' + esc(p.note || '') + '</div>'
+    + '<details class="adv"><summary>高级：预算与端点</summary>'
+    + '<div class="small muted">单作业上限 $' + esc(String(bud.perJobUsdMax == null ? 0 : bud.perJobUsdMax))
+    + ' · 品牌月度上限 $' + esc(String(bud.brandMonthlyUsd == null ? 0 : bud.brandMonthlyUsd))
+    + ' · 本月已确认 $' + esc(String(bud.spentConfirmedUsd == null ? 0 : bud.spentConfirmedUsd))
+    + ' · 端点主机 <span class="mono">' + esc(p.endpointHost || '—') + '</span>'
+    + '<br>' + esc(bud.note || '') + '</div></details></div>';
 
-  if (!data.items.length) {
+  // 进行中的研究作业（进度/阶段/取消）
+  const active = researchJobs.filter((j) => ['QUEUED', 'RUNNING'].indexOf(j.status) !== -1);
+  if (active.length) {
+    html += '<div class="card"><div class="card-head"><h2>进行中的研究（' + active.length + '）</h2></div><div class="card-body tight" id="jobList">';
+    for (const j of active) html += jobRowHtml(j);
+    html += '</div></div>';
+  }
+
+  // 最近完成的作业（失败/阻断也要如实可见）
+  const recent = researchJobs.filter((j) => ['QUEUED', 'RUNNING'].indexOf(j.status) === -1).slice(0, 3);
+  if (recent.length) {
+    html += '<div class="card"><div class="card-head"><h2>最近研究作业</h2></div><div class="card-body tight">';
+    for (const j of recent) html += jobRowHtml(j);
+    html += '</div></div>';
+  }
+
+  const shown = reportFilter ? data.items.filter((r) => r.status === reportFilter) : data.items;
+  if (!shown.length) {
     html += '<div class="card"><div class="card-body">' + stateBlock('empty', {
       title: '暂无研究报告',
-      desc: '点击「汇编每日情报」从已采集的可信来源条目生成结构化报告；或先到「来源登记」启用来源并完成采集。'
+      desc: '点「汇编每日情报」从已采集的可信来源生成报告；或点「发起专题研究」做一次真实外部检索与结构化分析。'
     }).html + '</div></div>';
   } else {
     html += '<div class="card"><div class="card-head"><h2>研究报告</h2></div><div class="card-body tight">';
-    for (const r of data.items) {
+    for (const r of shown) {
       html += '<div class="list-item"><div class="li-main">'
-        + '<div class="li-title">' + esc(r.code) + ' · ' + esc(r.mode) + ' ' + reportBadge(r.status) + ' ' + demoBadge(r.demo) + '</div>'
-        + '<div class="li-sub">' + esc(String(r.query || '').slice(0, 120)) + '</div>'
-        + '<div class="li-sub small muted">发现 ' + (r.findingCount || 0) + ' 条 · 关联选题建议 ' + (r.proposalCount || 0) + ' 条 · '
+        + '<div class="li-title">' + esc(r.code) + ' · ' + reportBadge(r.status) + ' ' + demoBadge(r.demo) + '</div>'
+        + '<div class="li-sub">' + esc(String(r.title || r.query || '').slice(0, 140)) + '</div>'
+        + '<div class="li-sub small muted">证据 ' + ((r.sources || []).length) + ' 条 · 发现 ' + (r.findingCount || 0)
+        + ' 条 · 候选选题 ' + ((r.editorialOpportunities || []).length) + ' 条 · 未决 ' + ((r.unresolvedClaims || []).length) + ' 项 · '
         + esc(fmtDateTime(r.createdAt)) + '</div>'
         + (r.blockedReason ? '<div class="err-text">' + esc(r.blockedReason) + '</div>' : '')
         + '</div><div class="li-actions"><button class="btn btn-sm" data-rpt="' + esc(r.id) + '">详情</button></div></div>';
     }
     html += '</div></div>';
   }
+  html += '<div class="hint">研究规则：检索结果不等于有效证据（404 / 日期不明 / 单一来源 / 矛盾一律如实标注）；'
+    + '无来源的事实会被强制降级；未接入分析模型时只输出检索结果，<b>不会</b>标记为「AI 研究完成」。</div>';
 
   setBody(html);
   hostEl.querySelector('#dailyBtn').addEventListener('click', async (e) => {
@@ -535,24 +623,105 @@ async function renderResearch() {
       renderResearch();
     } catch (err) { toast(err.message, 'err'); e.target.disabled = false; }
   });
-  hostEl.querySelector('#webBtn').addEventListener('click', () => webResearchDialog());
+  hostEl.querySelector('#deepBtn').addEventListener('click', () => deepResearchDialog());
+  hostEl.querySelector('#rflt').addEventListener('change', (e) => { reportFilter = e.target.value; renderResearch(); });
   hostEl.querySelectorAll('[data-rpt]').forEach((b) => b.addEventListener('click', () => openReport(b.dataset.rpt)));
+  bindJobActions();
+
+  scheduleJobPoll();
 }
 
-function webResearchDialog() {
+function jobRowHtml(j) {
+  const pct = Math.max(0, Math.min(100, Number(j.progress) || 0));
+  return '<div class="list-item" data-job="' + esc(j.id) + '">'
+    + '<div class="li-main"><div class="li-title">' + esc(j.code) + ' · ' + jobBadge(j.status) + ' · '
+    + esc(stageLabel(j.stage)) + ' <span class="pill">' + pct + '%</span></div>'
+    + '<div class="li-sub">' + esc(String(j.query || '').slice(0, 120)) + '</div>'
+    + '<div class="progress"><i style="width:' + pct + '%"></i></div>'
+    + '<div class="li-sub small muted">检索 trace ' + esc(String(j.providerTraceId || '—'))
+    + ' · 证据 ' + (j.evidenceCount || 0) + ' · 发现 ' + (j.findingCount || 0) + '</div>'
+    + (j.reason ? '<div class="' + (j.status === 'FAILED' ? 'err-text' : 'small muted') + '">' + esc(j.reason) + '</div>' : '')
+    + '</div><div class="li-actions">'
+    + (['QUEUED', 'RUNNING'].indexOf(j.status) !== -1 ? '<button class="btn btn-sm" data-jcancel="' + esc(j.id) + '">取消</button>' : '')
+    + (['FAILED', 'BLOCKED', 'CANCELLED'].indexOf(j.status) !== -1 ? '<button class="btn btn-sm" data-jretry="' + esc(j.id) + '">重试</button>' : '')
+    + (j.reportId ? '<button class="btn btn-sm" data-jrep="' + esc(j.reportId) + '">看报告</button>' : '')
+    + '</div></div>';
+}
+
+function bindJobActions() {
+  hostEl.querySelectorAll('[data-jcancel]').forEach((b) => b.addEventListener('click', async () => {
+    b.disabled = true;
+    try { await api.post(withBrand('/api/mos/research/jobs/' + b.dataset.jcancel + '/cancel', ctxRef.brand), {}); toast('已取消', 'ok'); }
+    catch (err) { toast(err.message, 'err'); }
+    renderResearch();
+  }));
+  hostEl.querySelectorAll('[data-jretry]').forEach((b) => b.addEventListener('click', async () => {
+    b.disabled = true;
+    try { await api.post(withBrand('/api/mos/research/jobs/' + b.dataset.jretry + '/retry', ctxRef.brand), {}); toast('已重新排队（复用同一报告，避免重复计费）', 'ok'); }
+    catch (err) { toast(err.message, 'err'); }
+    renderResearch();
+  }));
+  hostEl.querySelectorAll('[data-jrep]').forEach((b) => b.addEventListener('click', () => openReport(b.dataset.jrep)));
+}
+
+/** 只在存在活动作业时轮询；离开页签/全部终态即停止 */
+function scheduleJobPoll() {
+  if (jobTimer) { clearTimeout(jobTimer); jobTimer = null; }
+  const active = researchJobs.filter((j) => ['QUEUED', 'RUNNING'].indexOf(j.status) !== -1);
+  if (!active.length || tab !== 'research') return;
+  jobTimer = setTimeout(async () => {
+    try {
+      const jobs = await api.get(withBrand('/api/mos/research/jobs', ctxRef.brand));
+      researchJobs = jobs.items || [];
+      const el = hostEl.querySelector('#jobList');
+      const activeNow = researchJobs.filter((j) => ['QUEUED', 'RUNNING'].indexOf(j.status) !== -1);
+      if (el && activeNow.length) el.innerHTML = activeNow.map(jobRowHtml).join('');
+      bindJobActions();
+      if (activeNow.length) scheduleJobPoll();
+      else { toast('研究作业已结束', 'ok'); renderResearch(); }
+    } catch (_) { scheduleJobPoll(); }
+  }, 1500);
+}
+
+/** 发起专题研究：提交后**立即返回 jobId**，进度在页面上滚动，可取消 */
+function deepResearchDialog() {
   openModal({
-    title: '发起 Web 研究',
-    okText: '发起（未配置则 BLOCKED）',
-    body: '<div class="hint">外部搜索受来源可信与合规约束；当前无凭据时会<b>如实记 BLOCKED</b>，不产生任何伪造发现。</div>'
-      + '<label class="field"><span>研究主题</span><input id="wrQ" type="text" placeholder="例如：某监管新规对行业的影响"></label>'
-      + '<label class="field"><span>深度</span><select id="wrD"><option value="STANDARD">STANDARD</option><option value="DEEP">DEEP</option></select></label>',
+    title: '发起专题研究',
+    okText: '开始研究',
+    body: '<div class="hint">系统会做一次**真实外部检索**并读取受限网页（连接层 SSRF 防护），'
+      + '再交给分析模型产出结构化研究。未配置凭据时会如实记 <b>已阻断</b>，绝不伪造结果；'
+      + '未接入模型时只给检索证据（不标「AI 研究完成」）。</div>'
+      + '<label class="field"><span>研究主题 *</span><input id="drQ" type="text" placeholder="例如：跨境支付监管动态与稳定币监管碎片化"></label>'
+      + '<label class="field"><span>研究目标（可选）</span><input id="drO" type="text" placeholder="例如：评估对机构业务与内容机会的影响"></label>'
+      + '<div class="grid grid-2">'
+      + '<label class="field"><span>起始日期（可选）</span><input id="drF" type="date"></label>'
+      + '<label class="field"><span>截止日期（可选）</span><input id="drT" type="date"></label>'
+      + '</div>'
+      + '<details class="adv"><summary>高级：深度与范围</summary>'
+      + '<div class="grid grid-2">'
+      + '<label class="field"><span>深度</span><select id="drD"><option value="STANDARD">标准</option><option value="DEEP">深入</option></select></label>'
+      + '<label class="field"><span>最多来源</span><input id="drN" type="number" min="1" max="30" value="10"></label>'
+      + '<label class="field"><span>地区（可选）</span><input id="drR" type="text" placeholder="例如：APAC"></label>'
+      + '<label class="field"><span>业务方向（可选）</span><input id="drI" type="text" placeholder="例如：跨境支付"></label>'
+      + '</div></details>',
     onOk: async (b) => {
+      const query = b.querySelector('#drQ').value.trim();
+      if (!query) { toast('请填写研究主题', 'err'); return false; }
+      const from = b.querySelector('#drF').value || null;
+      const to = b.querySelector('#drT').value || null;
       try {
-        const r = await api.post(withBrand('/api/mos/research/web', ctxRef.brand), {
-          query: b.querySelector('#wrQ').value, depth: b.querySelector('#wrD').value
+        const r = await api.post(withBrand('/api/mos/research/jobs', ctxRef.brand), {
+          query,
+          objective: b.querySelector('#drO').value.trim() || null,
+          timeWindow: (from || to) ? { from, to } : null,
+          region: b.querySelector('#drR').value.trim() || null,
+          industry: b.querySelector('#drI').value.trim() || null,
+          depth: b.querySelector('#drD').value,
+          maxResults: Number(b.querySelector('#drN').value) || null,
+          // 前端自动生成幂等键：双击/刷新不会重复扣费（键绑定账号+品牌+内容摘要）
+          idempotencyKey: 'ui:' + ctxRef.brand + ':' + query.slice(0, 60)
         });
-        if (r.report.status === 'BLOCKED') toast('研究被阻断（未配置）：' + (r.report.blockedReason || ''), 'err');
-        else toast('研究已完成', 'ok');
+        toast(r.deduplicated ? '已有相同研究，已复用作业 ' + r.job.code : '研究已启动 ' + r.job.code, 'ok');
         renderResearch();
       } catch (err) { toast(err.message, 'err'); return false; }
     }
@@ -566,31 +735,141 @@ async function openReport(id) {
   const r = data.report;
   const dr = openDrawer({ title: '研究报告 ' + r.code });
 
-  let h = '<dl class="kv">'
-    + '<dt>模式 / 状态</dt><dd>' + esc(r.mode) + ' ' + reportBadge(r.status) + '</dd>'
-    + '<dt>主题</dt><dd>' + esc(r.query || '') + '</dd>'
-    + '<dt>提供方</dt><dd>' + esc(r.provider || '—') + ' · 成本 $' + esc(String(r.costUsd || 0)) + '</dd>'
-    + '<dt>创建</dt><dd>' + esc(fmtDateTime(r.createdAt)) + '</dd>'
-    + '</dl>';
-  if (r.blockedReason) h += '<div class="callout warn"><strong>BLOCKED</strong><br>' + esc(r.blockedReason) + '</div>';
+  const render = () => {
+    let h = '<dl class="kv">'
+      + '<dt>模式 / 完成度</dt><dd>' + esc(r.mode) + ' ' + reportBadge(r.status)
+      + (r.completion && r.completion !== r.status ? ' <span class="pill">' + esc(r.completion) + '</span>' : '') + '</dd>'
+      + '<dt>主题</dt><dd>' + esc(r.title || r.query || '') + '</dd>'
+      + (r.objective ? '<dt>研究目标</dt><dd>' + esc(r.objective) + '</dd>' : '')
+      + '<dt>时间范围</dt><dd>' + esc(r.period && (r.period.from || r.period.to)
+        ? (fmtDate(r.period.from) + ' ~ ' + fmtDate(r.period.to)) : '未限定') + '</dd>'
+      + '<dt>提供方 / 模型</dt><dd><span class="mono">' + esc(r.provider || '—') + '</span> · '
+      + esc(r.model || '未调用模型') + '</dd>'
+      + '<dt>创建</dt><dd>' + esc(fmtDateTime(r.createdAt)) + '</dd>'
+      + '</dl>';
 
-  h += '<div class="divider"></div><h3>发现（' + (r.findings || []).length + '）</h3>';
-  if (!(r.findings || []).length) {
-    h += '<div class="small muted">无发现。汇编类报告只会从真实采集条目生成，绝不编造。</div>';
-  } else {
-    for (const f of r.findings) {
+    if (r.blockedReason) h += '<div class="callout warn"><strong>已阻断</strong><br>' + esc(r.blockedReason) + '</div>';
+    if (r.completion === 'RETRIEVAL_ONLY') {
+      h += '<div class="callout warn"><strong>仅检索（未分析）</strong><br>'
+        + '本次没有可用的分析模型，因此只提供检索与证据留档。<b>这不是 AI 研究结论</b>，不得直接对外使用。</div>';
+    }
+
+    if (r.executiveSummary) h += '<div class="divider"></div><h3>摘要</h3><div class="small">' + esc(r.executiveSummary) + '</div>';
+    if (r.industryImplications) h += '<h3>行业含义</h3><div class="small">' + esc(r.industryImplications) + '</div>';
+    if (r.vfibRelevance) h += '<h3>与本机构的相关性</h3><div class="small">' + esc(r.vfibRelevance) + '</div>';
+
+    h += '<div class="divider"></div><h3>来源与证据（' + ((r.sources || []).length) + '）</h3>';
+    if (!(r.sources || []).length) h += '<div class="small muted">无来源记录。</div>';
+    for (const s of (r.sources || [])) {
       h += '<div class="list-item"><div class="li-main">'
-        + '<div class="li-title">' + esc(f.kind) + ' ' + verificationBadge(f.verificationState) + '</div>'
-        + '<div class="li-sub">' + esc(String(f.statement || '').slice(0, 300)) + '</div>';
+        + '<div class="li-title">' + esc(s.title || '(无标题)') + ' <span class="badge '
+        + (s.availability === 'AVAILABLE' ? 'badge-ok' : 'badge-warn') + '">' + esc(AVAILABILITY_LABEL[s.availability] || s.availability) + '</span></div>'
+        + '<div class="li-sub small muted">' + esc(s.sourceName || '') + ' · 发布 ' + esc(s.publishedAt ? fmtDate(s.publishedAt) : 'Unknown')
+        + ' · 抓取 ' + esc(fmtDate(s.retrievedAt)) + ' · 许可 ' + esc(s.licenseState || 'UNKNOWN')
+        + ' · 指纹 <span class="mono">' + esc(String(s.contentHash || '').slice(0, 10)) + '</span></div>'
+        + '<div class="li-sub small"><a href="' + esc(s.url) + '" target="_blank" rel="noopener noreferrer">打开原文</a></div>'
+        + '</div></div>';
+    }
+
+    h += '<div class="divider"></div><h3>关键发现（' + ((r.findings || []).length) + '）</h3>';
+    if (!(r.findings || []).length) h += '<div class="small muted">无发现。</div>';
+    for (const f of (r.findings || [])) {
+      h += '<div class="list-item"><div class="li-main">'
+        + '<div class="li-title">' + esc(kindLabel(f.kind)) + ' ' + verificationBadge(f.verificationState)
+        + (f.origin === 'RETRIEVAL' ? ' <span class="pill">检索留档</span>' : '')
+        + (f.downgraded ? ' <span class="pill">已降级</span>' : '') + '</div>'
+        + '<div class="li-sub">' + esc(String(f.statement || '').slice(0, 400)) + '</div>'
+        + (f.confidenceRationale ? '<div class="li-sub small muted">依据说明：' + esc(String(f.confidenceRationale).slice(0, 200)) + '</div>' : '')
+        + ((f.notes || []).length ? '<div class="li-sub small muted">校验：' + esc((f.notes || []).join('；')) + '</div>' : '');
       for (const ev of (f.evidence || [])) {
         h += '<div class="li-sub small muted">证据：' + esc(ev.sourceName || ev.url) + ' · <a href="' + esc(ev.url) + '" target="_blank" rel="noopener noreferrer">链接</a>'
           + ' · 指纹 <span class="mono">' + esc(String(ev.digest || ev.contentHash || '').slice(0, 12)) + '</span></div>';
       }
       h += '</div></div>';
     }
-  }
-  h += '<div class="hint">核验规则：无证据的关键事实强制「待核验」；VERIFIED 只能在证据齐备后人工确认。</div>';
-  dr.body.innerHTML = h;
+    h += '<div class="hint">无证据的关键事实会被强制降级为「推断」并标待核验；系统不会把未核验内容标为已核验。</div>';
+
+    const gaps = r.unresolvedClaims || [];
+    h += '<div class="divider"></div><h3>未决与矛盾（' + gaps.length + '）</h3>';
+    h += '<div class="small muted">交叉验证状态：' + esc(r.conflictDetection === 'MODEL_ASSISTED' ? '由模型辅助识别矛盾'
+      : (r.conflictDetection === 'HEURISTIC' ? '规则识别' : '未执行（不假装已交叉验证）')) + '</div>';
+    if (!gaps.length) h += '<div class="small muted">无未决项。</div>';
+    for (const g of gaps) {
+      h += '<div class="list-item"><div class="li-main"><div class="li-title">'
+        + '<span class="badge ' + (g.kind === 'CONFLICT' ? 'badge-danger' : 'badge-warn') + '">' + esc(GAP_LABEL[g.kind] || g.kind) + '</span>'
+        + (g.origin === 'MODEL' ? ' <span class="pill">模型识别</span>' : ' <span class="pill">规则识别</span>') + '</div>'
+        + '<div class="li-sub">' + esc(String(g.claim || '').slice(0, 300)) + '</div>'
+        + (g.reason ? '<div class="li-sub small muted">' + esc(String(g.reason).slice(0, 200)) + '</div>' : '')
+        + '</div></div>';
+    }
+    if ((r.reverifyDue || []).length) {
+      h += '<div class="callout warn">时间敏感结论需重新核验（' + r.reverifyDue.length + ' 项）：'
+        + esc(r.reverifyDue.map((x) => x.claim).join('；')).slice(0, 300) + '</div>';
+    }
+
+    const ops = r.editorialOpportunities || [];
+    h += '<div class="divider"></div><h3>候选选题（' + ops.length + '）</h3>';
+    if (!ops.length) h += '<div class="small muted">无候选选题（降级报告不产出推荐）。</div>';
+    for (const o of ops) {
+      h += '<div class="list-item"><div class="li-main">'
+        + '<div class="li-title">' + esc(o.primaryCategory) + ' · ' + esc(o.headlineEn || '')
+        + (o.needsVerification ? ' <span class="badge badge-warn">待事实核验</span>' : '') + '</div>'
+        + '<div class="li-sub">' + esc(String(o.summaryZh || '').slice(0, 300)) + '</div>'
+        + '<div class="li-sub small muted">理由：' + esc(String(o.rationale || '').slice(0, 200)) + '</div>'
+        + '<div class="li-sub small muted">渠道 ' + esc((o.channels || []).join('/') || '—') + ' · 交付物 '
+        + esc((o.deliverables || []).join('/') || '—') + ' · 风险 ' + esc(o.riskLevel || '—')
+        + ' · 证据 ' + ((o.evidenceIds || []).length) + ' 条 · 报告版本 v' + esc(String(o.reportVersion || 1)) + '</div>'
+        + ((o.factCheckNeeds || []).length ? '<div class="li-sub small muted">待核验：' + esc(o.factCheckNeeds.join('；')) + '</div>' : '')
+        + ((o.special01Notes || []).length ? '<div class="li-sub small muted">栏目规则：' + esc(o.special01Notes.join('；')) + '</div>' : '')
+        + '</div></div>';
+    }
+
+    const mr = r.modelRun || {};
+    h += '<details class="adv"><summary>高级：模型运行与费用</summary><div class="small muted">'
+      + '模型调用：' + esc(mr.called ? '已调用' : '未调用') + ' · 状态 <span class="mono">' + esc(mr.state || '—') + '</span>'
+      + ' · 用量 <span class="mono">' + esc(JSON.stringify(mr.usage || {})) + '</span><br>'
+      + '费用：' + esc(r.cost && r.cost.confirmed ? ('供应商回执 $' + String(r.cost.modelConfirmedUsd))
+        : '无供应商回执（不推算单价，标记为估算）') + '<br>'
+      + '检索次数 ' + esc(String((r.cost && r.cost.searchCalls) || 0)) + ' · ' + esc((r.cost && r.cost.note) || '') + '</div></details>';
+
+    let acts = '<button class="btn btn-sm" id="rRefresh">检查来源是否需刷新</button>';
+    if (ops.length) acts += '<button class="btn btn-sm btn-primary" id="rMaterialize">生成候选选题</button>';
+    h += '<div class="divider"></div><div class="li-actions">' + acts + '</div>'
+      + '<div class="small muted" id="rMsg"></div>';
+    return h;
+  };
+
+  dr.body.innerHTML = render();
+
+  const bind = () => {
+    const rf = dr.body.querySelector('#rRefresh');
+    if (rf) rf.addEventListener('click', async () => {
+      rf.disabled = true;
+      try {
+        const res = await api.post('/api/mos/research/reports/' + r.id + '/refresh-check', {});
+        r.refreshState = res.refreshState;
+        toast(res.refreshState === 'NEEDS_REFRESH' ? '来源已变更 → 该研究需要刷新' : '未发现来源变更', res.refreshState === 'NEEDS_REFRESH' ? 'err' : 'ok');
+        const m = dr.body.querySelector('#rMsg');
+        if (m) m.innerHTML = '刷新状态：<b>' + esc(res.refreshState) + '</b> · 变更 ' + res.stale.length + ' 项 · 到期核验 ' + res.reverifyDue.length + ' 项';
+      } catch (err) { toast(err.message, 'err'); }
+      rf.disabled = false;
+    });
+    const rm = dr.body.querySelector('#rMaterialize');
+    if (rm) rm.addEventListener('click', async () => {
+      rm.disabled = true;
+      try {
+        const res = await api.post('/api/mos/research/reports/' + r.id + '/proposals?brand=' + encodeURIComponent(ctxRef.brand), {});
+        toast('已生成 ' + res.items.length + ' 条候选选题（待上级审核）', 'ok');
+        if ((res.skipped || []).length) toast('有 ' + res.skipped.length + ' 条未通过校验：' + res.skipped[0].reason, 'err');
+      } catch (err) { toast(err.message, 'err'); }
+      rm.disabled = false;
+    });
+  };
+  bind();
+}
+
+function kindLabel(k) {
+  return { FACT: '事实', INTERPRETATION: '推断', RECOMMENDATION: '建议' }[k] || k;
 }
 
 /* ==================== V0.1.2 Phase B：选题建议（Proposal 状态机 + 一屏审核） ==================== */

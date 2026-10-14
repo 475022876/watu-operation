@@ -319,6 +319,11 @@ table.tbl tr.clickable { cursor: pointer; }
 .callout.warn { background: var(--warn-bg); border-color: #F0DDB4; color: var(--warn); }
 .callout.danger { background: var(--danger-bg); border-color: #F0D2D4; color: var(--danger); }
 .callout.info { background: var(--info-bg); border-color: #CFE0F5; color: var(--info); }
+/* 高级设置折叠区（V0.1.3：技术参数收纳，默认不占员工首屏） */
+details.adv { margin-top: 8px; }
+details.adv > summary { cursor: pointer; font-size: 12px; color: var(--ink-3); user-select: none; }
+details.adv > summary:hover { color: var(--ink-2); }
+details.adv[open] > summary { margin-bottom: 6px; }
 .callout.mock { background: var(--sandbox-bg); border-color: #DED3F2; color: var(--sandbox); }
 .callout.ok { background: var(--ok-bg); border-color: #CDE7DA; color: var(--ok); }
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border-soft); margin-bottom: 14px; }

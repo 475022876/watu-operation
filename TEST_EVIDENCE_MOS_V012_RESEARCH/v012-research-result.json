@@ -4,8 +4,8 @@
   "total": 55,
   "passed": 55,
   "failed": 0,
-  "ranAt": "2026-10-14T12:45:15.870Z",
-  "base": "http://127.0.0.1:9662",
+  "ranAt": "2026-10-14T13:03:46.622Z",
+  "base": "http://127.0.0.1:9665",
   "results": [
     {
       "name": "SV-01 服务器启动并可通过 /api/health 探活",
@@ -80,7 +80,7 @@
     {
       "name": "WB-02 blockedReason 说明未配置且不伪造（NOT_CONFIGURED）",
       "ok": true,
-      "detail": "reason=搜索 Provider 未配置（MOS_WEBSEARCH_PROVIDER / MOS_WEBSEARCH_API_KEY）。系统不会以模型参数或旧知识伪称「"
+      "detail": "reason=搜索 Provider 未配置（mos.websearch.provider / MOS_WEBSEARCH_API_KEY）。系统不会以模型参数或旧知识伪称「"
     },
     {
       "name": "WB-03 BLOCKED 报告零发现（不产生任何伪造 Finding）",
@@ -190,7 +190,7 @@
     {
       "name": "ST-07 审核人 / 标题修改落库",
       "ok": true,
-      "detail": "reviewer=user_mv83rfz"
+      "detail": "reviewer=user_mv84f94"
     },
     {
       "name": "ST-08 editDiff 记录人工改动（from→to）",
@@ -265,7 +265,7 @@
     {
       "name": "AU-01 审计事件已持久化（audit_events 非空）",
       "ok": true,
-      "detail": "29 条"
+      "detail": "30 条"
     },
     {
       "name": "AU-02 research.daily_completed 已落审计",
