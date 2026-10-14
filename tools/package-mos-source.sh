@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# VFIB Marketing OS V0.1.2 —— 交付源码包打包脚本
+# VFIB Marketing OS V0.1.3 —— 交付源码包打包脚本
 #
-# 产物：<仓库根>/VFIB_MARKETING_OS_V0.1.2_SOURCE.zip
-#   = 完整可运行源码 + 变更日志 + 分阶段报告 + 测试证据（TEST_EVIDENCE_*）
-#     + 浏览器 UI 证据（UI_EVIDENCE_*）+ V1.1 / V1.2 两代交付包与联合验收报告
+# 产物：<仓库根>/VFIB_MARKETING_OS_V0.1.3_SOURCE.zip
+#   = 完整可运行源码 + 变更日志 + 分阶段报告（reports/）+ 测试证据（TEST_EVIDENCE_*）
+#     + 浏览器操作证据（UI_EVIDENCE/ 三段阶段证据 + UI_EVIDENCE_*）+ AI 接口调用证据（REAL_PROVIDER_EVIDENCE/）
+#     + V1.1 / V1.2 两代交付包与联合验收报告
 #
 # 严格排除（绝不入库/入包）：
 #   data/、config.json、.env、.workbuddy/、node_modules/、*.log、data-mos-*/、.git/
@@ -13,13 +14,14 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 ROOT="$(pwd)"
-NAME="VFIB_MARKETING_OS_V0.1.2_SOURCE"
+NAME="VFIB_MARKETING_OS_V0.1.3_SOURCE"
 STAGE="dist/${NAME}"
 OUT="${ROOT}/${NAME}.zip"
 
 echo "[package] 仓库：$ROOT"
 echo "[package] 暂存区：$STAGE"
-rm -rf dist
+# 只清理**本脚本自己的**暂存目录，不整体清空 dist/（dist/ 另含 SHA256SUMS.txt 与其他历史暂存）
+rm -rf "$STAGE"
 mkdir -p "$STAGE"
 
 # ---------- 1. 源码与文档（逐项显式列举，避免误收敏感文件） ----------
@@ -62,11 +64,18 @@ copy MIGRATION_AND_ROLLBACK.md
 copy docs/RELEASE_REGISTER.md
 copy FINAL_ACCEPTANCE_V0.1.2.md
 copy UI_SCREENSHOTS
+# ---------- 1e. V0.1.3 五阶段交付物 ----------
+# 阶段报告在 reports/（已整目录入包）：PHASE0_BASELINE.md / PHASE_A_UX.md /
+# PHASE_B_REAL_RESEARCH.md / PHASE_C_CONTENT_I18N.md / FINAL_ACCEPTANCE_V0.1.3.md / OPEN_ITEMS_V0.1.3.md
+copy REAL_PROVIDER_EVIDENCE
+copy UI_EVIDENCE
 
 # ---------- 2. 测试证据（必需交付物 ⑤） ----------
 for d in TEST_EVIDENCE_MOS_BUILD01 TEST_EVIDENCE_MOS_BUILD02 TEST_EVIDENCE_MOS_BUILD03 \
          TEST_EVIDENCE_MOS_BUILD04 TEST_EVIDENCE_MOS_BUILD06 \
          TEST_EVIDENCE_MOS_V012_RESEARCH TEST_EVIDENCE_MOS_V012_EDITORIAL \
+         TEST_EVIDENCE_MOS_V013_STUDIO TEST_EVIDENCE_MOS_V013_RESEARCH \
+         TEST_EVIDENCE_MOS_V013_I18N \
          UI_EVIDENCE_MOS_BUILD01 UI_EVIDENCE_MOS_BUILD02 UI_EVIDENCE_MOS_BUILD03 \
          UI_EVIDENCE_MOS_BUILD04 UI_EVIDENCE_MOS_BUILD05; do
   [ -d "$d" ] && copy "$d"
