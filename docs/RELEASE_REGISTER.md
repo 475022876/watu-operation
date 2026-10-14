@@ -20,9 +20,9 @@
 | 上一版本 / 回滚目标 | **0.1.1** |
 | 基线 Git 提交 | `2fe3841`（`main`，应用版本 0.1.1） |
 | 阶段提交链 | `ee6383d`(Phase 0) → `9fca396`(Phase A) → `3a372e3`(Phase B) → `035e959`(Phase C) → 本发布提交 |
-| **发布 Git 提交** | **本文件随发布提交入库；确切 SHA256 由紧随其后的文档提交回填至此（Git 历史可查）** |
+| **发布 Git 提交** | **`7001475672528c9f8aa0e6178ce8073b0a0c1413`**（全量 `7001475672528c9f8aa0e6178ce8073b0a0c1413`；提交信息 `release(v0.1.2): …`） |
 | 发布标签 | **`v0.1.2`**（annotated，指向发布提交） |
-| 交付源码包 | `VFIB_MARKETING_OS_V0.1.2_SOURCE.zip`（由发布提交源码树生成；`*.zip` 与 `dist/` 已 gitignore，可由 `tools/package-mos-source.sh` 重生成；SHA256 见仓库根 `dist/SHA256SUMS.txt`） |
+| 交付源码包 | `VFIB_MARKETING_OS_V0.1.2_SOURCE.zip`（**由发布提交 `7001475` 源码树生成**；SHA256 `5eb8ab2f87879e48bd085828ed9690d192ba47155cf1acf8fe27dc9075d4472a`，**360 条目 19,436,873 字节**；包内 `PACKAGE_MANIFEST.txt` 记录 `git: 7001475`。`*.zip` 与 `dist/` 已 gitignore，可由 `tools/package-mos-source.sh` 重生成） |
 | 分支 | `main`（远端 `475022876/watu-operation`） |
 | 接口契约版本 | **1.0**（未变） |
 | 数据 schema 版本 | **v7**（v5→v6：`users[].prefs`；v6→v7：新增研究域 5 集合；只增不改、幂等，见 `MIGRATION_AND_ROLLBACK.md`） |

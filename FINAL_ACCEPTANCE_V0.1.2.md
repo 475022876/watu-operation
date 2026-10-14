@@ -1,7 +1,7 @@
 # FINAL ACCEPTANCE — VFIB Marketing OS V0.1.2
 
 ```
-Source commit:            发布提交见 docs/RELEASE_REGISTER.md §1（tag v0.1.2 指向；由紧随的文档提交回填确切 SHA256）
+Source commit:            7001475672528c9f8aa0e6178ce8073b0a0c1413（tag `v0.1.2`；交付源码包 VFIB_MARKETING_OS_V0.1.2_SOURCE.zip，360 条目，sha256 5eb8ab2f…）
 App version / API version / schema version:
                           0.1.2 / 契约 1.0（未变）/ schema v7（v5→v6→v7，只增不改、幂等）
 Environment:              本地隔离实例（Windows 11 + Node 22）；证据目录 TEST_EVIDENCE_MOS_*、UI_SCREENSHOTS/
