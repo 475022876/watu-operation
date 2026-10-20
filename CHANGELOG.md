@@ -5,6 +5,18 @@
 
 ---
 
+## [Unreleased]
+
+### Fixed
+
+- **连接测试双重记账**：`text.probe()` 经 `chat()` 主链路已写一条账本（含真实 `attempts`），
+  `provideradmin.test()` 又补写一条（`attempts` 硬编码 1）——一次测试在 `provider_calls` 里出现两条
+  相差数毫秒的记录，虚增调用统计。现改为：适配器返回 `recorded: true` 时 provideradmin 不再补记；
+  websearch 探针及 text 早退分支（未配置/MOCK）仍由 provideradmin 补记，行为不变。
+- 回归：`provideradmin` 70/70、`provider` 26/26、`unit` 76/76、`e2e` 48/48、`e2e02`、`e2e03` 全部通过。
+
+---
+
 ## [0.1.6] — 2026-10-20 — Zero-Cost Trial Path（零付费试用路径）
 
 **基线**：`v0.1.5`（发布提交 `1993991`，schema v8）
