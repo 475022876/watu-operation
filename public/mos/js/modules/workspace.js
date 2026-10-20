@@ -13,6 +13,27 @@ function headHtml(ctx) {
     + '<div class="ph-desc">按 owner 与角色授权展示：我负责的任务、我起草的计划，以及明确的下一步动作。</div></div>';
 }
 
+/* 首屏工作台横幅：问候 + 日期 + 三个实时数字 + 高频入口（V0.1.6 UI 优化） */
+function heroHtml(ctx, stats) {
+  const h = new Date().getHours();
+  const greet = h < 6 ? '夜深了' : h < 11 ? '早上好' : h < 14 ? '中午好' : h < 18 ? '下午好' : '晚上好';
+  const now = new Date();
+  const week = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()];
+  const date = now.getFullYear() + ' 年 ' + (now.getMonth() + 1) + ' 月 ' + now.getDate() + ' 日 · 星期' + week;
+  const nums = [
+    { n: stats.tasks, label: '我的任务', go: 'tasks' },
+    { n: stats.reviews, label: '待我裁决', go: 'my-reviews' },
+    { n: stats.dueWeek, label: '本周待发布', go: 'publishing' }
+  ];
+  return '<div class="hero-strip">'
+    + '<div class="hero-main"><div class="hero-greet">' + greet + '，' + esc(ctx.me.displayName) + '</div>'
+    + '<div class="hero-date">' + esc(date) + '</div></div>'
+    + '<div class="hero-actions">'
+    + nums.map((x) => '<button class="hero-btn" data-hero-go="' + x.go + '"><strong>' + x.n + '</strong>&nbsp; ' + esc(x.label) + '</button>').join('')
+    + '<button class="hero-btn hero-btn-primary" data-hero-go="content-editor">进入制作</button>'
+    + '</div></div>';
+}
+
 async function render() {
   const ctx = ctxRef;
   hostEl.innerHTML = headHtml(ctx) + loadingHtml();
@@ -33,6 +54,13 @@ async function render() {
   const cont = data.continueTask || null;
 
   let html = headHtml(ctx);
+
+  /* 首屏横幅：三个数字来自本次接口返回，点击直达对应页面 */
+  html += heroHtml(ctx, {
+    tasks: tasks.length,
+    reviews: (data.pendingReviews || []).length,
+    dueWeek: dueWeek.length
+  });
 
   /* V0.1.2 Phase A：继续上次工作 —— 服务端锚点（不依赖 localStorage），一键回到任务 */
   html += cont
@@ -127,6 +155,7 @@ async function render() {
   hostEl.querySelectorAll('[data-go-tasks]').forEach((b) => b.addEventListener('click', () => ctx.navigate('tasks')));
   hostEl.querySelectorAll('[data-go-publishing]').forEach((b) => b.addEventListener('click', () => ctx.navigate('publishing')));
   hostEl.querySelectorAll('[data-open-plan]').forEach((b) => b.addEventListener('click', () => ctx.navigate('planning')));
+  hostEl.querySelectorAll('[data-hero-go]').forEach((b) => b.addEventListener('click', () => ctx.navigate(b.dataset.heroGo)));
   hostEl.querySelectorAll('[data-task-act]').forEach((b) => b.addEventListener('click', () => taskAction(b.dataset.taskId, b.dataset.taskAct)));
   /* 继续上次：记录锚点后直达内容编辑器并预选该任务 */
   hostEl.querySelectorAll('[data-continue-task]').forEach((b) => b.addEventListener('click', async () => {
