@@ -91,7 +91,7 @@ bash tools/run-mos-tests.sh e2e03   # 只跑某一套：见下表（`all` = 全�
 | `sec` | **出站采集安全**：SSRF 拦截矩阵、重定向逐跳、DNS 重绑定、压缩/体积上限、生产闸门 | 17 |
 | `sched` | **A-01 来源调度**：默认关闭、幂等、退避与有界重试、单实例锁、fail closed | 20 |
 | `provider` | **A-05 Provider 统一契约**：未配置→`NOT_CONFIGURED`、零出站、密钥不外泄、超时/限流/回执 | 26 |
-| `provideradmin` | **V0.1.4/V0.1.5 真实接入与治理**：管理接口/RBAC/密钥密文；适配器真实调用（五类文本产出、图像、Sora 三步、**火山方舟 video_url 下载**、检索、重试/超时/预算/分级）；掩码/指纹/轮换/清账本回落 | **60** |
+| `provideradmin` | **V0.1.4—V0.1.6 真实接入与治理**：管理接口/RBAC/密钥密文；适配器真实调用（五类文本产出、图像、Sora 三步、**火山方舟 video_url 下载**、检索、重试/超时/预算/分级）；**免费档端点拼接（`PF-*`，零出站）**；掩码/指纹/轮换/清账本回落 | **70** |
 | `workspace` | **A-06 资料库适配层契约**（V1.1.7）：canonicalString/封套/错误码、Ed25519 验签、fail closed | 36 |
 | `dual` | 双重身份与会话隔离 | 51 |
 | `e2e` | 外部信息→选题、月度计划→日历、跨品牌越权、SSRF、审计、重启不丢数据 | 48 |
@@ -108,7 +108,7 @@ bash tools/run-mos-tests.sh e2e03   # 只跑某一套：见下表（`all` = 全�
 - 每套自带**随机数据目录**（`data-mos-*`）与**运行期随机口令**，跑完自动清理，绝不触碰 `data/`。
 - 结果落 `TEST_EVIDENCE_MOS_BUILD01/`（含 `summary.json`）；BUILD-02 / BUILD-03 端到端证据分落 `TEST_EVIDENCE_MOS_BUILD02/`、`TEST_EVIDENCE_MOS_BUILD03/`；UI 截图分落 `UI_EVIDENCE_MOS_BUILD01|02|03|04|05|07/`。
 - 任一断言失败 → 退出码非 0，可直接接入 CI。
-- 当前全绿：**`all` 17 套件 870/870**（V0.1.5，2026-10-20）。汇总见 `TEST_EVIDENCE_MOS_BUILD01/summary.json` 的 `ran` 字段。
+- 当前全绿：**`all` 17 套件 880/880**（V0.1.6，2026-10-20）。汇总见 `TEST_EVIDENCE_MOS_BUILD01/summary.json` 的 `ran` 字段。
 - **无凭据即 BLOCKED，不阻断本地构建**：`provider` 套件在无密钥时仍全绿（真实端到端如实记 BLOCKED）；
   `workspace` 套件为纯离线契约自检（真实联调 `NOT_VERIFIED`）。
 

@@ -18,9 +18,13 @@
 | 类别 (`kind`) | 用途 | 已实现模式 | 是否计费 |
 | --- | --- | --- | --- |
 | `websearch` | 权威官方信息检索（配合 `research-fetch` 做受限全文抓取） | `none` / `searxng` / `brave` / `bing` / `google` / `tavily` | `searxng` 不计费；其余按次计费 |
-| `text` | 研究报告 / 资料总结 / 选题 / 英文文案 / 视频脚本 | `none` / `openai` / `deepseek` / `anthropic` | 按 token 计费 |
-| `image` | AI 配图与主视觉 | `none` / `openai` | 按张计费 |
+| `text` | 研究报告 / 资料总结 / 选题 / 英文文案 / 视频脚本 | `none` / `openai` / `deepseek` / **`zhipu`** / **`dashscope`** / **`siliconflow`** / `anthropic` / `mock` | 按 token 计费（`zhipu` 有免费档） |
+| `image` | AI 配图与主视觉 | `none` / `openai` / **`zhipu`**（CogView，有免费档）/ `mock` | 按张计费 |
 | `video` | AI 成片（异步三步） | `none` / `openai`（Sora，已停服）/ `volcengine`（火山方舟）/ `generic` | 按次/按秒计费 |
+
+> **先不付费怎么测**：`zhipu` / `dashscope` / `siliconflow` 三个接入方式带有免费额度默认值，
+> 填上账号 Key 即可联调，不需要先充值。完整步骤见 **`docs/FREE_TIER_TESTING.md`**。
+> 三者都是 OpenAI 兼容协议（`Bearer` + `/chat/completions`），复用同一套适配器，没有独立分支。
 
 ### 1.1 五类文本任务（`lib/mos/adapters/text.js` · `TASKS`）
 

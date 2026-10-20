@@ -34,14 +34,23 @@ function num(id, value, step) {
     + (step ? ' step="' + step + '"' : '') + ' min="0">';
 }
 
-function row(label, control, hint) {
+function row(label, control, hint, hintId) {
   return '<div class="field"><label class="label">' + esc(label) + '</label>' + control
-    + (hint ? '<div class="small muted">' + esc(hint) + '</div>' : '') + '</div>';
+    + (hint ? '<div class="small muted"' + (hintId ? ' id="' + esc(hintId) + '"' : '') + '>' + esc(hint) + '</div>' : '') + '</div>';
 }
 
 function modeOptions(k) {
   return k.modes.map((m) => '<option value="' + esc(m.id) + '"' + (m.id === k.mode ? ' selected' : '') + '>'
-    + esc(m.label) + (m.needsKey ? ' · 需密钥' : '') + (m.costBearing ? ' · 计费' : '') + '</option>').join('');
+    + esc(m.label) + (m.needsKey ? ' · 需密钥' : '') + (m.costBearing ? ' · 计费' : '')
+    + (m.freeTier ? ' · 有免费额度' : '') + '</option>').join('');
+}
+
+/** 模式说明 + 免费档提示（免费档由服务端下发，页面不自行编造额度） */
+function modeHint(m) {
+  const parts = [];
+  if (m && m.note) parts.push(m.note);
+  if (m && m.freeTier) parts.push('免费档：' + m.freeTier + '（以厂商控制台为准）');
+  return parts.join(' ｜ ');
 }
 
 function currentMode(k) {
@@ -94,7 +103,7 @@ function card(k) {
     + '<div class="small muted" style="margin-bottom:8px">' + esc(t('settings.purpose_' + k.kind)) + '</div>'
     + envNote
     + row(t('settings.mode'), '<select class="input" id="s-' + k.kind + '-mode"' + ro('mode') + '>' + modeOptions(k) + '</select>',
-      m.note || '')
+      modeHint(m), 's-' + k.kind + '-mode-hint')
     + row(t('settings.endpoint'),
       '<input class="input" id="s-' + k.kind + '-baseUrl" value="' + esc(k.baseUrl || '') + '"'
       + ' placeholder="' + esc(m.defaultBaseUrl || 'https://…') + '"' + ro('baseUrl') + '>',
@@ -312,6 +321,22 @@ async function onClick(ev) {
 }
 
 async function onChange(ev) {
+  /* 切换接入方式：就地更新占位符与提示（不整页重渲染，避免清掉用户已填但未保存的内容） */
+  const id = ev.target && ev.target.id;
+  if (id && /^s-[a-z]+-mode$/.test(id)) {
+    const kind = id.slice(2, -5);
+    const k = ((data && data.kinds) || []).find((x) => x.kind === kind);
+    const m = k && (k.modes || []).find((x) => x.id === ev.target.value);
+    if (m) {
+      const bu = hostEl.querySelector('#s-' + kind + '-baseUrl');
+      const md = hostEl.querySelector('#s-' + kind + '-model');
+      if (bu) bu.placeholder = m.defaultBaseUrl || 'https://…';
+      if (md) md.placeholder = m.modelHint || '';
+      const hintEl = hostEl.querySelector('#s-' + kind + '-mode-hint');
+      if (hintEl) hintEl.textContent = modeHint(m);
+    }
+    return;
+  }
   if (ev.target && ev.target.id === 's-usage-days') {
     usageDays = Number(ev.target.value) || 30;
     try {

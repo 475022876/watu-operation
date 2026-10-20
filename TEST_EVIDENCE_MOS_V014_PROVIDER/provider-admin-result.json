@@ -1,8 +1,8 @@
 {
   "suite": "provideradmin",
-  "ranAt": "2026-10-20T11:00:03.979Z",
-  "total": 60,
-  "passed": 60,
+  "ranAt": "2026-10-20T11:11:00.999Z",
+  "total": 70,
+  "passed": 70,
   "failed": 0,
   "ok": true,
   "node": "v22.22.2",
@@ -53,7 +53,7 @@
     {
       "name": "PA-05 保存文本接入成功：密钥只回掩码、就绪度 CONFIGURED_NOT_TESTED",
       "ok": true,
-      "detail": "mask=sk-••••••••341d readiness=CONFIGURED_NOT_TESTED"
+      "detail": "mask=sk-••••••••fe68 readiness=CONFIGURED_NOT_TESTED"
     },
     {
       "name": "PA-06 密钥以 AES-256-GCM 密文落库（数据文件不含明文，密文含 iv/tag/ct）",
@@ -98,7 +98,7 @@
     {
       "name": "PA-14 有真实成功证据后就绪度晋级 REAL（不再是\"未联调\"）",
       "ok": true,
-      "detail": "readiness=REAL ev={\"at\":\"2026-10-20T11:00:00.489Z\",\"provider\":\"openai\",\"model\":\"stub-model\",\"id\":\""
+      "detail": "readiness=REAL ev={\"at\":\"2026-10-20T11:10:57.406Z\",\"provider\":\"openai\",\"model\":\"stub-model\",\"id\":\""
     },
     {
       "name": "PA-15 连接测试频控（8 秒内重复 → 400 TEST_TOO_FREQUENT）",
@@ -118,7 +118,7 @@
     {
       "name": "PA-18 填确认人后可开启受限外发（并留审计）",
       "ok": true,
-      "detail": "{\"allowConfidential\":false,\"allowRestricted\":true,\"allowRestrictedRaw\":true,\"acknowledgedBy\":\"compliance@vfib (test)\",\"updatedAt\":\"2026-10-20T11:00:00.501Z\",\"note\":\"默认全部关闭：判定为机密/受限的内容不会发送到任何外部服务。开启即视为该部署的合规责任人已确认。\"}"
+      "detail": "{\"allowConfidential\":false,\"allowRestricted\":true,\"allowRestrictedRaw\":true,\"acknowledgedBy\":\"compliance@vfib (test)\",\"updatedAt\":\"2026-10-20T11:10:57.415Z\",\"note\":\"默认全部关闭：判定为机密/受限的内容不会发送到任何外部服务。开启即视为该部署的合规责任人已确认。\"}"
     },
     {
       "name": "PA-19 调用账本可查：probe 计入 text 且带延迟",
@@ -228,7 +228,7 @@
     {
       "name": "PB-16 视频成片下载并落盘（真实文件，非占位）",
       "ok": true,
-      "detail": "file=AI-VIDEO-VFIB-1792494003788.mp4 bytes=14"
+      "detail": "file=AI-VIDEO-VFIB-1792494660727.mp4 bytes=14"
     },
     {
       "name": "PB-17a 火山方舟创建体：content 数组 + ratio 枚举（像素尺寸被翻译，技术参数不下放）",
@@ -324,6 +324,56 @@
       "name": "PC4-12 视频能力声明诚实：未配置时不声明 AI_RENDER",
       "ok": true,
       "detail": "SCRIPT/STORYBOARD/KEYFRAME/ASSET_UPLOAD/FINAL_CUT_UPLOAD"
+    },
+    {
+      "name": "PF-01 文本可选接入方式含 zhipu / dashscope / siliconflow（先免费试、后付费）",
+      "ok": true,
+      "detail": "none,openai,deepseek,zhipu,dashscope,siliconflow,anthropic,mock"
+    },
+    {
+      "name": "PF-02 免费档信息随接口下发（页面据此提示，不自行编造额度）",
+      "ok": true,
+      "detail": "GLM-4.7-Flash / GLM-4-Flash 长期免费不限量（2026-10 核实）"
+    },
+    {
+      "name": "PF-03 智谱默认端点与模型可直接用（不改配置也能发）",
+      "ok": true,
+      "detail": "https://open.bigmodel.cn/api/paas/v4 | glm-4.7-flash"
+    },
+    {
+      "name": "PF-04 智谱走 OpenAI 兼容协议：POST {base}/chat/completions + Bearer 鉴权",
+      "ok": true,
+      "detail": "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+    },
+    {
+      "name": "PF-05 智谱默认模型为免费档 glm-4.7-flash",
+      "ok": true,
+      "detail": "glm-4.7-flash"
+    },
+    {
+      "name": "PF-06 百炼兼容模式端点拼接正确（/compatible-mode/v1/chat/completions）",
+      "ok": true,
+      "detail": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+    },
+    {
+      "name": "PF-07 硅基流动端点拼接正确（/v1/chat/completions）",
+      "ok": true,
+      "detail": "https://api.siliconflow.cn/v1/chat/completions"
+    },
+    {
+      "name": "PF-08 端点尾部多个斜杠被归一化（不会拼出 //chat/completions）",
+      "ok": true,
+      "detail": "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+    },
+    {
+      "name": "PF-09 图像侧也有免费档（智谱 CogView-3-Flash），选它即可验证出图链路",
+      "ok": true,
+      "detail": "cogview-3-flash | CogView-3-Flash 长期免费不限量（2026-10 核实）"
+    },
+    {
+      "name": "PF-10 免费档信息不进入 effective()（只做展示，不参与调用与就绪度判定）",
+      "ok": true,
+      "detail": "effective().freeTier=undefined"
     }
   ]
 }

@@ -673,6 +673,62 @@ async function partB() {
     vidNoCfg.capabilities.join('/'));
 }
 
+/* ==================== D. 零付费试用路径（纯离线，零出站） ==================== */
+
+/**
+ * 为什么单独一段：用户的实际路径是「先用厂商免费额度把功能跑通，确认效果后再付费」。
+ * 这一段只验证**本侧**是否真的能对着这些免费端点发请求（端点拼接/协议/默认模型），
+ * 不发起任何网络调用 —— 没有真实密钥时不许伪造"已验证可用"。
+ */
+function partFree() {
+  section('D. 零付费试用路径（免费档端点 / 协议形状）');
+  const admin = require('../lib/mos/provideradmin');
+  const tx = require('../lib/mos/adapters/text');
+
+  const tv = admin.publicView('text');
+  const ids = (tv.modes || []).map((m) => m.id);
+  check('PF-01 文本可选接入方式含 zhipu / dashscope / siliconflow（先免费试、后付费）',
+    ['zhipu', 'dashscope', 'siliconflow'].every((m) => ids.indexOf(m) !== -1), ids.join(','));
+
+  const z = (tv.modes || []).find((m) => m.id === 'zhipu') || {};
+  check('PF-02 免费档信息随接口下发（页面据此提示，不自行编造额度）',
+    typeof z.freeTier === 'string' && z.freeTier.length > 0, String(z.freeTier || ''));
+  check('PF-03 智谱默认端点与模型可直接用（不改配置也能发）',
+    z.defaultBaseUrl === 'https://open.bigmodel.cn/api/paas/v4' && z.modelHint === 'glm-4.7-flash',
+    String(z.defaultBaseUrl) + ' | ' + String(z.modelHint));
+
+  const zReq = tx._buildRequest({ mode: 'zhipu', baseUrl: '', model: '', apiKey: 'test-key-1234' }, { system: 's', user: 'u' });
+  check('PF-04 智谱走 OpenAI 兼容协议：POST {base}/chat/completions + Bearer 鉴权',
+    zReq.url === 'https://open.bigmodel.cn/api/paas/v4/chat/completions'
+      && /^Bearer /.test(zReq.init.headers.Authorization),
+    zReq.url);
+  check('PF-05 智谱默认模型为免费档 glm-4.7-flash', zReq.model === 'glm-4.7-flash', zReq.model);
+
+  const dsReq = tx._buildRequest({ mode: 'dashscope', baseUrl: '', model: '', apiKey: 'test-key-1234' }, {});
+  check('PF-06 百炼兼容模式端点拼接正确（/compatible-mode/v1/chat/completions）',
+    dsReq.url === 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', dsReq.url);
+
+  const sfReq = tx._buildRequest({ mode: 'siliconflow', baseUrl: '', model: '', apiKey: 'test-key-1234' }, {});
+  check('PF-07 硅基流动端点拼接正确（/v1/chat/completions）',
+    sfReq.url === 'https://api.siliconflow.cn/v1/chat/completions', sfReq.url);
+
+  const tailReq = tx._buildRequest(
+    { mode: 'zhipu', baseUrl: 'https://open.bigmodel.cn/api/paas/v4///', model: 'glm-4.7-flash', apiKey: 'test-key-1234' }, {});
+  check('PF-08 端点尾部多个斜杠被归一化（不会拼出 //chat/completions）',
+    tailReq.url.indexOf('//chat') === -1, tailReq.url);
+
+  const iv = admin.publicView('image');
+  const iz = (iv.modes || []).find((m) => m.id === 'zhipu') || {};
+  check('PF-09 图像侧也有免费档（智谱 CogView-3-Flash），选它即可验证出图链路',
+    iz.modelHint === 'cogview-3-flash' && typeof iz.freeTier === 'string' && iz.freeTier.length > 0,
+    String(iz.modelHint) + ' | ' + String(iz.freeTier || ''));
+
+  /* 免费档只是给页面看的元数据，不能混进 effective()（否则会被误当成配置字段落库/落账） */
+  check('PF-10 免费档信息不进入 effective()（只做展示，不参与调用与就绪度判定）',
+    admin.effective('text').freeTier === undefined && admin.effective('image').freeTier === undefined,
+    'effective().freeTier=' + String(admin.effective('text').freeTier));
+}
+
 /* ==================== 主流程 ==================== */
 
 async function main() {
@@ -681,6 +737,7 @@ async function main() {
   try {
     await partA();
     await partB();
+    partFree();
   } catch (err) {
     check('EXCEPTION 套件未抛出异常', false, String((err && err.stack) || err).slice(0, 500));
   } finally {
