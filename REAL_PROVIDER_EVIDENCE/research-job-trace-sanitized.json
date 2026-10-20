@@ -1,22 +1,22 @@
 {
   "note": "脱敏检索 trace：仅记录端点主机/路径、状态、耗时、字节数、条数；查询串与凭据不入 trace。",
-  "generatedAt": "2026-10-20T10:23:45.645Z",
+  "generatedAt": "2026-10-20T11:02:11.381Z",
   "job": {
-    "id": "rsj_mvgjciw8_7b52867bee5a",
+    "id": "rsj_mvgkpxfi_450802b088f2",
     "code": "RJ-0001",
     "status": "COMPLETED",
     "stage": "DONE",
     "progress": 100,
-    "providerTraceId": "ws-2d0ca34865c35272dfd9",
+    "providerTraceId": "ws-3d014981d317973c7d2b",
     "trace": {
-      "traceId": "ws-2d0ca34865c35272dfd9",
+      "traceId": "ws-3d014981d317973c7d2b",
       "provider": "searxng",
       "method": "GET",
       "endpointHost": "127.0.0.1",
       "endpointPath": "/search",
       "queryLength": 17,
       "status": 200,
-      "elapsedMs": 33,
+      "elapsedMs": 40,
       "responseBytes": 1046,
       "rawCount": 7,
       "acceptedCount": 5,
@@ -28,59 +28,59 @@
     },
     "logTail": [
       {
-        "at": "2026-10-20T10:23:38.408Z",
+        "at": "2026-10-20T11:02:03.390Z",
         "stage": "QUEUED",
         "message": "作业已创建，等待调度。"
       },
       {
-        "at": "2026-10-20T10:23:38.410Z",
+        "at": "2026-10-20T11:02:03.393Z",
         "stage": "SEARCHING",
         "message": "发起真实检索（provider=searxng）。"
       },
       {
-        "at": "2026-10-20T10:23:38.446Z",
+        "at": "2026-10-20T11:02:03.436Z",
         "stage": "SEARCHING",
-        "message": "检索 trace=ws-2d0ca34865c35272dfd9 状态=OK 原始=7 采纳=5"
+        "message": "检索 trace=ws-3d014981d317973c7d2b 状态=OK 原始=7 采纳=5"
       },
       {
-        "at": "2026-10-20T10:23:38.454Z",
+        "at": "2026-10-20T11:02:03.456Z",
         "stage": "FETCHING",
         "message": "抓取第 1/5 篇：AVAILABLE"
       },
       {
-        "at": "2026-10-20T10:23:38.456Z",
+        "at": "2026-10-20T11:02:03.460Z",
         "stage": "FETCHING",
         "message": "抓取第 2/5 篇：AVAILABLE"
       },
       {
-        "at": "2026-10-20T10:23:38.457Z",
+        "at": "2026-10-20T11:02:03.463Z",
         "stage": "FETCHING",
         "message": "抓取第 3/5 篇：AVAILABLE"
       },
       {
-        "at": "2026-10-20T10:23:38.459Z",
+        "at": "2026-10-20T11:02:03.485Z",
         "stage": "FETCHING",
         "message": "抓取第 4/5 篇：NOT_FOUND (UPSTREAM_STATUS)"
       },
       {
-        "at": "2026-10-20T10:23:38.463Z",
+        "at": "2026-10-20T11:02:03.500Z",
         "stage": "FETCHING",
         "message": "抓取第 5/5 篇：UNAVAILABLE (ECONNREFUSED)"
       },
       {
-        "at": "2026-10-20T10:23:38.464Z",
+        "at": "2026-10-20T11:02:03.500Z",
         "stage": "VERIFYING",
         "message": "证据 5 条（去重丢弃 0），独立主机 1 个，正文可用 3 条；缺口 5 项。"
       },
       {
-        "at": "2026-10-20T10:23:38.473Z",
+        "at": "2026-10-20T11:02:03.520Z",
         "stage": "DONE",
         "message": "完成：completion=AI_RESEARCH_COMPLETE 证据=5 发现=5 候选选题=2 未决=10"
       }
     ]
   },
   "report": {
-    "id": "rsr_mvgjciw8_f3b261318d7a",
+    "id": "rsr_mvgkpxfh_677eebb2d2cf",
     "code": "RS-0001",
     "mode": "DEEP_RESEARCH",
     "completion": "AI_RESEARCH_COMPLETE",
@@ -91,7 +91,7 @@
         "url": "http://127.0.0.1:9750/doc/regulator-a",
         "sourceName": "fixture-regulator",
         "publishedAt": "2026-09-30T00:00:00Z",
-        "retrievedAt": "2026-10-20T10:23:38.446Z",
+        "retrievedAt": "2026-10-20T11:02:03.437Z",
         "availability": "AVAILABLE"
       },
       {
@@ -99,7 +99,7 @@
         "url": "http://127.0.0.1:9750/doc/org-b",
         "sourceName": "fixture-org-b",
         "publishedAt": "2026-10-01T00:00:00Z",
-        "retrievedAt": "2026-10-20T10:23:38.454Z",
+        "retrievedAt": "2026-10-20T11:02:03.456Z",
         "availability": "AVAILABLE"
       },
       {
@@ -107,7 +107,7 @@
         "url": "http://127.0.0.1:9750/doc/org-c",
         "sourceName": "fixture-org-c",
         "publishedAt": null,
-        "retrievedAt": "2026-10-20T10:23:38.456Z",
+        "retrievedAt": "2026-10-20T11:02:03.460Z",
         "availability": "AVAILABLE"
       },
       {
@@ -115,7 +115,7 @@
         "url": "http://127.0.0.1:9750/doc/missing",
         "sourceName": "fixture-broken",
         "publishedAt": null,
-        "retrievedAt": "2026-10-20T10:23:38.457Z",
+        "retrievedAt": "2026-10-20T11:02:03.463Z",
         "availability": "NOT_FOUND"
       },
       {
@@ -123,7 +123,7 @@
         "url": "https://127.0.0.1/doc/org-b",
         "sourceName": "fixture-ssrf",
         "publishedAt": null,
-        "retrievedAt": "2026-10-20T10:23:38.459Z",
+        "retrievedAt": "2026-10-20T11:02:03.485Z",
         "availability": "UNAVAILABLE"
       }
     ],
@@ -132,7 +132,7 @@
         "kind": "FACT",
         "origin": "MODEL",
         "evidenceIds": [
-          "sev_mvgjcixr_55ca0aac8f47"
+          "sev_mvgkpxik_233c7619bbca"
         ],
         "verificationState": "UNVERIFIED",
         "downgraded": false
@@ -141,7 +141,7 @@
         "kind": "FACT",
         "origin": "MODEL",
         "evidenceIds": [
-          "sev_mvgjcixr_a9397aa6ca7b"
+          "sev_mvgkpxik_c5ec5074b0d2"
         ],
         "verificationState": "UNVERIFIED",
         "downgraded": false
@@ -157,7 +157,7 @@
         "kind": "INTERPRETATION",
         "origin": "MODEL",
         "evidenceIds": [
-          "sev_mvgjcixs_f9ea8019150d"
+          "sev_mvgkpxik_3e2a67eeed91"
         ],
         "verificationState": "NEEDS_VERIFICATION",
         "downgraded": false
@@ -166,8 +166,8 @@
         "kind": "RECOMMENDATION",
         "origin": "MODEL",
         "evidenceIds": [
-          "sev_mvgjcixr_55ca0aac8f47",
-          "sev_mvgjcixs_f9ea8019150d"
+          "sev_mvgkpxik_233c7619bbca",
+          "sev_mvgkpxik_3e2a67eeed91"
         ],
         "verificationState": "NEEDS_VERIFICATION",
         "downgraded": false
@@ -249,7 +249,7 @@
         "promptChars": 4816
       },
       "errorCode": null,
-      "at": "2026-10-20T10:23:38.472Z",
+      "at": "2026-10-20T11:02:03.518Z",
       "note": "真实模型返回；事实与措辞仍须人工核验后方可送审。"
     },
     "cost": {
@@ -262,7 +262,7 @@
     }
   },
   "degradedReport": {
-    "id": "rsr_mvgjckjw_2a9c9ce5804d",
+    "id": "rsr_mvgkpz32_6ff49aa1a324",
     "code": "RS-0001",
     "completion": "RETRIEVAL_ONLY",
     "sources": 5,

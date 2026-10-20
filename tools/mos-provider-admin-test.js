@@ -47,8 +47,9 @@ function section(t) { console.log('\n--- ' + t + ' ---'); }
 
 /* ==================== 本地契约替身 ==================== */
 
-const counters = { chat: 0, chatOk: 0, image: 0, imageUrl: 0, videoStart: 0, videoCheck: 0, videoDownload: 0, search: 0, flaky: 0, slow: 0 };
+const counters = { chat: 0, chatOk: 0, image: 0, imageUrl: 0, videoStart: 0, videoCheck: 0, videoDownload: 0, search: 0, flaky: 0, slow: 0, volcStart: 0, volcCheck: 0, volcDownload: 0 };
 const lastChatBody = { body: null, headers: null };
+const lastVideoCreate = { body: null };
 
 function readBody(req) {
   return new Promise((resolve) => {
@@ -137,6 +138,27 @@ const stub = http.createServer(async (req, res) => {
   if (p === '/v1/videos/vid_stub_1/content') {
     counters.videoDownload += 1;
     const buf = Buffer.from('MP4-STUB-BYTES');
+    res.writeHead(200, { 'content-type': 'video/mp4', 'content-length': buf.length });
+    return res.end(buf);
+  }
+
+  /* --- 视频：火山方舟形状（content 数组 + content.video_url，没有二进制端点） --- */
+  if (p === '/v3/contents/generations/tasks' && req.method === 'POST') {
+    counters.volcStart += 1;
+    lastVideoCreate.body = raw;
+    return json(res, 200, { id: 'cgt-stub-1' });
+  }
+  if (p === '/v3/contents/generations/tasks/cgt-stub-1') {
+    counters.volcCheck += 1;
+    if (counters.volcCheck === 1) return json(res, 200, { id: 'cgt-stub-1', status: 'running' });
+    return json(res, 200, {
+      id: 'cgt-stub-1', status: 'succeeded',
+      content: { video_url: STUB_BASE + '/files/volc.mp4' }
+    });
+  }
+  if (p === '/files/volc.mp4') {
+    counters.volcDownload += 1;
+    const buf = Buffer.from('MP4-FROM-VIDEO-URL');
     res.writeHead(200, { 'content-type': 'video/mp4', 'content-length': buf.length });
     return res.end(buf);
   }
@@ -527,6 +549,44 @@ async function partB() {
   check('PB-16 视频成片下载并落盘（真实文件，非占位）',
     v4.state === 'SUCCEEDED' && fs.existsSync(v4.filePath) && fs.statSync(v4.filePath).size === v4.bytes,
     'file=' + path.basename(v4.filePath || '') + ' bytes=' + v4.bytes);
+
+  /* 视频：火山方舟形状（Sora 2 API 于 2026-09-24 停服后的国产替代）。
+   * 这条链路与 Sora 的关键差异：没有二进制下载端点，成片地址在状态响应的 content.video_url。 */
+  provideradmin.update('video', {
+    mode: 'volcengine', baseUrl: STUB_BASE + '/v3', model: 'doubao-seedance-2-0-mini',
+    timeoutMs: 5000, maxRetries: 1, apiKey: TEST_KEY
+  }, { id: 'test' });
+  const w1 = await video.start({ prompt: '品牌 5 秒片头', durationSec: 5, size: '1536x1024', brandCode: 'VFIB' });
+  const wBody = JSON.parse(lastVideoCreate.body || '{}');
+  check('PB-17a 火山方舟创建体：content 数组 + ratio 枚举（像素尺寸被翻译，技术参数不下放）',
+    w1.state === 'SUCCEEDED' && w1.providerJobId === 'cgt-stub-1'
+      && Array.isArray(wBody.content) && wBody.content[0]
+      && wBody.content[0].type === 'text' && wBody.content[0].text === '品牌 5 秒片头'
+      && wBody.ratio === '16:9' && Number(wBody.duration) === 5 && wBody.prompt === undefined,
+    'state=' + w1.state + ' id=' + w1.providerJobId + ' body=' + JSON.stringify(wBody).slice(0, 150));
+
+  const wEarly = await video.download('cgt-stub-1', { brandCode: 'VFIB' });
+  check('PB-17b 任务未完成时拒绝下载（绝不把状态 JSON 冒充成 MP4）',
+    wEarly.state === 'FAILED' && wEarly.rawStatus === 'NOT_READY'
+      && /尚未完成/.test(String(wEarly.note || '')),
+    'state=' + wEarly.state + ' raw=' + wEarly.rawStatus + ' note=' + String(wEarly.note || '').slice(0, 60));
+
+  const w2 = await video.check('cgt-stub-1');
+  check('PB-17c 火山方舟 succeeded 被正确识别，并带回 content.video_url',
+    w2.state === 'SUCCEEDED' && /\/files\/volc\.mp4$/.test(String(w2.videoUrl || '')),
+    'state=' + w2.state + ' url=' + String(w2.videoUrl || '').slice(-24));
+
+  const w3 = await video.download('cgt-stub-1', { brandCode: 'VFIB' });
+  check('PB-17d 从 content.video_url 下载并落盘（走同一出站校验，非直连裸取）',
+    w3.state === 'SUCCEEDED' && fs.existsSync(w3.filePath)
+      && fs.readFileSync(w3.filePath, 'utf8') === 'MP4-FROM-VIDEO-URL' && counters.volcDownload === 1,
+    'state=' + w3.state + ' bytes=' + w3.bytes + ' downloads=' + counters.volcDownload);
+
+  const w4 = await video.start({ prompt: '竖版 9:16 测试', durationSec: 5, size: '720x1280', brandCode: 'VFIB' });
+  const wBody2 = JSON.parse(lastVideoCreate.body || '{}');
+  check('PB-17e 竖版尺寸被翻译为 ratio=9:16',
+    w4.state === 'SUCCEEDED' && wBody2.ratio === '9:16',
+    'ratio=' + wBody2.ratio + ' state=' + w4.state);
 
   /* 视频未配置 → 不伪造 */
   provideradmin.update('video', { mode: 'none', clearKey: true }, { id: 'test' });

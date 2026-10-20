@@ -20,7 +20,7 @@
 | `websearch` | 权威官方信息检索（配合 `research-fetch` 做受限全文抓取） | `none` / `searxng` / `brave` / `bing` / `google` / `tavily` | `searxng` 不计费；其余按次计费 |
 | `text` | 研究报告 / 资料总结 / 选题 / 英文文案 / 视频脚本 | `none` / `openai` / `deepseek` / `anthropic` | 按 token 计费 |
 | `image` | AI 配图与主视觉 | `none` / `openai` | 按张计费 |
-| `video` | AI 成片（异步三步） | `none` / `openai` / `generic` | 按次/按秒计费 |
+| `video` | AI 成片（异步三步） | `none` / `openai`（Sora，已停服）/ `volcengine`（火山方舟）/ `generic` | 按次/按秒计费 |
 
 ### 1.1 五类文本任务（`lib/mos/adapters/text.js` · `TASKS`）
 
@@ -58,7 +58,7 @@ const r = await text.runTask({ task: 'REPORT', input: { topic: '…', material: 
 | 通用 | `MOS_SECRET_KEY`（主密钥，见 §3） |
 | 文本 | `MOS_TEXT_PROVIDER` `MOS_TEXT_API_KEY` `MOS_TEXT_BASE_URL` `MOS_TEXT_MODEL` `MOS_TEXT_TIMEOUT_MS` |
 | 图像 | `MOS_IMAGE_PROVIDER` `MOS_IMAGE_API_KEY` `MOS_IMAGE_BASE_URL` `MOS_IMAGE_MODEL` `MOS_IMAGE_TIMEOUT_MS` |
-| 视频 | `MOS_VIDEO_PROVIDER` `MOS_VIDEO_API_KEY` `MOS_VIDEO_BASE_URL` `MOS_VIDEO_MODEL` `MOS_VIDEO_TIMEOUT_MS` |
+| 视频 | `MOS_VIDEO_PROVIDER`（`volcengine` / `openai` / `generic`）`MOS_VIDEO_API_KEY` `MOS_VIDEO_BASE_URL` `MOS_VIDEO_MODEL` `MOS_VIDEO_TIMEOUT_MS` |
 | 检索 | `MOS_WEBSEARCH_PROVIDER` `MOS_WEBSEARCH_API_KEY` `MOS_WEBSEARCH_BASE_URL` `MOS_WEBSEARCH_CX` `MOS_WEBSEARCH_MAX_RESULTS` |
 | 外发 | `MOS_EGRESS_PROVIDER_HOSTS` `MOS_EGRESS_ALLOW_CONFIDENTIAL` `MOS_EGRESS_ALLOW_RESTRICTED` `MOS_EGRESS_ACK_BY` |
 
@@ -174,9 +174,28 @@ GET  /api/mos/video-renders/:id    → 查询 + 自动 check/download
 
 单步语义：
 1. `start`：提交任务，立即返回 `providerJobId`（**不等待**完成）；
-2. `check`：`GET /v1/videos/{id}` 查状态（`queued|in_progress|completed|failed`）；
-3. `download`：`GET /v1/videos/{id}/content` 取 MP4（上限 120MB），落盘
+2. `check`：查状态（`queued|running|succeeded|failed|expired`）；
+3. `download`：取 MP4（上限 120MB），落盘
    `data/uploads/generated/AI-VIDEO-<brand>-<ts>.mp4`。
+
+**两种下载范式（0.1.5 起）**
+
+| 模式 | 下载方式 | 现状 |
+| --- | --- | --- |
+| `openai` | `GET /videos/{id}/content` 直接返回二进制 | ⚠ **死路**：OpenAI 已于 2026-09-24 移除 Videos API 及全部 sora-2 别名，无继任 |
+| `volcengine` | 先查状态取 `content.video_url`，再 GET 该地址（仍过出站校验） | ✅ 可用；URL 24 小时有效，必须立即下载 |
+| `generic` | 按你填的 `contentPath` 取二进制 | 适合自建/私有化服务 |
+
+**火山方舟填法**
+
+| 字段 | 值 |
+| --- | --- |
+| 供应商 | `volcengine` |
+| 端点 | `https://ark.cn-beijing.volces.com/api/v3` |
+| 模型 | `doubao-seedance-2-0-mini`（720P ≈0.18 元/秒）/ `doubao-seedance-2-0-fast`（≈0.41）/ `doubao-seedance-2-0`（≈1.5–3.75） |
+
+尺寸填 `16:9` / `9:16` / `1:1` 会原样下发；填像素值（如 `1536x1024`）会被换算成对应 ratio。
+**未完成的任务拒绝下载**并返回 `NOT_READY`——不会把状态 JSON 当视频存下来。
 
 未配置时 `POST /api/mos/video-renders` 返回 **HTTP 200 + `ok:false` + `NOT_CONFIGURED`**（不是 5xx），
 并**绝不**产出占位视频。

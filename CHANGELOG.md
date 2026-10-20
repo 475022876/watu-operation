@@ -5,6 +5,74 @@
 
 ---
 
+## [0.1.5] — 2026-10-20 — Video Provider Reachability（视频供应商可达性修复）
+
+**基线**：`v0.1.4`（发布提交 `15e7e9d`，schema v8）
+**目标/实际版本**：`0.1.5`
+**schema**：**v8 不变**（未新增集合）
+**接口契约**：**1.0 不变**（未改共享契约、未改资料库源码）
+
+### 为什么要发这一版
+
+选型调研时发现一个**上游消失**导致的功能死路：
+
+> OpenAI 于 **2026-09-24** 移除 Videos API 及全部 `sora-2` / `sora-2-pro` 别名与快照，
+> **未公布继任模型**（消费端 App 更早在 4 月 26 日关闭）。
+> 本系统 `video` 的 `openai` 模式正是按 `/videos → /videos/{id} → /videos/{id}/content`
+> 这条路实现的——协议没错，是**对端没了**。
+
+这意味着如果不改，视频能力在可预见的将来**无法接入任何供应商**。
+本版把国内可用路线打通，并顺手修掉两个被它暴露出来的真实缺陷。
+
+### A. 新增 `volcengine` 视频模式（火山方舟 Seedance）
+
+- 创建：`POST {base}/contents/generations/tasks`，请求体为
+  `{model, content:[{type:'text',text:prompt}], duration, ratio, watermark:false}`
+  （与 OpenAI 的 `{model,prompt,seconds}` 形状不同）。
+- 查询：`GET {base}/contents/generations/tasks/{id}` → `{status, content:{video_url}}`。
+- 下载：**先查状态取 `content.video_url`，再对该地址 GET**——该类供应商**没有二进制端点**，
+  只有 24 小时有效的签名 URL。下载仍走 `egress.assertProviderUrl`，未绕过安全校验。
+- **未完成拒绝下载**：状态非 `succeeded` 时返回 `NOT_READY`，绝不把状态 JSON 当 MP4 落盘。
+- 尺寸翻译：`size` 可填 `16:9 / 9:16 / 1:1 / 4:3 / 3:4 / 21:9` 或像素值
+  （`1536x1024 → 16:9`、`720x1280 → 9:16`）；供应商侧只认 ratio 枚举。
+- `openai` 模式**保留**：若 OpenAI 后续恢复 Videos API 或推出继任者，无需改代码。
+
+### B. 修掉两个被暴露的真实缺陷
+
+1. **`effective()` 未返回 `createPath` / `statusPath` / `contentPath`**
+   → `video.js` 的 `pathOf()` 永远读不到 fallback 之外的值，
+   即 **`generic` 模式的自定义路径一直没生效**（页面上填了也没用）。
+   已在 `effective()` 返回值中补齐，并沿用 `env > 库 > config.json > 默认` 的同一优先级链。
+2. **`video.normalize()` 丢弃 `extra.rawStatus`**
+   → 所有把状态放在 `extra` 里的失败分支（`PROVIDER_FAILED` / `NOT_READY` / `BLOCKED`）
+   的 `rawStatus` 恒为空，调用方无法区分失败原因。已补 `if (e.rawStatus) r.rawStatus = e.rawStatus;`。
+
+### C. 测试
+
+- `provideradmin` **55 → 60**，新增 `PB-17a…17e`：
+  - 创建体为 `content` 数组 + `ratio` 枚举（像素尺寸被翻译、不下放技术参数）；
+  - 任务未完成时**拒绝下载**且 `rawStatus=NOT_READY`；
+  - `succeeded` 被识别并带回 `content.video_url`；
+  - 从 `video_url` 下载落盘且**字节一致**（`MP4-FROM-VIDEO-URL`），下载次数为 1；
+  - 竖版 `720x1280` 正确翻译为 `ratio=9:16`。
+- 测试仍用**本地契约替身**（真实实现 `/v3/contents/generations/tasks` 协议），只换对端不换本侧代码。
+
+### D. 文档
+
+- 新增 `docs/PROVIDER_SELECTION.md`：四类供应商（文本/图像/视频/检索）的候选、价格、
+  **可直接照抄的 mode/baseUrl/model**、月成本测算、合规自查，以及 Sora 停服这一事实。
+- `docs/PROVIDER_INTEGRATION_GUIDE.md` §5.4 重写为"两种下载范式"，补火山方舟填法。
+
+### E. 诚实边界
+
+- **没有任何真实供应商凭据被使用**：`volcengine` 模式的验证来自本地协议替身
+  （与真实端点的请求/响应形状逐字段对齐），真实账号调用仍为 `NOT_CONFIGURED`。
+- OpenAI 侧"已停服"依据其 deprecations 页与多家独立报道；
+  **若你手上有仍可用的 Sora 存量额度，请以你控制台的实际可用性为准**，本版不据此阻塞。
+- 未部署生产。
+
+---
+
 ## [0.1.4] — 2026-10-20 — Real Provider Integration & Runtime Governance（真实接入与运行治理）
 
 **基线**：`1ed4d28`（应用版本 0.1.3，schema v7）

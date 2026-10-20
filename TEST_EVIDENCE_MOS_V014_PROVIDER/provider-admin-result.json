@@ -1,13 +1,13 @@
 {
   "suite": "provideradmin",
-  "ranAt": "2026-10-20T10:21:43.224Z",
-  "total": 55,
-  "passed": 55,
+  "ranAt": "2026-10-20T11:00:03.979Z",
+  "total": 60,
+  "passed": 60,
   "failed": 0,
   "ok": true,
   "node": "v22.22.2",
   "stub": {
-    "url": "http://127.0.0.1:9689",
+    "url": "http://127.0.0.1:9692",
     "counters": {
       "chat": 8,
       "chatOk": 8,
@@ -18,7 +18,10 @@
       "videoDownload": 1,
       "search": 0,
       "flaky": 3,
-      "slow": 1
+      "slow": 1,
+      "volcStart": 2,
+      "volcCheck": 3,
+      "volcDownload": 1
     }
   },
   "cases": [
@@ -50,7 +53,7 @@
     {
       "name": "PA-05 保存文本接入成功：密钥只回掩码、就绪度 CONFIGURED_NOT_TESTED",
       "ok": true,
-      "detail": "mask=sk-••••••••7b61 readiness=CONFIGURED_NOT_TESTED"
+      "detail": "mask=sk-••••••••341d readiness=CONFIGURED_NOT_TESTED"
     },
     {
       "name": "PA-06 密钥以 AES-256-GCM 密文落库（数据文件不含明文，密文含 iv/tag/ct）",
@@ -95,7 +98,7 @@
     {
       "name": "PA-14 有真实成功证据后就绪度晋级 REAL（不再是\"未联调\"）",
       "ok": true,
-      "detail": "readiness=REAL ev={\"at\":\"2026-10-20T10:21:39.753Z\",\"provider\":\"openai\",\"model\":\"stub-model\",\"id\":\""
+      "detail": "readiness=REAL ev={\"at\":\"2026-10-20T11:00:00.489Z\",\"provider\":\"openai\",\"model\":\"stub-model\",\"id\":\""
     },
     {
       "name": "PA-15 连接测试频控（8 秒内重复 → 400 TEST_TOO_FREQUENT）",
@@ -115,7 +118,7 @@
     {
       "name": "PA-18 填确认人后可开启受限外发（并留审计）",
       "ok": true,
-      "detail": "{\"allowConfidential\":false,\"allowRestricted\":true,\"allowRestrictedRaw\":true,\"acknowledgedBy\":\"compliance@vfib (test)\",\"updatedAt\":\"2026-10-20T10:21:39.764Z\",\"note\":\"默认全部关闭：判定为机密/受限的内容不会发送到任何外部服务。开启即视为该部署的合规责任人已确认。\"}"
+      "detail": "{\"allowConfidential\":false,\"allowRestricted\":true,\"allowRestrictedRaw\":true,\"acknowledgedBy\":\"compliance@vfib (test)\",\"updatedAt\":\"2026-10-20T11:00:00.501Z\",\"note\":\"默认全部关闭：判定为机密/受限的内容不会发送到任何外部服务。开启即视为该部署的合规责任人已确认。\"}"
     },
     {
       "name": "PA-19 调用账本可查：probe 计入 text 且带延迟",
@@ -225,7 +228,32 @@
     {
       "name": "PB-16 视频成片下载并落盘（真实文件，非占位）",
       "ok": true,
-      "detail": "file=AI-VIDEO-VFIB-1792491703045.mp4 bytes=14"
+      "detail": "file=AI-VIDEO-VFIB-1792494003788.mp4 bytes=14"
+    },
+    {
+      "name": "PB-17a 火山方舟创建体：content 数组 + ratio 枚举（像素尺寸被翻译，技术参数不下放）",
+      "ok": true,
+      "detail": "state=SUCCEEDED id=cgt-stub-1 body={\"model\":\"doubao-seedance-2-0-mini\",\"content\":[{\"type\":\"text\",\"text\":\"品牌 5 秒片头\"}],\"duration\":5,\"ratio\":\"16:9\",\"watermark\":false}"
+    },
+    {
+      "name": "PB-17b 任务未完成时拒绝下载（绝不把状态 JSON 冒充成 MP4）",
+      "ok": true,
+      "detail": "state=FAILED raw=NOT_READY note=任务尚未完成，拒绝下载（当前状态：running）。"
+    },
+    {
+      "name": "PB-17c 火山方舟 succeeded 被正确识别，并带回 content.video_url",
+      "ok": true,
+      "detail": "state=SUCCEEDED url=.0.1:9692/files/volc.mp4"
+    },
+    {
+      "name": "PB-17d 从 content.video_url 下载并落盘（走同一出站校验，非直连裸取）",
+      "ok": true,
+      "detail": "state=SUCCEEDED bytes=18 downloads=1"
+    },
+    {
+      "name": "PB-17e 竖版尺寸被翻译为 ratio=9:16",
+      "ok": true,
+      "detail": "ratio=9:16 state=SUCCEEDED"
     },
     {
       "name": "PB-17 视频未配置 → NOT_CONFIGURED，绝不产出占位成片",
@@ -280,12 +308,12 @@
     {
       "name": "PC4-09 调用账本落库且全字段脱敏（不含 sk-test 明文）",
       "ok": true,
-      "detail": "calls=16"
+      "detail": "calls=19"
     },
     {
       "name": "PC4-10 账本聚合：区分确认费用与未回执调用，错误率可算",
       "ok": true,
-      "detail": "total=16 errRate=0.25 cost=0.0015 unknown=5"
+      "detail": "total=19 errRate=0.2105 cost=0.0015 unknown=8"
     },
     {
       "name": "PC4-11 清除真实成功证据后就绪度回落 CONFIGURED_NOT_TESTED（REAL 不靠配置自封）",

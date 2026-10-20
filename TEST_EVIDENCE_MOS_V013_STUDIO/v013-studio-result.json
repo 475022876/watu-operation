@@ -1,7 +1,7 @@
 {
   "suite": "studio (V0.1.3 Phase A)",
-  "generatedAt": "2026-10-20T10:23:33.884Z",
-  "base": "http://127.0.0.1:9722",
+  "generatedAt": "2026-10-20T11:01:58.542Z",
+  "base": "http://127.0.0.1:9724",
   "total": 29,
   "passed": 29,
   "failed": 0,

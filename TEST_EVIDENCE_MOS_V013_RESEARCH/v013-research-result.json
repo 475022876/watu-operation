@@ -1,6 +1,6 @@
 {
   "suite": "research013 (V0.1.3 Phase B)",
-  "generatedAt": "2026-10-20T10:23:45.640Z",
+  "generatedAt": "2026-10-20T11:02:11.364Z",
   "total": 79,
   "passed": 79,
   "failed": 0,
@@ -68,7 +68,7 @@
     {
       "name": "B-06 记录真实检索 traceId 与结果/证据计数",
       "ok": true,
-      "detail": "trace=ws-2d0ca34865c35272dfd9 results=5 evidence=5"
+      "detail": "trace=ws-3d014981d317973c7d2b results=5 evidence=5"
     },
     {
       "name": "B-07 脱敏 trace：不含凭据字段且不回传完整查询串",

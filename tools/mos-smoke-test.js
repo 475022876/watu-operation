@@ -125,8 +125,8 @@ async function main() {
     check('VER-01 版本一致：package.json = MOS_VERSION = appVersion = 页面显示 = /api/mos/meta',
       pkgVer === mosVer && mosVer === appVer && appVer === htmlVer && htmlVer === metaVer,
       'pkg=' + pkgVer + ' mos=' + mosVer + ' app=' + appVer + ' html=' + htmlVer + ' meta=' + metaVer);
-    check('VER-02 版本已升级到 0.1.4（本轮目标；非 0.1.3）',
-      pkgVer === '0.1.4', 'version=' + pkgVer);
+    check('VER-02 版本已升级到 0.1.5（本轮目标；非 0.1.4）',
+      pkgVer === '0.1.5', 'version=' + pkgVer);
   } catch (err) {
     check('冒烟过程未抛异常', false, err.message);
   }
@@ -142,7 +142,7 @@ async function main() {
     const outDir = path.join(ROOT, 'TEST_EVIDENCE_MOS_BUILD01');
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(path.join(outDir, 'smoke-result.json'), JSON.stringify({
-      suite: 'mos-smoke', mosVersion: '0.1.4', ranAt: new Date().toISOString(),
+      suite: 'mos-smoke', mosVersion: '0.1.5', ranAt: new Date().toISOString(),
       total: results.length, passed: results.length - failed.length, failed: failed.length,
       cases: results
     }, null, 2), 'utf8');
