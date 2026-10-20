@@ -27,6 +27,10 @@ const OUT_DIR = path.join(__dirname, '..', 'TEST_EVIDENCE_MOS_BUILD01');
 process.env.MOS_DATA_DIR = DATA_DIR;
 process.env.MOS_DEMO_SEED = '1';
 process.env.MOS_PRODUCTION = '0';
+/* V0.1.4：适配器新增了统一出站校验（https/端口/内网地址）。
+ * 本套件的桩服务在回环上，因此显式打开**测试专用**放行开关（生产模式下一律失效）。 */
+process.env.MOS_EGRESS_ALLOW_LOOPBACK = '1';
+process.env.MOS_EGRESS_ALLOW_HTTP = '1';
 
 const mosConfig = require('../lib/mos/config');
 const pc = require('../lib/mos/providercontract');
@@ -131,7 +135,7 @@ async function main() {
   const tNoKey = await text.invoke({ op: 'draft', brief: 'b' });
   const iNoKey = await image.invoke({ op: 'generate', prompt: 'p' });
   ok('PC-04 选中真实供应商但无密钥：文本/图像一律 NOT_CONFIGURED（绝不伪造模型输出）',
-    tNoKey.state === 'INTEGRATION_PENDING' && tNoKey.text === '' && tNoKey.errorCode === pc.ERROR_CODES.NOT_CONFIGURED
+    tNoKey.state === 'NOT_CONFIGURED' && tNoKey.text === '' && tNoKey.errorCode === pc.ERROR_CODES.NOT_CONFIGURED
       && iNoKey.state === 'NOT_CONFIGURED' && iNoKey.outputs.length === 0,
     'text=' + tNoKey.state + ' image=' + iNoKey.state);
 
@@ -174,8 +178,11 @@ async function main() {
     'readiness=' + iKeyStat.readiness);
 
   const vStat = image.videoStatus();
-  ok('PC-06d 视频：AI 成片未实现 → readiness=NOT_IMPLEMENTED，且只声明手工流程能力',
-    vStat.readiness === 'NOT_IMPLEMENTED' && vStat.manualWorkflow === true
+  /* V0.1.4：视频 AI 成片已实现**异步真实接入**，但"实现"不等于"已配置"：
+   * 未接入供应商时 readiness 必须是 NOT_CONFIGURED，且**不得**声明 AI_RENDER 能力。 */
+  ok('PC-06d 视频：适配器已实现，但未配置供应商时 readiness=NOT_CONFIGURED 且不声明 AI_RENDER',
+    vStat.implemented === true && vStat.readiness === 'NOT_CONFIGURED'
+      && vStat.manualWorkflow === true
       && vStat.capabilities.indexOf('FINAL_CUT_UPLOAD') !== -1
       && vStat.capabilities.indexOf('AI_RENDER') === -1,
     'readiness=' + vStat.readiness + ' caps=' + vStat.capabilities.join('/'));
@@ -185,7 +192,7 @@ async function main() {
   const integ = helpers.integrationStatus();
   ok('PC-06e 集成状态矩阵暴露 imageProvider.readiness 与 videoProvider（BLOCKED 不被隐去）',
     !!integ.imageProvider.readiness && integ.videoProvider
-      && integ.videoProvider.readiness === 'NOT_IMPLEMENTED',
+      && integ.videoProvider.readiness === 'NOT_CONFIGURED',
     'image=' + integ.imageProvider.readiness + ' video=' + integ.videoProvider.readiness);
 
   /* ==================== 契约纯函数 ==================== */

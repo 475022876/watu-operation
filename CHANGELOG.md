@@ -5,6 +5,111 @@
 
 ---
 
+## [0.1.4] — 2026-10-20 — Real Provider Integration & Runtime Governance（真实接入与运行治理）
+
+**基线**：`1ed4d28`（应用版本 0.1.3，schema v7）
+**目标/实际版本**：`0.1.4`
+**schema**：**v7 → v8**（仅新增 `provider_calls` 调用账本、`video_render_jobs` AI 成片作业；**只增不改、幂等**，见 `docs/MIGRATION_AND_ROLLBACK.md` §2.1）
+**接口契约**：**1.0 不变**（未改共享契约、未改资料库源码）
+**发布提交**：见 `docs/RELEASE_REGISTER.md` §1.4 ｜ **发布标签**：`v0.1.4`
+
+> 本版**只做接入与治理**，不新增业务中心、不改任何模块 id、不动 8 大工作中心结构。
+> **全部「真实」必须由证据说话**：未配置一律 `NOT_CONFIGURED`，就绪度 `REAL` 只认账本中的真实成功调用。
+
+### A. 配置单一权威（消除"管理页保存 A、调用读 B"的漂移）
+
+- 新增 `lib/mos/provideradmin.js`（约 800 行）：四类供应商（`text` / `image` / `video` / `websearch`）的
+  模式注册表、密钥加解密、就绪度判定、预算与数据策略、连通性测试、用量汇总。
+  `effective(kind)` 成为**唯一配置来源**，`text` / `image` / `video` / `websearch` 四个适配器与
+  `providercontract.providerConfig()` 全部改为经由它读取（env ＞ 管理页加密库 ＞ `config.json` ＞ 默认）。
+- `publicView()` **绝不含 `apiKey` 字段**；被环境变量锁定的字段返回 `lockedByEnv`，页面只读。
+- **未知供应商不再退化**：`text` 适配器新增 `IMPLEMENTED_MODES` 前置校验，拼错的 vendor 名
+  在**出站前**被拒（`PROVIDER_UNKNOWN_MODE`）——旧行为会回落到默认 OpenAI 端点，把密钥发往非预期主机。
+
+### B. 密钥安全（Key 只进不出）
+
+- 新增 `lib/mos/secrets.js`：**AES-256-GCM** 封装 `{v,iv,tag,ct,kf}`；主密钥优先级
+  `MOS_SECRET_KEY` ＞ `data/.mos-secret.key`（0600 自动生成）＞ 告警兜底；支持 hex/base64/口令派生。
+- **主密钥轮换后旧密文明确报 `SECRET_KEY_MISMATCH`**，不静默失败、不回退到 `config.json` 明文。
+- 掩码 `sk-••••••••1a2b`（<12 位全掩码）+ sha256 前 12 位指纹；`redactText()` 在**落库前**统一脱敏。
+- 审计只记动作（`apiKey:set`），不记值。
+
+### C. 真实大语言模型（五类产出）
+
+- `lib/mos/adapters/text.js` **全量重写**（约 700 行）：`SUMMARY` 资料总结 / `REPORT` 研究报告 /
+  `TOPIC` 选题 / `COPY_EN` 英文文案 / `VIDEO_SCRIPT` 视频脚本，各自独立 system 与输出契约；
+  统一**五步出站闸门**（数据分级 → 预算 → 端点 → 有界重试 → 账本）。
+- 防注入基线：材料中出现的任何"指令"视为不可信文本，一律不得改变任务目标。
+- 支持 OpenAI 与 Anthropic 两种协议形状；`probe()` 走**完整 chat 管线**（maxTokens=16）而非另写一套。
+- 保留并修正 `draft()`（制作工作台在用）：真实模式走 `chat()`，Mock 模式明确标注 `mock:true`。
+
+### D. 真实图像与视频
+
+- `lib/mos/adapters/image.js`：完整五步闸门 + 尺寸映射（1:1→`1024x1024`，16:9→`1536x1024`）+
+  `b64_json` 与 `url` 两种返回（url 二次下载落盘）。
+- 新增 `lib/mos/adapters/video.js`（约 430 行）：**异步三步** `start → check → download`，
+  单步操作避免长连接重复计费；成片落 `data/uploads/generated/AI-VIDEO-<brand>-<ts>.mp4`（上限 120MB）。
+- 新增路由 `POST /api/mos/video-renders`、`GET /api/mos/video-renders/:id`、`GET /api/mos/video-renders?brand=`；
+  未配置时返回 **200 + `ok:false` + `NOT_CONFIGURED`**，**绝不产出占位视频**。
+
+### E. 运行治理六件事
+
+- 新增 `lib/mos/egress.js`：四级数据分类 `PUBLIC/INTERNAL/CONFIDENTIAL/RESTRICTED`，
+  正则识别身份证/银行卡/手机/邮箱/受限标记，**取"声明"与"检测"更严者**；
+  `CONFIDENTIAL` 需显式开关，`RESTRICTED` 还需登记审批人；端点校验拒绝非 https（生产）、
+  非白名单端口、内网/环回/云元数据（DNS **全量**解析后逐个判定）、URL 内嵌账号口令。
+- 新增 `lib/mos/providerlog.js`：调用账本（成功与失败都记），滚动 2000 条；
+  `summarize()` 给出 P50/P95、错误率、**只认回执**的费用汇总与 `unknownCount`。
+- `providercontract.js` 新增 `withRetry/backoffMs/sleep/usageOf`：仅
+  `TIMEOUT/RATE_LIMITED/HTTP_ERROR/NETWORK_ERROR` 可重试，上限 3 次，遵守 `Retry-After`，否则指数退避（400ms 起、封顶 8s）。
+- 预算：单次预估 + 当月已发生双阈值（`0` = 不设上限），超限 `PROVIDER_BUDGET_EXCEEDED` 且**零出站**。
+- 权限：新增权限点 `settings.manage`（`MOS_ADMIN` 自动涵盖），配置类接口统一校验；调用类仍为 `model.invoke`。
+
+### F. 系统接入管理界面（中英双语）
+
+- 新增模块 `public/mos/js/modules/settings.js` 与路由 `lib/mos/routes/settings.js`（8 个端点）。
+- 新增导航组「系统接入」（`aux`，`requireRoles: ['MOS_ADMIN']`），**不进入 8 大业务中心**。
+- 四张供应商卡（检索/文本/图像/视频）+ 预算卡 + 数据外发策略卡 + 用量卡；
+  密钥框恒 `type=password`、保存后**立即清空**，页面只显示掩码与指纹。
+- i18n 新增 **78 键**（`zh-CN` / `en-US` 各一份，一一对应）；修正 `notice.ai_video_unavailable`
+  文案由「未实现」改为「未接入」（本版已实现异步真实接入）。
+
+### G. 测试与证据
+
+- 新增套件 **`provideradmin`（55 条）**：A 段 22 条（管理接口/RBAC/密文/锁 env/审计）、
+  B 段 21 条（适配器真实调用：五类文本产出逐个验证、图像、视频三步、检索、重试/超时/预算/分级）、
+  C 段 12 条（安全基座：掩码、指纹、篡改、轮换、清账本回落）。
+  驱动方式是**本地契约替身**（真实协议 `/v1/chat/completions`、`/v1/images/generations`、`/v1/videos`、SearXNG `/search`），
+  只换"对端"不换本侧代码。
+- `ui` 套件 123 → **135**：新增 `SET-01…SET-12`（管理员可见入口 / P2 不可见且直链 403 /
+  密钥框 password 且不回显 / DOM 与接口无明文 / 库文件为密文 / 刷新后仍只有掩码）。
+- `unit` 76 条：`U-19*` 的 schema 期望由 7 升 8，新增 `U-19a`（v7→v8 只新增两集合、既有集合零改写、幂等）。
+- `run-mos-tests.sh`：`all` 纳入 `provideradmin`（**17 套件**）；汇总口径拆为
+  **「本次运行」**（推荐引用）与「证据目录全量（含 joint/build06 历史证据）」两行，避免混读。
+- **全量回归：`all` 17 套件 865/865 通过**。
+
+### H. 期间修正的真实缺陷
+
+1. **`research-fetch` 校验路径会连带加载数据库**：`wsConfig()` 聚合了 provideradmin → store，
+   导致纯 URL 校验的子进程探针 stdout 被 store 日志污染（`J-01/J-03` 假失败），并以只读方式碰真实 `data/`。
+   改为**只读 `config.json`/env 的研究配置**，语义不变；`websearch` 对 provideradmin 亦改为惰性 require。
+2. **`updateBudget` 用 `toFixed(4)` 把 `0.000001` 抹成 0**，等于静默取消单次限额 → 改 `toFixed(6)`。
+3. **`egress.dataPolicy()` 的 `allowRestricted` 三元两支同值**，覆盖参数被忽略 → 修正为读 `o.*`。
+4. **`video.js` 误用 `getConfig().uploadDir`**（不存在）→ 改 `PATHS.uploadDir`。
+5. **`settings.js` 误用 `stateBlock`/`confirmDialog` 旧签名** → 按实际签名重写（`(title,message,okText)` / `(kind,{title,desc,actions})`）。
+
+### I. 已知边界（如实记录，不得改写为"已完成"）
+
+- 文本 / 图像 / 视频 / 检索的**真实供应商调用在本仓库内无凭据**：本版交付的是"接入能力 + 治理"，
+  各供应商就绪度为 `NOT_CONFIGURED`；填入真实密钥并点「测试连接」成功后才可能变为 `REAL`。
+- **双系统联调阻塞（Provider 侧版本已变）**：资料库仓库当前为 **1.1.9**（新增"岗位职责三层映射 G/C/E"），
+  而本侧契约按 **1.1.7** 实现；`joint` / `build06` 在 Provider 侧"审批人登记 / 资料夹具批准 / 最终决策票据"
+  处返回 403，`joint 54/66`、`build06 43/61`。**已用独立 worktree 在 V0.1.3 基线（`1ed4d28`）复跑，
+  失败集合逐条一致** → 属 Provider 侧行为变更导致的阻塞，**非本版引入的回归**；需资料库侧确认后再联调。
+- 未部署生产；未启用任何自动出站轮询。
+
+---
+
 ## [0.1.3] — 2026-10-14 — Real AI Research & Employee UX Remediation（执行包五阶段）
 
 **基线**：`7001475`（应用版本 0.1.2，schema v7）

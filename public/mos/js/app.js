@@ -28,7 +28,11 @@ const CENTERS = [
     items: ['brand-overview', 'brand-guidelines', 'brand-library'] },
   { id: 'review-admin', label: '审批与管理', aux: true,
     requireRoles: ['P1', 'P3', 'PROFESSIONAL_REVIEWER', 'PUBLISHING_APPROVER', 'ASSET_REVIEWER', 'LIBRARY_FINAL_APPROVER'],
-    items: ['my-reviews', 'governance'] }
+    items: ['my-reviews', 'governance'] },
+  /* V0.1.4：系统接入（仅技术管理员可见；业务同事不需要理解供应商参数） */
+  { id: 'system-integration', label: '系统接入', aux: true,
+    requireRoles: ['MOS_ADMIN'],
+    items: ['settings'] }
 ];
 
 const MODULES = [
@@ -85,7 +89,11 @@ const MODULES = [
   { id: 'analytics', label: '运营分析', icon: '▩', center: 'analytics', context: '内容 / 渠道 / 计划执行 / AI 成本（真实聚合）',
     loader: () => import('./modules/analytics.js') },
   { id: 'governance', label: '治理与资产', icon: '⛨', center: 'governance', context: '三条审批链、资产入库与已批准资产',
-    loader: () => import('./modules/governance.js') }
+    loader: () => import('./modules/governance.js') },
+
+  /* V0.1.4：AI 能力接入（仅 MOS_ADMIN；服务端同样以 settings.manage 强制） */
+  { id: 'settings', label: 'AI 能力接入', icon: '⚙', center: 'system', context: '接入网页检索、大模型、图像与视频；管理密钥、预算与数据外发策略',
+    loader: () => import('./modules/settings.js') }
 ];
 
 const els = {};

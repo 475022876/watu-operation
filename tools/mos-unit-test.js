@@ -590,9 +590,9 @@ t('U-18c Mock 网关：缺摘要/缺分类/许可未核验 → 引擎级拒绝�
 });
 
 /* ---------------- U-19 schema v3/v4/v5 迁移（只增不改；不预置任何已批准资产/作业） ---------------- */
-t('U-19 schema 版本为 7（v7=V0.1.2 研究域 4 集合；v6=用户偏好；v3—v5 迁移保留）且 asset_admissions / library_asset_refs / ingest_jobs / 四项集成态集合在基线形状中', () => {
+t('U-19 schema 版本为 8（v8=供应商调用账本 + AI 成片作业；v7=V0.1.2 研究域 4 集合；v6=用户偏好；v3—v5 迁移保留）且 asset_admissions / library_asset_refs / ingest_jobs / 四项集成态集合在基线形状中', () => {
   const store = require('../lib/mos/store');
-  eq(store.MOS_SCHEMA_VERSION, 7);
+  eq(store.MOS_SCHEMA_VERSION, 8);
   ok(Array.isArray(store.BASE_SHAPE.asset_admissions), 'asset_admissions 必须是顶级集合');
   ok(Array.isArray(store.BASE_SHAPE.library_asset_refs), 'library_asset_refs 必须是顶级集合');
   ok(Array.isArray(store.BASE_SHAPE.ingest_jobs), 'ingest_jobs 必须是顶级集合（A-01 采集作业记录）');
@@ -601,14 +601,34 @@ t('U-19 schema 版本为 7（v7=V0.1.2 研究域 4 集合；v6=用户偏好；v3
   ok(Array.isArray(store.BASE_SHAPE.library_event_cursors), 'library_event_cursors 必须是顶级集合（持久化 seq 游标）');
   ok(Array.isArray(store.BASE_SHAPE.library_invalidations), 'library_invalidations 必须是顶级集合（撤回/停用失效登记）');
   ok(Array.isArray(store.BASE_SHAPE.library_admission_jobs), 'library_admission_jobs 必须是顶级集合（准入推送作业记录）');
+  // V0.1.4：供应商治理两集合（只增不改）
+  ok(Array.isArray(store.BASE_SHAPE.provider_calls), 'provider_calls 必须是顶级集合（供应商调用账本，含失败与重试）');
+  ok(Array.isArray(store.BASE_SHAPE.video_render_jobs), 'video_render_jobs 必须是顶级集合（AI 成片异步作业）');
 });
 
-t('U-19b migrate：v2 文档补齐 v3—v7 形状，且**不注入**任何已批准资产或作业记录（08 §6）', () => {
+t('U-19a v7 → v8 迁移只新增供应商账本与成片作业集合，既有集合零改写', () => {
+  const store = require('../lib/mos/store');
+  const doc = {
+    mosSchemaVersion: 7,
+    campaigns: [{ id: 'c1', title: '既有 Campaign' }],
+    provider_calls: [{ id: 'pc-existing', kind: 'text', state: 'OK' }]
+  };
+  const before = JSON.stringify(doc.campaigns);
+  store.migrate(doc);
+  eq(doc.mosSchemaVersion, 8);
+  eq(JSON.stringify(doc.campaigns), before, 'v8 迁移不得触碰既有业务集合');
+  eq(doc.video_render_jobs.length, 0, 'v8 迁移不得预置任何成片作业');
+  eq(doc.provider_calls.length, 1, '既有账本记录不得被删除');
+  eq(doc.provider_calls[0].id, 'pc-existing', '既有账本记录身份不得被改写');
+  eq(store.migrate(doc), false, 'v8 迁移必须幂等（二次执行报告无变更）');
+});
+
+t('U-19b migrate：v2 文档补齐 v3—v8 形状，且**不注入**任何已批准资产或作业记录（08 §6）', () => {
   const store = require('../lib/mos/store');
   const legacy = { mosSchemaVersion: 2, brands: [], users: [{ id: 'u1', username: 'legacy' }] };
   const changed = store.migrate(legacy);
   ok(changed === true, '应报告已迁移');
-  eq(legacy.mosSchemaVersion, 7);
+  eq(legacy.mosSchemaVersion, 8);
   ok(legacy.users[0].prefs && typeof legacy.users[0].prefs === 'object', 'v6：用户必须获得 prefs 对象');
   eq(legacy.users[0].prefs.locale, null, 'v6：locale 缺省 null（未设置，前端回落组织默认）');
   eq(legacy.users[0].prefs.lastTaskId, null, 'v6：lastTaskId 缺省 null');
@@ -643,7 +663,7 @@ t('U-19c v3 → v5 迁移幂等且只新增集合，既有业务集合零改写'
   const before = zeroRewrite();
   store.migrate(doc);
   eq(zeroRewrite(), before, '既有业务集合与内容必须零改写');
-  eq(doc.mosSchemaVersion, 7);
+  eq(doc.mosSchemaVersion, 8);
   eq(doc.ingest_jobs.length, 0);
   eq(doc.library_tickets.length, 0);
   eq(doc.library_event_cursors.length, 0);
@@ -666,7 +686,7 @@ t('U-19d v4 → v5 保守回填：不猜测密级、自由文本许可绝不映�
     ]
   };
   store.migrate(doc);
-  eq(doc.mosSchemaVersion, 7);
+  eq(doc.mosSchemaVersion, 8);
   const old = doc.asset_admissions.find((a) => a.id === 'ad-old');
   eq(old.libraryPrimaryCategory, null, '资料区**不得猜测**');
   eq(old.classification, null, '密级**不得猜测降级**');
@@ -1005,7 +1025,7 @@ t('U-23e Workspace 端点表与契约一致（含 skills；final-decision 要求
   try {
     fs.mkdirSync(OUT_DIR, { recursive: true });
     fs.writeFileSync(path.join(OUT_DIR, 'unit-result.json'), JSON.stringify({
-      suite: 'mos-unit', mosVersion: '0.1.3', build: 'BUILD-01 + BUILD-02 + BUILD-03',
+      suite: 'mos-unit', mosVersion: '0.1.4', build: 'BUILD-01 + BUILD-02 + BUILD-03',
       ranAt: new Date().toISOString(),
       total: results.length, passed: results.length - failed.length, failed: failed.length,
       cases: results

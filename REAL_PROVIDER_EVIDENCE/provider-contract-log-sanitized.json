@@ -1,6 +1,6 @@
 {
   "note": "真实 HTTP 请求/响应（由本地契约替身记录）。凭据只记录\"是否存在\"，**值一律脱敏**；模型请求体只记录角色与字符数，不落提示词全文。",
-  "generatedAt": "2026-10-14T13:37:08.916Z",
+  "generatedAt": "2026-10-20T10:23:45.642Z",
   "totals": {
     "search": 4,
     "model": 2,
@@ -8,7 +8,7 @@
   },
   "entries": [
     {
-      "at": "2026-10-14T13:37:01.703Z",
+      "at": "2026-10-20T10:23:38.433Z",
       "method": "GET",
       "path": "/search",
       "query": "q=%E8%B7%A8%E5%A2%83%E6%94%AF%E4%BB%98%E7%9B%91%E7%AE%A1%E5%8A%A8%E6%80%81%E4%B8%8E%E7%A8%B3%E5%AE%9A%E5%B8%81%E7%9B%91%E7%AE%A1%E7%A2%8E%E7%89%87%E5%8C%96&format=json&language=en&time_range=year",
@@ -20,7 +20,7 @@
       "responseBytes": 1569
     },
     {
-      "at": "2026-10-14T13:37:01.719Z",
+      "at": "2026-10-20T10:23:38.451Z",
       "method": "GET",
       "path": "/doc/regulator-a",
       "query": "",
@@ -32,7 +32,7 @@
       "responseBytes": 707
     },
     {
-      "at": "2026-10-14T13:37:01.721Z",
+      "at": "2026-10-20T10:23:38.456Z",
       "method": "GET",
       "path": "/doc/org-b",
       "query": "",
@@ -44,7 +44,7 @@
       "responseBytes": 755
     },
     {
-      "at": "2026-10-14T13:37:01.722Z",
+      "at": "2026-10-20T10:23:38.457Z",
       "method": "GET",
       "path": "/doc/org-c",
       "query": "",
@@ -56,7 +56,7 @@
       "responseBytes": 604
     },
     {
-      "at": "2026-10-14T13:37:01.723Z",
+      "at": "2026-10-20T10:23:38.459Z",
       "method": "GET",
       "path": "/doc/missing",
       "query": "",
@@ -68,7 +68,7 @@
       "responseBytes": 22
     },
     {
-      "at": "2026-10-14T13:37:01.732Z",
+      "at": "2026-10-20T10:23:38.469Z",
       "method": "POST",
       "path": "/v1/chat/completions",
       "query": "",
@@ -93,7 +93,7 @@
       "responseBytes": 4218
     },
     {
-      "at": "2026-10-14T13:37:01.933Z",
+      "at": "2026-10-20T10:23:38.652Z",
       "method": "GET",
       "path": "/search",
       "query": "q=%E8%B7%A8%E5%A2%83%E6%94%AF%E4%BB%98%E7%9B%91%E7%AE%A1%E5%8A%A8%E6%80%81%E4%B8%8E%E7%A8%B3%E5%AE%9A%E5%B8%81%E7%9B%91%E7%AE%A1%E7%A2%8E%E7%89%87%E5%8C%96&format=json&language=en&time_range=year",
@@ -105,7 +105,7 @@
       "responseBytes": 1569
     },
     {
-      "at": "2026-10-14T13:37:01.935Z",
+      "at": "2026-10-20T10:23:38.655Z",
       "method": "GET",
       "path": "/doc/regulator-a",
       "query": "",
@@ -117,7 +117,7 @@
       "responseBytes": 707
     },
     {
-      "at": "2026-10-14T13:37:01.936Z",
+      "at": "2026-10-20T10:23:38.656Z",
       "method": "GET",
       "path": "/doc/org-b",
       "query": "",
@@ -129,7 +129,7 @@
       "responseBytes": 755
     },
     {
-      "at": "2026-10-14T13:37:01.937Z",
+      "at": "2026-10-20T10:23:38.658Z",
       "method": "GET",
       "path": "/doc/org-c",
       "query": "",
@@ -141,7 +141,7 @@
       "responseBytes": 604
     },
     {
-      "at": "2026-10-14T13:37:01.938Z",
+      "at": "2026-10-20T10:23:38.659Z",
       "method": "GET",
       "path": "/doc/missing",
       "query": "",
@@ -153,7 +153,7 @@
       "responseBytes": 22
     },
     {
-      "at": "2026-10-14T13:37:01.941Z",
+      "at": "2026-10-20T10:23:38.662Z",
       "method": "POST",
       "path": "/v1/chat/completions",
       "query": "",
@@ -178,7 +178,7 @@
       "responseBytes": 4218
     },
     {
-      "at": "2026-10-14T13:37:03.847Z",
+      "at": "2026-10-20T10:23:40.582Z",
       "method": "GET",
       "path": "/search",
       "query": "q=%E8%B7%A8%E5%A2%83%E6%94%AF%E4%BB%98%E7%9B%91%E7%AE%A1%E5%8A%A8%E6%80%81&format=json&language=en",
@@ -190,7 +190,7 @@
       "responseBytes": 1542
     },
     {
-      "at": "2026-10-14T13:37:03.856Z",
+      "at": "2026-10-20T10:23:40.593Z",
       "method": "GET",
       "path": "/doc/regulator-a",
       "query": "",
@@ -202,7 +202,7 @@
       "responseBytes": 707
     },
     {
-      "at": "2026-10-14T13:37:03.860Z",
+      "at": "2026-10-20T10:23:40.596Z",
       "method": "GET",
       "path": "/doc/org-b",
       "query": "",
@@ -214,7 +214,7 @@
       "responseBytes": 755
     },
     {
-      "at": "2026-10-14T13:37:03.861Z",
+      "at": "2026-10-20T10:23:40.598Z",
       "method": "GET",
       "path": "/doc/org-c",
       "query": "",
@@ -226,7 +226,7 @@
       "responseBytes": 604
     },
     {
-      "at": "2026-10-14T13:37:03.862Z",
+      "at": "2026-10-20T10:23:40.599Z",
       "method": "GET",
       "path": "/doc/missing",
       "query": "",
@@ -238,7 +238,7 @@
       "responseBytes": 22
     },
     {
-      "at": "2026-10-14T13:37:05.154Z",
+      "at": "2026-10-20T10:23:41.891Z",
       "method": "GET",
       "path": "/search",
       "query": "q=slow-cancel+%E5%8F%96%E6%B6%88%E8%B4%9F%E4%BE%8B&format=json&language=en",

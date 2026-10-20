@@ -125,9 +125,11 @@ async function main() {
   const feedServer = await startFeedServer();
   let db = store.getDb();
 
-  /* 1. schema 与默认关闭 */
-  ok('SCH-01 schema 已升到 v7，且存在 ingest_jobs 与四项集成态集合',
-    store.MOS_SCHEMA_VERSION === 7 && Array.isArray(db.ingest_jobs)
+  /* 1. schema 与默认关闭
+   * 注：V0.1.4 起 schema 升到 v8（新增 provider_calls）；此处只断言"不低于 v7 且关键集合存在"，
+   * 避免每次加集合都要改这条历史断言。 */
+  ok('SCH-01 schema 不低于 v7，且存在 ingest_jobs 与四项集成态集合',
+    store.MOS_SCHEMA_VERSION >= 7 && Array.isArray(db.ingest_jobs)
       && Array.isArray(db.library_tickets) && Array.isArray(db.library_event_cursors),
     'schemaVersion=' + store.MOS_SCHEMA_VERSION + ' ingest_jobs=' + (Array.isArray(db.ingest_jobs) ? 'array' : 'missing'));
 

@@ -11,76 +11,78 @@
 
 ---
 
-## 1. 当前登记
+## 1. 当前登记（0.1.4）
+
+> 本表是**应用版本 0.1.4** 的登记；0.1.3 及更早见 §2 历史版本。
 
 | 字段 | 值 |
 | --- | --- |
 | 系统名称 | VFIB Marketing OS（运营中台） |
-| 应用版本（本版） | **0.1.3** |
-| 上一版本 / 回滚目标 | **0.1.2** |
-| 基线 Git 提交 | `7001475`（`main`，应用版本 0.1.2，schema v7） |
-| 阶段提交链 | `6df37ba`(Phase 0) → `31d292a`(Phase A) → `b9edea8`(Phase B) → `ab2af8b`(Phase C) → 本发布提交 |
-| **发布 Git 提交** | **`b5412cc`**（Phase D 应用版本升版 + 证据修正 + 验收/遗留项文档；见 §1.4） |
-| 发布标签 | **`v0.1.3`**（annotated，指向发布提交） |
-| 交付源码包 | `VFIB_MARKETING_OS_V0.1.3_SOURCE.zip`（443 条目 / 26,609,092 字节 / SHA256 `7024229d…`），**由发布提交 `b5412cc` 源码树生成**；`*.zip` 与 `dist/` 已 gitignore，可随时重生成（详见 §1.4） |
+| 应用版本（本版） | **0.1.4** |
+| 上一版本 / 回滚目标 | **0.1.3**（标签 `v0.1.3`，提交 `b5412cc`） |
+| 基线 Git 提交 | `1ed4d28`（`main`，应用版本 0.1.3，schema v7） |
+| **发布 Git 提交** | 见 §1.4（提交后回填） |
+| 发布标签 | **`v0.1.4`**（annotated，指向发布提交） |
 | 分支 | `main`（远端 `475022876/watu-operation`） |
-| 接口契约版本 | **1.0**（未变） |
-| 数据 schema 版本 | **v7**（**本版零新集合、零迁移**：仅在既有集合上新增可选字段，如 `research_jobs.blockedEvent`、`users[].prefs`。见 `MIGRATION_AND_ROLLBACK.md`） |
-| 资料库（Workspace）兼容目标 | 1.1.7（适配层未变，仍 NOT_VERIFIED——`LIBRARY_HANDOFF_BUNDLE` 未交付） |
-| 执行包 | `VFIB_Marketing_OS_V0.1.3_AI_Research_UX_Remediation_Codex`（执行包 7 文件 + `SHA256_MANIFEST.txt` 全部核验一致） |
+| 接口契约版本 | **1.0**（未变；未改共享契约、未改资料库源码） |
+| 数据 schema 版本 | **v8**（v7 → v8：**仅新增** `provider_calls`、`video_render_jobs`，既有集合零改写、迁移幂等；见 `docs/MIGRATION_AND_ROLLBACK.md` §2.1） |
+| 资料库（Workspace）兼容目标 | **1.1.7**（本侧未变）｜⚠ 实际 Provider 源码已升至 **1.1.9** → 见 §1.5 阻塞项 |
+| 本版主题 | **真实接入与运行治理**：供应商配置中心 / 真实 LLM 五类产出 / 真实图像与视频 / 密钥·权限·超时重试·费用·外发·日志六件事 |
+| 是否新增业务中心 | **否**（8 大工作中心与全部模块 id 不变；新增"系统接入"为 `aux` 导航组，仅管理员可见） |
 | 交付形态 | **Staging / 本地隔离实例**；**未部署生产**（须另行批准） |
-| 发布日期 | 2026-10-14 |
-
-> ⚠ **0.1.2 登记行的证据勘误（诚实性回填，不篡改历史）**：0.1.2 登记行曾引用
-> `TEST_EVIDENCE_MOS_BUILD04/dual-e2e-result.json` 记 `joint 64/64 通过`。经本版复核，
-> **该 JSON 是由更早一版测试脚本生成的陈旧证据**（其 `D4-15` 明细为 `codes=71`，而提交入库的脚本
-> 明细为 `openapiEnum=`，且其中**不含** `D4-15b`），**不能作为入库脚本的通过证据**。
-> 在入库脚本下重跑，实际暴露出 4 条断言问题（详见 §1.3 与 `reports/FINAL_ACCEPTANCE_V0.1.3.md` §5），
-> 现已全部修正并复跑为 **`joint 66/66 通过`**。0.1.2 的结论以本版修正后的口径为准。
+| 发布日期 | 2026-10-20 |
 
 ### 1.1 测试证据
 
 | 套件 | 结果 | 证据路径 |
 | --- | --- | --- |
-| 全量回归 `bash tools/run-mos-tests.sh all`（**16 套件**） | **797/797 通过** | `TEST_EVIDENCE_MOS_BUILD01/summary.json` |
-| └ `ui`（**真实浏览器 CDP**，Chromium 155.0.8059.79） | **123/123 通过**（含 LANG-01a…l 12 条双语保护） | `TEST_EVIDENCE_MOS_BUILD01/ui-check-result.json` + `UI_EVIDENCE/` |
-| └ `studio`（本版新增，Phase A） | **29/29 通过** | `TEST_EVIDENCE_MOS_V013_STUDIO/v013-studio-result.json` |
-| └ `research013`（本版新增，Phase B） | **79/79 通过** | `TEST_EVIDENCE_MOS_V013_RESEARCH/v013-research-result.json` |
-| └ `i18n`（本版新增，Phase C） | **21/21 通过** | `TEST_EVIDENCE_MOS_V013_I18N/i18n-check-result.json` |
-| └ `provider`（Phase C 新增 PC-06a…e 就绪度） | **26/26 通过** | `TEST_EVIDENCE_MOS_BUILD01/provider-contract-result.json` |
-| 双系统真实 HTTP 正向端到端 `joint`（**显式运行**，需本机资料库源码） | **66/66 通过** | `TEST_EVIDENCE_MOS_BUILD04/dual-e2e-result.json` |
-| 双系统真实 HTTP 安全负例 `build06`（**显式运行**） | **61/61 通过** | `TEST_EVIDENCE_MOS_BUILD06/dual-security-result.json` |
-| **汇总（`summary.json` 扫描全部证据目录：16 + `joint` + `build06`）** | **924/924 通过（18 套件）** | `TEST_EVIDENCE_MOS_BUILD01/summary.json` |
-| 真实浏览器操作证据（三阶段） | `UI_EVIDENCE/PHASE0`（16 图 / 17 步）· `PHASEA`（17 图 / 18 步）· `PHASEC`（24 图 / 23 步，0 控制台错误） | 各目录 `steps.json` |
-| AI 接口调用证据（脱敏） | `REAL_PROVIDER_EVIDENCE/`（作业 trace + 契约日志） | 见 `reports/PHASE_B_REAL_RESEARCH.md` §证据 |
+| 全量回归 `bash tools/run-mos-tests.sh all`（**17 套件**） | **865/865 通过** | `TEST_EVIDENCE_MOS_BUILD01/summary.json` → `ran` |
+| └ `provideradmin`（**本版新增**） | **55/55 通过** | `TEST_EVIDENCE_MOS_V014_PROVIDER/provider-admin-result.json` |
+| └ `ui`（真实浏览器 CDP；新增 `SET-01…SET-12`） | **135/135 通过** | `TEST_EVIDENCE_MOS_BUILD01/ui-check-result.json` + `UI_EVIDENCE_MOS_BUILD07/SET-*.png` |
+| └ `unit`（`U-19*` 升至 v8 + 新增 `U-19a`） | **76/76 通过** | `TEST_EVIDENCE_MOS_BUILD01/unit-result.json` |
+| └ `provider`（契约与就绪度语义） | **26/26 通过** | `TEST_EVIDENCE_MOS_BUILD01/provider-contract-result.json` |
+| └ `smoke` / `sec` / `sched` | 15/15 · 17/17 · 20/20 | `TEST_EVIDENCE_MOS_BUILD01/` |
+| └ `workspace` / `dual` / `e2e` / `e2e02` / `e2e03` | 36/36 · 51/51 · 48/48 · 63/63 · 96/96 | 同上（`e2e02/03` 在 BUILD02/03 目录） |
+| └ `research` / `editorial` / `studio` / `research013` / `i18n` | 55/55 · 43/43 · 29/29 · 79/79 · 21/21 | `TEST_EVIDENCE_MOS_V0*/` |
+| **简化口径**：`summary.json` 的 `ran` 字段 | **865/865** | 推荐引用这一档 |
+| 证据目录全量（含 `joint` / `build06` 历史证据） | **962/992**（30 条失败） | 见 §1.5，属 Provider 侧阻塞，非本版回归 |
+| 双系统正向联调 `joint`（显式运行） | **54/66**（12 条失败） | `TEST_EVIDENCE_MOS_BUILD04/dual-e2e-result.json` |
+| 双系统安全负例 `build06`（显式运行） | **43/61**（18 条失败） | `TEST_EVIDENCE_MOS_BUILD06/dual-security-result.json` |
+| 系统接入页浏览器证据 | `UI_EVIDENCE_MOS_BUILD07/SET-60…62`（4 张：四卡概览 / P2 无入口 / P2 直链被拒） | — |
 
-> **口径说明（勿混用）**：`all` 自身 = **16 套件 797/797**；`joint` = **66/66**；`build06` = **61/61**；
-> `summary.json` 汇总 = **924/924（18 套件）**。引用时必须写明是哪一档口径。
+> **口径说明（勿混用）**：
+> - **`all` = 17 套件 865/865** —— 这是"本次运行"口径，`summary.json` 的 `ran` 字段与之对应；
+> - **`summary.json` 全量 = 962/992** —— 因为它还会扫描 `joint` / `build06` 证据目录，而二者**不在 `all` 内**，
+>   且当前被 Provider 侧变更阻塞（§1.5）；
+> - 引用任何数字时**必须写明是哪一档**。
 
 ### 1.2 本版是否含应用代码变更
 
-**是（大规模）。** 执行包 V0.1.3 五阶段全部落地（**未新增任何功能中心，8 大业务中心与全部模块 id 不变**）：
-- **Phase 0**：源码影响核验与基线（执行包「现状」描述逐条比对，输出差异表）。
-- **Phase A**：`content-editor` 升级为**一站式制作工作台**（任务头 + Brief/已审研究/上级备注 + 正文｜图片｜视频｜审核**任务内切页** + 交付物/下一步），不跳出任务；新增 `lib/mos/routes/studio.js` 与 `public/mos/js/modules/studio.js`。
-- **Phase B**：**真实 AI 研究**——可配置供应商注册表（不写死供应商）、受限网页读取（复用 SSRF 防护 + 不可信内容边界）、异步研究作业（进度/取消/重试/幂等）、证据链、无证据 FACT 强制降级、MOCK 通道拒绝产出结论。
-- **Phase C**：**key-based 中英双语**（`zh-CN.js`/`en-US.js` 各 451 键）+ **不可翻译节点保护**（用户输入/已保存正文/AI 原文/URL/文件名/日志）+ `ApiError` 单点错误码映射 + **品牌减法**（配图对话框只留用途/视觉类型/画面说明 + 实时预览）+ **Provider 就绪度**（MOCK 不计为 REAL；视频 AI = NOT_IMPLEMENTED）。
-- **Phase D**：全量回归、迁移/回滚文档、版本统一升 **0.1.3**、发布登记与最终验收报告。
-- **无新增权限、无新增集合、无契约变更**（schema 仍 v7，契约仍 1.0）。
+**是（大规模新增，零业务改动）。**
+
+- **新增后端**：`lib/mos/provideradmin.js`、`secrets.js`、`egress.js`、`providerlog.js`、`adapters/video.js`、`routes/settings.js`。
+- **重写**：`adapters/text.js`（五类任务 + 五步闸门）、`adapters/image.js`（闸门 + 尺寸映射 + 两种返回）。
+- **改**：`adapters/websearch.js`（配置改由 provideradmin 权威、provideradmin 惰性 require）、
+  `providercontract.js`（`providerConfig` 单一来源 + `withRetry`）、`research-fetch.js`（校验路径不再加载数据库）、
+  `store.js`（schema v8）、`routes/{video,helpers,index}.js`、`dict.js`（`settings.manage`）。
+- **新增前端**：`public/mos/js/modules/settings.js` + `app.js` 导航组「系统接入」+ i18n 78 键。
+- **零删除**；**未改**：8 大业务中心结构、模块 id、共享契约、资料库源码。
 
 ### 1.3 发布前置条件（本版逐条状态）
 
 | 条件 | 状态 |
 | --- | --- |
-| 全量回归通过 | ✅ **`all` 16 套件 797/797**（升版后复跑） |
-| 新增套件通过 | ✅ studio 29/29；research013 79/79；i18n 21/21 |
-| 真实浏览器 UI 复测通过 | ✅ **ui 123/123**（含 LANG-01a…l 12 条） |
-| 双系统跨系统联调（最新版口径） | ✅ **joint 66/66**；**build06 61/61** |
-| 失败项逐一解决或说明阻断 | ✅ 4 项已定位并修正（3 项测试断言陈旧/端点错误 + 1 项夹具缺陷），**无隐瞒、无跳过** |
-| 变更日志（`CHANGELOG.md`）已更新 | ✅ 新增 `[0.1.3]` 段（五阶段逐条） |
-| 系统版本一致（`package.json` + `lib/config.js` + `lib/mos/config.js` + 页面显示 + `/api/mos/meta` + 测试元数据） | ✅ 由 `VER-01/VER-02` 强制断言五处一致且 = 0.1.3 |
-| 迁移与回滚文档 | ✅ `docs/MIGRATION_AND_ROLLBACK.md`（**结论：0.1.3 无需数据迁移**；schema v7 只增不改） |
-| 阶段报告 + 最终验收 + OPEN_ITEMS | ✅ `reports/PHASE0_BASELINE/PHASE_A_UX/PHASE_B_REAL_RESEARCH/PHASE_C_CONTENT_I18N.md`、`reports/FINAL_ACCEPTANCE_V0.1.3.md`、`OPEN_ITEMS.md` |
-| 生产网络默认关闭、仅受控 Staging 验证 | ✅ 未部署生产、未启用自动出站轮询（`D4-46` 断言） |
+| 全量回归通过 | ✅ **`all` 17 套件 865/865**（升版后复跑） |
+| 新增套件通过 | ✅ `provideradmin` 55/55；`ui` 新增 `SET-01…12` 全通过（135/135） |
+| 密钥不以明文出现（接口 / DOM / 库文件） | ✅ `SET-04/05/06/07` + `provideradmin` C 段共同证明（库文件仅存 `iv/tag/ct/kf`） |
+| 权限在服务端兜底 | ✅ `SET-09/10/11`（P2 无入口、直链拿不到数据、接口 403） |
+| 费用诚实性（只认回执） | ✅ 账本 `cost.amount` 仅在回执时非空；`unknownCount` 单列；无单价推算 |
+| 失败项逐一解决或说明阻断 | ✅ 本版新增失败 0 条；`joint`/`build06` 30 条已定位为 Provider 1.1.9 行为变更（§1.5） |
+| 变更日志 | ✅ `CHANGELOG.md` `[0.1.4]` 段（A—I 九节） |
+| 版本一致（五处 + 测试元数据） | ✅ `VER-01/VER-02` 断言 = 0.1.4 |
+| 迁移与回滚文档 | ✅ `docs/MIGRATION_AND_ROLLBACK.md`（v7 → v8 纯追加） |
+| 接入手册 | ✅ `docs/PROVIDER_INTEGRATION_GUIDE.md`（配置/密钥/五类任务/错误码/限额） |
+| 生产网络默认关闭、未自动出站 | ✅ 未部署生产；调度默认关闭（`D4-46` / Phase3 断言） |
 | **发布审批（人工签署）** | ⬜ **未完成**（须由获得授权的正式身份签署） |
 | **生产部署授权** | ⬜ **未完成** —— 本轮**不部署生产** |
 
@@ -88,11 +90,21 @@
 
 | 项 | 值 |
 | --- | --- |
-| **发布提交全量 SHA** | **`b5412cc`**（提交信息 `release(v0.1.3): …`，Phase D 应用版本升版 + 证据修正 + 验收/遗留项文档） |
-| 发布后续提交 | `9b00b7a`（`chore(release): 打包脚本适配 0.1.3`，**仅调整打包脚本自身**，不含应用代码变更） |
-| 发布标签 | **`v0.1.3`**（annotated，指向 `9b00b7a`） |
-| 交付源码包 | `VFIB_MARKETING_OS_V0.1.3_SOURCE.zip`（**443 条目 26,609,092 字节**；SHA256 `7024229dc6f2a65404f8a4401d7ae6cda894a6ef9b8a5b61a1a2abaa1b6c3f2f`）**由发布提交 `b5412cc` 源码树生成**；包内 `PACKAGE_MANIFEST.txt` 记录 `git: b5412cc`。⚠ 包内 `tools/package-mos-source.sh` 为 `9b00b7a` 之前的版本（**不影响应用代码**；在 `v0.1.3` 重跑打包可生成含新脚本的等效包） |
-| 重建命令 | `bash tools/package-mos-source.sh`（`*.zip` 与 `dist/` 已 gitignore，可随时重生成） |
+| **发布提交** | 见本表下方"回填"说明（提交后写入） |
+| 发布标签 | `v0.1.4`（annotated） |
+| 源码包 | `bash tools/package-mos-source.sh` 可随时重生成（`*.zip` / `dist/` 已 gitignore） |
+
+> 回填说明：提交后把 `git rev-parse HEAD` 与标签校验值写入本表；**不得**在提交实际发生前预填。
+
+### 1.5 已知阻塞：Provider（企业资料库）版本已升到 1.1.9
+
+| 项 | 事实 |
+| --- | --- |
+| 本侧契约基线 | 资料库 **1.1.7**（`docs/INTEGRATION_WORKSPACE_CONTRACT.md`，逐字节实现，状态 `NOT_VERIFIED`） |
+| 实际 Provider 源码 | `D:/企业数据后台/oa-system-20261004/oa-system`，`package.json` = **1.1.9**，HEAD `afe7a16`（新增"岗位职责三层映射 G/C/E"） |
+| 现象 | `joint` 54/66（`D4-04/04b/31…40` 失败）、`build06` 43/61（`D6-04/06/08/22…51` 失败）；集中在 Provider 侧「审批人登记」「资料夹具批准」「`admission.final.decision` 票据签发」返回 **403** |
+| 是否本版回归 | **否**。已用 `git worktree` 在基线提交 `1ed4d28`（未含本版任何改动）复跑，失败断言集合**逐条一致** |
+| 处置 | 待资料库侧确认 1.1.9 的授权模型（G/C/E 三层映射）对集成接口的影响；**在确认前不修改共享契约、不改资料库源码、不把 `joint`/`build06` 记为通过** |
 
 ---
 
@@ -100,6 +112,7 @@
 
 | 应用版本 | 日期 | 基线提交 | 契约版本 | schema | 摘要 |
 | --- | --- | --- | --- | --- | --- |
+| **0.1.3** | 2026-10-14 | `7001475`（发布提交 `b5412cc`，标签 `v0.1.3`） | 1.0 | v7（无迁移） | V0.1.3 五阶段：一站式任务空间、真实 AI 研究与证据链、key-based 中英双语与不可翻译保护、品牌减法、Provider 就绪度。`all` 16 套件 797/797 |
 | **0.1.2** | 2026-10-14 | `7001475`（发布提交） | 1.0 | v5→**v7** | V0.1.2 四阶段：任务驱动 UX + 中英双语、AI 情报研究与候选选题、编辑域派工与制作空间。⚠ 其 `joint` 证据经复核为**陈旧脚本产物**，实际口径以本版修正后的 `joint 66/66` 为准（见 §1 勘误） |
 | **0.1.1** | 2026-10-13 | `259a91d` | 1.0 | v5 | V1.2 整改：真实 HTTP 安全负例 + 正式输出门禁（`formalguard`） |
 | 0.1.0 | 2026-10-11 → 2026-10-12 | — | 1.0 | v5 | BUILD-01/02/03 + V0.1 综合整改（Phase 0—4）+ V1.1 三包整改（B0—B8） |
@@ -108,9 +121,11 @@
 
 ## 3. 回滚指引
 
-1. 回滚**应用版本**：检出标签 `v0.1.1`（或 `2fe3841`）；保留 `data/` 与 `config.json`。
-2. **数据无需回滚**：schema v7 只增不改，0.1.1 代码可安全读取 v7 数据（研究域集合被旧代码忽略）。详见 `MIGRATION_AND_ROLLBACK.md`。
-3. 回滚后需重新执行 `bash tools/run-mos-tests.sh all` 确认回归通过（0.1.1 基线为 546/546）。
+1. 回滚**应用版本**：检出标签 `v0.1.3`（或 `b5412cc`）；保留 `data/` 与 `config.json`。
+2. **数据无需回滚**：v8 相对 v7 只新增两个集合，0.1.3 代码读到 `provider_calls` / `video_render_jobs` 会忽略。
+   唯一影响：回滚后供应商配置页不存在，**已加密的密钥仍留在库里但无人能通过界面读取**（密文与主密钥均保留，
+   回滚再回来即可继续用）。详见 `MIGRATION_AND_ROLLBACK.md` §4.4。
+3. 回滚后需重新执行 `bash tools/run-mos-tests.sh all` 确认回归通过（0.1.3 基线为 797/797）。
 4. **契约不变**：回滚不影响 `/api/integrations/marketing/*`（该前缀由资料库侧提供，本仓库不改）。
 
 ---

@@ -1,22 +1,23 @@
 # 迁移与回滚（Migration & Rollback）— VFIB Marketing OS
 
-适用版本：**0.1.3**（上一版本 0.1.2）
-数据 schema：**v7（未变）** ｜ 接口契约：**1.0（未变）**
-最后更新：2026-10-14
+适用版本：**0.1.4**（上一版本 0.1.3）
+数据 schema：**v8**（v7 → v8：仅新增 2 个集合，零改写） ｜ 接口契约：**1.0（未变）**
+最后更新：2026-10-20
 
 ---
 
 ## 1. 版本与 schema 的关系（务必分清）
 
-| 轴线 | 0.1.2 → 0.1.3 是否变化 | 说明 |
+| 轴线 | 0.1.3 → 0.1.4 是否变化 | 说明 |
 |---|---|---|
-| 应用版本（`package.json` / `MOS_VERSION`） | **0.1.2 → 0.1.3** | 本文件与 `RELEASE_REGISTER.md` 的主轴 |
-| 数据 schema | **v7 → v7（无迁移）** | 本版**零新集合**，仅在既有集合上增可选字段 |
+| 应用版本（`package.json` / `MOS_VERSION`） | **0.1.3 → 0.1.4** | 本文件与 `RELEASE_REGISTER.md` 的主轴 |
+| 数据 schema | **v7 → v8** | 新增 `provider_calls`（调用账本）、`video_render_jobs`（AI 成片作业）；**只增不改** |
 | 接口契约版本 | **1.0 → 1.0（不变）** | 由 `docs/integration_three_pack_v1.1/C_Shared_Contract/` 冻结 |
 | 资料库（Workspace）兼容目标 | 1.1.7（未变，适配层仍 `NOT_VERIFIED`） | 非本仓库管理 |
 
-**结论：0.1.3 不需要数据迁移脚本。** 从 0.1.2 升级只需替换代码并重启；从更早版本升级则由
-`lib/mos/store.js migrate()` 一次性补齐（见 §3）。
+**结论：0.1.4 的迁移是"纯追加"，无需数据搬运脚本。** 从 0.1.3 升级时 `migrate()` 只会把
+`mosSchemaVersion` 从 7 改成 8 并补两个空数组，**既有集合逐字节不变**（`U-19a` 断言覆盖）。
+从更早版本升级则由同一次调用一次性补齐（见 §3）。
 
 ---
 
@@ -32,8 +33,18 @@
 | `source_evidence` | `availability` / `contentHash` / `retrievedAt` / `licenseState` | 证据可追溯性与"搜索返回≠证据有效" |
 | `users[].prefs` | `locale`（v6 起）/ `lastTaskId`（v6 起） | 语言偏好与「继续上次工作」；本版仅**使用**，未改结构 |
 
+### 2.1 v8 新增的两个集合（0.1.4）
+
+| 集合 | 结构（要点） | 用途 | 回滚安全性 |
+|---|---|---|---|
+| `provider_calls` | `id / at / kind / provider / keyFingerprint / op / ok / state / errorCode / latencyMs / attempts / tokens{in,out} / cost{amount,currency,confirmed,source} / brandCode / actorId / taskId / note` | 每次供应商调用的**账本**（成功与失败都记）。`REAL` 就绪度的唯一证据来源；P50/P95、错误率、费用汇总都从它来 | 0.1.3 读到该集合会**忽略**；删除该集合只影响就绪度显示（回落到 `CONFIGURED_NOT_TESTED`），不影响业务数据 |
+| `video_render_jobs` | `id / brandCode / state(QUEUED\|RENDERING\|READY\|FAILED) / providerJobId / prompt / durationSec / output{path,bytes,sha256} / errorCode / attempts / createdAt / updatedAt` | AI 成片异步作业（start→check→download 三步的状态机） | 同上；回滚后已成片文件仍在 `data/uploads/generated/`，可直接手工取用 |
+
+> **两个集合都不含密钥明文与业务正文**：密钥只以 `keyFingerprint`（sha256 前 12 位）出现；
+> 账本的 `note` 在落库前统一经 `secrets.redactText()` 脱敏。
+
 > `lib/mos/store.js` 的迁移**只增不改、幂等**；`priorVersion<2` 且开启 demoSeed 时才补种演示数据，
-> **已是 v7 的库绝不复活**（避免用户清空后被写回）。
+> **已是 v8 的库绝不复活**（避免用户清空后被写回）。
 
 ---
 
@@ -47,13 +58,13 @@
 | v4 → v5 | BUILD-03/04 相关集合 | 是 | 见 §4 |
 | v5 → v6 | `users[].prefs = {locale, lastTaskId}`（V0.1.2 Phase A） | 是 | 删字段即可 |
 | v6 → v7 | 研究域集合（V0.1.2 Phase B） | 是 | 见 §4 |
-| **v7 → v7** | **无（本版）** | — | — |
+| **v7 → v8** | **新增 `provider_calls` / `video_render_jobs`（0.1.4）**；既有集合零改写 | 是 | 见 §4 |
 
 校验 schema 版本：
 
 ```bash
 curl -s http://127.0.0.1:9080/api/mos/meta | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>console.log(JSON.parse(s).schemaVersion))"
-# 期望：7
+# 期望：8
 ```
 
 ---

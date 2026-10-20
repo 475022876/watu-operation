@@ -3,20 +3,20 @@
   "total": 21,
   "passed": 21,
   "failed": 0,
-  "ranAt": "2026-10-14T13:37:12.916Z",
-  "zhKeys": 451,
-  "enKeys": 451,
+  "ranAt": "2026-10-20T10:23:49.079Z",
+  "zhKeys": 529,
+  "enKeys": 529,
   "errorCodeCoverage": {
-    "covered": 88,
-    "total": 97,
-    "percent": 91
+    "covered": 89,
+    "total": 100,
+    "percent": 89
   },
   "i18nImportIssues": [],
   "results": [
     {
       "name": "I18N-01 zh-CN / en-US 键集合一致（一一对应）",
       "ok": true,
-      "detail": "zh=451 en=451"
+      "detail": "zh=529 en=529"
     },
     {
       "name": "I18N-02 无空取值",
@@ -26,7 +26,7 @@
     {
       "name": "I18N-03 同一中文取值对应唯一英文（无反向索引歧义）",
       "ok": true,
-      "detail": "392 个唯一中文键"
+      "detail": "469 个唯一中文键"
     },
     {
       "name": "I18N-04 插值占位符 {x} 双语一致",
@@ -41,7 +41,7 @@
     {
       "name": "I18N-06 路由错误码映射覆盖率 ≥ 80%（未覆盖的回落通用码，不静默）",
       "ok": true,
-      "detail": "88/97 = 91% 未映射(前5): ADMISSION_NOT_FOUND,BAD_MODE,BAD_ANCHOR,BAD_EDIT,BAD_DOMAIN"
+      "detail": "89/100 = 89% 未映射(前5): ADMISSION_NOT_FOUND,BAD_MODE,BAD_ANCHOR,BAD_EDIT,UNAUTHORIZED"
     },
     {
       "name": "I18N-07 引擎内置不可翻译选择器（data-notranslate/表单/代码/contenteditable）",

@@ -28,10 +28,13 @@ const SHOT_DIR_B02 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD02');
 const SHOT_DIR_B03 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD03');
 const SHOT_DIR_B04 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD04');
 const SHOT_DIR_B05 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD05');
+const SHOT_DIR_B07 = path.join(ROOT, 'UI_EVIDENCE_MOS_BUILD07');
 const OUT_DIR = path.join(ROOT, 'TEST_EVIDENCE_MOS_BUILD01');
 
 const ADMIN_PW = 'MosUI-' + crypto.randomBytes(9).toString('base64url');
 const NEW_PW = 'MosUI-' + crypto.randomBytes(9).toString('base64url');
+/* V0.1.4：用于验证「普通角色看不到系统接入」的第二个账号（P2 创作） */
+const P2_PW = 'MosUI-' + crypto.randomBytes(9).toString('base64url');
 
 const CHROME_CANDIDATES = [
   'C:/Program Files/Google/Chrome/Application/chrome.exe',
@@ -169,7 +172,8 @@ async function main() {
     const dir = name.indexOf('B02-') === 0 ? SHOT_DIR_B02
       : (name.indexOf('B03-') === 0 ? SHOT_DIR_B03
         : (name.indexOf('B04-') === 0 ? SHOT_DIR_B04
-          : (name.indexOf('B05-') === 0 ? SHOT_DIR_B05 : SHOT_DIR)));
+          : (name.indexOf('B05-') === 0 ? SHOT_DIR_B05
+            : (name.indexOf('SET-') === 0 ? SHOT_DIR_B07 : SHOT_DIR))));
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, name), Buffer.from(r.data, 'base64'));
   };
@@ -986,6 +990,134 @@ async function main() {
     check('Phase3 来源登记表展示采集频率与「不自动」标识',
       String(srcTableText).indexOf('频率') !== -1 && String(srcTableText).indexOf('不自动') !== -1,
       String(srcTableText).slice(0, 200));
+
+    /* ==========================================================
+     * 10) V0.1.4：系统接入（供应商配置）真实 UI 验证
+     *     「密钥安全」与「调用权限」必须在浏览器里被证明，而不是只在 API 层断言：
+     *       - 入口只有 MOS_ADMIN 可见；P2 既看不到导航，走直链也拿不到数据（服务端 403 兜底）；
+     *       - 密钥框恒为 password 且**保存后清空**，掩码/指纹来自服务端，明文不进 DOM；
+     *       - 落盘必须是密文：直接读隔离库文件校验，不信接口自述。
+     * ========================================================== */
+    const errBase = { page: pageErrors.length, console: consoleErrors.length };
+    await goRoute('settings');
+    const setReady = await waitFor('document.querySelectorAll(".card[data-kind]").length>=4', '系统接入四卡', 20000);
+    const setKinds = await evalJs('Array.from(document.querySelectorAll(".card[data-kind]")).map(function(e){return e.dataset.kind;}).join(",")');
+    check('SET-01 系统接入页渲染四类供应商卡片（websearch/text/image/video，数据来自服务端）',
+      setReady && setKinds === 'websearch,text,image,video', 'kinds=' + setKinds);
+    const setNav = await evalJs('(function(){var b=document.querySelector("[data-route=settings]");'
+      + 'if(!b)return JSON.stringify({nav:false,label:""});'
+      + 'var g=b.closest(".nav-group");'
+      + 'return JSON.stringify({nav:true,label:g?((g.querySelector(".nav-group-label")||{}).textContent||""):""});})()');
+    const setNavObj = JSON.parse(setNav || '{"nav":false,"label":""}');
+    check('SET-02 管理员在侧边导航可见「系统接入」分组与入口', setNavObj.nav && setNavObj.label.indexOf('系统接入') !== -1,
+      'label=' + setNavObj.label);
+    await shot('SET-60-provider-settings.png');
+
+    // 密钥输入框：恒为 password、初始为空（页面上只允许出现掩码）
+    const keyChk = JSON.parse(await evalJs('(function(){var xs=Array.from(document.querySelectorAll("input"));'
+      + 'xs=xs.filter(function(e){return e.id.slice(-4)==="-key";});'
+      + 'return JSON.stringify({n:xs.length,types:xs.map(function(e){return e.type;}).join(","),vals:xs.map(function(e){return e.value;}).join("")});})()') || '{}');
+    check('SET-03 四类供应商密钥框均为 password 且初始值为空（不预填、不回显明文）',
+      keyChk.n === 4 && keyChk.types === 'password,password,password,password' && keyChk.vals === '',
+      'n=' + keyChk.n + ' types=' + keyChk.types);
+
+    // 通过页面真实保存一个密钥（Brave 模式 + 合法 https 端点），随后验证"只有掩码"
+    const PROBE_KEY = 'sk-ui-set-probe-' + crypto.randomBytes(6).toString('hex');
+    await evalJs('(function(){'
+      + 'var m=document.getElementById("s-websearch-mode");if(m){m.value="brave";}'
+      + 'var u=document.getElementById("s-websearch-baseUrl");if(u){u.value="https://api.search.brave.com";}'
+      + 'var k=document.getElementById("s-websearch-key");if(k){k.value=' + JSON.stringify(PROBE_KEY) + ';}'
+      + 'var b=document.querySelector("[data-act=save][data-kind=websearch]");if(b){b.click();}return true;})()');
+    const setMasked = await waitFor('(function(){var c=document.querySelector(".card[data-kind=websearch]");'
+      + 'return c && c.innerText.indexOf("••••••••")>=0;})()', '密钥掩码出现', 20000);
+    const afterSave = JSON.parse(await evalJs('(function(){var c=document.querySelector(".card[data-kind=websearch]");'
+      + 'var k=document.getElementById("s-websearch-key");'
+      + 'return JSON.stringify({inputValue:k?k.value:"(none)",inputType:k?k.type:"",'
+      + 'plainInDom:document.documentElement.outerHTML.indexOf(' + JSON.stringify(PROBE_KEY) + ')});})()') || '{}');
+    check('SET-04 保存后密钥框被清空且明文不出现在 DOM 中', setMasked && afterSave.inputValue === '' && afterSave.plainInDom === -1,
+      'inputValue.len=' + String(afterSave.inputValue).length + ' domIndex=' + afterSave.plainInDom);
+
+    const setApi = await pageApi('/api/mos/settings/providers');
+    const setApiRaw = JSON.stringify(setApi.json || {});
+    check('SET-05 读取接入配置的响应只含掩码/指纹（无 apiKey 字段、无明文）',
+      setApi.status === 200 && setApiRaw.indexOf(PROBE_KEY) === -1 && setApiRaw.indexOf('"apiKey":') === -1,
+      'HTTP ' + setApi.status + ' containsApiKeyField=' + (setApiRaw.indexOf('"apiKey":') !== -1));
+
+    // 落盘校验：隔离库文件中必须是密文（iv/tag/ct/kf），绝不能出现明文
+    await sleep(500);
+    let dbRaw = '';
+    try { dbRaw = fs.readFileSync(path.join(DATA_DIR, 'mos.json'), 'utf8'); } catch (_) { dbRaw = ''; }
+    check('SET-06 密钥在库文件中为 AES-256-GCM 密文（含 iv/tag/ct/kf），文件内无明文',
+      dbRaw.length > 0 && dbRaw.indexOf(PROBE_KEY) === -1 && dbRaw.indexOf('"kf"') !== -1,
+      'dbLen=' + dbRaw.length + ' hasPlain=' + (dbRaw.indexOf(PROBE_KEY) !== -1));
+
+    // 刷新后仍只显示掩码（密文持久化 + 服务端解密仅供出站）
+    await cdp.send('Page.reload', { ignoreCache: true });
+    await waitFor('document.readyState==="complete"', '刷新后加载');
+    await waitFor('!document.getElementById("appRoot").hidden', '刷新后应用外壳', 20000);
+    await goRoute('settings');
+    await waitFor('document.querySelectorAll(".card[data-kind]").length>=4', '刷新后四卡', 20000);
+    const afterReload = JSON.parse(await evalJs('(function(){var c=document.querySelector(".card[data-kind=websearch]");'
+      + 'var k=document.getElementById("s-websearch-key");'
+      + 'return JSON.stringify({mask:c?c.innerText.indexOf("••••••••")>=0:false,val:k?k.value:"(none)",'
+      + 'plain:document.documentElement.outerHTML.indexOf(' + JSON.stringify(PROBE_KEY) + ')});})()') || '{}');
+    check('SET-07 刷新后掩码仍在、密钥框仍为空（密文持久化，明文永不下发）',
+      afterReload.mask === true && afterReload.val === '' && afterReload.plain === -1,
+      'mask=' + afterReload.mask + ' domIndex=' + afterReload.plain);
+
+    /* ---- 调用权限：普通角色（P2）不得看到、也不得读取接入配置 ---- */
+    const mkP2 = await pageApi('/api/mos/admin/users', 'POST', {
+      username: 'p2-ui', displayName: 'P2 UI 创作', password: P2_PW, mustChangePassword: false,
+      roles: [{ roleCode: 'P2', brandScope: ['*'] }]
+    });
+    check('SET-08 前置：管理员创建 P2 账号成功', mkP2.status === 200 && !!(mkP2.json && mkP2.json.user),
+      'HTTP ' + mkP2.status);
+
+    await pageApi('/api/mos/auth/logout', 'POST', {});
+    await cdp.send('Page.navigate', { url: BASE + '/mos' });
+    await waitFor('!document.getElementById("gate").hidden', 'P2 登录门', 20000);
+    await evalJs('(function(){document.getElementById("loginUser").value="p2-ui";'
+      + 'document.getElementById("loginPass").value=' + JSON.stringify(P2_PW) + ';'
+      + 'document.getElementById("loginForm").requestSubmit();return true;})()');
+    const p2In = await waitFor('!document.getElementById("appRoot").hidden', 'P2 进入应用', 20000);
+    const p2Nav = await evalJs('!!document.querySelector("[data-route=settings]")');
+    check('SET-09 P2 登录后侧边导航不含「系统接入」入口', p2In && p2Nav === false, 'navVisible=' + p2Nav);
+    await shot('SET-61-p2-no-settings-entry.png');
+
+    await evalJs('(function(){location.hash="#/settings";return true;})()');
+    await sleep(1800);
+    const p2Page = JSON.parse(await evalJs('(function(){'
+      + 'var root=document.getElementById("appRoot")||document.body;'
+      // 只统计应用内容区内的密码框：登录门/改密门的 input 一直留在 DOM 里（隐藏），不能算进来
+      + 'var keys=Array.from(root.querySelectorAll("input[type=password]")).filter(function(e){'
+      + 'return !e.closest("#gate") && !e.closest("#pwdGate");}).length;'
+      + 'return JSON.stringify({'
+      + 'cards:root.querySelectorAll(".card[data-kind]").length,'
+      + 'keys:keys,'
+      + 'text:(root.innerText||"")});})()') || '{}');
+    check('SET-10 P2 走直链也拿不到配置：页面不渲染供应商卡片，只显示加载失败原因',
+      p2Page.cards === 0 && p2Page.keys === 0 && String(p2Page.text).indexOf('无法加载接入配置') !== -1,
+      'cards=' + p2Page.cards + ' keys=' + p2Page.keys);
+    const p2Api = await pageApi('/api/mos/settings/providers');
+    check('SET-11 P2 直接请求接入配置被服务端拒绝（403，权限在服务端兜底）', p2Api.status === 403, 'HTTP ' + p2Api.status);
+    await shot('SET-62-p2-direct-link-denied.png');
+
+    /* 收尾：回到管理员会话，避免影响后续断言。
+     * 同时把「P2 越权被 403」产生的浏览器网络告警从 consoleErrors 中剔除——
+     * 该 403 是本段**期望结果**且已由 SET-11 显式断言，不属于页面缺陷。 */
+    await pageApi('/api/mos/auth/logout', 'POST', {}).catch(() => null);
+    await cdp.send('Page.navigate', { url: BASE + '/mos' });
+    await waitFor('!document.getElementById("gate").hidden', '管理员登录门', 20000);
+    await evalJs('(function(){document.getElementById("loginUser").value="mosadmin";'
+      + 'document.getElementById("loginPass").value=' + JSON.stringify(NEW_PW) + ';'
+      + 'document.getElementById("loginForm").requestSubmit();return true;})()');
+    await waitFor('!document.getElementById("appRoot").hidden', '管理员回到应用', 20000);
+    for (let i = consoleErrors.length - 1; i >= 0; i--) {
+      const e = String(consoleErrors[i]);
+      if (e.indexOf('403') !== -1 && e.indexOf('/api/mos/settings/providers') !== -1) consoleErrors.splice(i, 1);
+    }
+    check('SET-12 系统接入验证期间无页面级未捕获异常', pageErrors.length === errBase.page,
+      pageErrors.slice(errBase.page, errBase.page + 2).join(' | '));
 
     check('无页面级未捕获异常', pageErrors.length === 0, pageErrors.slice(0, 3).join(' | '));
     check('无控制台 error 输出', consoleErrors.length === 0, consoleErrors.slice(0, 5).join(' | '));
