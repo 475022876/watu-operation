@@ -14,7 +14,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 ROOT="$(pwd)"
-NAME="VFIB_MARKETING_OS_V0.1.3_SOURCE"
+# 版本号自动取 package.json（曾写死 V0.1.3 导致 V0.1.4+ 打包名过期）
+APP_VERSION="$(node -e "process.stdout.write(require('./package.json').version)")"
+NAME="VFIB_MARKETING_OS_V${APP_VERSION}_SOURCE"
 STAGE="dist/${NAME}"
 OUT="${ROOT}/${NAME}.zip"
 
