@@ -32,7 +32,7 @@
 
 | 能力 | 有低成本探针 | 测试连通性按钮的结果 |
 | --- | --- | --- |
-| 大语言模型（文本） | ✅ | 真发一次 `max_tokens=16` 的对话 |
+| 大语言模型（文本） | ✅ | 真发一次 `max_tokens=512` 的对话（给推理模型留思考余量） |
 | 网页检索 | ✅ | 真发一次 `site:bis.org Basel III` 检索 |
 | 图像生成 | ❌ | `NO_PROBE_SUPPORTED` —— 生成图片必然计费，不做探针 |
 | 视频生成 | ❌ | `NO_PROBE_SUPPORTED` —— 同上，且**视频没有免费档** |
@@ -49,7 +49,7 @@
 **文本**：走与正式生成**完全相同**的 `chat()` 管线——数据分级 → 预算 → 端点校验（https/
 端口/禁内网/白名单）→ 有界重试 → 记账，只是内容是
 `system: "You are a health probe. Reply with the single word: ok"` / `user: "ping"`，
-`max_tokens=16`、`temperature=0`。
+`max_tokens=512`、`temperature=0`（512 是为推理模型留思考余量，见 FREE_TIER_TESTING §3）。
 
 所以"探针通过"等价于"正式调用的链路是通的"，不存在另写一条捷径骗过检查。
 
