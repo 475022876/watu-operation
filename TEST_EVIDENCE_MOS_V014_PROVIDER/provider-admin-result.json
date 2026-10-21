@@ -1,13 +1,13 @@
 {
   "suite": "provideradmin",
-  "ranAt": "2026-10-20T11:11:00.999Z",
+  "ranAt": "2026-10-21T09:13:37.433Z",
   "total": 70,
   "passed": 70,
   "failed": 0,
   "ok": true,
   "node": "v22.22.2",
   "stub": {
-    "url": "http://127.0.0.1:9692",
+    "url": "http://127.0.0.1:9683",
     "counters": {
       "chat": 8,
       "chatOk": 8,
@@ -53,7 +53,7 @@
     {
       "name": "PA-05 保存文本接入成功：密钥只回掩码、就绪度 CONFIGURED_NOT_TESTED",
       "ok": true,
-      "detail": "mask=sk-••••••••fe68 readiness=CONFIGURED_NOT_TESTED"
+      "detail": "mask=sk-••••••••512e readiness=CONFIGURED_NOT_TESTED"
     },
     {
       "name": "PA-06 密钥以 AES-256-GCM 密文落库（数据文件不含明文，密文含 iv/tag/ct）",
@@ -98,7 +98,7 @@
     {
       "name": "PA-14 有真实成功证据后就绪度晋级 REAL（不再是\"未联调\"）",
       "ok": true,
-      "detail": "readiness=REAL ev={\"at\":\"2026-10-20T11:10:57.406Z\",\"provider\":\"openai\",\"model\":\"stub-model\",\"id\":\""
+      "detail": "readiness=REAL ev={\"at\":\"2026-10-21T09:13:33.884Z\",\"provider\":\"openai\",\"model\":\"stub-model\",\"id\":\""
     },
     {
       "name": "PA-15 连接测试频控（8 秒内重复 → 400 TEST_TOO_FREQUENT）",
@@ -118,12 +118,12 @@
     {
       "name": "PA-18 填确认人后可开启受限外发（并留审计）",
       "ok": true,
-      "detail": "{\"allowConfidential\":false,\"allowRestricted\":true,\"allowRestrictedRaw\":true,\"acknowledgedBy\":\"compliance@vfib (test)\",\"updatedAt\":\"2026-10-20T11:10:57.415Z\",\"note\":\"默认全部关闭：判定为机密/受限的内容不会发送到任何外部服务。开启即视为该部署的合规责任人已确认。\"}"
+      "detail": "{\"allowConfidential\":false,\"allowRestricted\":true,\"allowRestrictedRaw\":true,\"acknowledgedBy\":\"compliance@vfib (test)\",\"updatedAt\":\"2026-10-21T09:13:33.895Z\",\"note\":\"默认全部关闭：判定为机密/受限的内容不会发送到任何外部服务。开启即视为该部署的合规责任人已确认。\"}"
     },
     {
       "name": "PA-19 调用账本可查：probe 计入 text 且带延迟",
       "ok": true,
-      "detail": "{\"text\":{\"calls\":2,\"ok\":2,\"failed\":0,\"tokens\":102,\"costConfirmed\":0.00042,\"costUnknown\":0}}"
+      "detail": "{\"text\":{\"calls\":1,\"ok\":1,\"failed\":0,\"tokens\":51,\"costConfirmed\":0.00021,\"costUnknown\":0}}"
     },
     {
       "name": "PA-20 账本响应中不含任何密钥明文",
@@ -228,7 +228,7 @@
     {
       "name": "PB-16 视频成片下载并落盘（真实文件，非占位）",
       "ok": true,
-      "detail": "file=AI-VIDEO-VFIB-1792494660727.mp4 bytes=14"
+      "detail": "file=AI-VIDEO-VFIB-1792574017216.mp4 bytes=14"
     },
     {
       "name": "PB-17a 火山方舟创建体：content 数组 + ratio 枚举（像素尺寸被翻译，技术参数不下放）",
@@ -243,7 +243,7 @@
     {
       "name": "PB-17c 火山方舟 succeeded 被正确识别，并带回 content.video_url",
       "ok": true,
-      "detail": "state=SUCCEEDED url=.0.1:9692/files/volc.mp4"
+      "detail": "state=SUCCEEDED url=.0.1:9683/files/volc.mp4"
     },
     {
       "name": "PB-17d 从 content.video_url 下载并落盘（走同一出站校验，非直连裸取）",
