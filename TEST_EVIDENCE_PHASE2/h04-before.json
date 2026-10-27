@@ -1,0 +1,67 @@
+{
+  "suite": "h04",
+  "mode": "before",
+  "total": 13,
+  "passed": 7,
+  "failed": 6,
+  "results": [
+    {
+      "name": "redirects forbidden and target receives zero requests",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "response byte limit enforced while streaming",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "timeout includes response body",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "request body capped before network",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "normal response and rate limit headers preserved",
+      "ok": true
+    },
+    {
+      "name": "abort cancels body read",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "validated address pins actual TLS socket lookup and keeps SNI",
+      "ok": false,
+      "error": "Expected values to be strictly equal:"
+    },
+    {
+      "name": "SSRF blocked https://127.0.0.1",
+      "ok": true
+    },
+    {
+      "name": "SSRF blocked https://10.0.0.1",
+      "ok": true
+    },
+    {
+      "name": "SSRF blocked https://169.254.169.254",
+      "ok": true
+    },
+    {
+      "name": "SSRF blocked https://[::1]",
+      "ok": true
+    },
+    {
+      "name": "SSRF blocked https://metadata.google.internal",
+      "ok": true
+    },
+    {
+      "name": "mixed public/private DNS records rejected",
+      "ok": true
+    }
+  ]
+}
