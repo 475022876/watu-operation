@@ -1,0 +1,38 @@
+{
+  "suite": "m05",
+  "at": "2026-10-27T12:37:54.832Z",
+  "total": 6,
+  "passed": 1,
+  "failed": 5,
+  "results": [
+    {
+      "name": "T09 rapid cross-brand delayed response cannot overwrite current view",
+      "ok": false,
+      "error": "The expression evaluated to a falsy value:"
+    },
+    {
+      "name": "T09 repeated requests same brand use latest epoch",
+      "ok": false,
+      "error": "The expression evaluated to a falsy value:"
+    },
+    {
+      "name": "T09 stale failure does not replace successful retry",
+      "ok": false,
+      "error": "The expression evaluated to a falsy value:"
+    },
+    {
+      "name": "T09 stale write handler cannot write current brand",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "T09 current handler retains valid write behavior",
+      "ok": true
+    },
+    {
+      "name": "T09 unmount discards delayed response safely",
+      "ok": false,
+      "error": "Cannot read properties of null (reading 'querySelector')"
+    }
+  ]
+}

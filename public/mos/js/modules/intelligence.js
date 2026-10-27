@@ -6,6 +6,15 @@ import { esc, toast, openDrawer, openModal, loadingHtml, stateBlock, statusBadge
 import { t, statusLabel, completionLabel, readinessLabel, jobStageLabel, availabilityLabel, gapLabel, kindLabel } from '../i18n.js';
 
 let ctxRef = null; let hostEl = null;
+let renderEpoch = 0;
+
+// M05: epoch protection adapted from 1f0f1f0, extended to deferred write callbacks.
+function captureView() { return {epoch: renderEpoch, host: hostEl, brand: ctxRef && ctxRef.brand}; }
+function isCurrent(v) { return !!v && !!hostEl && !!ctxRef && v.epoch === renderEpoch && v.host === hostEl && v.brand === ctxRef.brand; }
+function assertCurrent(v) { if (!isCurrent(v)) { const e = new Error('页面已切换，请在当前品牌重新操作'); e.code = 'STALE_VIEW'; throw e; } }
+async function scopedRead(v, ...args) { assertCurrent(v); const r = await api.get(...args); assertCurrent(v); return r; }
+async function scopedWrite(v, method, ...args) { assertCurrent(v); const r = await api[method](...args); assertCurrent(v); return r; }
+
 let tab = 'feed';       // feed | sources | research | proposals
 let q = '';
 let sourceFilter = '';
@@ -26,12 +35,15 @@ function head(ctx) {
 function bodyEl() {
   return hostEl.querySelector('#mosBody') || hostEl;
 }
-function setBody(html) {
-  const el = bodyEl();
-  el.innerHTML = html;
+function setBody(html, view) {
+  if (!isCurrent(view)) return false;
+  const el = bodyEl(); el.innerHTML = html; return true;
 }
 
 async function render() {
+  if (!hostEl || !ctxRef) return;
+  renderEpoch += 1;
+  const requestView = captureView();
   const ctx = ctxRef;
   hostEl.innerHTML = head(ctx) + '<div id="mosBody">' + loadingHtml() + '</div>';
   hostEl.querySelectorAll('[data-t]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.t; render(); }));
@@ -44,15 +56,17 @@ async function render() {
 /* ---------------- 情报流 ---------------- */
 
 async function renderFeed() {
+  renderEpoch += 1;
+  const requestView = captureView();
   const ctx = ctxRef;
   let data;
-  try { data = await api.get(withBrand('/api/mos/source-items', ctx.brand, { q, sourceId: sourceFilter, pageSize: 100 })); }
+  try { data = await scopedRead(requestView, withBrand('/api/mos/source-items', ctx.brand, { q, sourceId: sourceFilter, pageSize: 100 })); }
   catch (err) {
     const s = stateBlock(err.status === 404 ? 'denied' : 'error', { title: err.status === 404 ? '无权访问该品牌' : '加载失败', desc: err.message, actions: [{ label: '重试', primary: true, onClick: renderFeed }] });
-    setBody(s.html); s.bind(bodyEl()); return;
+    if (setBody(s.html, requestView)) s.bind(bodyEl()); return;
   }
   let srcs = { items: [] };
-  try { srcs = await api.get(withBrand('/api/mos/sources', ctx.brand)); } catch (_) { /* ignore */ }
+  try { srcs = await scopedRead(requestView, withBrand('/api/mos/sources', ctx.brand)); } catch (_) { /* ignore */ }
 
   let html = '<div class="filters">'
     + '<input type="search" id="iq" placeholder="搜索标题/摘要" value="' + esc(q) + '">'
@@ -85,7 +99,7 @@ async function renderFeed() {
   html += '<div class="callout warn">许可合规：许可状态为 METADATA_ONLY / UNVERIFIED 的来源只保存元数据与链接（不含全文）。'
     + '收费媒体（Reuters/FT/Bloomberg 等）必须核对授权，禁止绕过付费墙（04 §3）。</div>';
 
-  setBody(html);
+  if (!setBody(html, requestView)) return;
   const go = () => { q = hostEl.querySelector('#iq').value.trim(); sourceFilter = hostEl.querySelector('#isrc').value; render(); };
   hostEl.querySelector('#igo').addEventListener('click', go);
   hostEl.querySelector('#iq').addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
@@ -104,6 +118,7 @@ function aiStateLabel(s) {
 }
 
 function makeTopicDialog(itemId) {
+  const requestView = captureView();
   const d = (ctxRef.meta && ctxRef.meta.dictionaries) || {};
   openModal({
     title: '由情报创建 Master Topic',
@@ -115,7 +130,7 @@ function makeTopicDialog(itemId) {
       + '<label class="field"><span>风险等级</span><select id="mkG">' + dictOptions(d.riskGrades, 'G1', null) + '</select></label>',
     onOk: async (b) => {
       try {
-        const r = await api.post('/api/mos/source-items/' + itemId + '/create-topic', {
+        const r = await scopedWrite(requestView, 'post', '/api/mos/source-items/' + itemId + '/create-topic', {
           title: b.querySelector('#mkT').value,
           pillarCode: b.querySelector('#mkC').value,
           narrativeCode: b.querySelector('#mkN').value,
@@ -131,12 +146,14 @@ function makeTopicDialog(itemId) {
 /* ---------------- 来源登记 ---------------- */
 
 async function renderSources() {
+  renderEpoch += 1;
+  const requestView = captureView();
   const ctx = ctxRef;
   let data;
-  try { data = await api.get(withBrand('/api/mos/sources', ctx.brand)); }
+  try { data = await scopedRead(requestView, withBrand('/api/mos/sources', ctx.brand)); }
   catch (err) {
     const s = stateBlock(err.status === 404 ? 'denied' : 'error', { title: err.status === 404 ? '无权访问该品牌' : '加载失败', desc: err.message, actions: [{ label: '重试', primary: true, onClick: renderSources }] });
-    setBody(s.html); s.bind(bodyEl()); return;
+    if (setBody(s.html, requestView)) s.bind(bodyEl()); return;
   }
   const d = (ctx.meta && ctx.meta.dictionaries) || {};
 
@@ -178,7 +195,7 @@ async function renderSources() {
   }
   html += '</div>';
 
-  setBody(html);
+  if (!setBody(html, requestView)) return;
   hostEl.querySelector('#newSrc').addEventListener('click', () => newSourceDialog(d));
   hostEl.querySelectorAll('[data-src]').forEach((b) => b.addEventListener('click', () => openSource(b.dataset.src)));
   loadSchedulerCard();
@@ -194,11 +211,12 @@ function jobStatusBadge(st) {
 }
 
 async function loadSchedulerCard() {
+  const requestView = captureView();
   const card = hostEl.querySelector('#schedCard');
   if (!card) return;
   const box = card.querySelector('.card-body');
   let data;
-  try { data = await api.get(withBrand('/api/mos/ingest/scheduler', ctxRef.brand)); }
+  try { data = await scopedRead(requestView, withBrand('/api/mos/ingest/scheduler', ctxRef.brand)); }
   catch (err) { box.innerHTML = '<div class="err-text">调度状态加载失败：' + esc(err.message) + '</div>'; return; }
   const s = data.scheduler || {};
   const limits = data.limits || {};
@@ -251,7 +269,7 @@ async function loadSchedulerCard() {
   box.querySelector('#schedToggle').addEventListener('click', async (e) => {
     e.target.disabled = true;
     try {
-      await api.post(withBrand('/api/mos/ingest/scheduler', ctxRef.brand), { enabled: !s.running });
+      await scopedWrite(requestView, 'post', withBrand('/api/mos/ingest/scheduler', ctxRef.brand), { enabled: !s.running });
       toast(!s.running ? '自动采集已开启' : '自动采集已关闭', 'ok');
       loadSchedulerCard();
       loadJobsCard();
@@ -261,7 +279,7 @@ async function loadSchedulerCard() {
     e.target.disabled = true;
     out.innerHTML = loadingHtml();
     try {
-      const r = await api.post(withBrand('/api/mos/ingest/scheduler/tick', ctxRef.brand), {});
+      const r = await scopedWrite(requestView, 'post', withBrand('/api/mos/ingest/scheduler/tick', ctxRef.brand), {});
       const sum = r.summary || {};
       lastTickHtml = '<div class="callout ' + (sum.ran ? 'ok' : 'info') + '">本轮巡检：执行 ' + (sum.ran || 0)
         + ' 个来源，跳过 ' + (sum.skipped || 0) + ' 个。'
@@ -279,11 +297,12 @@ async function loadSchedulerCard() {
 }
 
 async function loadJobsCard() {
+  const requestView = captureView();
   const card = hostEl.querySelector('#jobsCard');
   if (!card) return;
   const box = card.querySelector('.card-body');
   let data;
-  try { data = await api.get(withBrand('/api/mos/ingest/jobs', ctxRef.brand, { pageSize: 50 })); }
+  try { data = await scopedRead(requestView, withBrand('/api/mos/ingest/jobs', ctxRef.brand, { pageSize: 50 })); }
   catch (err) { box.innerHTML = '<div class="err-text">作业记录加载失败：' + esc(err.message) + '</div>'; return; }
 
   if (!data.items.length) {
@@ -312,6 +331,7 @@ async function loadJobsCard() {
 }
 
 function newSourceDialog(d) {
+  const requestView = captureView();
   openModal({
     title: '登记情报来源',
     okText: '登记（PENDING_VERIFICATION）',
@@ -324,7 +344,7 @@ function newSourceDialog(d) {
       + '<label class="field"><span>许可状态</span><select id="nsL">' + dictOptions(d.licenseStates, 'UNVERIFIED', null) + '</select></label>',
     onOk: async (b) => {
       try {
-        await api.post(withBrand('/api/mos/sources', ctxRef.brand), {
+        await scopedWrite(requestView, 'post', withBrand('/api/mos/sources', ctxRef.brand), {
           name: b.querySelector('#nsN').value,
           domain: b.querySelector('#nsD').value,
           endpoint: b.querySelector('#nsE').value,
@@ -339,8 +359,9 @@ function newSourceDialog(d) {
 }
 
 async function openSource(id) {
+  const requestView = captureView();
   let data;
-  try { data = await api.get(withBrand('/api/mos/sources', ctxRef.brand)); }
+  try { data = await scopedRead(requestView, withBrand('/api/mos/sources', ctxRef.brand)); }
   catch (err) { toast(err.message, 'err'); return; }
   const s = (data.items || []).find((x) => x.id === id);
   if (!s) { toast('来源不存在', 'err'); return; }
@@ -352,10 +373,11 @@ async function openSource(id) {
 
 /** 抽屉内：该来源的最近采集作业（含失败与跳过，不粉饰） */
 async function loadSourceJobs(dr, sourceId) {
+  const requestView = captureView();
   const box = dr.body.querySelector('#srcJobs');
   if (!box) return;
   let data;
-  try { data = await api.get(withBrand('/api/mos/ingest/jobs', ctxRef.brand, { sourceId, pageSize: 20 })); }
+  try { data = await scopedRead(requestView, withBrand('/api/mos/ingest/jobs', ctxRef.brand, { sourceId, pageSize: 20 })); }
   catch (err) { box.innerHTML = '<div class="err-text">作业记录加载失败：' + esc(err.message) + '</div>'; return; }
   if (!data.items.length) {
     box.innerHTML = '<div class="small muted">该来源尚无采集作业记录。</div>';
@@ -377,6 +399,7 @@ async function loadSourceJobs(dr, sourceId) {
 }
 
 function renderSourceDetail(dr, s) {
+  const requestView = captureView();
   let html = '';
   html += '<div class="row between"><strong>' + esc(s.name) + '</strong>' + statusBadge(s.status) + '</div>';
   html += '<div class="small muted mono">' + esc(s.domain) + '</div>';
@@ -418,10 +441,10 @@ function renderSourceDetail(dr, s) {
     const act = b.dataset.act;
     try {
       if (act === 'activate') {
-        await api.put('/api/mos/sources/' + s.id, { status: 'ACTIVE' });
+        await scopedWrite(requestView, 'put', '/api/mos/sources/' + s.id, { status: 'ACTIVE' });
         toast('来源已启用', 'ok'); dr.close(); render();
       } else if (act === 'disable') {
-        await api.put('/api/mos/sources/' + s.id, { status: 'DISABLED' });
+        await scopedWrite(requestView, 'put', '/api/mos/sources/' + s.id, { status: 'DISABLED' });
         toast('来源已停用', 'ok'); dr.close(); render();
       } else if (act === 'license') {
         openModal({
@@ -432,14 +455,14 @@ function renderSourceDetail(dr, s) {
             + '<label class="field"><span>说明</span><input id="lsN" type="text" value="' + esc(s.licenseNote || '') + '"></label>'
             + '<div class="hint">收紧许可（非 OPEN/LICENSED）会自动撤销"保存全文"。</div>',
           onOk: async (bd) => {
-            await api.put('/api/mos/sources/' + s.id, { licensePolicy: bd.querySelector('#lsL').value, licenseNote: bd.querySelector('#lsN').value });
+            await scopedWrite(requestView, 'put', '/api/mos/sources/' + s.id, { licensePolicy: bd.querySelector('#lsL').value, licenseNote: bd.querySelector('#lsN').value });
             toast('许可已更新', 'ok'); dr.close(); render();
           }
         });
       } else if (act === 'ingest') {
         out.innerHTML = loadingHtml();
         b.disabled = true;
-        const r = await api.post('/api/mos/sources/' + s.id + '/ingest', {});
+        const r = await scopedWrite(requestView, 'post', '/api/mos/sources/' + s.id + '/ingest', {});
         if (r.ok) {
           out.innerHTML = '<div class="callout ok">采集完成：抓取 ' + r.fetched + ' 条，新增 ' + r.inserted + ' 条，去重跳过 ' + r.skipped + ' 条。'
             + (r.job ? '<br>作业 <span class="mono small">' + esc(r.job.id) + '</span>（' + esc(r.job.trigger) + '）' : '')
@@ -489,6 +512,7 @@ function reportBadge(st) {
 
 /** Provider 就绪状态（06 §真实Provider判定；**不隐去 BLOCKED**） */
 function readinessBadge(readiness) {
+  const requestView = captureView();
   const cls = {
     REAL: 'badge-ok', CONFIGURED_NOT_TESTED: 'badge-info',
     NOT_CONFIGURED: 'badge-warn', NOT_IMPLEMENTED: 'badge-warn', BLOCKED: 'badge-danger'
@@ -498,6 +522,7 @@ function readinessBadge(readiness) {
 
 /** 作业状态徽章（异步研究作业） */
 function jobBadge(st) {
+  const requestView = captureView();
   const map = {
     QUEUED: 'badge-info', RUNNING: 'badge-info', COMPLETED: 'badge-ok',
     BLOCKED: 'badge-warn', FAILED: 'badge-danger', CANCELLED: 'badge-neutral'
@@ -507,6 +532,7 @@ function jobBadge(st) {
 
 /** 阶段中文名（首屏不出现技术阶段码） */
 function stageLabel(stage) {
+  const requestView = captureView();
   return jobStageLabel(stage) || '';
 }
 
@@ -515,6 +541,7 @@ function proposalBadge(st) {
   return '<span class="badge ' + (map[st] || 'badge-neutral') + '">' + esc(statusLabel(st)) + '</span>';
 }
 function verificationBadge(v) {
+  const requestView = captureView();
   const map = { VERIFIED: 'badge-ok', NEEDS_VERIFICATION: 'badge-warn', UNVERIFIED: 'badge-neutral' };
   return '<span class="badge ' + (map[v] || 'badge-neutral') + '">' + esc(v === 'NEEDS_VERIFICATION' ? '待核验' : v) + '</span>';
 }
@@ -524,15 +551,17 @@ let jobTimer = null;
 let reportFilter = '';
 
 async function renderResearch() {
+  renderEpoch += 1;
+  const requestView = captureView();
   const ctx = ctxRef;
   let data, prov, jobs;
   try {
-    data = await api.get(withBrand('/api/mos/research/reports', ctx.brand));
-    prov = await api.get('/api/mos/research/providers');
-    jobs = await api.get(withBrand('/api/mos/research/jobs', ctx.brand));
+    data = await scopedRead(requestView, withBrand('/api/mos/research/reports', ctx.brand));
+    prov = await scopedRead(requestView, '/api/mos/research/providers');
+    jobs = await scopedRead(requestView, withBrand('/api/mos/research/jobs', ctx.brand));
   } catch (err) {
     const s = stateBlock(err.status === 404 ? 'denied' : 'error', { title: err.status === 404 ? '无权访问该品牌' : '加载失败', desc: err.message, actions: [{ label: '重试', primary: true, onClick: renderResearch }] });
-    setBody(s.html); s.bind(bodyEl()); return;
+    if (setBody(s.html, requestView)) s.bind(bodyEl()); return;
   }
   researchJobs = jobs.items || [];
   const p = prov.providers || {};
@@ -597,11 +626,11 @@ async function renderResearch() {
   html += '<div class="hint">研究规则：检索结果不等于有效证据（404 / 日期不明 / 单一来源 / 矛盾一律如实标注）；'
     + '无来源的事实会被强制降级；未接入分析模型时只输出检索结果，<b>不会</b>标记为「AI 研究完成」。</div>';
 
-  setBody(html);
+  if (!setBody(html, requestView)) return;
   hostEl.querySelector('#dailyBtn').addEventListener('click', async (e) => {
     e.target.disabled = true;
     try {
-      const r = await api.post(withBrand('/api/mos/research/daily', ctxRef.brand), { days: 1 });
+      const r = await scopedWrite(requestView, 'post', withBrand('/api/mos/research/daily', ctxRef.brand), { days: 1 });
       toast('每日情报已汇编：' + r.report.findingCount + ' 条发现', 'ok');
       renderResearch();
     } catch (err) { toast(err.message, 'err'); e.target.disabled = false; }
@@ -615,6 +644,7 @@ async function renderResearch() {
 }
 
 function jobRowHtml(j) {
+  const requestView = captureView();
   const pct = Math.max(0, Math.min(100, Number(j.progress) || 0));
   return '<div class="list-item" data-job="' + esc(j.id) + '">'
     + '<div class="li-main"><div class="li-title">' + esc(j.code) + ' · ' + jobBadge(j.status) + ' · '
@@ -632,15 +662,16 @@ function jobRowHtml(j) {
 }
 
 function bindJobActions() {
+  const requestView = captureView();
   hostEl.querySelectorAll('[data-jcancel]').forEach((b) => b.addEventListener('click', async () => {
     b.disabled = true;
-    try { await api.post(withBrand('/api/mos/research/jobs/' + b.dataset.jcancel + '/cancel', ctxRef.brand), {}); toast('已取消', 'ok'); }
+    try { await scopedWrite(requestView, 'post', withBrand('/api/mos/research/jobs/' + b.dataset.jcancel + '/cancel', ctxRef.brand), {}); toast('已取消', 'ok'); }
     catch (err) { toast(err.message, 'err'); }
     renderResearch();
   }));
   hostEl.querySelectorAll('[data-jretry]').forEach((b) => b.addEventListener('click', async () => {
     b.disabled = true;
-    try { await api.post(withBrand('/api/mos/research/jobs/' + b.dataset.jretry + '/retry', ctxRef.brand), {}); toast('已重新排队（复用同一报告，避免重复计费）', 'ok'); }
+    try { await scopedWrite(requestView, 'post', withBrand('/api/mos/research/jobs/' + b.dataset.jretry + '/retry', ctxRef.brand), {}); toast('已重新排队（复用同一报告，避免重复计费）', 'ok'); }
     catch (err) { toast(err.message, 'err'); }
     renderResearch();
   }));
@@ -649,12 +680,13 @@ function bindJobActions() {
 
 /** 只在存在活动作业时轮询；离开页签/全部终态即停止 */
 function scheduleJobPoll() {
+  const requestView = captureView();
   if (jobTimer) { clearTimeout(jobTimer); jobTimer = null; }
   const active = researchJobs.filter((j) => ['QUEUED', 'RUNNING'].indexOf(j.status) !== -1);
   if (!active.length || tab !== 'research') return;
   jobTimer = setTimeout(async () => {
     try {
-      const jobs = await api.get(withBrand('/api/mos/research/jobs', ctxRef.brand));
+      const jobs = await scopedRead(requestView, withBrand('/api/mos/research/jobs', ctxRef.brand));
       researchJobs = jobs.items || [];
       const el = hostEl.querySelector('#jobList');
       const activeNow = researchJobs.filter((j) => ['QUEUED', 'RUNNING'].indexOf(j.status) !== -1);
@@ -668,6 +700,7 @@ function scheduleJobPoll() {
 
 /** 发起专题研究：提交后**立即返回 jobId**，进度在页面上滚动，可取消 */
 function deepResearchDialog() {
+  const requestView = captureView();
   openModal({
     title: '发起专题研究',
     okText: '开始研究',
@@ -693,7 +726,7 @@ function deepResearchDialog() {
       const from = b.querySelector('#drF').value || null;
       const to = b.querySelector('#drT').value || null;
       try {
-        const r = await api.post(withBrand('/api/mos/research/jobs', ctxRef.brand), {
+        const r = await scopedWrite(requestView, 'post', withBrand('/api/mos/research/jobs', ctxRef.brand), {
           query,
           objective: b.querySelector('#drO').value.trim() || null,
           timeWindow: (from || to) ? { from, to } : null,
@@ -712,8 +745,9 @@ function deepResearchDialog() {
 }
 
 async function openReport(id) {
+  const requestView = captureView();
   let data;
-  try { data = await api.get('/api/mos/research/reports/' + id); }
+  try { data = await scopedRead(requestView, '/api/mos/research/reports/' + id); }
   catch (err) { toast(err.message, 'err'); return; }
   const r = data.report;
   const dr = openDrawer({ title: '研究报告 ' + r.code });
@@ -829,7 +863,7 @@ async function openReport(id) {
     if (rf) rf.addEventListener('click', async () => {
       rf.disabled = true;
       try {
-        const res = await api.post('/api/mos/research/reports/' + r.id + '/refresh-check', {});
+        const res = await scopedWrite(requestView, 'post', '/api/mos/research/reports/' + r.id + '/refresh-check', {});
         r.refreshState = res.refreshState;
         toast(res.refreshState === 'NEEDS_REFRESH' ? '来源已变更 → 该研究需要刷新' : '未发现来源变更', res.refreshState === 'NEEDS_REFRESH' ? 'err' : 'ok');
         const m = dr.body.querySelector('#rMsg');
@@ -841,7 +875,7 @@ async function openReport(id) {
     if (rm) rm.addEventListener('click', async () => {
       rm.disabled = true;
       try {
-        const res = await api.post('/api/mos/research/reports/' + r.id + '/proposals?brand=' + encodeURIComponent(ctxRef.brand), {});
+        const res = await scopedWrite(requestView, 'post', '/api/mos/research/reports/' + r.id + '/proposals?brand=' + encodeURIComponent(ctxRef.brand), {});
         toast('已生成 ' + res.items.length + ' 条候选选题（待上级审核）', 'ok');
         if ((res.skipped || []).length) toast('有 ' + res.skipped.length + ' 条未通过校验：' + res.skipped[0].reason, 'err');
       } catch (err) { toast(err.message, 'err'); }
@@ -856,12 +890,14 @@ async function openReport(id) {
 let proposalStatusFilter = '';
 
 async function renderProposals() {
+  renderEpoch += 1;
+  const requestView = captureView();
   const ctx = ctxRef;
   let data;
-  try { data = await api.get(withBrand('/api/mos/topic-proposals', ctx.brand, { status: proposalStatusFilter })); }
+  try { data = await scopedRead(requestView, withBrand('/api/mos/topic-proposals', ctx.brand, { status: proposalStatusFilter })); }
   catch (err) {
     const s = stateBlock(err.status === 404 ? 'denied' : 'error', { title: err.status === 404 ? '无权访问该品牌' : '加载失败', desc: err.message, actions: [{ label: '重试', primary: true, onClick: renderProposals }] });
-    setBody(s.html); s.bind(bodyEl()); return;
+    if (setBody(s.html, requestView)) s.bind(bodyEl()); return;
   }
 
   let html = '<div class="filters">'
@@ -893,13 +929,14 @@ async function renderProposals() {
     html += '</div></div>';
   }
 
-  setBody(html);
+  if (!setBody(html, requestView)) return;
   hostEl.querySelector('#newProp').addEventListener('click', () => newProposalDialog());
   hostEl.querySelector('#pst').addEventListener('change', (e) => { proposalStatusFilter = e.target.value; renderProposals(); });
   hostEl.querySelectorAll('[data-pp]').forEach((b) => b.addEventListener('click', () => openProposal(b.dataset.pp)));
 }
 
 function newProposalDialog() {
+  const requestView = captureView();
   openModal({
     title: '新建候选选题',
     okText: '创建（待编辑审核）',
@@ -914,7 +951,7 @@ function newProposalDialog() {
       + '</select></label>',
     onOk: async (b) => {
       try {
-        await api.post(withBrand('/api/mos/topic-proposals', ctxRef.brand), {
+        await scopedWrite(requestView, 'post', withBrand('/api/mos/topic-proposals', ctxRef.brand), {
           suggestedTitleEN: b.querySelector('#npT').value,
           summaryZH: b.querySelector('#npS').value,
           primaryCategory: b.querySelector('#npC').value,
@@ -929,13 +966,15 @@ function newProposalDialog() {
 }
 
 async function openProposal(id) {
+  const requestView = captureView();
   let data;
-  try { data = await api.get('/api/mos/topic-proposals/' + id); }
+  try { data = await scopedRead(requestView, '/api/mos/topic-proposals/' + id); }
   catch (err) { toast(err.message, 'err'); return; }
   drawProposal(openDrawer({ title: '候选选题 ' + data.proposal.code }), data.proposal);
 }
 
 function drawProposal(dr, p) {
+  const requestView = captureView();
   let h = '<dl class="kv">'
     + '<dt>标题</dt><dd>' + esc(p.suggestedTitleEN) + '</dd>'
     + '<dt>状态</dt><dd>' + proposalBadge(p.status) + ' · 来源 ' + esc(p.source) + ' · 修订 ' + esc(String(p.revision || 0)) + ' 次</dd>'
@@ -968,7 +1007,7 @@ function drawProposal(dr, p) {
   const out = dr.body.querySelector('#propOut');
   const refresh = async () => {
     try {
-      const r = await api.get('/api/mos/topic-proposals/' + p.id);
+      const r = await scopedRead(requestView, '/api/mos/topic-proposals/' + p.id);
       drawProposal(dr, r.proposal);
     } catch (err) { toast(err.message, 'err'); }
   };
@@ -986,7 +1025,7 @@ function drawProposal(dr, p) {
   acts.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', async () => {
     if (b.dataset.act === 'submit') {
       b.disabled = true;
-      try { await api.post('/api/mos/topic-proposals/' + p.id + '/submit', {}); toast('已提交审核', 'ok'); refresh(); }
+      try { await scopedWrite(requestView, 'post', '/api/mos/topic-proposals/' + p.id + '/submit', {}); toast('已提交审核', 'ok'); refresh(); }
       catch (err) { toast(err.message, 'err'); b.disabled = false; }
     } else if (b.dataset.act === 'pool') {
       b.disabled = true;
@@ -998,7 +1037,7 @@ function drawProposal(dr, p) {
           + '<label class="field"><span>审批意见</span><input id="plC" type="text"></label>',
         onOk: async (bd) => {
           try {
-            const r = await api.post('/api/mos/topic-proposals/' + p.id + '/approve-to-pool', {
+            const r = await scopedWrite(requestView, 'post', '/api/mos/topic-proposals/' + p.id + '/approve-to-pool', {
               narrativeCode: bd.querySelector('#plN').value.trim() || 'N01',
               comments: bd.querySelector('#plC').value
             });
@@ -1029,7 +1068,7 @@ function drawProposal(dr, p) {
           }
           if (!deliverables.length) { toast('至少 1 个平台交付物', 'err'); return false; }
           try {
-            const r = await api.post('/api/mos/topic-proposals/' + p.id + '/approve-and-schedule', {
+            const r = await scopedWrite(requestView, 'post', '/api/mos/topic-proposals/' + p.id + '/approve-and-schedule', {
               idempotencyKey: 'sched-' + p.id + '-' + Date.now(),
               workDate: bd.querySelector('#scD').value,
               deliverables,
@@ -1055,7 +1094,7 @@ function drawProposal(dr, p) {
           + '<label class="field"><span>审核意见</span><textarea id="dcC" rows="2"></textarea></label>',
         onOk: async (bd) => {
           try {
-            const r = await api.post('/api/mos/topic-proposals/' + p.id + '/decision', {
+            const r = await scopedWrite(requestView, 'post', '/api/mos/topic-proposals/' + p.id + '/decision', {
               decision: bd.querySelector('#dcD').value,
               comments: bd.querySelector('#dcC').value,
               edits: {
@@ -1075,6 +1114,6 @@ function drawProposal(dr, p) {
 
 export default {
   async mount(host, ctx) { ctxRef = ctx; hostEl = host; await render(); },
-  unmount() { hostEl = null; },
+  unmount() { renderEpoch += 1; hostEl = null; ctxRef = null; },
   hasUnsaved() { return false; }
 };

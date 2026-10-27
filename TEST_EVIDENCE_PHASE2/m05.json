@@ -1,0 +1,33 @@
+{
+  "suite": "m05",
+  "at": "2026-10-27T12:41:38.484Z",
+  "total": 6,
+  "passed": 6,
+  "failed": 0,
+  "results": [
+    {
+      "name": "T09 rapid cross-brand delayed response cannot overwrite current view",
+      "ok": true
+    },
+    {
+      "name": "T09 repeated requests same brand use latest epoch",
+      "ok": true
+    },
+    {
+      "name": "T09 stale failure does not replace successful retry",
+      "ok": true
+    },
+    {
+      "name": "T09 stale write handler cannot write current brand",
+      "ok": true
+    },
+    {
+      "name": "T09 current handler retains valid write behavior",
+      "ok": true
+    },
+    {
+      "name": "T09 unmount discards delayed response safely",
+      "ok": true
+    }
+  ]
+}
