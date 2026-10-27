@@ -14,6 +14,7 @@ function route(method,pattern){return h.router.routes.find(r=>r.method===method&
  await h.check('T03 async callback is rejected before invocation',()=>{let ran=false;assert.throws(()=>h.store.atomicMutation(async()=>{ran=true;}),/SYNCHRONOUS_TRANSACTION_REQUIRED/);assert.equal(ran,false);});
  await h.check('T03 nested transaction is rejected and rolled back',()=>{const before=JSON.stringify(h.db);assert.throws(()=>h.store.atomicMutation(()=>{h.db.seq.fixture=3;h.store.atomicMutation(()=>{});}),/SYNCHRONOUS_TRANSACTION_REQUIRED/);assert.equal(JSON.stringify(h.db),before);});
  h.fixture();const p=h.proposal();const disp=await h.call(p.id,h.payload());const taskId=disp.tasks[0].id;
+ await h.check('T03 failed draft creation cannot advance task or create partial version',async()=>{await failedMutation('renameSync',()=>route('POST','/api/mos/content-versions')(ctx({taskId,title:'Fixture',body:'Synthetic creation'})));assert.equal(h.db.content_versions.length,0);assert.equal(h.db.content_tasks[0].status,'PLANNED');});
  let version=(await route('POST','/api/mos/content-versions')(ctx({taskId,title:'Fixture',body:'Saved fixture body'}))).version;
  await h.check('T03 draft creation is committed before response',()=>{assert(JSON.parse(h.fs.readFileSync(file)).content_versions.some(v=>v.id===version.id));});
  await h.check('T03 failed content edit preserves persisted draft and rowVersion',async()=>{await failedMutation('renameSync',()=>route('PUT','/api/mos/content-versions/:id')(ctx({body:'Unsaved fixture',rowVersion:version.rowVersion},version.id)));});
