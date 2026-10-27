@@ -1,0 +1,1550 @@
+{
+  "baseline": "7f05078614a789b94a040f67b18e462f2284f063",
+  "initialHeadVerified": "7f05078614a789b94a040f67b18e462f2284f063",
+  "remoteBranchVerifiedAtStart": "7f05078614a789b94a040f67b18e462f2284f063",
+  "initialStatus": "clean",
+  "arrayCollections": [
+    "brands",
+    "users",
+    "user_roles",
+    "sessions",
+    "monthly_plans",
+    "plan_items",
+    "campaigns",
+    "monthly_campaign_links",
+    "master_topics",
+    "campaign_topic_links",
+    "content_tasks",
+    "source_registry",
+    "source_items",
+    "evidence_references",
+    "skill_versions",
+    "creative_templates",
+    "content_versions",
+    "review_cases",
+    "review_decisions",
+    "working_assets",
+    "generation_jobs",
+    "video_artifacts",
+    "channels",
+    "publishing_schedules",
+    "publication_records",
+    "published_artifacts",
+    "publication_corrections",
+    "publication_metrics",
+    "asset_admissions",
+    "library_asset_refs",
+    "ingest_jobs",
+    "research_reports",
+    "research_findings",
+    "source_evidence",
+    "topic_proposals",
+    "research_jobs",
+    "provider_calls",
+    "video_render_jobs",
+    "library_tickets",
+    "library_event_cursors",
+    "library_invalidations",
+    "library_admission_jobs",
+    "audit_events"
+  ],
+  "persistedObjects": [
+    "settings",
+    "seq"
+  ],
+  "storeConsumers": [
+    "lib/mos/audit.js",
+    "lib/mos/eventconsumer.js",
+    "lib/mos/provideradmin.js",
+    "lib/mos/providerlog.js",
+    "lib/mos/research-engine.js",
+    "lib/mos/router.js",
+    "lib/mos/scheduler.js",
+    "lib/mos/workspace-ai-policy.js",
+    "lib/mos/workspace-client.js",
+    "lib/mos/adapters/identity.js",
+    "lib/mos/routes/admin.js",
+    "lib/mos/routes/admissions.js",
+    "lib/mos/routes/analytics.js",
+    "lib/mos/routes/auth.js",
+    "lib/mos/routes/campaigns.js",
+    "lib/mos/routes/channels.js",
+    "lib/mos/routes/content.js",
+    "lib/mos/routes/creative.js",
+    "lib/mos/routes/editorial.js",
+    "lib/mos/routes/helpers.js",
+    "lib/mos/routes/meta.js",
+    "lib/mos/routes/plans.js",
+    "lib/mos/routes/publishing.js",
+    "lib/mos/routes/research.js",
+    "lib/mos/routes/reviews.js",
+    "lib/mos/routes/sources.js",
+    "lib/mos/routes/studio.js",
+    "lib/mos/routes/tasks.js",
+    "lib/mos/routes/topics.js",
+    "lib/mos/routes/video.js"
+  ],
+  "literalRouteRegistrations": [
+    {
+      "method": "GET",
+      "path": "/api/mos/admin/users",
+      "file": "lib/mos/routes/admin.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/admin/users",
+      "file": "lib/mos/routes/admin.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/admin/users/:id/roles",
+      "file": "lib/mos/routes/admin.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/admin/users/:id/roles/revoke",
+      "file": "lib/mos/routes/admin.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/admin/roles",
+      "file": "lib/mos/routes/admin.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/audit",
+      "file": "lib/mos/routes/admin.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/asset-admissions",
+      "file": "lib/mos/routes/admissions.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/asset-admissions/:id",
+      "file": "lib/mos/routes/admissions.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/asset-admissions",
+      "file": "lib/mos/routes/admissions.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/asset-admissions/:id/admission-fields",
+      "file": "lib/mos/routes/admissions.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/asset-admissions/:id/provider-status",
+      "file": "lib/mos/routes/admissions.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/asset-admissions/:id/precheck",
+      "file": "lib/mos/routes/admissions.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/asset-admissions/:id/submit-final",
+      "file": "lib/mos/routes/admissions.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/asset-admissions/:id/sync",
+      "file": "lib/mos/routes/admissions.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/asset-admissions/:id/retry-sync",
+      "file": "lib/mos/routes/admissions.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/library-asset-refs",
+      "file": "lib/mos/routes/admissions.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/analytics",
+      "file": "lib/mos/routes/analytics.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "file": "lib/mos/routes/auth.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/auth/preferences",
+      "file": "lib/mos/routes/auth.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/auth/login",
+      "file": "lib/mos/routes/auth.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/auth/logout",
+      "file": "lib/mos/routes/auth.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/auth/change-password",
+      "file": "lib/mos/routes/auth.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/identity/status",
+      "file": "lib/mos/routes/auth.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/campaigns",
+      "file": "lib/mos/routes/campaigns.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/campaigns/:id",
+      "file": "lib/mos/routes/campaigns.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/campaigns",
+      "file": "lib/mos/routes/campaigns.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/campaigns/:id",
+      "file": "lib/mos/routes/campaigns.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/marketing/brief-templates",
+      "file": "lib/mos/routes/campaigns.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/campaigns/:id/results",
+      "file": "lib/mos/routes/campaigns.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/campaigns/:id/link-plan",
+      "file": "lib/mos/routes/campaigns.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/campaigns/:id/unlink-plan",
+      "file": "lib/mos/routes/campaigns.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/campaigns/:id/link-topic",
+      "file": "lib/mos/routes/campaigns.js"
+    },
+    {
+      "method": "DEL",
+      "path": "/api/mos/campaigns/:id/link-topic/:topicId",
+      "file": "lib/mos/routes/campaigns.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/channels",
+      "file": "lib/mos/routes/channels.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/channels",
+      "file": "lib/mos/routes/channels.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/channels/:id",
+      "file": "lib/mos/routes/channels.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "file": "lib/mos/routes/content.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/:id",
+      "file": "lib/mos/routes/content.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/content-versions",
+      "file": "lib/mos/routes/content.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/content-versions/:id",
+      "file": "lib/mos/routes/content.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/content-versions/:id/lock",
+      "file": "lib/mos/routes/content.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/content-versions/:id/revise",
+      "file": "lib/mos/routes/content.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-dictionaries",
+      "file": "lib/mos/routes/content.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/skills",
+      "file": "lib/mos/routes/creative.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/templates",
+      "file": "lib/mos/routes/creative.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/prompt-preview",
+      "file": "lib/mos/routes/creative.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/formal-output-check",
+      "file": "lib/mos/routes/creative.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/assets",
+      "file": "lib/mos/routes/creative.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/assets/upload",
+      "file": "lib/mos/routes/creative.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/assets/:id/content",
+      "file": "lib/mos/routes/creative.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/generation-jobs",
+      "file": "lib/mos/routes/creative.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/generation-jobs",
+      "file": "lib/mos/routes/creative.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/generation-jobs/:id",
+      "file": "lib/mos/routes/creative.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/topic-proposals/:id/approve-to-pool",
+      "file": "lib/mos/routes/editorial.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/topic-proposals/:id/approve-and-schedule",
+      "file": "lib/mos/routes/editorial.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/editorial/views",
+      "file": "lib/mos/routes/editorial.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/brand/:code/overview",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/dictionaries/verification",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/dictionaries/verify",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/providers/health",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/workspace/status",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/integration/workspace",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/integration/health",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/integration/events",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/integration/events/tick",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/integration/asset-usage-check",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/integration/probe",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/library/approved",
+      "file": "lib/mos/routes/meta.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/plans",
+      "file": "lib/mos/routes/plans.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/plans/:id",
+      "file": "lib/mos/routes/plans.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/plans",
+      "file": "lib/mos/routes/plans.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/plans/:id",
+      "file": "lib/mos/routes/plans.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/plans/:id/transition",
+      "file": "lib/mos/routes/plans.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/plans/:id/items",
+      "file": "lib/mos/routes/plans.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/plan-items/:id",
+      "file": "lib/mos/routes/plans.js"
+    },
+    {
+      "method": "DEL",
+      "path": "/api/mos/plan-items/:id",
+      "file": "lib/mos/routes/plans.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/calendar",
+      "file": "lib/mos/routes/plans.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/publishing/schedules",
+      "file": "lib/mos/routes/publishing.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/publishing/calendar",
+      "file": "lib/mos/routes/publishing.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/publishing/schedules",
+      "file": "lib/mos/routes/publishing.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/publishing/schedules/:id",
+      "file": "lib/mos/routes/publishing.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/publications",
+      "file": "lib/mos/routes/publishing.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/publications",
+      "file": "lib/mos/routes/publishing.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/publications/:id",
+      "file": "lib/mos/routes/publishing.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/publications/:id/corrections",
+      "file": "lib/mos/routes/publishing.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/publications/:id/metrics",
+      "file": "lib/mos/routes/publishing.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/research/provider-status",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/research/providers",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/research/daily",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/research/web",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/research/jobs",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/research/jobs",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/research/jobs/:id",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/research/jobs/:id/cancel",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/research/jobs/:id/retry",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/research/reports",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/research/reports/:id",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/research/reports/:id/proposals",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/research/reports/:id/refresh-check",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/topic-proposals",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/topic-proposals",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/topic-proposals/:id",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/topic-proposals/:id/submit",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/topic-proposals/:id/decision",
+      "file": "lib/mos/routes/research.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "file": "lib/mos/routes/reviews.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/:id",
+      "file": "lib/mos/routes/reviews.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-history",
+      "file": "lib/mos/routes/reviews.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/review-cases/:id/decision",
+      "file": "lib/mos/routes/reviews.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/settings/providers",
+      "file": "lib/mos/routes/settings.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/settings/providers/:kind",
+      "file": "lib/mos/routes/settings.js"
+    },
+    {
+      "method": "DEL",
+      "path": "/api/mos/settings/providers/:kind/key",
+      "file": "lib/mos/routes/settings.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/settings/providers/:kind/test",
+      "file": "lib/mos/routes/settings.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/settings/budget",
+      "file": "lib/mos/routes/settings.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/settings/data-policy",
+      "file": "lib/mos/routes/settings.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/settings/usage",
+      "file": "lib/mos/routes/settings.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/settings/readiness",
+      "file": "lib/mos/routes/settings.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/sources",
+      "file": "lib/mos/routes/sources.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/sources",
+      "file": "lib/mos/routes/sources.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/sources/:id",
+      "file": "lib/mos/routes/sources.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/sources/:id/ingest",
+      "file": "lib/mos/routes/sources.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/ingest/jobs",
+      "file": "lib/mos/routes/sources.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/ingest/scheduler",
+      "file": "lib/mos/routes/sources.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/ingest/scheduler",
+      "file": "lib/mos/routes/sources.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/ingest/scheduler/tick",
+      "file": "lib/mos/routes/sources.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/source-items",
+      "file": "lib/mos/routes/sources.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/source-items/:id",
+      "file": "lib/mos/routes/sources.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/source-items/:id/create-topic",
+      "file": "lib/mos/routes/sources.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/:id/studio",
+      "file": "lib/mos/routes/studio.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/:id/submit-check",
+      "file": "lib/mos/routes/studio.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/tasks/:id/variant",
+      "file": "lib/mos/routes/studio.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/tasks/:id/basis",
+      "file": "lib/mos/routes/studio.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/tasks/:id/notes",
+      "file": "lib/mos/routes/studio.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "file": "lib/mos/routes/tasks.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/:id",
+      "file": "lib/mos/routes/tasks.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/tasks",
+      "file": "lib/mos/routes/tasks.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/tasks/ad-hoc",
+      "file": "lib/mos/routes/tasks.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/tasks/:id",
+      "file": "lib/mos/routes/tasks.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/tasks/:id/transition",
+      "file": "lib/mos/routes/tasks.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/my-work",
+      "file": "lib/mos/routes/tasks.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/my-work/continue",
+      "file": "lib/mos/routes/tasks.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/active-projects",
+      "file": "lib/mos/routes/tasks.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/topics",
+      "file": "lib/mos/routes/topics.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/topics/:id",
+      "file": "lib/mos/routes/topics.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/topics",
+      "file": "lib/mos/routes/topics.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/topics/:id",
+      "file": "lib/mos/routes/topics.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/topics/:id/evidence",
+      "file": "lib/mos/routes/topics.js"
+    },
+    {
+      "method": "DEL",
+      "path": "/api/mos/topics/:id/evidence/:evId",
+      "file": "lib/mos/routes/topics.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/topics/:id/create-task",
+      "file": "lib/mos/routes/topics.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/topics/:id/reuse",
+      "file": "lib/mos/routes/topics.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/video/:taskId",
+      "file": "lib/mos/routes/video.js"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/video/:taskId",
+      "file": "lib/mos/routes/video.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/video-renders",
+      "file": "lib/mos/routes/video.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/video-renders/:id",
+      "file": "lib/mos/routes/video.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/video-renders",
+      "file": "lib/mos/routes/video.js"
+    }
+  ],
+  "baseWorkingFileHashes": {
+    ".env.example": "7e898877c81cda54ce2d4cf430c8712c35bb2e1894d84e5f9a1b8e5f4f1b2c29",
+    ".gitignore": "0a36f6cc530b8c0322fd3f95377cc910852411cd8ca158e013c492ec366772ce",
+    "CHANGELOG.md": "71894fd4c0c4a67cd1eca9716ce4548034288a621b657493d97b463973938e5a",
+    "E2E_RUN_LOG.md": "3769698cd8f7cd4027f64c891bc65fde42d3cf1ee1fbac660ca3005ed29cce74",
+    "FINAL_ACCEPTANCE_V0.1.2.md": "9a88ef0d565b3797e106e4ee2de10d717226dd0b2f574a203d46d1897447f759",
+    "JOINT_ACCEPTANCE_REPORT.md": "20ca043583b5b9170995fab183cf55c757355836411b565940da32dc7ffa6c9b",
+    "JOINT_ACCEPTANCE_REPORT_V1.2.md": "c2eac43cb5d9c7e40fbb6913ebbcdc2cb15775acf96666380dabc09899cdebf9",
+    "MARKETING_HANDOFF_BUNDLE/AI_PROVIDER_AND_SKILL_REPORT.md": "832382e78a4823756cf6adb3d939af4d957c9f98b203d4e989507078404ebbf8",
+    "MARKETING_HANDOFF_BUNDLE/CHANGELOG.md": "328b92eeb441c506fd71047522bb58849197490eaa7a75b30b9a333149e41d24",
+    "MARKETING_HANDOFF_BUNDLE/CONSUMER_BASELINE.md": "dc6858c09fffb4abf81b78f72fbada24b7767812443b4098b4173cc5fbad7488",
+    "MARKETING_HANDOFF_BUNDLE/CONTRACT_DIFF.md": "cf641a141cd83921ec4736068b0fb6f01fab8d9b846def6c93c30c4c2da42f64",
+    "MARKETING_HANDOFF_BUNDLE/DEPLOY_AND_ROLLBACK.md": "b94fe3518b723355f0c30f8b95a91a96bfc80db22de6bdb00906256ec36c489a",
+    "MARKETING_HANDOFF_BUNDLE/E2E_TEST_REPORT.md": "ec8b8429c61f834df116ce34f1233621abeebc54203d14807e9e2d1e973ce1e2",
+    "MARKETING_HANDOFF_BUNDLE/INTEGRATION_DIFF.md": "d76e3ca43062cc80e2fd28b8002c4585b14858ae25b179744e108bf2b2d929bb",
+    "MARKETING_HANDOFF_BUNDLE/LIBRARY_HANDOFF_REQUEST.md": "4222cacdba918d5bc4a41b575fc6495d27ddf2062c897ba12aee773fcc981214",
+    "MARKETING_HANDOFF_BUNDLE/README.md": "889c3558436b4144ddb836a3b5919e1b310865c1d966b98522eb85641a1d3878",
+    "MARKETING_HANDOFF_BUNDLE/REAL_MOCK_STATUS.md": "778ddd104342c9148a6dd7e48102ecb46b2171590ce752c18246d554f384997c",
+    "MARKETING_HANDOFF_BUNDLE/SECURITY_AND_DATA_BOUNDARY_REPORT.md": "1be8a58eb280d3e54a20b126c7de25434e4e2fbd7c1a04cb5a11b3a9c2d3b835",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/README.md": "701e9ad45758d32227a1db1bea95bfe260ef9bc1c86e61e03a6522442c1a0cd6",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/mos-ui-check.js": "61ace9ce678ccde5d6448447a69d74e7b8b6057465a9b0f70f57e7c31e6faed1",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/01-login.png": "57f627fd0800cf5d5fd2feed697c6da68067b65044d122260937c1f38753399f",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/02-force-password.png": "8fe59e42677635459a800f46eacb95ea91b5c2bec48bf4ef984e4995782fea05",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/03-my-work.png": "0572c64ba08f3a2b72a6e9d2673066086500692bd966bc0c0a858674285933b1",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/04-workspace-my-work.png": "0572c64ba08f3a2b72a6e9d2673066086500692bd966bc0c0a858674285933b1",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/05-workspace-projects.png": "550f525d64ec14fa82508a3ce5b98b977a075eadfebffa44039b6ac846361d8f",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/06-brand-overview.png": "b2b2ad68b8635ce3cbd3f5bdef4a0b8db3e1f857f44a1788044e70cf25dfd40e",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/07-brand-guidelines.png": "31456029cea72637691335c4c42b7a8576fcbb7f23b2ca44e70a0ff9b42ee512",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/08-brand-reference.png": "57d7068a0e1e01cc4ff186b71d56ace7f96ac5eeb153f0c39fb6ef7929e12323",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/09-planning-list.png": "77453b7aadee21607c2855acf80e1919b179b2f5383ddbae10731a127b4fb65d",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/10-topics.png": "9432884892f7c8dc01b499bde103ad0b9ed1cb8d244ed1ca4921f29e8f881142",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/11-intelligence.png": "1c85a623ad978c52f41e362b53d33bbeeff32f0b3a1356649d4c30f8a29a73c2",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/12-all-tasks.png": "4832cd2419822694aeecfb1dc3321a9e3afe521fe77de961a3b5682940570725",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/12-content-tasks.png": "a0366548ef2144e3ce4ca728a683eae498359fcd514919afc53c9b32eaeab1d0",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/13-campaigns.png": "be65da7da58cf21f3ff7d7fe8ddfcd97021d69b42b4977a14a6b4c04acc63a90",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/14-creative-stage.png": "02ab7bfeaf6ec321bf109dca383f2b4c6af0a8c49b666521b9681bca6a71aae0",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/15-publishing-stage.png": "666cebf2d007054af56e7fa174bd4bdcb0498688042c75ea0f03c82f2bb3b01b",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/16-analytics-stage.png": "1ccfe62da36c5695bdd5fe85e89126f2c3bc36d4a313ef98113334c4c2a0c5ad",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/17-governance-stage.png": "584bc44938dd9a52c5ca34d849afc971d1ddc5c171d7cd6246ff2844155bf4ed",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/18-planning-calendar.png": "07a7306eef33ff4c8e6be2317037568a86d58b5e92be59c8ae26f6a893804e21",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/19-planning-calendar-week.png": "775c39989c06dba7d56743a718fb05f224783f3295e9d55cf19b50db70f5cd53",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/20-intelligence-sources.png": "fff8f9e5d870e56650fed9c410820130e2877186e6a904c3fec170d0c2d0f0de",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/21-intelligence-source-detail.png": "8091433aefc56c1c5d15730ee8162758a8553e0f60f285d182a6ddde2fb6e1e7",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/22-planning-created-by-ui.png": "b89390b751404033bf4d3092325825b00678c0ef3fb34d85531af18809c6a73a",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/23-planning-after-reload.png": "0eb3b8a6aba73097c688b64af7f035c1f9888025d89003fa77f6acd1ebd0b479",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/24-intelligence-created-by-ui.png": "c611d148987a1989e51696fa4bf296ef12810a55ed900a8ac078f85e84a87562",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/25-intelligence-after-reload.png": "4ff7769bb3c152fc6052517ecdc6a0077277d7fab163d080be29d1e8074fc93f",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/screenshots/99-error.png": "8bbb650c59cfbd16b20960f7e8489a88e81337c25e750a63c04a9a4d4bd894ed",
+    "MARKETING_HANDOFF_BUNDLE/UI_TEST_EVIDENCE/ui-check-result.json": "f7321c123b262e9b5eb96ce7a5a551215675b4eb3d55b68ce42ef8c25e632b83",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/ADMISSION_FIELDS_UI_DATA_MIGRATION.md": "50869b7e2a266940dab4b6bac551b2cd52ea3496e7d8a4bcf5ef90d27f02b705",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/AI_PROVIDER_REAL_MOCK_STATUS.md": "ec83891de4aefda8d5f504f4abbb40240f1e67c533a6fab6d196bf0336f5773b",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/AUTH_AND_EVENTS_REPORT.md": "bd6c9ad74785d4c848a927b11e1fcc3d6e9f6474ba2a17c151399f27b20e06c6",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/CHANGELOG.md": "f47ea527cfe0e91c155999399d2554769b514230a1e971e26fa84ad4ad28c97c",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/CONSUMER_BASELINE.md": "a23f160341186d005603bc80330413a7ca7f073e747e07bc777d186366b428e0",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/CONTRACT_DIFF_SIGNED.md": "c22caca42e351ec36ccc4946a210b167b284c873e7128a96af41ad5e0045ccbf",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/JOINT_ACCEPTANCE_REPORT.md": "20ca043583b5b9170995fab183cf55c757355836411b565940da32dc7ffa6c9b",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/PUBLISHED_CONTENT_ISOLATION.md": "900395886ba3ed32f429ec8a129896f751ace397d8dfac96f145afd8741d6818",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/README.md": "09c2ae6cccc4ceead526e73ff183f8ba6474313e8bd7c27d87b975efd821ab02",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/REAL_HTTP_E2E_EVIDENCE.md": "6b84a08e8a8eb1e6e94fef943d61438fbbb590797805b648008502c0e90d172d",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/SECURITY_REGRESSION.md": "786d8508778c3bf8112d49e3926c80931f57f110ccea3853cb7a44f522372a64",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/SKILL_AND_DICTIONARY_STATUS.md": "2cf78048acc3bb75ec6c8d8e598667d864628df76b95db589ed75d8a75588c2f",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/01-login.png": "57f627fd0800cf5d5fd2feed697c6da68067b65044d122260937c1f38753399f",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/02-force-password.png": "8fe59e42677635459a800f46eacb95ea91b5c2bec48bf4ef984e4995782fea05",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/03-my-work.png": "5b8c615faf32f38fd4a53282b3077768530c2297b9d9c614a87915c3f5ba258d",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/04-workspace-my-work.png": "5b8c615faf32f38fd4a53282b3077768530c2297b9d9c614a87915c3f5ba258d",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/05-workspace-projects.png": "550f525d64ec14fa82508a3ce5b98b977a075eadfebffa44039b6ac846361d8f",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/06-brand-overview.png": "b2b2ad68b8635ce3cbd3f5bdef4a0b8db3e1f857f44a1788044e70cf25dfd40e",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/07-brand-guidelines.png": "31456029cea72637691335c4c42b7a8576fcbb7f23b2ca44e70a0ff9b42ee512",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/08-brand-reference.png": "57d7068a0e1e01cc4ff186b71d56ace7f96ac5eeb153f0c39fb6ef7929e12323",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/09-planning-list.png": "77453b7aadee21607c2855acf80e1919b179b2f5383ddbae10731a127b4fb65d",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/10-topics.png": "9432884892f7c8dc01b499bde103ad0b9ed1cb8d244ed1ca4921f29e8f881142",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/11-intelligence.png": "1c85a623ad978c52f41e362b53d33bbeeff32f0b3a1356649d4c30f8a29a73c2",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/12-all-tasks.png": "4832cd2419822694aeecfb1dc3321a9e3afe521fe77de961a3b5682940570725",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/13-campaigns.png": "be65da7da58cf21f3ff7d7fe8ddfcd97021d69b42b4977a14a6b4c04acc63a90",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/18-planning-calendar.png": "07a7306eef33ff4c8e6be2317037568a86d58b5e92be59c8ae26f6a893804e21",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/19-planning-calendar-week.png": "148e75afa1992e30a7a99863af73c790147c11fa563e6c189a36cca37f014e1d",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/20-intelligence-sources.png": "fff8f9e5d870e56650fed9c410820130e2877186e6a904c3fec170d0c2d0f0de",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/21-intelligence-source-detail.png": "8091433aefc56c1c5d15730ee8162758a8553e0f60f285d182a6ddde2fb6e1e7",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/22-planning-created-by-ui.png": "b89390b751404033bf4d3092325825b00678c0ef3fb34d85531af18809c6a73a",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/23-planning-after-reload.png": "0eb3b8a6aba73097c688b64af7f035c1f9888025d89003fa77f6acd1ebd0b479",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/24-intelligence-created-by-ui.png": "c611d148987a1989e51696fa4bf296ef12810a55ed900a8ac078f85e84a87562",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/25-intelligence-after-reload.png": "4ff7769bb3c152fc6052517ecdc6a0077277d7fab163d080be29d1e8074fc93f",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/B1-38-admission-dialog.png": "332fdd924eacacb1af5fb713c1a465052ac524771f0a7303cf393df106be662d",
+    "MARKETING_HANDOFF_BUNDLE_V1.1/UI_BROWSER_EVIDENCE/README.md": "49aa683c9cc49acca20d2863aeea75e298f1986a8dd6d96249df596dd18809bd",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/BLOCKED_ITEMS_V1.2.md": "e3ff0517c423810a510f74321d312c629736e52cb60a10f335e3f27fd6c7a861",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/CONSUMER_BASELINE.md": "4e212622bcea97f8f266d8dc10bdf9b15a2b32c77ffceb6909d8991042155124",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/EVENT_FAILCLOSED_AND_ADMISSION_FIELDS.md": "b1ac1bd414e57a10bd8cfc19bcbf3f76ec6cb492768af9c15b30ea419e163041",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/FORMAL_OUTPUT_GATE.md": "690eb0270245d96d369f00135fd91ff0b2b996ea85e0d23f547c8770dec80c8a",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/JOINT_SIGNOFF_V1.2.md": "efd1e2fa7056a818114aa421aca47fa45fc666e0f06345765743c1fc739922db",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/PUBLISHED_ARCHIVE_ISOLATION.md": "1943751ff05e80b6c0f967c73144cd38082f22848959f82dbac5fb5bf0eaf5c7",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/README.md": "070c036413fc050d0a701bc11e652300881556baebc5e69588da69c4711e342a",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/REAL_HTTP_SECURITY_NEGATIVE_EVIDENCE.md": "b86394a339e8844174e0e9e18f555633e96db63448b9be5254c50f97e0c11870",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/TEST_EVIDENCE_INDEX.md": "5a976f0a42e7a6372d2e92aee4e23f69537e36f44de674b632b392ab7f8146fb",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/01-login.png": "e5a525b110cb7cf38f2c106cdd1a09eaea0338fb40fc42640eac6d45b9b8b3d2",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/02-force-password.png": "8fe59e42677635459a800f46eacb95ea91b5c2bec48bf4ef984e4995782fea05",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/03-my-work.png": "66bb3e3ff3280d9ecd6077f5ad81046d670624708485bfe2d9a8e2b217c08c11",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/04-workspace-my-work.png": "66bb3e3ff3280d9ecd6077f5ad81046d670624708485bfe2d9a8e2b217c08c11",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/05-workspace-projects.png": "22e2774d74df6d1bc307dc84949b237304f46f139f260bd7ec9af2634c1fa5b7",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/06-brand-overview.png": "3c1b5aff1aed217b43373ebdbd1d4e269c4f0d32256757620d41baa16b35ba2b",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/07-brand-guidelines.png": "9ec202884a5b4fe0dc567645128bcf12efb553b71fc14fced08f6141f0540682",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/08-brand-reference.png": "13c5fa884a50a0350f2d300f3c588f997a6ee42f94d25231ff3c8cc24d525613",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/09-planning-list.png": "a47e839884ac472c44ec0a11aa6f933000adb12b6008375de8d5234dfb5fd76c",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/10-topics.png": "b1da3333bb53496e3950dd2a725064dfedf7e53b6413e6d1b1a210cd0c2212a1",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/11-intelligence.png": "60abe6d3656875ffd0ae41436ec7a153983d6d70876717a9c5e9068ca1d97a90",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/12-all-tasks.png": "d8c269dfd3843fabb5b2bbd8d5fd7a4fefd9db7f86e540186ea52863bc07e588",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/12-content-tasks.png": "a0366548ef2144e3ce4ca728a683eae498359fcd514919afc53c9b32eaeab1d0",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/13-campaigns.png": "8b4374378b6c542b21ed873a49bf498e8f9fa036842159bdae70b803591a674f",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/14-creative-stage.png": "02ab7bfeaf6ec321bf109dca383f2b4c6af0a8c49b666521b9681bca6a71aae0",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/15-publishing-stage.png": "666cebf2d007054af56e7fa174bd4bdcb0498688042c75ea0f03c82f2bb3b01b",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/16-analytics-stage.png": "1ccfe62da36c5695bdd5fe85e89126f2c3bc36d4a313ef98113334c4c2a0c5ad",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/17-governance-stage.png": "584bc44938dd9a52c5ca34d849afc971d1ddc5c171d7cd6246ff2844155bf4ed",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/18-planning-calendar.png": "6cf618f44b8be53b0467c28369ac05eb0a16b90b12373b7099b5c56cfdb5e48c",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/19-planning-calendar-week.png": "791efd4834c83a9c3ecd80394006718654d70547eeba663ec084dce2c4da1dbe",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/20-intelligence-sources.png": "1b66d3b6390cbc62ad6722b63077eb5260e5c463e34210cf46a350f41fb80f84",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/21-intelligence-source-detail.png": "765d8c7fa7f3383aff05efb6648c1499c3efb44685d1749ed027f565ad18b890",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/22-planning-created-by-ui.png": "43bf16f42f8c9c8eedcc39009f6eb58a0857114d99fbda63b179db3d44d31aab",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/23-planning-after-reload.png": "ba626951263865ae3a9f5197f22908a1ab76c407920c2903d1a8e2599a50900a",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/24-intelligence-created-by-ui.png": "2aeda860bc25dbbd612d59e61d3433037afc200d5d0e8647f29c7988dceba499",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/25-intelligence-after-reload.png": "f5498ec9fa2de8091703c778e2697ad1d3e6dbf775db1f67d074dc5f60cc9067",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/99-error.png": "8bbb650c59cfbd16b20960f7e8489a88e81337c25e750a63c04a9a4d4bd894ed",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/B1-38-admission-dialog.png": "fa50a41bc8a3c3249f8a1ade8282bd657db65dc1c489688932cd502603304d2a",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/UI_BROWSER_EVIDENCE/README.md": "394e4e8f9f04f594349d0f8177aa933ca48f546c4784e39787c642816fa8fd08",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/evidence/PROVIDER_API_OPENAPI_BASELINE.yaml": "d382451e5c7996d70c4402577f8be8e3d20f721b7e0074ffa551990eaf2c417e",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/evidence/dual-security-result.json": "c30130bb1d854fdca416610e4093652f1bd42576c846c1e53153de79ac1fecd5",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/evidence/dual-security-summary.txt": "7aa93097119a54680ffe27807459b8d83bfd8522103e905cdbba6915e7582fdb",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/evidence/joint-v1.1-dual-e2e-result.json": "0d87bc0aab9473f9e8d69661b92b46ca6cec66608d6f3fbb32dcf00152995c6f",
+    "MARKETING_HANDOFF_BUNDLE_V1.2/evidence/regression-summary.json": "9f92e86fbc2b82a16babb2c1a31635b3b07d366a7d099a0677d98eed0c20fc0b",
+    "MARKETING_OS_DEPLOYMENT_CHECKLIST.md": "c972ee5ed1987b608747664c263faf7e7e930fada6d0e0d723c499b42f07fce5",
+    "MARKETING_OS_MANUAL_ACTIONS.md": "aa62d05883efa0a6eaa48d10f47b0f9176b23829ae224029fcea8e32ffa357cd",
+    "MARKETING_OS_PILOT_READINESS_REPORT.md": "91b0e4094cd6d975d5225ad0ab65e06454db3f402e05ff8446b748b8663a023b",
+    "MIGRATION_AND_ROLLBACK.md": "57c9a44b535f69600ebe2c9a45cc14658ed1ab8bd88a788c533998fa77060d1b",
+    "PHASE0_BASELINE_AND_IMPACT.md": "4fbcb03860dc71a16b4ae1e81f8739c531dcb42524a2e9e8e8ed4b4e615f7248",
+    "PHASE1_BACKUP_AND_ROLLBACK.md": "ad9bbaac5eebd62c5759b7bd3635636fe306ff4d5f89f2fb7b5527062185252a",
+    "PHASE1_CHANGELOG.md": "4e88d3dc03b21d7fcd0cacda8303ddb6edd18a331c78a1c03bc0f8881410d5a9",
+    "PHASE1_REGRESSION_MATRIX.md": "a503aa2546919b09f91df24d3d0ed05490f58edb424f397bb0b9b9c1bc34f868",
+    "PHASE1_SECURITY_FIXES.md": "7140ec2482925fcb3a52810379adefd5341e251623975212aa8ba80f2194fd9f",
+    "PHASE1_TEST_RESULTS.md": "0c90f16e98d4f2661fe806a074b2898e142834db7530b541365bfdb63ef01a73",
+    "PHASE2_CHANGELOG.md": "04591049081cb6411539560964fb3bb55067bfddaeafe82298d889c55f94af6b",
+    "PHASE2_READINESS.md": "ba5573230708735905de82fc888a6da9b263769469a47fa5b8d70acc4f98fdcd",
+    "PHASE2_REGRESSION_MATRIX.md": "f4e43d0a8fb348d55c231ccc9a654d84a51fd3f6de6b49b3409885dcb370513b",
+    "PHASE2_SECURITY_FIXES.md": "c6b29e8f4022b8d1654c4ae54cf977f3814ba6dd8e312d62373880e4c02b68ba",
+    "PHASE2_STORAGE_RISK_REGISTER.md": "7ba7b73a4b48d23a4472ea9bcf6e7d8be499e1fb52d52f5644ab4ae015cc57fc",
+    "PHASE2_TEST_RESULTS.md": "a3df5acad86ebf98276bca50d3c1ab1d3dbc888c1f93b07159bb3ebaa07bcae1",
+    "PHASE3_INTEGRATION_READINESS.md": "e636a3016e378d2e15d2cebd0ccf0e40228e27434191e672ab8a4d6078b31a4a",
+    "PHASE_A_UI_AND_I18N_REPORT.md": "1d747095c62fff3788dce8dddf79fd3bdd4d47178b9d1febad75b3fc3db5c125",
+    "PHASE_B_AI_INTELLIGENCE_REPORT.md": "c846a697eaf69887c284c2fc4897202bf06459a1ae16f447feacd72a86d336d7",
+    "PHASE_C_TASK_WORKFLOW_REPORT.md": "b64ed31ef717eb8687c8d48f3c433a6438284778f4568cde52baa4757dd0d636",
+    "PROVIDER_REAL_MOCK_MATRIX.md": "cd40596c85f880d20e12f5957c40397537ac3a7a8b7688670709be89ad4750e0",
+    "README.md": "280fd1ffae73a7ec15415117bd3b2618b6349d1b51156848a2c72d61d37f4536",
+    "REAL_PROVIDER_EVIDENCE/README.md": "dc335d6c37b4f4ef2e04a24b973944c580ae2c5d1be5c0e8645c46e82950417c",
+    "REAL_PROVIDER_EVIDENCE/provider-contract-log-sanitized.json": "06047376f546d0643f82058e8077e9ebbef1f29c60dad196d30bb50183ac31f3",
+    "REAL_PROVIDER_EVIDENCE/research-job-trace-sanitized.json": "72f16164a5952e01a602aa77a9dc11af6ef76be2cf4b0901b4f676c8901f29f5",
+    "SECURITY_REGRESSION_REPORT.md": "6d751e514bb42b8a368b6769b9ea6c0a22ddbe5fd95b54240e5100b36cf46c75",
+    "SPECIAL01_SOURCE_MAPPING.md": "e3db1a280b5268e7ec85c69e4e73ff40d1e580d3922ad641f12f38ae8ae6be4b",
+    "TEST_EVIDENCE_MOS_V012_EDITORIAL/v012-editorial-result.json": "674d517a712a145331bf8c1e0b61e8a9ff41f92200d110aae1aa725c06d35cc1",
+    "TEST_EVIDENCE_MOS_V012_RESEARCH/v012-research-result.json": "29f0ec5325034e457b719f36773349da0c826a3ba13bebda0496557b9ff2556c",
+    "TEST_EVIDENCE_MOS_V013_I18N/i18n-check-result.json": "b78d2eaa27689d721b15edbb7439bcfc2b58b1743784e2851dac0ccdf1b25eb0",
+    "TEST_EVIDENCE_MOS_V013_RESEARCH/v013-research-result.json": "efaa769c8f34089c63d39b8ccb6f8b7c20d6b77803f9fa4e1b652e0cecee2244",
+    "TEST_EVIDENCE_MOS_V013_STUDIO/v013-studio-result.json": "d7705def20c38bab803d5da2a63299cf1d99401ee7a91cf6becc45273c9d05a8",
+    "TEST_EVIDENCE_MOS_V014_PROVIDER/provider-admin-result.json": "f33512e113e18e9be5357cce1b33ad91782dc9a1bcf678496a6966b697d52518",
+    "TEST_EVIDENCE_PHASE1/PHASE1_ACCEPTANCE_SUMMARY.json": "6c3db2bd29d5ba4295834fbf760541c063f23c1a55ebdf3fd5ca0faed51a11d2",
+    "TEST_EVIDENCE_PHASE1/backup-verification.json": "26d55063dabbe5bf456e93f6e2f67a0c9878fd8b028315fbe0e1524707dc3d27",
+    "TEST_EVIDENCE_PHASE1/brand-permission-test.log": "949941771aa092047f1da474dece9754b2d03b5e975a62bcde72a1549c21d4a7",
+    "TEST_EVIDENCE_PHASE1/browser-draft-test.log": "db6b93bb4fa66809cb75831023eafd1cad596c05fdf6e467764e718758c22433",
+    "TEST_EVIDENCE_PHASE1/browser/draft-recovered.png": "c8c8201a50134de0e7d5e906cbd7ebb57dda96309626c11a8dc518fa9280a1cd",
+    "TEST_EVIDENCE_PHASE1/browser/results.json": "354c7351a7ea8d69f82bae9d6f0672d8867144ca35652fdd65dc479c3a7d89dc",
+    "TEST_EVIDENCE_PHASE1/browser/save-failed-409.png": "89bb78357f8930389d1fbea8098cff1fdc73acb35acd7a9cf8489a3e4bd6a61f",
+    "TEST_EVIDENCE_PHASE1/browser/save-failed-500.png": "df7480f0944f376b60dd4923e7b77d16f04962faa6eb5bbd0c1f6ef00e550c5c",
+    "TEST_EVIDENCE_PHASE1/browser/save-failed-offline.png": "c45960e7c987167c83582086124377ed11b0b2dbed2d608557cd8b0be51d2bf7",
+    "TEST_EVIDENCE_PHASE1/current-suite-artifacts/REAL_PROVIDER_EVIDENCE/provider-contract-log-sanitized.json": "ef5c1e733cc6f033695f9cf3bbffb3df08637b1c7a15efb2df255142dc1568c3",
+    "TEST_EVIDENCE_PHASE1/current-suite-artifacts/REAL_PROVIDER_EVIDENCE/research-job-trace-sanitized.json": "9f7fabb50dca9af13e1fcd27ba4bbed9bb29616eaf60ce7ae466a4c80b84b10f",
+    "TEST_EVIDENCE_PHASE1/current-suite-artifacts/TEST_EVIDENCE_MOS_V012_EDITORIAL/v012-editorial-result.json": "b8740a8f24e30b245154176aaa90ad336bf20b65b33a33da7f212c3491799571",
+    "TEST_EVIDENCE_PHASE1/current-suite-artifacts/TEST_EVIDENCE_MOS_V012_RESEARCH/v012-research-result.json": "4ee250f0fae209cb91ad78231a87d128c075a570dc4520a3c8b084cef7424a57",
+    "TEST_EVIDENCE_PHASE1/current-suite-artifacts/TEST_EVIDENCE_MOS_V013_I18N/i18n-check-result.json": "6178a70866cd451a09ee4525041c6318a32715260e5f52864c4e3ae106360227",
+    "TEST_EVIDENCE_PHASE1/current-suite-artifacts/TEST_EVIDENCE_MOS_V013_RESEARCH/v013-research-result.json": "030d35d0eb23b314582ec94affa3e1a878384d440b291cb2b5f05f768f2ab1ca",
+    "TEST_EVIDENCE_PHASE1/current-suite-artifacts/TEST_EVIDENCE_MOS_V013_STUDIO/v013-studio-result.json": "254c9a6fbdd7023f7bdc472a1a9a6aa2b42c508a850393903b4045a92f482ded",
+    "TEST_EVIDENCE_PHASE1/current-suite-artifacts/TEST_EVIDENCE_MOS_V014_PROVIDER/provider-admin-result.json": "f96381f1e0e21ad86197c0ce0928b5e02d8bd2fc95eea5ff56273c8d6d959221",
+    "TEST_EVIDENCE_PHASE1/draft-protection-test.log": "e53ecd80d1ed21068820a3492e915901a822d5d907783d596d172dfa5eae1666",
+    "TEST_EVIDENCE_PHASE1/h01-before.json": "709fcd564ca083706ebd57f17adcdaf6128aefd85bba90a4057e3ff801a3d448",
+    "TEST_EVIDENCE_PHASE1/h01.json": "3f571f0c8136302ae0498d89cd342bd25be56f2794e998c60d2034d99b35af16",
+    "TEST_EVIDENCE_PHASE1/h02-before.json": "db7df1efc717f72ef1230dcfe09275487fa977af9073efb46224cb61f7d8bcf8",
+    "TEST_EVIDENCE_PHASE1/h02.json": "b4ab8b9c9b1df160e3d9ad12e025bd9bc8fd4e510b42006b6a3462bcce74db91",
+    "TEST_EVIDENCE_PHASE1/h03.json": "06af95efd54aa417d6523b54628acd9021ffb65e8977f93f95a2800ab6cceab7",
+    "TEST_EVIDENCE_PHASE1/h07-component.json": "fe7864287f00b0c82ea8311d08abb2bb5386cc02f248158bee9c1924ed8e80cb",
+    "TEST_EVIDENCE_PHASE1/http-durability-test.log": "3eebb9cea4d967365c65f1d9f0c745e73b8242ae3071e1e3bb505640bcbaab7c",
+    "TEST_EVIDENCE_PHASE1/http-durability.json": "175584fb8ae1331836b4616540a4c7e48a3be84639675c2b74c56ddb77b6b7f9",
+    "TEST_EVIDENCE_PHASE1/idempotency-test.log": "649156f7dd3d6e62512118c575523908afa860f3625fef71d3e9f63e97420d12",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-dual-identity-test.log": "0e11098cbcd482c35b6d3200d9fc5d877edbe6645ebe9268a40d50b6de486f83",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-e2e-build02.log": "55ab12bd4a75df5d7e82a5b9afd3f8a6c64b1d56fbce9d41fd056962ac2768af",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-e2e-build03.log": "585012fdb80ba5c345fc705fb1feb3c51efb3d2fec3d603b25354e44f381f616",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-e2e-test.log": "b59e8285f61967728fe4212bb345588edb5b1bb0eb8eca3c5e5a61ab962518f5",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-e2e-v012-editorial.log": "db9925524a7a8ae2234c3b60085035f90dfc6827737c4150aec194720dd558a5",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-e2e-v012-research.log": "84d8e7ac62000a9ac5c96b3abe74a2c34db98c0a3926173da30e31ebf4492316",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-e2e-v013-research.log": "bc137e9038a8e9f3ed2293415f2470a637bd2727eba972cac36bb3497918b4af",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-e2e-v013-studio.log": "33acda425461e0a68a2d7c22bfffef589a010ea8af1dc4cb88afc8c862eb09eb",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-i18n-check.log": "d2f294f3fbc5c46b8001f84640a89adfce8b9acac8a585038e5968d77e5d3556",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-provider-admin-test.log": "9581319e7fac7c3425a2cb6fb755d1327c09cb140c32eeddecaf173957ce7fcf",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-provider-contract-test.log": "0cbfa084e7677fffbbd89164ae35180a559c836220baec61501e987c9af81f6f",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-scheduler-test.log": "33f8537dfe8233a1a87cac56b283ed6e86a4f7c142b15d81cdc9dd7b0cb127cd",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-security-egress-test.log": "4ba475349d490f5a5f38287d78680b59e6a29ec7dcbb6d8cf0d1c351d589cea0",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-smoke-test.log": "803a00855752a1fe1165537ab34b61114a3c8411ce1d80556dd653cdb3e07a41",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-ui-check.log": "d605bc791c501ae7f4f589f7a1f0348c331d663d57a93bbac804b9995e089d4a",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-unit-test.log": "d76783e014f809e27ec7df3aa3d95772b16d652a786ae29da19ba674f40779c7",
+    "TEST_EVIDENCE_PHASE1/initial-regression/mos-workspace-contract-test.log": "2c2593fac36a5eb522ad86e46c9fd3a6fcaaf2dcdd56b00082cd87fe842808a0",
+    "TEST_EVIDENCE_PHASE1/initial-regression/summary.json": "69cd7fd46e4c7d554c204d38b56eca85dcb25e012bf8bd39d11c481cc7e39189",
+    "TEST_EVIDENCE_PHASE1/intelligence-race-observation.log": "49eb9d59df5a0aa0eb5611b054c1edd84c79702fb85dffa16439e7891a1dc69c",
+    "TEST_EVIDENCE_PHASE1/protection-and-capability-integrity.json": "501b9d825b9ade8c9ab09a9cda54421bfebacf2a9077f744871a8451020fd0d0",
+    "TEST_EVIDENCE_PHASE1/regression/mos-dual-identity-test.log": "8c1ec619aab35b2649e9466b34c3931a1d032b3483afc6cbbaaa885518bb4da4",
+    "TEST_EVIDENCE_PHASE1/regression/mos-e2e-build02.log": "102a63ce2cadfac3b61c6e173ebffe12c2a986aba27e1a3eeab7b4b647969407",
+    "TEST_EVIDENCE_PHASE1/regression/mos-e2e-build03.log": "4dc083ff8ceb3516a910cea929c35b41f145ee0b1bdf7375a8a80c117b2916a9",
+    "TEST_EVIDENCE_PHASE1/regression/mos-e2e-test.log": "c7b493781acb0b591342eaab979a023910cd6fea0e2373eb4e45fee14544637b",
+    "TEST_EVIDENCE_PHASE1/regression/mos-e2e-v012-editorial.log": "a549d32972aac8f9c20f12f09edd84e85477f3c28fa0378f20b32b7558e41cd7",
+    "TEST_EVIDENCE_PHASE1/regression/mos-e2e-v012-research.log": "d72b2fda4a63567f0ddc7af9dccb05ffb89adc28a6b51e1589a2f58e4493d4c4",
+    "TEST_EVIDENCE_PHASE1/regression/mos-e2e-v013-research.log": "dc7195208c9875e525431db65a621cb02013f85a3d18acf22c08eeff497fc7a7",
+    "TEST_EVIDENCE_PHASE1/regression/mos-e2e-v013-studio.log": "33acda425461e0a68a2d7c22bfffef589a010ea8af1dc4cb88afc8c862eb09eb",
+    "TEST_EVIDENCE_PHASE1/regression/mos-i18n-check.log": "d2f294f3fbc5c46b8001f84640a89adfce8b9acac8a585038e5968d77e5d3556",
+    "TEST_EVIDENCE_PHASE1/regression/mos-provider-admin-test.log": "3cf9d06f5dd8a5b33d0f0c1452fa7d8fb7b794acf5629129349073057c25f561",
+    "TEST_EVIDENCE_PHASE1/regression/mos-provider-contract-test.log": "5d2de8ce5699c30f9948f11d76ee4f0138d9b7939d01b262d42aef105b500a3b",
+    "TEST_EVIDENCE_PHASE1/regression/mos-scheduler-test.log": "7890d08da06acc3a29d70a6a4fd5f1afaf6f83927b3e5d8b0f7634be7e0a8380",
+    "TEST_EVIDENCE_PHASE1/regression/mos-security-egress-test.log": "30dc0e8e387f21ea5c9e2ba51c8576b25b5a68d26e741e25c7b30cf8ff53bc0f",
+    "TEST_EVIDENCE_PHASE1/regression/mos-smoke-test.log": "803a00855752a1fe1165537ab34b61114a3c8411ce1d80556dd653cdb3e07a41",
+    "TEST_EVIDENCE_PHASE1/regression/mos-ui-check.log": "cf2fd02ffc1d865d8f847f04cc57b63cdb16411cda3fb64a956871e582ac2355",
+    "TEST_EVIDENCE_PHASE1/regression/mos-unit-test.log": "cb3b9aa97ebe39efdf28800542b76965f546715b979c4d03ff0f8ebc54bfb6db",
+    "TEST_EVIDENCE_PHASE1/regression/mos-workspace-contract-test.log": "62eda4834844126caada1586409144a71b35b96de95663fdec2352c3992afda2",
+    "TEST_EVIDENCE_PHASE1/regression/summary.json": "b4f84cec59793c2dcb3edea8be64bb8aaa0e0126ea7df99744c14f1c4d4a29ad",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-dual-identity-test.log": "31787f54945ad813c8825819c044dc24dcbcf628d5bdb8937c4f30744dd772a5",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-e2e-build02.log": "fd5b450588c892231d1512fb5483cc995ccb1237c74e8c20f606aaaa38c0dc8d",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-e2e-build03.log": "76aed6200c2a3d251eebd623f7dff431339b56a313f7374aacd89a4ebd52ccdf",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-e2e-test.log": "d47e9ce23cf9ce5317f1e6c18e2aecec6e84101c390792e624f71fbc022fe8ca",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-e2e-v012-editorial.log": "248826d775f8592168535439c7be506431d90f4f4e985bf22b18ae51c1ca6d9a",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-e2e-v012-research.log": "77c0e2818342350da1aebbcfb4d47daf82bb976d8439486748bb38be96191c5f",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-e2e-v013-research.log": "91c54645fdd6b3704ae265ef88cd783b5cd64bf1a6d33b3a7041045b1cca052b",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-e2e-v013-studio.log": "33acda425461e0a68a2d7c22bfffef589a010ea8af1dc4cb88afc8c862eb09eb",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-i18n-check.log": "d2f294f3fbc5c46b8001f84640a89adfce8b9acac8a585038e5968d77e5d3556",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-provider-admin-test.log": "fa39df9b613e743f9d369a239ddcbbbaf0360e53692103b195d98ea366e2f8e5",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-provider-contract-test.log": "fe2f3b0459c70f64fd4935414f62b26e9470a7f0a49044984aacdfc4b007b3c9",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-scheduler-test.log": "ede2299b95f60f0789ce80bb07648fb7c2d232d68cb7a0be781062e88f4f66fc",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-security-egress-test.log": "d0b4f44823c233aa18b5ca1dad36e8ab84c35af0c1034d10582c5906690f82b4",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-smoke-test.log": "803a00855752a1fe1165537ab34b61114a3c8411ce1d80556dd653cdb3e07a41",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-ui-check.log": "ab0862363d9474362943bb5c4947ec77bfb6e068723beddb6430c7a501fd9690",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-unit-test.log": "cb3b9aa97ebe39efdf28800542b76965f546715b979c4d03ff0f8ebc54bfb6db",
+    "TEST_EVIDENCE_PHASE1/second-regression/mos-workspace-contract-test.log": "ad2ea98c4246493e55d36c90c8fb8b393310e87f5508c5a2fb827863f35a6cf6",
+    "TEST_EVIDENCE_PHASE1/second-regression/summary.json": "391876801ff002871c988809480d2edc21a501066a4d762862bc62ba51b7084f",
+    "TEST_EVIDENCE_PHASE1/security-recheck.log": "3719c26192ae1b228ed7d2d20e45ee38b2cacd66f98c160a874c57adad7427ab",
+    "TEST_EVIDENCE_PHASE1/storage-recovery-test.log": "4cea46a53fe7292cd4baf5d01d086c9de0851ff4a76910fcf3579aabd4283152",
+    "TEST_EVIDENCE_PHASE1/t04-isolated.json": "d3101251a56ca1f8c6da6adee0ac6f772d39aa6d00bb26e8405d99e05c697f49",
+    "TEST_EVIDENCE_PHASE1/t09-observation.json": "55e7298512c9ac9f317604eff5840ffccc65ff7617c0932745d868b757a5cae0",
+    "TEST_EVIDENCE_PHASE1/transaction-test.log": "806f1a1e4fb13988593c96b76d140dcf8c4a4d09c62fc974383f05a5d23a5f28",
+    "TEST_EVIDENCE_PHASE1/workspace-recheck.log": "910d7693cc1f7c0f6f99533455fc039f8e9ccecd9c758ebfbcf8ce1480246314",
+    "TEST_EVIDENCE_PHASE2/ACCEPTANCE_SUMMARY.json": "8d6494f3e371c0350efa1fe7ef191449e1f87d13a4397b9dadd2ba4d6991729c",
+    "TEST_EVIDENCE_PHASE2/backup-reverification.json": "5c76645642e87c680cf86ee1c899704ff4e89a6f84cf587da60acc151e20ecd5",
+    "TEST_EVIDENCE_PHASE2/before-integrity.json": "fe2948b3d765dbd44cba80d5cc256cd232fd2071a74b9f8cd28a07d58bf94410",
+    "TEST_EVIDENCE_PHASE2/browser-m05/results.json": "1740c6fc672d70f9b419dfc42b0d62548373dcc4b5795446eb7b23f8babe4ac7",
+    "TEST_EVIDENCE_PHASE2/browser-m05/ucard-after-stale-failure.png": "9fcc446c54470d507811423b517827d511124d53d3ef6420149948f523d1bf68",
+    "TEST_EVIDENCE_PHASE2/browser-m05/ucard-after-stale-vfib.png": "1e9c3e14683cda0b1aa5016024f2b5246efedd1039e7fb2b8ec45097318a1133",
+    "TEST_EVIDENCE_PHASE2/diff-check.json": "fd4fe631807d3c04dd7f89c0e8fee76be3784881c3399e558e617c26bea95c4f",
+    "TEST_EVIDENCE_PHASE2/generated-current/REAL_PROVIDER_EVIDENCE/README.md": "fc1ecfb2beeb488c73d9842248130339a059d2a25c92fbc756bb63ac984503d0",
+    "TEST_EVIDENCE_PHASE2/generated-current/REAL_PROVIDER_EVIDENCE/provider-contract-log-sanitized.json": "f50c1fd042566b56899583eee7f31281a901da18c4aa4e1a5f3834203092a0b2",
+    "TEST_EVIDENCE_PHASE2/generated-current/REAL_PROVIDER_EVIDENCE/research-job-trace-sanitized.json": "25590503bfeae2b451af3bf0c05882bc7aec0eda64dd172686996706f07c4be5",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_MOS_V012_EDITORIAL/v012-editorial-result.json": "7e3e12b289a39b72917c8421f03cee7507166e2f43fd8431460ecf7075df72dd",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_MOS_V012_RESEARCH/v012-research-result.json": "8ede735aa9d21d509b4f1b9ba9ae7b9df2f4590ab9f705039433505bbff32733",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_MOS_V013_I18N/i18n-check-result.json": "764320294b25331c4e925574e1e54ba7fb9efd185c26fe402d885fc04249fd17",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_MOS_V013_RESEARCH/v013-research-result.json": "e56f537efcccf76a42cbd3c6aeac6e367549e89128dcecf532d1d2cbf4b8d466",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_MOS_V013_STUDIO/v013-studio-result.json": "0ad876fefe4cf50122a487f76ded6f16a07b9deb3b083ae1349e915bf75b0139",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_MOS_V014_PROVIDER/provider-admin-result.json": "5dcd6e8f5d3efc3d04879687b6b4d653881e155902d517883fb3ff232e7a0d41",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_PHASE1/browser/results.json": "04f0cd96a3fbdce1d6d14fcaec6c84e5852a0a52d1fae5fbd5d70f06d65f39b2",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_PHASE1/browser/save-failed-409.png": "38577b3785e4523170b0207ebb3c51bf4fcb4b2d8e8d0779884342034ef14c30",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_PHASE1/browser/save-failed-500.png": "7f165781c59d0236ce020efc11357c545aec2cac9761a774ba19252c63404af5",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_PHASE1/h01.json": "7197cadedd8d3b8523c4fb1130cd99f0e030b5bbe8f523759174665f7c39e1c2",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_PHASE1/h02.json": "f0cecaf74972dd54feae91397dae01d4cf5d83e0f3231e1c136752e62c3f7e80",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_PHASE1/h03.json": "265cec55e02afb3ec43e9bd5ea013efb4b9d36597c8c5e2cd50b9f2e247cf472",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_PHASE1/h07-component.json": "37fa65a8ecb1963d36d5f963957968904aa34b2b82f2d2bdbadbd1868a538723",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_PHASE1/http-durability.json": "ee04ea7f48110bdd262a2ef8ffd00ba1d4fdbbd0759ce272ad27381a1d899f2b",
+    "TEST_EVIDENCE_PHASE2/generated-current/TEST_EVIDENCE_PHASE1/t04-isolated.json": "1e055168357ee0c42d670ce6203043190d65dfef9d6f3993026152e0e73938a0",
+    "TEST_EVIDENCE_PHASE2/h04-before.json": "5c38e4b5a10cef8b79e4358c65b98055d2d3a53895714174ad75160ade2f0daf",
+    "TEST_EVIDENCE_PHASE2/h04.json": "5bd4515e4d164243dc7bb9afaf5ab1e5151ce5ec9b5414cd700b22956b0f28b5",
+    "TEST_EVIDENCE_PHASE2/h05-adapter-before.json": "87ca47cae7b3055998a149c7fe1367ff5086a1be70ba6dbf701a8cc1a8389188",
+    "TEST_EVIDENCE_PHASE2/h05-adapter.json": "656d33ffd926b8652c1121cd275c49f9c2dbf5c3b6421ab06d667f1fb2e1b487",
+    "TEST_EVIDENCE_PHASE2/h05-before.json": "bb40f87be7eb2e74d3b1b598f63b2b7cb612ac38a626d5c57cf32fee84eacad4",
+    "TEST_EVIDENCE_PHASE2/h05.json": "22f7c42d9502664a493d3c580cd2d1a669a55cc38773aeca866143ad4c78036e",
+    "TEST_EVIDENCE_PHASE2/h06-before-console.log": "51a64cfc8b747d60a451b93c2fda2a7f5d7fb3d0e33608845ca84046bd33e00a",
+    "TEST_EVIDENCE_PHASE2/h06-before.json": "b0cd6616484f583f2b6fd6ee32b2a6af9894e152efe7f87441b86e96df3686be",
+    "TEST_EVIDENCE_PHASE2/h06.json": "70b1b8bce89decfb152dd071b3053da1cd4a9daa396128a304aa1896c8bb4b3e",
+    "TEST_EVIDENCE_PHASE2/integrity.json": "2b4ce484575fe6245b92921c06d14ad8e86d1285c37219eb14b0be15057458fb",
+    "TEST_EVIDENCE_PHASE2/m05-before.json": "d86b0588df79d7d14d479bfc46c0c3d4cbf4fed86c9201f98fb78fc46b9d1af2",
+    "TEST_EVIDENCE_PHASE2/m05.json": "cc9be5ed8994b9da04b367b795d3e7b51cbebf07ec140411498bb661d5f127b8",
+    "TEST_EVIDENCE_PHASE2/other-write-paths.txt": "930286112afa46b177b590cd4e31ae1b1109d39162b87b2a27ec95d3816a9a9e",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/brand-permission-test.log": "1090f5bc4fa8039e00beec21e71560165a74c3bdd730cffc7e334ffc683322d6",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/browser-draft-test.log": "2628abebfdaacc07315c20a00659f801c21c80f5d28722051f9e4f7c5b4b5442",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/browser/draft-recovered.png": "c8c8201a50134de0e7d5e906cbd7ebb57dda96309626c11a8dc518fa9280a1cd",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/browser/results.json": "04f0cd96a3fbdce1d6d14fcaec6c84e5852a0a52d1fae5fbd5d70f06d65f39b2",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/browser/save-failed-409.png": "38577b3785e4523170b0207ebb3c51bf4fcb4b2d8e8d0779884342034ef14c30",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/browser/save-failed-500.png": "7f165781c59d0236ce020efc11357c545aec2cac9761a774ba19252c63404af5",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/browser/save-failed-offline.png": "c45960e7c987167c83582086124377ed11b0b2dbed2d608557cd8b0be51d2bf7",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/draft-protection-test.log": "990b56e1d8e6a70142196cc700b3247a22e2a6b3efc6b8e2fa5b9babecb01f26",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/h01.json": "7197cadedd8d3b8523c4fb1130cd99f0e030b5bbe8f523759174665f7c39e1c2",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/h02.json": "f0cecaf74972dd54feae91397dae01d4cf5d83e0f3231e1c136752e62c3f7e80",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/h03.json": "265cec55e02afb3ec43e9bd5ea013efb4b9d36597c8c5e2cd50b9f2e247cf472",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/h07-component.json": "37fa65a8ecb1963d36d5f963957968904aa34b2b82f2d2bdbadbd1868a538723",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/http-durability-test.log": "3bc2f0bbf264d7dfd7266253183205471ed1ddfd2af3d09b20695414886e78fc",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/http-durability.json": "ee04ea7f48110bdd262a2ef8ffd00ba1d4fdbbd0759ce272ad27381a1d899f2b",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/idempotency-test.log": "61a6456fce599819d840d96dced426db5b26cc221507d72fcd6ab36474ec2705",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/storage-recovery-test.log": "0bc755d8bf350cc34dbf4a1339cbec421fe40404fdde98b5ea667e431dc7edcf",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/summary.json": "fb765462bb06789c8178a38856532fea95aa4ae9a28eafec749d4b4ef546d8e9",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/t04-isolated.json": "1e055168357ee0c42d670ce6203043190d65dfef9d6f3993026152e0e73938a0",
+    "TEST_EVIDENCE_PHASE2/phase1-regression/transaction-test.log": "e3aa0ececbebf34cf1bf3f9d6c255ec66b72fc3a328c5d560a0efcd0a0247298",
+    "TEST_EVIDENCE_PHASE2/provider-contract-final.log": "f19c5b3fd43c4a54bf04dd0988c71d1d2506106856c6d34071e74ee18a0a497a",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-dual-identity-test.log": "846f6503b6fb85637f744cc01673bbb606f16adb8dc5a88d3a8166a6ebcbe5e9",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-e2e-build02.log": "af627ae09958c9e1bd83fb7a5f696c36f99ccc43cd762a7159863980aee789f3",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-e2e-build03.log": "df07952bcba393aeb6be314f81dc047d746bffffc6ded9cba3597ac9887a2043",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-e2e-test.log": "d8b3823590bb08190ffd8b858ca76984fe3173e0a4b3bfc0f246d94ed8aaab02",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-e2e-v012-editorial.log": "91ad00ae7793e2cb751a4c683cabf3408b5e8a9d69367172ac941e622fbb10a3",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-e2e-v012-research.log": "985d679ddf506159ed7798157a46a12a78df738e2cd6e5a49adc189a0c6bce97",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-e2e-v013-research.log": "7b6b69bd96c31396113f56e1bb405192a8aaad8fe730cdba682b6c35e530376e",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-e2e-v013-studio.log": "f920aaa2112d558571989487b6f28f0038997fbbb7137be89300efc093e396bf",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-i18n-check.log": "6da13de3bc2748b2c256f1d581b3c68dc4591ccbcd815ce085e922f5a0ff3961",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-provider-admin-test.log": "2280d4c6f8de981975ce3b890612068fa6642c264996f7b92bef6ada79ec49a2",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-provider-contract-test.log": "c95c6437adbae4b77eb12838763f6d5a2ac8a34a186af539b72e81350f02d7d3",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-scheduler-test.log": "db1ca0ed021840169c1e362a03053ae76205fb48ce8731eb4dfa250f1992d6b7",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-security-egress-test.log": "f70d5f7dd559285abc678d12e77d0df080ab03d0a5d95649f69bc1b86f31cbdf",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-smoke-test.log": "350c81450f36f31832d0bbe1dc3de2ddbd55343823f98175e3baf22cac9c8349",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-ui-check.log": "3449ea4bb894823b791f816eb53c73f194b1ddb40553be8d4c112a14d93dec7f",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-unit-test.log": "569128fda7654a15454b1b6852d9c6d475a1e47cf4ff6e8164c1251715578f96",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/mos-workspace-contract-test.log": "ef748e9b6265cc622d70fb490bac0dadae51c63efbd6c20bc8e26b795f1626ce",
+    "TEST_EVIDENCE_PHASE2/regression-first-run/summary.json": "d6bda44d38c1228cd19a579dafa497fc87f21325bf4a8ee240e6545cac5b394d",
+    "TEST_EVIDENCE_PHASE2/regression/mos-dual-identity-test.log": "2cb0373ae34a050f00eb47b8422efa3060edf1c654cd5f78de7d030e7fd7f4f1",
+    "TEST_EVIDENCE_PHASE2/regression/mos-e2e-build02.log": "8cc8eaf18bb55bfda42cd02fe4fbd8c011bf27bf16b5b92b1fbbaec23d6c5cf8",
+    "TEST_EVIDENCE_PHASE2/regression/mos-e2e-build03.log": "2bf94d264bf61c2fa13d72dd488c39b0356b7c4688c9cb06806b891e7393d205",
+    "TEST_EVIDENCE_PHASE2/regression/mos-e2e-test.log": "7cbe2a54a51d331376885138e53f8f226eb745bd299cf02f5704a9f145029aac",
+    "TEST_EVIDENCE_PHASE2/regression/mos-e2e-v012-editorial.log": "9fcceab2e11c258f1769398dea42d69890c2a0e61e9374d8ee77fba9368c43a1",
+    "TEST_EVIDENCE_PHASE2/regression/mos-e2e-v012-research.log": "a185b117c80d6b2bc62f5bc9bb776f9e9a3cd563c95d637bb954892851d69ea4",
+    "TEST_EVIDENCE_PHASE2/regression/mos-e2e-v013-research.log": "cb829f977472b578de53fddffc7509e7c62fd4a8fda73c0bf6a88b92c77a5d65",
+    "TEST_EVIDENCE_PHASE2/regression/mos-e2e-v013-studio.log": "f920aaa2112d558571989487b6f28f0038997fbbb7137be89300efc093e396bf",
+    "TEST_EVIDENCE_PHASE2/regression/mos-i18n-check.log": "6da13de3bc2748b2c256f1d581b3c68dc4591ccbcd815ce085e922f5a0ff3961",
+    "TEST_EVIDENCE_PHASE2/regression/mos-provider-admin-test.log": "09455ee053a59e7674b577740bd7650ee5e16211c8d72d11f218bb47a7a596cf",
+    "TEST_EVIDENCE_PHASE2/regression/mos-provider-contract-test.log": "2cea038c7b6d4f3e9766f7ef4a259a80bbfc8445931fe5b1cdce989f11071f02",
+    "TEST_EVIDENCE_PHASE2/regression/mos-scheduler-test.log": "60ebd6c3a7a6d1659cee0706a2798ee77adb8b29d0560a9af27ac79de441e6b2",
+    "TEST_EVIDENCE_PHASE2/regression/mos-security-egress-test.log": "af0c46141f399c70fa7e641f22c0d1702126a6d966829e08b2519a562cfcec6a",
+    "TEST_EVIDENCE_PHASE2/regression/mos-smoke-test.log": "350c81450f36f31832d0bbe1dc3de2ddbd55343823f98175e3baf22cac9c8349",
+    "TEST_EVIDENCE_PHASE2/regression/mos-ui-check.log": "402eeb154d9e57bf6326f822d96eb4859fe809e9fc2305d6811fd6c2cc64b140",
+    "TEST_EVIDENCE_PHASE2/regression/mos-unit-test.log": "b6d365dbf750c67156a30e426a9ff499b7b35f27e097e7226514b8e8dddfb83b",
+    "TEST_EVIDENCE_PHASE2/regression/mos-workspace-contract-test.log": "9d370b917da92f4a2df8ec06ed21bc2839ca0d34efc6693acec28535542dd81d",
+    "TEST_EVIDENCE_PHASE2/regression/summary.json": "9a4a8dc6ed7ed82f5ce98e65f6a9078ecad098fa88953c131ab8a8b544be4b48",
+    "TEST_EVIDENCE_PHASE2/rollback.json": "6542c23da3518c44a9e36b8973d0cb175ed7ed8341f34f831e278ee851e31cce",
+    "TEST_EVIDENCE_PHASE2/write-counts.json": "9d5cfe879e58749435a6d4b9097853fc53760cd49d984bff07733b3748536013",
+    "TEST_EVIDENCE_PHASE2/write-paths.txt": "3ce7293999c025778da4b4d1adef28ba64c789a009c7b2eb08c787364f882fdd",
+    "UI_EVIDENCE/PHASE0/nav-01-my-work.png": "db0c6b8d74fb47523735cacb065c90322ec2e01d162dcf3ad93296874ebf41a0",
+    "UI_EVIDENCE/PHASE0/nav-02-intelligence.png": "a76416f01dadbe0cc865362076a382978cec46ac936d297fc636632c4ad1e40b",
+    "UI_EVIDENCE/PHASE0/nav-03-planning.png": "c5204efc737826ff453c544962f517953c91f19cb65e9c593c17fdb558d96023",
+    "UI_EVIDENCE/PHASE0/nav-04-tasks.png": "38037ae269ed03a01a4f14cdaed8c3f4dd825f2c8b672c5195d3975f973b024b",
+    "UI_EVIDENCE/PHASE0/nav-05-content-editor.png": "798c5157c71d7a759cb4e410a5a8d09c73667253a0ae93a340049ec555787510",
+    "UI_EVIDENCE/PHASE0/nav-06-visual-studio.png": "3943a71bff03bad33ee1ff9706c331e016f31455f33fd6b3e6f96dfd1ff01b51",
+    "UI_EVIDENCE/PHASE0/nav-07-video-workspace.png": "bc7c6554841582d0ef50530184b6e507479b605c37dcb7bc58b6eb73305b8167",
+    "UI_EVIDENCE/PHASE0/nav-08-publishing.png": "9fe9e370e14af64481bae8384f9c261ac87dd2eaf5cf06116f30c8a52d4bd088",
+    "UI_EVIDENCE/PHASE0/nav-09-analytics.png": "8fa0a8360f5f13eaa07d120524f63a6614f2d7b4faa716a3dddce182e212c199",
+    "UI_EVIDENCE/PHASE0/nav-10-my-reviews.png": "debb34c3e87accc385506379537e4429f3bd82d8e6a6986caf8d7d1d3f3e6d8f",
+    "UI_EVIDENCE/PHASE0/p2-01-landing.png": "004d574f007254926c90de77831818af5da4bcd29748b105b78b01b646c8f057",
+    "UI_EVIDENCE/PHASE0/p2-02-after-nav.png": "1351e4db4e07efc26bb3fc75035e03db3253a50c46c9febf72aeb3d2da8cc830",
+    "UI_EVIDENCE/PHASE0/p2-03-editor.png": "681bff8e61bdfd136258bcce48175efc80c9f997c0a6041b37472803b417b1b3",
+    "UI_EVIDENCE/PHASE0/p2-04-tab-review.png": "77fddadb480174b7cbca9b15228ab0015ce53601e51cb2b12b5822fed6ad233d",
+    "UI_EVIDENCE/PHASE0/p2-04-tab-visual.png": "e5e76bf2b72ed5dddcfef510cd9011d7bb7237633cfa7bb0431b17fe26c38d6b",
+    "UI_EVIDENCE/PHASE0/p3-01-publishing.png": "defd6c5fb40343b9e3f5541b8cfde560cc7003a57580921b643e12fd822e819d",
+    "UI_EVIDENCE/PHASE0/steps.json": "01c6e1d0c09115da9e5e6587059d7bff98b9c3d32327bc659676ceccd6ae9e19",
+    "UI_EVIDENCE/PHASEA/nav-01-my-work.png": "2f48143ebb7f70e7c1cd1b4544b489adea5bd246d7773004fb849d8fee783886",
+    "UI_EVIDENCE/PHASEA/nav-02-intelligence.png": "601692a4c72e3081e23f68ee752e1487c1841f42ffd9ceebdbef05446f800a1e",
+    "UI_EVIDENCE/PHASEA/nav-03-planning.png": "4ac600471d32056ffd908f2890810d94087dcde4614947b136113ec6863712d5",
+    "UI_EVIDENCE/PHASEA/nav-04-tasks.png": "63e0e839a7b2f10e62ffee8d1ea820fcf9d5cfd2c1127f8fb7adc18ec4f69629",
+    "UI_EVIDENCE/PHASEA/nav-05-content-editor.png": "0882b8d2abd0bba732f1f471c2e37e3fe2b84ae3e2d66845665ae5a5dcb7a103",
+    "UI_EVIDENCE/PHASEA/nav-06-visual-studio.png": "0604319403cb94a295e306eefe6ca487a3c5b1390be2619fbf127762735fa6be",
+    "UI_EVIDENCE/PHASEA/nav-07-video-workspace.png": "ac09d1f0eb6013550906ef49a86366e0bbfc880149d59675f39ddd18f94e5f14",
+    "UI_EVIDENCE/PHASEA/nav-08-publishing.png": "1106ec969d87f8f9b0d3f4480a295a617b4ae13ef3d2ba2c31236432bd27807e",
+    "UI_EVIDENCE/PHASEA/nav-09-analytics.png": "de53ea28ab7bae37b10cbf651de0079fff5bc683ecf2ef470e4dc22b1c530fac",
+    "UI_EVIDENCE/PHASEA/nav-10-my-reviews.png": "2664875880db98e6ed0de1b097906b5313692fc4675529e10ff3a2b40f023eb5",
+    "UI_EVIDENCE/PHASEA/p2-01-landing.png": "5b8c16653868f733ee958b49aea88a05a1ea32cb7721e053df26e3daf52b5e6a",
+    "UI_EVIDENCE/PHASEA/p2-02-after-nav.png": "3423d41d4518523ece90e3782329b37d0a00f2aa4ff92278de6b0b7c3639e3d3",
+    "UI_EVIDENCE/PHASEA/p2-03-editor.png": "2a678343224c9c7e9b6284b0f9180b4ada133e1f292bd8374566d61ac4d23e99",
+    "UI_EVIDENCE/PHASEA/p2-04-tab-image.png": "6e23bac248c1f88008da118068dc695c1d21e73b91d58ee28c630a407cbadc31",
+    "UI_EVIDENCE/PHASEA/p2-04-tab-review.png": "f62641ccf1181d9ae9a30264eea5aa2fc09bc74917be2f44117a5ecc08a4b19a",
+    "UI_EVIDENCE/PHASEA/p2-04-tab-video.png": "616886119b33f17bd3218061190d16e1f20660eb4345164c6bf97ff37ad78687",
+    "UI_EVIDENCE/PHASEA/p3-01-publishing.png": "d71b87d7ee33e4089574572f8e369baec33fa37626edece4dd110a9f7317e061",
+    "UI_EVIDENCE/PHASEA/steps.json": "95857e4851563513914b00ef068355254e1db76603670d1b2033ab6121545f0d",
+    "UI_EVIDENCE/PHASEC/c-01-image-tab.png": "6e23bac248c1f88008da118068dc695c1d21e73b91d58ee28c630a407cbadc31",
+    "UI_EVIDENCE/PHASEC/c-02-image-dialog.png": "299b3a0d54d37cefbe476ca5d8e506ff91818294805bc48593f1128fa553c702",
+    "UI_EVIDENCE/PHASEC/c-03-zh-editing.png": "f86a0af819e901e1f18b150b001afa1deaab516e5cd23d69884f24a40f0b3e48",
+    "UI_EVIDENCE/PHASEC/c-04-en-editing-kept.png": "2f0e204d5b31fd22fcf1e18cb6062a3d4acbce27268899bb6ff0bceffc915815",
+    "UI_EVIDENCE/PHASEC/c-05-back-to-zh.png": "e92b231739234f339ac41a326861785a8926dd27da425230c087b86d192b7011",
+    "UI_EVIDENCE/PHASEC/c-06-narrow-720.png": "ca5f72989c66a77961bcccb16a3b07a576e9ca6c202107bfb8162a0982f9f15f",
+    "UI_EVIDENCE/PHASEC/c-07-keyboard-focus.png": "c137d2b3f12a1c98a438f3efc4fad9d9bd7ed22fb739dd914f8b91fe7689ad78",
+    "UI_EVIDENCE/PHASEC/nav-01-my-work.png": "2f48143ebb7f70e7c1cd1b4544b489adea5bd246d7773004fb849d8fee783886",
+    "UI_EVIDENCE/PHASEC/nav-02-intelligence.png": "601692a4c72e3081e23f68ee752e1487c1841f42ffd9ceebdbef05446f800a1e",
+    "UI_EVIDENCE/PHASEC/nav-03-planning.png": "4ac600471d32056ffd908f2890810d94087dcde4614947b136113ec6863712d5",
+    "UI_EVIDENCE/PHASEC/nav-04-tasks.png": "63e0e839a7b2f10e62ffee8d1ea820fcf9d5cfd2c1127f8fb7adc18ec4f69629",
+    "UI_EVIDENCE/PHASEC/nav-05-content-editor.png": "0882b8d2abd0bba732f1f471c2e37e3fe2b84ae3e2d66845665ae5a5dcb7a103",
+    "UI_EVIDENCE/PHASEC/nav-06-visual-studio.png": "0604319403cb94a295e306eefe6ca487a3c5b1390be2619fbf127762735fa6be",
+    "UI_EVIDENCE/PHASEC/nav-07-video-workspace.png": "ac09d1f0eb6013550906ef49a86366e0bbfc880149d59675f39ddd18f94e5f14",
+    "UI_EVIDENCE/PHASEC/nav-08-publishing.png": "1106ec969d87f8f9b0d3f4480a295a617b4ae13ef3d2ba2c31236432bd27807e",
+    "UI_EVIDENCE/PHASEC/nav-09-analytics.png": "de53ea28ab7bae37b10cbf651de0079fff5bc683ecf2ef470e4dc22b1c530fac",
+    "UI_EVIDENCE/PHASEC/nav-10-my-reviews.png": "2664875880db98e6ed0de1b097906b5313692fc4675529e10ff3a2b40f023eb5",
+    "UI_EVIDENCE/PHASEC/p2-01-landing.png": "5b8c16653868f733ee958b49aea88a05a1ea32cb7721e053df26e3daf52b5e6a",
+    "UI_EVIDENCE/PHASEC/p2-02-after-nav.png": "3423d41d4518523ece90e3782329b37d0a00f2aa4ff92278de6b0b7c3639e3d3",
+    "UI_EVIDENCE/PHASEC/p2-03-editor.png": "2a678343224c9c7e9b6284b0f9180b4ada133e1f292bd8374566d61ac4d23e99",
+    "UI_EVIDENCE/PHASEC/p2-04-tab-image.png": "6e23bac248c1f88008da118068dc695c1d21e73b91d58ee28c630a407cbadc31",
+    "UI_EVIDENCE/PHASEC/p2-04-tab-review.png": "f62641ccf1181d9ae9a30264eea5aa2fc09bc74917be2f44117a5ecc08a4b19a",
+    "UI_EVIDENCE/PHASEC/p2-04-tab-video.png": "616886119b33f17bd3218061190d16e1f20660eb4345164c6bf97ff37ad78687",
+    "UI_EVIDENCE/PHASEC/p3-01-publishing.png": "d71b87d7ee33e4089574572f8e369baec33fa37626edece4dd110a9f7317e061",
+    "UI_EVIDENCE/PHASEC/steps.json": "0415bf20f19279aed0c2367b1bc39703dfe53b52c44edb898adb203157d3cd8f",
+    "UI_SCREENSHOTS/01-login.png": "8351108b2c7162f14cb50864be6c8c674e8ef434a70ae0124530ad2398a31534",
+    "UI_SCREENSHOTS/02-force-password.png": "8fe59e42677635459a800f46eacb95ea91b5c2bec48bf4ef984e4995782fea05",
+    "UI_SCREENSHOTS/03-my-work.png": "c600a5af8e6f9a4b4162fbd50e1cadd7b4a029c603e007d2a914b5a7b0227915",
+    "UI_SCREENSHOTS/04-workspace-my-work.png": "eee5dd536ff114bef0cbb5b4a72c18060eb25fe7630ac9355185efd03a4191d6",
+    "UI_SCREENSHOTS/05-workspace-projects.png": "e87c78439f9dfe08a0923a67ac8741cef1d3897975f18ecee624ffea8c250d0f",
+    "UI_SCREENSHOTS/06-brand-overview.png": "6049930a2b06f02c881cf8056925752341f93616ce2a27ebc159d5ada90277ff",
+    "UI_SCREENSHOTS/07-brand-guidelines.png": "fd1d923a75b5f8cbc3c4c893c8261ee08b64ceac2438ce0cffd07f3f4cbf93cb",
+    "UI_SCREENSHOTS/08-brand-reference.png": "5b48ac9b3516883ba32f331c841132e0a5d1c8ff6ae58b3af6001b991a38593d",
+    "UI_SCREENSHOTS/09-planning-list.png": "a2b5652f8e19e0c20ec7bce1aaadebe01033302de228ea2542ccc40d6d4a53f9",
+    "UI_SCREENSHOTS/10-topics.png": "d18377b3340fbb9f2030d9e6fee0b670185e2d70ca24403707cafa71f9c3ca61",
+    "UI_SCREENSHOTS/11-intelligence.png": "1eee1e3b55b7f7902bcf54533f91f120b0a970fda0616307fbbecc63211b9db1",
+    "UI_SCREENSHOTS/12-all-tasks.png": "1c21f99b11c11a6c57412231c33e0d965ec4d7f3eb73e198987309082910ec57",
+    "UI_SCREENSHOTS/12-content-tasks.png": "a0366548ef2144e3ce4ca728a683eae498359fcd514919afc53c9b32eaeab1d0",
+    "UI_SCREENSHOTS/13-campaigns.png": "91ac7cd0470d1277bb63adcb1302a728b68029db1cbf678cf6497ed5cad355a5",
+    "UI_SCREENSHOTS/14-creative-stage.png": "02ab7bfeaf6ec321bf109dca383f2b4c6af0a8c49b666521b9681bca6a71aae0",
+    "UI_SCREENSHOTS/15-publishing-stage.png": "666cebf2d007054af56e7fa174bd4bdcb0498688042c75ea0f03c82f2bb3b01b",
+    "UI_SCREENSHOTS/16-analytics-stage.png": "1ccfe62da36c5695bdd5fe85e89126f2c3bc36d4a313ef98113334c4c2a0c5ad",
+    "UI_SCREENSHOTS/17-governance-stage.png": "584bc44938dd9a52c5ca34d849afc971d1ddc5c171d7cd6246ff2844155bf4ed",
+    "UI_SCREENSHOTS/18-planning-calendar.png": "e0614db6fc2809475519b847e734bddda370464cb4cd993867d386507134aed7",
+    "UI_SCREENSHOTS/19-planning-calendar-week.png": "153354d7470447a5c2bca7c91ce1502acb6d59b88e347b8c21c1048ac3eb997d",
+    "UI_SCREENSHOTS/20-intelligence-sources.png": "a450e6d34b8e184a220c490562905d0f0cc9e147485db9a33aac47f779b45b82",
+    "UI_SCREENSHOTS/21-intelligence-source-detail.png": "97f7f94ed502cb836b63dff4edb25b9d2eebe3b8f79f2dbd92ae342f0c1e36d4",
+    "UI_SCREENSHOTS/22-planning-created-by-ui.png": "303fe5a81021b1a1b16701e1bfa9986becb32f989a1ab91f43c78d90ddef36e8",
+    "UI_SCREENSHOTS/23-planning-after-reload.png": "85f6c85ffcc32e191fcc70ed01c0f56753fbf0b5878235f5f07f4ea703fb7283",
+    "UI_SCREENSHOTS/24-intelligence-created-by-ui.png": "c217aa10c1cdeaa88911a3d917f0c4ec290f9c20dcfef37ec1924dbf8b18ba77",
+    "UI_SCREENSHOTS/25-intelligence-after-reload.png": "d20c21c08bc4a8b696f0e5a4529b203587e3058f68ad933dd601dc39bdefa9ac",
+    "UI_SCREENSHOTS/99-error.png": "8bbb650c59cfbd16b20960f7e8489a88e81337c25e750a63c04a9a4d4bd894ed",
+    "UI_SCREENSHOTS/B1-38-admission-dialog.png": "bb967ab4c517e0bf258c389d565fa41d01d425f9d816f461be9fe0e705c08848",
+    "config.example.json": "d8f4e32568fdda93c6b5ef461986473d9ef4f20445612d7ff18b90ddcbf894b6",
+    "docs/ADRs/ADR-001-tech-stack.md": "39efa7afd9c0c92a8c3bc0dcd6b7e989e33ce9b3d26d79b5f618df872244b204",
+    "docs/ADRs/ADR-002-standalone-repo.md": "34f017692428c1ebd9a8990be80e51e52ab9862b83f78a173818159bef09e2bf",
+    "docs/API_CONTRACT_AND_INTEGRATION_STATUS.md": "26ae952f6bc454bb71fbc6e4f4a5a24dbbc49efc3bac7e00b5574a8de1d4c4e6",
+    "docs/BUILD-01_SELF_AUDIT.md": "c37ca913a7393882a305e0be12ca6776c92ea661082cde7225ffcb9f4e00d22f",
+    "docs/BUILD-01_TEST_REPORT.md": "1624842072f7bdfbf5982a10e9003e335822eac7db90634e159a1cf473a18380",
+    "docs/BUILD-02_SELF_AUDIT.md": "89e59030fc92b25d6eaea4a1ed0c7019db3c72f22593342fbecaa9fb9f950ad5",
+    "docs/BUILD-02_TEST_REPORT.md": "0472a5e954559cfe2552443f2d975e1cb15b48ba3a13948f479db31046a69f41",
+    "docs/BUILD-03_SELF_AUDIT.md": "d37441edbbe63bb097df44567fa051fd540519365181b74547a56fbe7d6f394e",
+    "docs/BUILD-03_TEST_REPORT.md": "faeac7a4e167447dfd534061c3ceec3511d494b0ec4bbbf6be4d2ea8de232b87",
+    "docs/CURRENT_ARCHITECTURE.md": "5c9c711935c67333072397a01d8ef78d15d84676ac95dd8e06789256bb8084d9",
+    "docs/DELETION_AND_CHANGE_LIST.md": "bb8120aabf63f03e41412ce989721c102859868b020cf50de74b4a91577cc2ce",
+    "docs/FREE_TIER_TESTING.md": "a957f9e509bc40676dd66d11f9675d281ccb805c2d57752cc9cb063810566cce",
+    "docs/INTEGRATION_WORKSPACE_CONTRACT.md": "2ec9ae05e4bdacf628fe897eb29d6c9719d263f308d6205109a4446a24f2e349",
+    "docs/MIGRATION_AND_ROLLBACK.md": "8039887a0e442e6048119323ef48aa49a7fcac85c1ad0669c17a0616f8e47d3d",
+    "docs/MOCK_REAL_MATRIX.md": "3c05ec7b7fbcb5105f36d7653fe8a6d0278cfeef38740917ada6ca1da6d898ae",
+    "docs/PROVIDER_ACCEPTANCE_TEST.md": "3cef3b9abaca28ba7faef1e2d992cba79ad4fd2c980aa1898b76b45431a85ff4",
+    "docs/PROVIDER_INTEGRATION_GUIDE.md": "aead289fd3c48cd1bda93e8ddedb60e214bb892a62afa52dad3729d769c2814b",
+    "docs/PROVIDER_SELECTION.md": "155b03db4a65b1594b28c50680512bf2244262c9548f80f99d64b1d1649c61d1",
+    "docs/RELEASE_REGISTER.md": "572bd07db47603bc51da18618f8be40edb661fca90f40258d95ad1f36a4713c5",
+    "docs/SKILL_REGISTRATION_VG_V1.2_PENDING.md": "91971a00655402325e0c32fc85f2925a3a5a88f167ea84ce799ed9b2cab0d3a7",
+    "docs/history/ARCHITECTURE_AUDIT.md": "4fdafd1157db511db5b943efdc3939b97c208498401ff3c5ee6f9d6f4fba7617",
+    "docs/history/BUILD-02_PLAN.md": "322d8a11ae5b6c62d25aa914392298e962504c4767abc6e37506f712d7749d37",
+    "docs/history/BUILD-03_PLAN.md": "582f5f9948987490512c66d81e1b06010693940656d3938cbedfdde191f6598f",
+    "docs/history/JOINT_ACCEPTANCE_REPORT_M0_V1.0.md": "dad7bf6a54d676a84649a63b64ce807aa7a72762b6ae142c8201bc3e44fb088b",
+    "docs/history/README.md": "c152355512db5fd4f848394c414a3294542b65e5ed52f274363a4fed4664ee16",
+    "docs/integration_three_pack_v1.1/00_MASTER_README_请先阅读.md": "84b8c124e3c79f0ab3a3bd7069a497f2db50bf0f0a281d0c56f534c6ed82357b",
+    "docs/integration_three_pack_v1.1/B_MarketingOS_Consumer/00_PROJECT_SCOPE.md": "7fd050119ea3803cd2c1de9fde75f8e7dd0621a28b7309d0ac3be416e5e944b8",
+    "docs/integration_three_pack_v1.1/B_MarketingOS_Consumer/01_CONSUMER_TASKS.md": "99a7718ab8c8401a8b3d3f5d0640bb17ef1895c91c4fc040b99a0709da3eaeb9",
+    "docs/integration_three_pack_v1.1/B_MarketingOS_Consumer/02_E2E_RUNBOOK.md": "07fe3e72374577b1f5263d460cb93bd15f6a3e1a2ba7df78d61aeaa7dfef2d1a",
+    "docs/integration_three_pack_v1.1/B_MarketingOS_Consumer/03_HANDOFF_AND_REPORT.md": "bc757152fa78e7dba1b572eb5dc9f735e7f336b633671b5f1d341dd372c4c774",
+    "docs/integration_three_pack_v1.1/B_MarketingOS_Consumer/04_CODEX_DIRECT_PROMPT.md": "b4001757ff738514bc1968591b2626f28929f87215d1a5e7af412c962f109a0b",
+    "docs/integration_three_pack_v1.1/C_Shared_Contract/00_README_SHARED.md": "abc9045a0d1cafd04e211f6355d5af6872c55e858a8207583e3f51703a1ebdfc",
+    "docs/integration_three_pack_v1.1/C_Shared_Contract/01_FIELD_ENUMS_AND_MAPPING.md": "9e7635dd88075f5e720ae2b7829fbef71f0044a0f78be380721e61751214ba7f",
+    "docs/integration_three_pack_v1.1/C_Shared_Contract/02_AUTH_EVENTS_ERRORS.md": "2642de0cb8b31425273f012920bca54c66eb2942bf8d755a3f65c7e554d5ea32",
+    "docs/integration_three_pack_v1.1/C_Shared_Contract/03_CONTRACT_DECISION_REGISTER.md": "e41ac1daee1a33ee06adf09bf18e7c47191d4300a2f0e68743d3dcd613efb6aa",
+    "docs/integration_three_pack_v1.1/C_Shared_Contract/04_E2E_ACCEPTANCE_AND_EVIDENCE.md": "0e602307b89b9f45c1fca804fc894b6d019a7c5ae5e9180768b3b05fd1a60383",
+    "docs/integration_three_pack_v1.1/C_Shared_Contract/05_CHANGE_CONTROL_AND_RELEASE.md": "ed3a065ae24de8086d6b7373fd8767166388ea23a85baddd1d8e8933475c36ae",
+    "docs/integration_three_pack_v1.1/C_Shared_Contract/CONSUMER_CONTRACT_DIFF_SOURCE.md": "cf641a141cd83921ec4736068b0fb6f01fab8d9b846def6c93c30c4c2da42f64",
+    "docs/integration_three_pack_v1.1/C_Shared_Contract/PROVIDER_API_OPENAPI_BASELINE.yaml": "d382451e5c7996d70c4402577f8be8e3d20f721b7e0074ffa551990eaf2c417e",
+    "docs/integration_three_pack_v1.1/C_Shared_Contract/PROVIDER_AUTH_SOURCE.md": "119d109389afe6b72be5513dbfd16d05eb7ef9cd2f1b900620fed50db3646cff",
+    "docs/integration_three_pack_v1.1/C_Shared_Contract/PROVIDER_BLOCKERS_SOURCE.md": "82af0b4ed02fe2a38f21e672e7e4dc58b9a3e1e7d9d15a626e1a2b1a88cbcfe3",
+    "docs/integration_three_pack_v1.1/SHA256_MANIFEST.md": "b5be4d9f8c496951a2775682ff4e046b78731bed126ef23a675d89ac6e2a7c92",
+    "lib/config.js": "b503674d0d457fa378da8317735867a6a31d5e322ad5a1d76f496be5b4a055f1",
+    "lib/mos/adapters/identity.js": "adb70b71cb3f1703516f6bdf8ad31cf7bcfe7a192e64cdf28ff0b824f660cf23",
+    "lib/mos/adapters/image.js": "53964719315c13d78b24e05730f2114e0538a0becec9a730c3b4e88505c697ba",
+    "lib/mos/adapters/knowledge.js": "9afa09e2420cd86d0adeb545ba8deaca39dd7a01e8ded6628de48ed4c2fac0d0",
+    "lib/mos/adapters/library.js": "6cfba03306d0994018b10a2939144c8c6b0aee4c17030da394d14050ec08a00b",
+    "lib/mos/adapters/source.js": "4b03f739a3c333a87ba6efdc669d8c1b0e1cea400446def23a3112754ac3ccd7",
+    "lib/mos/adapters/text.js": "27bb51c9eab7b4b821923081f7f1a62e37781a2d4ecfaf20924dc37603cac3d1",
+    "lib/mos/adapters/video.js": "25af6578ac5b37039f0608c05f67de35d6a9d4a536bacc8b25646f8c786c2717",
+    "lib/mos/adapters/websearch.js": "d0a1dbcb4df39dd51a087e6ca384d5da11962c26b4f768cb989d9769355bf89e",
+    "lib/mos/adapters/workspace.js": "0b8a0ed8c35ab33a2d6efc20455d2814bc85947f2e5212066477a0baaee14551",
+    "lib/mos/admissionlib.js": "9d4b926713c5d187ad3f0797cf8a4eb1e86571754a85d0627ae833e025791813",
+    "lib/mos/audit.js": "10c9c53a8725f7916a4e0141ff35074fd3ed9768ea2bffb0757e665e42c45781",
+    "lib/mos/brieflib.js": "196ca2332ee99d78af7a075257f97e142b1ee48b62174508da3fcd054e8475c6",
+    "lib/mos/config.js": "02583771a90d2d78c844811fb7de6044309d5ccf0d9c37aa8eee4fcda495a7e2",
+    "lib/mos/dict.js": "2c9c064f290145f9e59b090e82f1b605a03093aebc8fd8a3b2693e74b5030b77",
+    "lib/mos/dictverify.js": "581030285edbc0a222d19c4365d424ee4853feab24a6aa4e08176232b166bc99",
+    "lib/mos/egress.js": "23c6dce866d4328d6c647b2ae4ad2f2e3a42391ae4d001d84a944a65016b9ad2",
+    "lib/mos/eventconsumer.js": "26406e48b42a579234c7a9c534f1ed6500e63514107388931ec6d0d33165146b",
+    "lib/mos/formalguard.js": "daf115ceb75b509d6b8821133c72f7c7a4622eb153d1a566b859f98df02b6dba",
+    "lib/mos/ids.js": "883754e1c3f2821327c8c2ba4e5ba6c148a95acaf46cee472123b035f71db1f3",
+    "lib/mos/ingest.js": "bae0fb3164c122c95d74e2c2ea55d421506d0a507638e7a7ad2587cac951f0d8",
+    "lib/mos/manifest.js": "e8683bb793ed6698cd3cfbf85a7ce7c4dc7c5143cb1957fb9cbf31b521461d82",
+    "lib/mos/provider-http.js": "bc5eee3ae66acd80b1f76317145ac6e474b11aa4868606f52b9054ecd6651eb1",
+    "lib/mos/provideradmin.js": "0aea69a8bc2e5ae2b191399e5bccd3e8be4a8804eb1da554a6b4849c508d6a32",
+    "lib/mos/providercontract.js": "876abad55595f8dc5c3a73a287fdc5eda68e239f8961e0f9534033315b671bf0",
+    "lib/mos/providerlog.js": "d003a446e8d56293bc30307d3d3a179b7b15d452fab2df78bb86b19a941c1f7e",
+    "lib/mos/rbac.js": "ad0ace162d6e92427d76d2a9dc9773e7db3044b55807c91ac3f9e3f048690c5e",
+    "lib/mos/research-engine.js": "9f2d647e1401796073aeeb9b6372b4b9e71d78a37c0c1d03398ba8a7ee63f121",
+    "lib/mos/research-fetch.js": "1caf4490f6369e89dc94e1020d466ef288c313ae1d9f9db37844fe6b88a340ea",
+    "lib/mos/researchlib.js": "254fba313bf492df8b6f4e7a5a237fcfab7722de13719ee2cce1e7e2313ea392",
+    "lib/mos/reviewlib.js": "f60ed976463c801fe8992da2dee064f3c4f0a58655227786f86b035b25951dab",
+    "lib/mos/router.js": "ce0a8334943cc75c94172f7a1be5967e51c6785fa697f7f8f3a16c49283e081f",
+    "lib/mos/routes/admin.js": "baedaa38a9e1419ee594b73755a1f51ac2964601920533498170b76c9e3931b6",
+    "lib/mos/routes/admissions.js": "fe5a8f67f0764ed36cd233ba81d79270000270921e07cdf03bbf9859a99e791a",
+    "lib/mos/routes/analytics.js": "56aa5bfed6fdbeebebb9faa5521852d67260ea572d89e0b142c21af424957e53",
+    "lib/mos/routes/auth.js": "0c116f062b1e03ca7c050b5650765faf17b58880e0a3717c2e9583e778310a7a",
+    "lib/mos/routes/campaigns.js": "9cb3ed605307f8666bf59cabe76c597320467473c0fd53ddb8cd8118f07a0461",
+    "lib/mos/routes/channels.js": "4a57486c80e319228c39a109a42ff65df81d021e83c389826984092725d949ae",
+    "lib/mos/routes/content.js": "ad23859abdaaf631e70d28a9ecbc8b5fdcc1cf28708c55c0c076b6b63ae51ddd",
+    "lib/mos/routes/creative.js": "f1cb2636537080e0a25bb37e959cfa98879633d166aff17abbf76ac97d45e059",
+    "lib/mos/routes/editorial.js": "4aa2109af44d32ba308fd7362eb074168bbabcc43f71e5e0b0847d56958e0031",
+    "lib/mos/routes/helpers.js": "15301bd7b0528b597e3729bd3673dbcd76228537e7f589c3357f1f3136b4388d",
+    "lib/mos/routes/index.js": "8c2ada2bd9ae43563ad30731eb748e9d4cf5a0aa90d8448d94daa70f85a9f275",
+    "lib/mos/routes/meta.js": "802a5775fdbfd6f87021fd62d3d57a306097c85887b15f06bb3cb53e4c0b30ef",
+    "lib/mos/routes/plans.js": "98bafcb26d0f2bdaf3add3bd71380fbe7bc1a46669f81e148d99c0369483b19a",
+    "lib/mos/routes/publishing.js": "841ca59567018cbdd9e7bc49a0301581e4829afb7a33cf2a6de7a01770ca90a2",
+    "lib/mos/routes/research.js": "51e9b966319ef22882c1aac172a4f85107c28f92d8021738177d726d7bb627d5",
+    "lib/mos/routes/reviews.js": "aea8c5289014e3b8ddd4dc5f8b743c68888bd7c148163969058bc1f20849e280",
+    "lib/mos/routes/settings.js": "43de887d88c44f692ca2eef92640b772ee61ba8a28a1f83a1afa7cdd7aaa2650",
+    "lib/mos/routes/sources.js": "2bd3f26356279b504621f34ee0e8aed721b487754210b8129b1dce1b81bbfe46",
+    "lib/mos/routes/studio.js": "8b061d5c07301a3f8ff871668a1f703da929b8e1c9d5e298ebb26af5e0815ac2",
+    "lib/mos/routes/tasks.js": "491fff61997d1e0e361df2d03fe622cc7dac5c2a22a6127af19cae78fada54b9",
+    "lib/mos/routes/topics.js": "8b3ff99572c1682bf728fd289b4ca57f6e61b8b6869a61190541d199dc66a46c",
+    "lib/mos/routes/video.js": "081ecf3499e1ee3ff25d71a5cad33277720291ecb2a337c7cd0676c42ff1ec69",
+    "lib/mos/scheduler.js": "148b5a99944a5d5d19bd47378736190d9f9b9546fa83567b9acab2e7d467470e",
+    "lib/mos/secrets.js": "3287f55a7b5f26abbbc45ea087697ca3a0af3cd80dcfc9e61c229c24510f7dbd",
+    "lib/mos/seed.js": "e5a6b4868dfffd5a051854c1c1452829120fe85af1c69fabce8a7ec38b5ebaef",
+    "lib/mos/skill.js": "aad0e518f839538b82954fc86ad7ba9ba182f45657843965291bb90e4f9123f3",
+    "lib/mos/store.js": "e8eeba5c183ae1677ac3d986bb766b5421c9d1e8acb53f5264575aaf8635c30b",
+    "lib/mos/workspace-ai-policy.js": "e6769435a6e25c4f12e502c2a9170ccf5a60bdee6e590d2877f86365375e8061",
+    "lib/mos/workspace-client.js": "f0a0d7d15c80a44207d63cb4d07d5229e917f640eae2bcfaf0fc3ff83ba0c176",
+    "lib/mos/workspace-contract.js": "240dc06a10bdd4cf02fea5f1be0d3f5dddf46eb8b16afae0e166efb09e632f38",
+    "lib/net.js": "01215fbd712810dadc86d8fa97e7f63e2db6fabac73a392af9c65953d866613c",
+    "lib/password.js": "930e9f1a4897c6c8ba493a915d77a4a59cb6b039d3646655711db846d68c9955",
+    "lib/security.js": "86923e046014b72f5c57f34b0b5fcd352283df5e53e3e164be23f26e87a6f2bc",
+    "lib/static.js": "738ae29492e9eb29f880ebcbcad8278cf849df58bc299021c42251020be0f4f0",
+    "lib/util.js": "5836798fe6ca85ee578d87eda5aebbf3024e3150e3710fdab6c0648523eb28df",
+    "package.json": "ac9d763bbec16765fa916ba13ccf5892095027680432c1d680b8bf89c958e6d0",
+    "public/favicon.svg": "2c5ae08ec10a58eaa76aeacc1164fa4bf0e366587e2dfd08cdbafab5b8b3e9eb",
+    "public/mos.html": "77222453381d20b88048f83e7ddcb80b2e6214e9d29ad03b7b7e3e361eaaf492",
+    "public/mos/app.css": "79fdd31950b5d99aa00ce7ce8d9e2876e77b01287e8d3ee59e5465cbe3dfbff9",
+    "public/mos/i18n/en-US.js": "6dccdfa22ea014dbd395945e71714ef8c98b050ee6898dabb6a4d2184f82c7ef",
+    "public/mos/i18n/zh-CN.js": "6b0ffaa935d16ab03e434de2aabc2d62beb2ced6e75a24d0edc4fb989a7fa102",
+    "public/mos/js/api.js": "b36909b983d661de66ca44649358c5df95fad5986dcf19977bc27679629465fb",
+    "public/mos/js/app.js": "25238536331b29948cf60ec20d73cf875ab2be3c194c691b8fc1e0f3438eb5bb",
+    "public/mos/js/components/assetkit.js": "e231b7f00a03ab3eeab1729684a0f5f32c8ac812e2aaa44ec442c9a5b7e0f5c8",
+    "public/mos/js/components/campaignkit.js": "54b40484adb95c2669c4c68ee3c6162fa8efae74bf6b9d7f0b6e8fd0e6e4cd86",
+    "public/mos/js/components/reviewkit.js": "5c306c379135d14ce2df5ae686f190fdbecd1073f96d60d725a63174a874600f",
+    "public/mos/js/components/taskkit.js": "a667bb6d6691d051a24b62980243141db03afc4c3bf8bd9412abf3e26111c8f2",
+    "public/mos/js/i18n.js": "14316095420a915cbf9f1b1a064a3972f126bc513ee52edf080e4e0796f26fce",
+    "public/mos/js/modules/analytics.js": "b96022e0bb101abab2c5f8cddf22d0bdc9ac97341583eae9561b0dd6181d2406",
+    "public/mos/js/modules/brand.js": "22063066cc7326671e9364143d90e0edfcc5fd0a008abed449d932d68f901155",
+    "public/mos/js/modules/campaigns.js": "43d5e7528a16a1435a4cb72868ed5fbad617abf363ccba25662c55e0e370f555",
+    "public/mos/js/modules/content.js": "603b62fbf5325e616e20bc93b09b09fb8f6d2a6d79b1d6b095f0816eec53e5a7",
+    "public/mos/js/modules/governance.js": "95a235f5c00d3f7429b0d5f65a715594fbc2ad5b96f02a2db694adde263019d4",
+    "public/mos/js/modules/guidelines.js": "20b7d87e2d5b6451d8d3d045685641ad204202fd2bcbd2a38952b7361189f676",
+    "public/mos/js/modules/intelligence.js": "9130c079398c84c0ed71e1e1ade7fc952e972d685bf59b2294817d068c0b2c4f",
+    "public/mos/js/modules/marketing.js": "51c42d15278d1e7eaba7e0409efb6efd60f07fa9c60b8104b3d13bc5483fbbdc",
+    "public/mos/js/modules/planning.js": "d6ca692fb380b9f00bb32cc6c9df5edce80bbf2c55e2426e0445fd4ee142bf3e",
+    "public/mos/js/modules/projects.js": "86a39c575049b7aa0847b997966a1fa9284da89a4b13cbf7a52b26b6f2dcb09e",
+    "public/mos/js/modules/publishing.js": "20c2870ebb8f0966e20930c859ea8a795d9c23bb0909db1b5f6dc49408049fdd",
+    "public/mos/js/modules/reference.js": "9ad4f2708b97fd77205abf4392f2c76e39565be8878e1ef8545ef6715aee2068",
+    "public/mos/js/modules/reviews.js": "a72bc045cec209d3ca38c18a97806b01e16c42eca9d6a6b9b22ab48cde441566",
+    "public/mos/js/modules/settings.js": "aa117bc28d3ea53aa44abe726fe352275625713c4df55908855a4c6e96e53290",
+    "public/mos/js/modules/studio.js": "2f7e055748841bc020c6fb41d6c2d020a7f0117f1525d0db021f6ce8d3b734f0",
+    "public/mos/js/modules/tasks.js": "96b5d7eb59c07ab11bd5985ed319eded95bd01baa8749902077f56ab1319bd83",
+    "public/mos/js/modules/topics.js": "8702d2e30ba1231311de9ac7eab0eff6949312fa8c2878c69341409b02e8e5a6",
+    "public/mos/js/modules/video.js": "ffb0c1eaebad789dcbab6d0d14063d74dc183a21530e55ae84a2060b749c162e",
+    "public/mos/js/modules/visual.js": "ecae5fe4e7a59c1cb4050894a828516db469e61b1876966a868286e769c71644",
+    "public/mos/js/modules/workspace.js": "a34cf45317afd78091dc259f967f0f25916ef1175c2a8b7702d70d94d0a050f8",
+    "public/mos/js/ui.js": "d6ed6d9a7410756504fa3d2159609427ac9531317bf9fce220ac026c77f3892d",
+    "reports/FINAL_ACCEPTANCE_V0.1.3.md": "d2f17adaee5d9503fdc1c740e7043b7051f478048ec83800c91b0eac9394dee2",
+    "reports/OPEN_ITEMS_V0.1.3.md": "4825b3c8587243e0bee0bf6ff6b29133ca620755da791c1f2a567e4733fa9877",
+    "reports/PHASE0_BASELINE.md": "b699e4e673d97c2fd1da900807a0712b503a28ab8384742561a7cdd90444da79",
+    "reports/PHASE_A_UX.md": "cc5ac03a3f492024aa1a1083c2af9c0832bcc7a417e71ea05ca011349c424794",
+    "reports/PHASE_B_REAL_RESEARCH.md": "8b435e1175fa776bb82aa81834c3e9242accb8cadc411868250c4972dd4fc585",
+    "reports/PHASE_C_CONTENT_I18N.md": "684dd4799e43192499489175d8a49ca96299d4ed4b1d14e37df1d528e8e35800",
+    "reports/V0.1.4_PROVIDER_GOVERNANCE_REPORT.md": "b63869cefeefdeb12189212e38d56a87532eba3745c157bdf63fec7796d0b279",
+    "reports/v0.1-remediation/FINAL_AUDIT.md": "1c06f133aad3de36f40b24fec8d83e110b72c83f27ae59a76a3a155527376dec",
+    "reports/v0.1-remediation/OPEN_ITEMS.md": "8db335636fc13c3653977aed5d98a8b67d3b5228249fe1da1699f0a5f0ef8098",
+    "reports/v0.1-remediation/PHASE0_BASELINE.md": "219625eedd85bdb5a5984049990ab7331b284f89887ad2fe7c22521a4d3ca286",
+    "reports/v0.1-remediation/PHASE1_SECURITY.md": "5360ae71c3e49a2002638d9272893e865024522780dc47c40f64a5121376ad9a",
+    "reports/v0.1-remediation/PHASE2_UX.md": "ff2c2cf21143eda2d1689bef1326f4bba0b73dcf8ff2b3deffdece271c7b8a80",
+    "reports/v0.1-remediation/PHASE3_INTEGRATIONS.md": "339ec15e505a043787b12f2690841bc3d7dbf178aa0a2841b1deabb8d62b299c",
+    "server.js": "a57ba549d84b1ca0bbc88291353a8adb0aa5dd4b72db88f1177b69443e1cd189",
+    "start.cmd": "ea635d1a992c9660abef90151842aabbf83e303014cb6443982a1f761c880a87",
+    "tools/mos-dual-identity-test.js": "269d03b1ef639faf6a6e9b66e46ecd0355bf9f46490eacfb8e35ee69d7f064de",
+    "tools/mos-e2e-build02.js": "9342976b45e798d19d3a10ff06a5de16aa5e056c438b97aa41ccd4bf082503ad",
+    "tools/mos-e2e-build03.js": "73c3009fb0c0564d088804dbcc2e0a1e0fb0c12ed572fd7a4ae62d49c248125c",
+    "tools/mos-e2e-build04-dual.js": "3d6e9fa018c369eaec300c2af3a0525904911d773ea7a1b96b6808b5a9365a15",
+    "tools/mos-e2e-build06-dual.js": "b300b658845dba6124f15027ff4e670572b713c78b0904df211d36aae730f893",
+    "tools/mos-e2e-test.js": "1aaa5e66de823623709703dc955ef336333870972a080b1563a174f4aa912c37",
+    "tools/mos-e2e-v012-editorial.js": "b93a6bd54d30306686e4a7146a1bab9f118c9b66a4a1453dc6287617f5c77a7f",
+    "tools/mos-e2e-v012-research.js": "58f6a350dfb24173990de89d6c1d6d7426abdc9a95668f9065c99325036efde8",
+    "tools/mos-e2e-v013-research.js": "7fc003abd6f8de609904746f6f3de528f6c28973861483420122fe25c273c7bc",
+    "tools/mos-e2e-v013-studio.js": "c6e43d7d566039f5d43be6ce2aaecb94b68252c3028f4f1d0f0dcc639b1bb8d7",
+    "tools/mos-i18n-check.js": "d86af280b7ed6079c1e79cfbf865cce206ed641d3424fec8235962482821299d",
+    "tools/mos-provider-admin-test.js": "8d2490e60e3f5b03245870a7b8cfb39e6882892e9c0bd7289dda44c5a5a176e2",
+    "tools/mos-provider-contract-test.js": "4b4c9d81fb77e21efa886818f99e0e10ad2db894de1c6cb42d59468f1f2b46b7",
+    "tools/mos-reset-password.js": "9329596aa8b6e4541d18ecad5db98556ad8c1d679bc996cbc3e7453db4a9ea89",
+    "tools/mos-scheduler-test.js": "87268b90cc7e2f82592842a1ef35aa34fc91ec145b055a288a534e02b2ec6125",
+    "tools/mos-security-egress-test.js": "df96597102807da38f380d2a0218fddb585734930c761da3c7900762abdec1de",
+    "tools/mos-seed-build02.js": "745d8d1b09fa7a22e8d1513979889fa855d7d817f0a449dc4493b5c5aafc9ae4",
+    "tools/mos-skill-register-pending.js": "a9a6b5e5071d7619e7c5686d6f3a72fe68468655ee14eff33c7da27a4b0cd39d",
+    "tools/mos-smoke-build02.js": "01e3c6c9fcd3c05b6af6eff98aefe5db536c15c5f0f1653ef113a1d8afa885c6",
+    "tools/mos-smoke-test.js": "e63a492eae0ff62f412eeb3694ae3fceb3c061b0420fc07969c0f3faaf26aaed",
+    "tools/mos-ui-check.js": "1b349838080effb4da82d7097c2cdc74fb5f8bc0df3fc8d22fa46b7a6d6c00aa",
+    "tools/mos-unit-test.js": "ea419bafbf3e704899ad00618d08b81f2764428389e1523395f9f9f061ae2631",
+    "tools/mos-ux-evidence.js": "8dfd4e813964372538d318c90506c3db90e48fff5898f7c03847644cd3c1a44f",
+    "tools/mos-workspace-contract-test.js": "83506c9f39316a846990b5bc3e3cd6c435cb81d06d532ad646f1221d049ed179",
+    "tools/mos-zip.js": "2c28407fe66b6edd95bf8216f87a4f43da9a6e7945c50519cef635820aca74db",
+    "tools/package-mos-source.sh": "9874a2e8f4631981f0635893d33e3ba77c4b301efafafa8bcd1a5c52327dbcb4",
+    "tools/phase1/brand-permission-test.js": "f32003b05ecc4184e793accf27a43b501de7ad92b0f85a8221b04604f4208e83",
+    "tools/phase1/browser-draft-test.js": "f76203c13bde65e68fd46fa1c47a486b77df58e5240a0dd82aae9d273140ecd9",
+    "tools/phase1/draft-protection-test.js": "c85fa7a030626d8e65bbbe123f87e0c1c44784d91ed3b4a98b48094a5f169fe7",
+    "tools/phase1/fault-preload.cjs": "cd799cc9456915b294110a5f5b76a33cc48180bc6ce3cb9d585e7aab41527b0e",
+    "tools/phase1/helpers.js": "ce88434020d4eb56eb9e7e2f1acee8d4f860713d7141b72ed3a5140296373ff2",
+    "tools/phase1/http-durability-test.js": "b0ce917fd6177f943340b257d48ae570e2fec5dd159e511fd7f1cf6737e5beb9",
+    "tools/phase1/idempotency-test.js": "d3b2fb4730ac2b6334cfe46219da47cd6a8156f923434aa2500d555eadbb9fa1",
+    "tools/phase1/intelligence-race-observation.js": "5773f20f54a3bbf52b29f4a072fa44a0201312132ca64b0ec89f5e59582dcd20",
+    "tools/phase1/offline-test-guard.cjs": "b1a2d326e6689df94886ae7acab776d19bd1a8781c29638233d147b5c509d2d1",
+    "tools/phase1/preflight-isolated-db.js": "8dabee95fc00fac99eed5fa267b719d442ad99ced0d45cbcd235f00bb8e2ccd7",
+    "tools/phase1/run-regression.js": "acc1f6df5ecd02ab1cece8b21178b0050dac1205e09ad50b0ca11a194dcbaa3d",
+    "tools/phase1/storage-recovery-test.js": "393311653532674eae98e0ce4a49b2f302b5e80b67c2fb4cff72e0a94172aaef",
+    "tools/phase1/transaction-test.js": "5d10f6bd667494a80436941d8b7623e6d1f7d8056946b866ed4e63502ed32032",
+    "tools/phase2/adapter-policy-test.js": "32cbe0d2e4680c79052731c5087c22ce148b6b3458e06cd50148ad03aaeab37a",
+    "tools/phase2/browser-intelligence-test.js": "bdf4fc70e46577a09c1471550c10a7034cb2db2a169bd9f4dcf1128f690efc4c",
+    "tools/phase2/egress-test.js": "9defba48a86e8ed7e1ed30fba311bf4466ea8ac3c32449e35a9004ad175ee6a5",
+    "tools/phase2/intelligence-test.js": "b104496d1b4035f29dd49c69ed7e55d92a0e1c82eb8a627f578e755a2f25cdfc",
+    "tools/phase2/rollback-test.js": "f2b5771b360963176ee33fb8e4d28ca0b21b5bd7a37dc4261c992259241e5a7a",
+    "tools/phase2/run-phase1-regression.js": "6cd1d311d147b88f5b9b844270f7a3c8feb7baa19e6f5e424c49ffb6fbc51cb4",
+    "tools/phase2/run-regression.js": "d92b0c22cc1682134bd9d9ed266d027755f9ca8792cba4da010af5ebdcc13383",
+    "tools/phase2/storage-test.js": "571d1546f23cff32e31b35f551df98d6660398dbab10af817079964bd5b46eef",
+    "tools/phase2/verify-existing-backup.ps1": "030ca6d0ac95cbfb3e165178ec1fdf6b30f401d0565bb8b1ba4db37dbc2a0fae",
+    "tools/phase2/verify-integrity.py": "e496c43e45f4b2d16806489d6e400c85a4e9ebecb69a04709980227be88bc9e8",
+    "tools/phase2/workspace-policy-test.js": "8155e6fc31f0f36ce9e9a4447708dfa09a433ac6d529f20329eaadc6ac02ff4f",
+    "tools/phase2/write-reports.py": "e56d20ff4f3ce1e0b5b103bebbe454e729c17643541fc06c14d7c9eec56ce461",
+    "tools/run-mos-tests.sh": "b3a8c9eade509b3d1ce39fe18e7229784d894c506b3fc266030c2f761b287eda",
+    "tools/secret-scan.js": "939c874eb5f4b8ad1c03a9c9df1d894d598fb72bdd37d8f291d96ef1aa3f5b1f"
+  },
+  "phase2EvidenceSummary": {
+    "status": "READY_FOR_HUMAN_PHASE2_REVIEW",
+    "applicationVersion": "0.1.6",
+    "schema": 8,
+    "codeCommit": "e21da0a",
+    "rollbackCommit": "319c5b3",
+    "regressionSuites": 17,
+    "regressionAssertions": 880,
+    "phase1Checks": 57,
+    "phase2Checks": {
+      "h04": 13,
+      "h05": 22,
+      "h05-adapter": 3,
+      "h06": 7,
+      "m05": 6,
+      "m05-browser": 2
+    },
+    "passedAssertionsAndCases": 990,
+    "externalServices": "NOT_VERIFIED",
+    "productionAcceptance": "NOT_PERFORMED",
+    "phase3Authorized": false,
+    "remainingRisks": [
+      "TX01",
+      "TX02",
+      "TX03",
+      "TX04",
+      "TX05",
+      "TX06",
+      "TX07",
+      "TX08",
+      "TX09",
+      "TX10",
+      "OP01"
+    ]
+  },
+  "noApplicationCodeExecuted": true,
+  "noDatabaseInstalledOrConnected": true,
+  "noSQLExecuted": true,
+  "noProductionDataReadOrModified": true
+}

@@ -1,0 +1,9 @@
+{
+  "baseline": "7f05078614a789b94a040f67b18e462f2284f063",
+  "unchangedTrackedBaselineFiles": 645,
+  "changedBusinessFiles": [],
+  "appVersion": "0.1.6",
+  "schema": 8,
+  "onlyDesignDirectoryAdded": true,
+  "validation": "text/column/key consistency only; no SQL execution or PG installation"
+}

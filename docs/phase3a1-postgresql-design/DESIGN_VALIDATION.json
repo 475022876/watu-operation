@@ -1,0 +1,16 @@
+{
+  "mode": "STATIC_DESIGN_ONLY",
+  "schemaCollectionsCovered": 43,
+  "targetTableCount": 74,
+  "groups": {
+    "core": 43,
+    "relation": 15,
+    "ops": 16
+  },
+  "foreignKeyDefinitions": 181,
+  "foreignKeyColumnAndTargetKeyStaticChecks": "PASS",
+  "databaseSQLParsing": "NOT_EXECUTED",
+  "databaseConstraintsRLSMigrationRecoveryTests": "NOT_EXECUTED",
+  "liveServices": "NOT_CALLED",
+  "phase3A2": "NOT_AUTHORIZED"
+}

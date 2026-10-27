@@ -1,0 +1,1967 @@
+{
+  "baseline": "7f05078614a789b94a040f67b18e462f2284f063",
+  "collections": 43,
+  "coreTables": 43,
+  "relationshipTables": 15,
+  "supportTables": 16,
+  "totalTables": 74,
+  "tables": [
+    {
+      "name": "brands",
+      "columns": "code text PRIMARY KEY|name text NOT NULL|legacy_id text",
+      "source": "brands",
+      "scope": "global",
+      "group": "core",
+      "unique": [],
+      "note": "PK取code；保持VFIB/UCARD，不推断其他品牌授权",
+      "indexes": []
+    },
+    {
+      "name": "users",
+      "columns": "username text NOT NULL|display_name text|status text NOT NULL|external_identity_id text|identity_source text|dept text|title text|password_hash text|password_salt text|must_change_password boolean|authz_epoch bigint NOT NULL DEFAULT 1|prefs jsonb NOT NULL DEFAULT '{}'::jsonb|last_login_at timestamptz|password_changed_at timestamptz",
+      "source": "users",
+      "scope": "global",
+      "group": "core",
+      "unique": [],
+      "note": "lower(username)唯一；密码散列/盐原样保留，明文和真实值不进入设计包",
+      "indexes": []
+    },
+    {
+      "name": "user_role_grants",
+      "columns": "user_id text NOT NULL|role_code text NOT NULL|all_brands boolean NOT NULL DEFAULT false|granted_at timestamptz|revoked_at timestamptz|valid_until timestamptz",
+      "source": "user_roles",
+      "scope": "global",
+      "group": "core",
+      "unique": [],
+      "note": "brandScope拆到role_brand_scopes；*映射all_brands而非伪造*品牌",
+      "indexes": []
+    },
+    {
+      "name": "auth_sessions",
+      "columns": "user_id text NOT NULL|token_digest text NOT NULL|expires_at timestamptz NOT NULL|last_seen_at timestamptz|ip inet|user_agent text|revoked_at timestamptz",
+      "source": "sessions",
+      "scope": "global",
+      "group": "core",
+      "unique": [
+        "token_digest"
+      ],
+      "note": "历史会话仅留原加密快照，目标会话表初始为空，切换重新登录，须人工批准",
+      "indexes": []
+    },
+    {
+      "name": "monthly_plans",
+      "columns": "year integer NOT NULL CHECK (year BETWEEN 2020 AND 2100)|month integer NOT NULL CHECK (month BETWEEN 1 AND 12)|version integer NOT NULL CHECK (version > 0)|code text NOT NULL|title text NOT NULL|owner_id text|supersedes_id text|status text NOT NULL|objectives jsonb|review_note text|approved_at timestamptz|approved_by_ref text",
+      "source": "monthly_plans",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "brand_code,year,month,version",
+        "brand_code,code"
+      ],
+      "note": "",
+      "indexes": []
+    },
+    {
+      "name": "plan_items",
+      "columns": "plan_id text NOT NULL|content_task_id text|title text NOT NULL|priority text|work_date date NOT NULL|ad_hoc boolean",
+      "source": "plan_items",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "原行无brandCode，须从plan推导并与任务品牌一致",
+      "indexes": [
+        "brand_code,work_date"
+      ]
+    },
+    {
+      "name": "campaigns",
+      "columns": "code text NOT NULL|title text NOT NULL|brief text|owner_id text|start_at timestamptz|end_at timestamptz|state text NOT NULL|marketing_brief jsonb",
+      "source": "campaigns",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "brand_code,code"
+      ],
+      "note": "Brief保留版本化结构快照，LIBRARY引用投影到campaign_library_refs",
+      "indexes": []
+    },
+    {
+      "name": "monthly_campaign_links",
+      "columns": "plan_id text NOT NULL|campaign_id text NOT NULL",
+      "source": "monthly_campaign_links",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "brand_code,plan_id,campaign_id"
+      ],
+      "note": "无id行用集合+稳定自然键生成迁移ID，DTO不新增id字段",
+      "indexes": []
+    },
+    {
+      "name": "master_topics",
+      "columns": "title text NOT NULL|pillar_code text|narrative_code text|risk_grade text|evidence_status text|summary text|owner_id text|state text NOT NULL",
+      "source": "master_topics",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "",
+      "indexes": []
+    },
+    {
+      "name": "campaign_topic_links",
+      "columns": "campaign_id text NOT NULL|topic_id text NOT NULL",
+      "source": "campaign_topic_links",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "brand_code,campaign_id,topic_id"
+      ],
+      "note": "",
+      "indexes": []
+    },
+    {
+      "name": "content_tasks",
+      "columns": "code text NOT NULL|title text NOT NULL|type text|platform text|pillar_code text|narrative_code text|risk_grade text|owner_id text|campaign_id text|topic_id text|parent_task_id text|status text NOT NULL|production_due date|review_due date|planned_publish_at_raw text|planned_publish_at_utc timestamptz|business_basis jsonb|deliverables jsonb",
+      "source": "content_tasks",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "code"
+      ],
+      "note": "",
+      "indexes": [
+        "brand_code,owner_id,status",
+        "brand_code,production_due"
+      ]
+    },
+    {
+      "name": "source_registry",
+      "columns": "domain text NOT NULL|name text|tier text|method text|endpoint text|license_policy text|license_note text|allow_full_text boolean|retention_days integer|frequency text|retry_policy text|owner_id text|status text NOT NULL|last_ok_at timestamptz|next_run_at timestamptz|schedule_config jsonb",
+      "source": "source_registry",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "域名相同不当然重复，不添加未经验证的domain唯一约束",
+      "indexes": [
+        "brand_code,status,next_run_at"
+      ]
+    },
+    {
+      "name": "source_items",
+      "columns": "source_id text NOT NULL|canonical_url text NOT NULL|title text|summary text|full_text text|content_digest text|license_state text|published_at timestamptz|published_at_raw text|fetched_at timestamptz|ai_summary text|ai_summary_state text|fetch_metadata jsonb|raw_stored boolean NOT NULL DEFAULT false|canonical_url_hash text",
+      "source": "source_items",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "URL和摘要原字节语义保留；URL以sha256辅助定位并比对原URL，避免超长URL的B-tree键大小风险；去重规则核对后才升级唯一键",
+      "indexes": [
+        "brand_code,source_id,fetched_at",
+        "brand_code,canonical_url_hash"
+      ]
+    },
+    {
+      "name": "evidence_references",
+      "columns": "source_item_id text|topic_id text|content_version_id text|claim_locator text|verification_state text NOT NULL",
+      "source": "evidence_references",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "从topic/version/sourceItem推导品牌，全部已知父级必须一致",
+      "indexes": []
+    },
+    {
+      "name": "skill_versions",
+      "columns": "skill_code text NOT NULL|version text NOT NULL|checksum text|approval_ref text|state text NOT NULL|activated_at timestamptz|note text",
+      "source": "skill_versions",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "brand_code,skill_code,version"
+      ],
+      "note": "",
+      "indexes": []
+    },
+    {
+      "name": "creative_templates",
+      "columns": "skill_version_id text|template_code text NOT NULL|version integer NOT NULL|platform text|mode text|display text|label text|state text NOT NULL|aspects text[]|config jsonb|note text",
+      "source": "creative_templates",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "brand_code,template_code,version"
+      ],
+      "note": "生成记录templateVersionId的id@vN须解析并核对，不把它直接当FK",
+      "indexes": []
+    },
+    {
+      "name": "content_versions",
+      "columns": "content_task_id text NOT NULL|number integer NOT NULL CHECK (number > 0)|code text NOT NULL|title text|body text|format text|pillar_code text|narrative_code text|risk_grade text|locale text|state text NOT NULL|author_id text|supersedes_id text|superseded_by_id text|manifest_hash text|manifest_canonical_text text|manifest_payload jsonb|disclosures jsonb|approved_at timestamptz|approved_by_ref text|revise_reason text",
+      "source": "content_versions",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "brand_code,content_task_id,number",
+        "code",
+        "brand_code,id,manifest_hash"
+      ],
+      "note": "真正字段contentTaskId；不可用taskId映射；冻结正文、清单和素材版本须不可覆盖",
+      "indexes": []
+    },
+    {
+      "name": "review_cases",
+      "columns": "type text NOT NULL|subject_type text NOT NULL|subject_id text NOT NULL|content_version_id text|asset_admission_id text|version_hash text NOT NULL|policy_version text NOT NULL|risk_grade text|state text NOT NULL|submitted_by text|submitted_at timestamptz|decided_by_ref text|decided_at timestamptz|requirements jsonb|note text|subject_snapshot jsonb|subject_canonical_text text",
+      "source": "review_cases",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "brand_code,id,version_hash",
+        "brand_code,id,content_version_id",
+        "brand_code,id,asset_admission_id"
+      ],
+      "note": "三种审核类型保留；多态subject必须通过排他CHECK和强类型FK约束",
+      "indexes": [
+        "brand_code,state,type"
+      ]
+    },
+    {
+      "name": "review_decisions",
+      "columns": "case_id text NOT NULL|content_version_id text|asset_admission_id text|type text NOT NULL|version_hash text NOT NULL|actor_id text|actor_ref text|actor_name text|action text NOT NULL|previous_state text|acting_authority jsonb|remarks text",
+      "source": "review_decisions",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "追加记录；主体与hash必须与所属case一致，历史actor缺失只保留actor_ref，不造账号",
+      "indexes": []
+    },
+    {
+      "name": "working_assets",
+      "columns": "file_version_id text|file_name text|mime text|bytes bigint CHECK (bytes >= 0)|sha256 text|object_key_legacy text|owner_id text|task_id text|campaign_id text|topic_id text|generation_job_id text|origin text|license text|visibility text NOT NULL DEFAULT 'PRIVATE'|mock boolean|prompt_snapshot jsonb",
+      "source": "working_assets",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "projectRef拆三条FK；正文二进制不进JSONB；校验objectKey/哈希后关联file_versions",
+      "indexes": []
+    },
+    {
+      "name": "generation_jobs",
+      "columns": "task_id text|kind text NOT NULL|data_class text NOT NULL|provider text|model_id text|skill_version_id text|template_id text|template_version_raw text|status text NOT NULL|provider_job_id text|prompt_snapshot jsonb|provider_usage jsonb|cost jsonb|qa_result jsonb|idempotency_key text|requested_by text|error_code text|error_message text|started_at timestamptz|finished_at timestamptz",
+      "source": "generation_jobs",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "outputAssetIds拆表；referenceIds语义需逐项分类，不把任意字符串当素材FK",
+      "indexes": [
+        "brand_code,status,created_at"
+      ]
+    },
+    {
+      "name": "video_artifacts",
+      "columns": "task_id text NOT NULL|video_type text|motion_code text|brief text|script jsonb|subtitles jsonb|final_asset_id text|state text NOT NULL",
+      "source": "video_artifacts",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "brand_code,task_id"
+      ],
+      "note": "分镜拆行，关键帧拆关系；脚本字幕可保持有界有序文档",
+      "indexes": []
+    },
+    {
+      "name": "channels",
+      "columns": "platform text NOT NULL|handle text|url text|label text|state text NOT NULL|publish_mode text|owner_id text|last_verified_at timestamptz",
+      "source": "channels",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "仍仅官方账号元数据，不引入社媒Token",
+      "indexes": []
+    },
+    {
+      "name": "publishing_schedules",
+      "columns": "content_version_id text NOT NULL|channel_id text NOT NULL|planned_at_raw text NOT NULL|planned_at_local timestamp|planned_at_utc timestamptz|time_zone text|time_precision text|state text NOT NULL|manifest_hash text|operator_id text",
+      "source": "publishing_schedules",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "原行含timezone（默认Asia/Shanghai），先按每行有效IANA区解析；缺失/歧义/无效时停入隔离，不从部署机器时区推断",
+      "indexes": [
+        "brand_code,planned_at_utc,state"
+      ]
+    },
+    {
+      "name": "publication_records",
+      "columns": "schedule_id text NOT NULL|content_version_id text NOT NULL|channel_id text NOT NULL|actual_at_raw text|actual_at_local timestamp|actual_at_utc timestamptz|time_zone text|time_precision text|url text|operator_id text|evidence_ref text|status text NOT NULL|text_hash text|manifest_hash text|approved_at timestamptz|approved_by_ref text|notes text",
+      "source": "publication_records",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "每排期是否仅一条正式回执，先核实历史，SQL草案不擅加唯一并丢弃重复",
+      "indexes": []
+    },
+    {
+      "name": "published_artifacts",
+      "columns": "publication_id text NOT NULL|file_version_id text|kind text NOT NULL|object_key_legacy text|sha256 text|bytes bigint|mime text|file_name text|manifest_hash text|immutable boolean NOT NULL DEFAULT true|preserved_at timestamptz|snapshot_metadata jsonb",
+      "source": "published_artifacts",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "保留独立不可变归档文件；不得改成对可变工作素材的快捷链接",
+      "indexes": []
+    },
+    {
+      "name": "publication_corrections",
+      "columns": "publication_id text NOT NULL|kind text NOT NULL|reason text|replacement_publication_id text|previous_status text|actor_id text|before_snapshot jsonb|after_snapshot jsonb",
+      "source": "publication_corrections",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "追加式更正；不改旧发布快照",
+      "indexes": []
+    },
+    {
+      "name": "publication_metrics",
+      "columns": "publication_id text NOT NULL|channel_id text|metric text NOT NULL|amount numeric(28,6) NOT NULL|source_kind text NOT NULL|as_of date NOT NULL|proof_ref text|platform_extensions jsonb",
+      "source": "publication_metrics",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "当前是一行一个metric/amount/asOf/sourceKind，保持标量；仅未来平台扩展用JSONB，不能改API形状",
+      "indexes": [
+        "brand_code,publication_id,as_of"
+      ]
+    },
+    {
+      "name": "asset_admissions",
+      "columns": "working_asset_id text NOT NULL|asset_sha256 text|origin_object_id text NOT NULL|origin_version_id text|category_code text|library_primary_category text|library_subcategory text|classification text|license_status text|reuse_scope text|ai_reuse_policy text|external_ai_transfer_policy text|state text NOT NULL|final_approval_status text NOT NULL|sync_status text NOT NULL|approval_mode text NOT NULL|library_id text|library_version text|idempotency_key text NOT NULL|submitted_by text|submitted_at timestamptz|decided_by_ref text|decided_at timestamptz|submission_metadata jsonb|precheck jsonb|receipt jsonb|manual_review_reasons jsonb",
+      "source": "asset_admissions",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "最终批准、同步和可复用三个维度不合并；历史字段版本admissionFieldsSchema保留兼容余项",
+      "indexes": []
+    },
+    {
+      "name": "library_asset_refs",
+      "columns": "admission_id text|working_asset_id text|library_id text|library_version text|permission_valid boolean NOT NULL DEFAULT false|permission_scope text[]|asset_state text|state text|mock boolean|source_kind text|source_ref text|source_digest text|last_verified_at timestamptz",
+      "source": "library_asset_refs",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "外部libraryId不是MOS主键；不以数据库缓存代替Workspace权威",
+      "indexes": [
+        "brand_code,library_id"
+      ]
+    },
+    {
+      "name": "ingest_jobs",
+      "columns": "source_id text NOT NULL|trigger text|status text NOT NULL|dedupe_key text|attempt integer|started_at timestamptz|finished_at timestamptz|next_run_at timestamptz|failure_code text|retryable boolean|counts jsonb|lease_owner text|lease_until timestamptz|lease_token bigint NOT NULL DEFAULT 0",
+      "source": "ingest_jobs",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "有效dedupeKey局部唯一需核对重试是否复用同键，不能直接锁死历史重试",
+      "indexes": [
+        "brand_code,status,next_run_at"
+      ]
+    },
+    {
+      "name": "research_reports",
+      "columns": "code text NOT NULL|requester_id text|mode text|query text|title text|objective text|status text NOT NULL|completion text|job_id text|executive_summary text|industry_implications text|vfib_relevance text|time_window jsonb|period jsonb|sources_snapshot jsonb|editorial_opportunities jsonb|unresolved_claims jsonb|model_run jsonb|cost jsonb|refresh_state text|conflict_detection text|reverify_due jsonb|started_at timestamptz|completed_at timestamptz",
+      "source": "research_reports",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "code"
+      ],
+      "note": "brandScope[0]为现有可访问品牌；有序完整scope子表不自动扩权",
+      "indexes": []
+    },
+    {
+      "name": "research_findings",
+      "columns": "report_id text NOT NULL|ordinal integer|statement text|kind text NOT NULL|verification_state text NOT NULL|source_item_id text|as_of_raw text|conflict_note text|origin text|needs_verification boolean|confidence_rationale text|notes jsonb",
+      "source": "research_findings",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "brand_code,id,report_id"
+      ],
+      "note": "evidenceIds拆关系；FACT无有效证据不得升级VERIFIED",
+      "indexes": []
+    },
+    {
+      "name": "source_evidence",
+      "columns": "url text NOT NULL|final_url text|source_id text|title text|source_name text|published_at timestamptz|published_at_raw text|retrieved_at timestamptz|quote text|excerpt text|content_hash text|access_state text|license_state text|availability text|http_status integer|provider text|provider_rank integer|redirect_chain jsonb|retrieval_metadata jsonb",
+      "source": "source_evidence",
+      "scope": "linked",
+      "group": "core",
+      "unique": [],
+      "note": "原对象无品牌且可被多报告引用，单份对象保留全局id；访问必须经report_evidence的已授权报告，不能作为公开全局表",
+      "indexes": []
+    },
+    {
+      "name": "topic_proposals",
+      "columns": "code text NOT NULL|report_id text|report_version bigint|suggested_title_en text|summary_zh text|angle text|primary_category text|risk_grade text|status text NOT NULL|source text|ai_generated boolean|needs_verification boolean|created_by_id text|reviewer_id text|reviewed_at timestamptz|review_comments text|revision integer|topic_id text|dispatch_snapshot jsonb|fact_check_needs jsonb|recommendation jsonb|edit_diff jsonb",
+      "source": "topic_proposals",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "code"
+      ],
+      "note": "sourceFindingIds拆表；dispatch快照保留用于精确幂等重放",
+      "indexes": []
+    },
+    {
+      "name": "research_jobs",
+      "columns": "code text NOT NULL|report_id text|kind text|actor_id text|query text|status text NOT NULL|stage text|progress integer CHECK (progress BETWEEN 0 AND 100)|provider text|provider_trace_id text|idempotency_key text|payload_hash text|attempts integer|cancel_requested boolean|filters jsonb|budget_snapshot jsonb|log jsonb|error_code text|started_at timestamptz|completed_at timestamptz|lease_owner text|lease_until timestamptz|lease_token bigint NOT NULL DEFAULT 0",
+      "source": "research_jobs",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "code"
+      ],
+      "note": "",
+      "indexes": []
+    },
+    {
+      "name": "provider_calls",
+      "columns": "kind text NOT NULL|op text|provider text|model text|state text NOT NULL|error_code text|http_status integer|latency_ms bigint|attempts integer|actor_id text|request_id text|invocation_key text|confirmed_amount numeric(20,6)|currency text|cost_confirmed boolean NOT NULL DEFAULT false|prompt_tokens bigint|completion_tokens bigint|total_tokens bigint|note text|receipt_metadata jsonb",
+      "source": "provider_calls",
+      "scope": "optional",
+      "group": "core",
+      "unique": [],
+      "note": "NULL费用与0严格区分；管理探针允许全局brandNULL，仅管理员可见；追加事实，不凭估价记实付",
+      "indexes": [
+        "brand_code,created_at",
+        "provider,state,created_at"
+      ]
+    },
+    {
+      "name": "video_render_jobs",
+      "columns": "task_id text NOT NULL|actor_id text|status text NOT NULL|status_raw text|progress integer|provider text|model text|provider_job_id text|prompt text|duration_sec numeric|size text|file_version_id text|file_path_legacy text|bytes bigint|error_code text|note text|lease_owner text|lease_until timestamptz|lease_token bigint NOT NULL DEFAULT 0",
+      "source": "video_render_jobs",
+      "scope": "brand",
+      "group": "core",
+      "unique": [],
+      "note": "",
+      "indexes": []
+    },
+    {
+      "name": "library_ticket_cache",
+      "columns": "ticket_key text NOT NULL|key_id text NOT NULL|provider_user_id text NOT NULL|scopes text[]|issued_at timestamptz|expires_at timestamptz|status text|purpose text|refresh_count integer|stripped_scopes text[]",
+      "source": "library_tickets",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "ticket_key"
+      ],
+      "note": "源集合只有票据元数据；真实ticket在进程Map，不新增明文ticket列；迁移后过期/重新换取",
+      "indexes": []
+    },
+    {
+      "name": "library_event_cursors",
+      "columns": "cursor_value bigint NOT NULL DEFAULT 0|next_cursor bigint|last_seq bigint|truncated_count integer|degraded boolean|reconcile_required boolean|last_poll_at timestamptz|last_event_at timestamptz|consumer_state jsonb",
+      "source": "library_event_cursors",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "brand_code"
+      ],
+      "note": "brandId转brand_code；processedSeqs投影到inbox元数据，不凭空重放外部事件",
+      "indexes": []
+    },
+    {
+      "name": "library_invalidations",
+      "columns": "kind text NOT NULL|target_id text NOT NULL|at timestamptz|seq bigint|detail jsonb",
+      "source": "library_invalidations",
+      "scope": "optional",
+      "group": "core",
+      "unique": [
+        "brand_code,kind,target_id"
+      ],
+      "note": "旧key仅kind+targetId且可无brand；缺品牌保守全局失效，不能静默缩小撤权范围",
+      "indexes": []
+    },
+    {
+      "name": "library_admission_jobs",
+      "columns": "admission_id text NOT NULL|idempotency_key text NOT NULL|provider_admission_id text|status text NOT NULL|attempts integer|next_retry_at timestamptz|last_error_code text|request_snapshot jsonb|response_snapshot jsonb|lease_owner text|lease_until timestamptz|lease_token bigint NOT NULL DEFAULT 0",
+      "source": "library_admission_jobs",
+      "scope": "brand",
+      "group": "core",
+      "unique": [
+        "brand_code,admission_id"
+      ],
+      "note": "同一准入申请稳定远程幂等键及多步回执，禁止重新生成键后盲重试",
+      "indexes": []
+    },
+    {
+      "name": "audit_events",
+      "columns": "actor_user_id text|actor_ref text|event_type text NOT NULL|object_type text|object_id text|old_state jsonb|new_state jsonb|correlation_id text|outcome text|ip_raw text|metadata jsonb|occurred_at timestamptz",
+      "source": "audit_events",
+      "scope": "optional",
+      "group": "core",
+      "unique": [],
+      "note": "原timestamp保留，所有现存事件逐条迁移；不伪造已被旧20000条上限淘汰的历史",
+      "indexes": [
+        "brand_code,occurred_at",
+        "correlation_id"
+      ]
+    },
+    {
+      "name": "role_brand_scopes",
+      "columns": "grant_id text NOT NULL|scope_brand_code text NOT NULL",
+      "source": null,
+      "scope": "global",
+      "group": "relation",
+      "unique": [
+        "grant_id,scope_brand_code"
+      ],
+      "note": "brandScope数组逐项保留，*不在本表",
+      "indexes": []
+    },
+    {
+      "name": "task_library_refs",
+      "columns": "task_id text NOT NULL|library_ref_id text NOT NULL|ordinal integer NOT NULL",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,task_id,library_ref_id"
+      ],
+      "note": "任务显式资料引用",
+      "indexes": []
+    },
+    {
+      "name": "content_version_assets",
+      "columns": "content_version_id text NOT NULL|asset_id text NOT NULL|file_version_id text|ordinal integer NOT NULL|asset_sha256 text",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,content_version_id,asset_id"
+      ],
+      "note": "冻结后固定文件版本及hash",
+      "indexes": []
+    },
+    {
+      "name": "content_version_channels",
+      "columns": "content_version_id text NOT NULL|channel_id text NOT NULL|ordinal integer NOT NULL",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,content_version_id,channel_id"
+      ],
+      "note": "有序渠道引用",
+      "indexes": []
+    },
+    {
+      "name": "content_version_evidence",
+      "columns": "content_version_id text NOT NULL|evidence_reference_id text NOT NULL|ordinal integer NOT NULL",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,content_version_id,evidence_reference_id"
+      ],
+      "note": "有序证据引用",
+      "indexes": []
+    },
+    {
+      "name": "generation_job_outputs",
+      "columns": "job_id text NOT NULL|asset_id text NOT NULL|ordinal integer NOT NULL",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,job_id,asset_id"
+      ],
+      "note": "输出不可丢关联",
+      "indexes": []
+    },
+    {
+      "name": "video_storyboard_shots",
+      "columns": "video_artifact_id text NOT NULL|ordinal integer NOT NULL|duration_sec numeric|asset_id text|shot_document jsonb NOT NULL",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,video_artifact_id,ordinal"
+      ],
+      "note": "资产FK独立列；镜头描述结构JSONB",
+      "indexes": []
+    },
+    {
+      "name": "research_finding_evidence",
+      "columns": "finding_id text NOT NULL|report_id text NOT NULL|evidence_id text NOT NULL|ordinal integer NOT NULL",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,finding_id,evidence_id"
+      ],
+      "note": "须属于该报告获授权的证据集合",
+      "indexes": []
+    },
+    {
+      "name": "topic_proposal_findings",
+      "columns": "proposal_id text NOT NULL|finding_id text NOT NULL|ordinal integer NOT NULL",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,proposal_id,finding_id"
+      ],
+      "note": "不允许跨品牌引用发现",
+      "indexes": []
+    },
+    {
+      "name": "proposal_dispatch_tasks",
+      "columns": "proposal_id text NOT NULL|task_id text NOT NULL|plan_item_id text|ordinal integer NOT NULL",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,proposal_id,task_id"
+      ],
+      "note": "从dispatch.taskIds/planItemIds成对恢复，不依赖数组按时间排序",
+      "indexes": []
+    },
+    {
+      "name": "asset_admission_history",
+      "columns": "admission_id text NOT NULL|ordinal integer NOT NULL|event_at timestamptz|actor_id text|event_type text|event_document jsonb",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,admission_id,ordinal"
+      ],
+      "note": "内嵌history全部追加恢复",
+      "indexes": []
+    },
+    {
+      "name": "research_report_brands",
+      "columns": "report_id text NOT NULL|visible_brand_code text NOT NULL|ordinal integer NOT NULL",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,report_id,ordinal"
+      ],
+      "note": "完整保存scope列表；本期仅主品牌可读",
+      "indexes": []
+    },
+    {
+      "name": "video_keyframe_assets",
+      "columns": "video_artifact_id text NOT NULL|asset_id text NOT NULL|ordinal integer NOT NULL",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,video_artifact_id,ordinal"
+      ],
+      "note": "关键帧有序FK，不把ID留JSONB",
+      "indexes": []
+    },
+    {
+      "name": "campaign_library_refs",
+      "columns": "campaign_id text NOT NULL|library_ref_id text NOT NULL|claim_path text NOT NULL|ordinal integer NOT NULL",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,campaign_id,claim_path,ordinal"
+      ],
+      "note": "Brief源kind为LIBRARY才抽取，JSONB快照保持原样",
+      "indexes": []
+    },
+    {
+      "name": "research_report_evidence",
+      "columns": "report_id text NOT NULL|evidence_id text NOT NULL|ordinal integer NOT NULL",
+      "source": null,
+      "scope": "brand",
+      "group": "relation",
+      "unique": [
+        "brand_code,report_id,evidence_id"
+      ],
+      "note": "从report.evidenceIds、finding.evidenceIds及sources引用并集确定，保留原列表顺序元数据",
+      "indexes": []
+    },
+    {
+      "name": "file_objects",
+      "columns": "storage_backend text NOT NULL|bucket_ref text|object_key text NOT NULL|legacy_path text|state text NOT NULL|owner_id text|visibility text|retention_until timestamptz",
+      "source": null,
+      "scope": "brand",
+      "group": "ops",
+      "unique": [
+        "brand_code,storage_backend,object_key"
+      ],
+      "note": "仅元数据，不搬文件",
+      "indexes": []
+    },
+    {
+      "name": "file_versions",
+      "columns": "object_id text NOT NULL|version_no integer NOT NULL|storage_version text|sha256 text NOT NULL|byte_length bigint NOT NULL CHECK (byte_length >= 0)|mime text|upload_state text NOT NULL|verified_at timestamptz|immutable boolean NOT NULL DEFAULT false",
+      "source": null,
+      "scope": "brand",
+      "group": "ops",
+      "unique": [
+        "brand_code,object_id,version_no"
+      ],
+      "note": "文件内容哈希，不以ETag代替SHA256",
+      "indexes": []
+    },
+    {
+      "name": "upload_sessions",
+      "columns": "object_id text NOT NULL|file_version_id text|expected_sha256 text|expected_bytes bigint|status text NOT NULL|expires_at timestamptz|owner_id text",
+      "source": null,
+      "scope": "brand",
+      "group": "ops",
+      "unique": [],
+      "note": "暂存、校验、READY提交与孤儿对账",
+      "indexes": []
+    },
+    {
+      "name": "provider_configs",
+      "columns": "kind text NOT NULL|mode text NOT NULL|base_url text|model text|timeout_ms integer|retry_limit integer|secret_ref text|secret_ciphertext text|secret_key_id text|nonsecret_options jsonb|last_test_at timestamptz",
+      "source": null,
+      "scope": "global",
+      "group": "ops",
+      "unique": [
+        "kind"
+      ],
+      "note": "现有全局配置及env>DB>file优先级保留；凭据不放自由JSONB",
+      "indexes": []
+    },
+    {
+      "name": "provider_budget_policies",
+      "columns": "scope_key text NOT NULL|kind text NOT NULL|brand_monthly_usd numeric(20,6)|per_job_usd_max numeric(20,6)|budget_timezone text|effective_at timestamptz|policy_document jsonb",
+      "source": null,
+      "scope": "global",
+      "group": "ops",
+      "unique": [
+        "scope_key,kind"
+      ],
+      "note": "全局默认及品牌策略模板，0含义须按原接口保留",
+      "indexes": []
+    },
+    {
+      "name": "budget_periods",
+      "columns": "policy_id text NOT NULL|period_start timestamptz NOT NULL|period_end timestamptz NOT NULL|confirmed_usd numeric(20,6) NOT NULL DEFAULT 0|reserved_usd numeric(20,6) NOT NULL DEFAULT 0|unknown_usd numeric(20,6) NOT NULL DEFAULT 0",
+      "source": null,
+      "scope": "brand",
+      "group": "ops",
+      "unique": [
+        "brand_code,policy_id,period_start"
+      ],
+      "note": "锁定行防并发超预算，费用未知不能当零",
+      "indexes": []
+    },
+    {
+      "name": "budget_reservations",
+      "columns": "period_id text NOT NULL|invocation_key text NOT NULL|amount_usd numeric(20,6) NOT NULL CHECK (amount_usd >= 0)|status text NOT NULL|receipt_key text|expires_at timestamptz|job_ref text",
+      "source": null,
+      "scope": "brand",
+      "group": "ops",
+      "unique": [
+        "brand_code,invocation_key"
+      ],
+      "note": "超时不自动释放结果未知的预留",
+      "indexes": []
+    },
+    {
+      "name": "outbox_events",
+      "columns": "aggregate_type text NOT NULL|aggregate_id text NOT NULL|event_type text NOT NULL|dedupe_key text NOT NULL|actor_id text|actor_authz_epoch bigint|payload jsonb NOT NULL|status text NOT NULL|available_at timestamptz NOT NULL|lease_owner text|lease_until timestamptz|lease_token bigint NOT NULL DEFAULT 0|attempts integer NOT NULL DEFAULT 0|last_error_code text",
+      "source": null,
+      "scope": "brand",
+      "group": "ops",
+      "unique": [
+        "brand_code,dedupe_key"
+      ],
+      "note": "事务内排队，事务外出站；无原始Token/正文自由日志",
+      "indexes": []
+    },
+    {
+      "name": "inbox_events",
+      "columns": "provider text NOT NULL|event_key text NOT NULL|stream_key text NOT NULL|provider_seq bigint|received_at timestamptz|processed_at timestamptz|status text NOT NULL|sanitized_payload jsonb",
+      "source": null,
+      "scope": "brand",
+      "group": "ops",
+      "unique": [
+        "brand_code,provider,stream_key,event_key"
+      ],
+      "note": "与游标和撤权变更同一事务提交",
+      "indexes": []
+    },
+    {
+      "name": "idempotency_requests",
+      "columns": "actor_id text NOT NULL|operation text NOT NULL|proposal_id text|resource_key text NOT NULL|idempotency_key text NOT NULL|normalized_digest text NOT NULL|response_snapshot jsonb|state text NOT NULL|completed_at timestamptz",
+      "source": null,
+      "scope": "brand",
+      "group": "ops",
+      "unique": [
+        "brand_code,actor_id,operation,resource_key,idempotency_key"
+      ],
+      "note": "H01作用域和标准化算法保持；同键不同digest返回409",
+      "indexes": []
+    },
+    {
+      "name": "migration_runs",
+      "columns": "source_sha256 text NOT NULL|source_schema integer NOT NULL|mapping_version text NOT NULL|tool_commit text NOT NULL|status text NOT NULL|counts jsonb|file_manifest_sha256 text|approved_by_ref text|approved_at timestamptz",
+      "source": null,
+      "scope": "global",
+      "group": "ops",
+      "unique": [
+        "source_sha256,mapping_version"
+      ],
+      "note": "只设计；无迁移执行",
+      "indexes": []
+    },
+    {
+      "name": "migration_rejections",
+      "columns": "run_id text NOT NULL|source_collection text NOT NULL|source_key text NOT NULL|source_ordinal bigint|reason_code text NOT NULL|source_record_hash text NOT NULL|resolution_ref text|sanitized_detail jsonb",
+      "source": null,
+      "scope": "global",
+      "group": "ops",
+      "unique": [],
+      "note": "完整原文仅在加密只读源快照，拒绝表不复制密钥/资料正文",
+      "indexes": []
+    },
+    {
+      "name": "system_settings",
+      "columns": "setting_key text NOT NULL|schema_version integer NOT NULL|value jsonb NOT NULL",
+      "source": null,
+      "scope": "global",
+      "group": "ops",
+      "unique": [
+        "setting_key"
+      ],
+      "note": "仅白名单有界配置；不把全部mos.json或预算账本放此表",
+      "indexes": []
+    },
+    {
+      "name": "code_counters",
+      "columns": "counter_key text NOT NULL|last_value bigint NOT NULL CHECK (last_value >= 0)",
+      "source": null,
+      "scope": "global",
+      "group": "ops",
+      "unique": [
+        "counter_key"
+      ],
+      "note": "从seq各键及现存业务编码最大值校验后恢复，不回退重用编号",
+      "indexes": []
+    },
+    {
+      "name": "role_definitions",
+      "columns": "role_code text NOT NULL|label text|kind text|policy_version text NOT NULL",
+      "source": null,
+      "scope": "global",
+      "group": "ops",
+      "unique": [
+        "role_code"
+      ],
+      "note": "由现有dict受控导入，不扩大角色权能",
+      "indexes": []
+    },
+    {
+      "name": "role_permissions",
+      "columns": "role_code text NOT NULL|permission_code text NOT NULL|policy_version text NOT NULL",
+      "source": null,
+      "scope": "global",
+      "group": "ops",
+      "unique": [
+        "role_code,permission_code"
+      ],
+      "note": "与代码RBAC策略版本一致，防数据库与字典双权威漂移",
+      "indexes": []
+    }
+  ],
+  "foreignKeys": [
+    [
+      "monthly_plans",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "plan_items",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "campaigns",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "monthly_campaign_links",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "master_topics",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "campaign_topic_links",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "content_tasks",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "source_registry",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "source_items",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "evidence_references",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "skill_versions",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "creative_templates",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "content_versions",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "review_cases",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "review_decisions",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "working_assets",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "generation_jobs",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "video_artifacts",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "channels",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "publishing_schedules",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "publication_records",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "published_artifacts",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "publication_corrections",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "publication_metrics",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "asset_admissions",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "library_asset_refs",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "ingest_jobs",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "research_reports",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "research_findings",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "topic_proposals",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "research_jobs",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "provider_calls",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "video_render_jobs",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "library_ticket_cache",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "library_event_cursors",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "library_invalidations",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "library_admission_jobs",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "audit_events",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "task_library_refs",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "content_version_assets",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "content_version_channels",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "content_version_evidence",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "generation_job_outputs",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "video_storyboard_shots",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "research_finding_evidence",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "topic_proposal_findings",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "proposal_dispatch_tasks",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "asset_admission_history",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "research_report_brands",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "video_keyframe_assets",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "campaign_library_refs",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "research_report_evidence",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "file_objects",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "file_versions",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "upload_sessions",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "budget_periods",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "budget_reservations",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "outbox_events",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "inbox_events",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "idempotency_requests",
+      "brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "user_role_grants",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "auth_sessions",
+      "user_id",
+      "users",
+      "id"
+    ],
+    [
+      "monthly_plans",
+      "owner_id",
+      "users",
+      "id"
+    ],
+    [
+      "campaigns",
+      "owner_id",
+      "users",
+      "id"
+    ],
+    [
+      "master_topics",
+      "owner_id",
+      "users",
+      "id"
+    ],
+    [
+      "content_tasks",
+      "owner_id",
+      "users",
+      "id"
+    ],
+    [
+      "source_registry",
+      "owner_id",
+      "users",
+      "id"
+    ],
+    [
+      "content_versions",
+      "author_id",
+      "users",
+      "id"
+    ],
+    [
+      "working_assets",
+      "owner_id",
+      "users",
+      "id"
+    ],
+    [
+      "generation_jobs",
+      "requested_by",
+      "users",
+      "id"
+    ],
+    [
+      "channels",
+      "owner_id",
+      "users",
+      "id"
+    ],
+    [
+      "research_reports",
+      "requester_id",
+      "users",
+      "id"
+    ],
+    [
+      "topic_proposals",
+      "created_by_id",
+      "users",
+      "id"
+    ],
+    [
+      "research_jobs",
+      "actor_id",
+      "users",
+      "id"
+    ],
+    [
+      "video_render_jobs",
+      "actor_id",
+      "users",
+      "id"
+    ],
+    [
+      "review_decisions",
+      "actor_id",
+      "users",
+      "id"
+    ],
+    [
+      "asset_admission_history",
+      "actor_id",
+      "users",
+      "id"
+    ],
+    [
+      "audit_events",
+      "actor_user_id",
+      "users",
+      "id"
+    ],
+    [
+      "user_role_grants",
+      "role_code",
+      "role_definitions",
+      "role_code"
+    ],
+    [
+      "role_permissions",
+      "role_code",
+      "role_definitions",
+      "role_code"
+    ],
+    [
+      "monthly_plans",
+      "brand_code,supersedes_id",
+      "monthly_plans",
+      "brand_code,id"
+    ],
+    [
+      "plan_items",
+      "brand_code,plan_id",
+      "monthly_plans",
+      "brand_code,id"
+    ],
+    [
+      "plan_items",
+      "brand_code,content_task_id",
+      "content_tasks",
+      "brand_code,id"
+    ],
+    [
+      "monthly_campaign_links",
+      "brand_code,plan_id",
+      "monthly_plans",
+      "brand_code,id"
+    ],
+    [
+      "monthly_campaign_links",
+      "brand_code,campaign_id",
+      "campaigns",
+      "brand_code,id"
+    ],
+    [
+      "campaign_topic_links",
+      "brand_code,campaign_id",
+      "campaigns",
+      "brand_code,id"
+    ],
+    [
+      "campaign_topic_links",
+      "brand_code,topic_id",
+      "master_topics",
+      "brand_code,id"
+    ],
+    [
+      "content_tasks",
+      "brand_code,campaign_id",
+      "campaigns",
+      "brand_code,id"
+    ],
+    [
+      "content_tasks",
+      "brand_code,topic_id",
+      "master_topics",
+      "brand_code,id"
+    ],
+    [
+      "content_tasks",
+      "brand_code,parent_task_id",
+      "content_tasks",
+      "brand_code,id"
+    ],
+    [
+      "source_items",
+      "brand_code,source_id",
+      "source_registry",
+      "brand_code,id"
+    ],
+    [
+      "evidence_references",
+      "brand_code,source_item_id",
+      "source_items",
+      "brand_code,id"
+    ],
+    [
+      "evidence_references",
+      "brand_code,topic_id",
+      "master_topics",
+      "brand_code,id"
+    ],
+    [
+      "evidence_references",
+      "brand_code,content_version_id",
+      "content_versions",
+      "brand_code,id"
+    ],
+    [
+      "creative_templates",
+      "brand_code,skill_version_id",
+      "skill_versions",
+      "brand_code,id"
+    ],
+    [
+      "content_versions",
+      "brand_code,content_task_id",
+      "content_tasks",
+      "brand_code,id"
+    ],
+    [
+      "content_versions",
+      "brand_code,supersedes_id",
+      "content_versions",
+      "brand_code,id"
+    ],
+    [
+      "content_versions",
+      "brand_code,superseded_by_id",
+      "content_versions",
+      "brand_code,id"
+    ],
+    [
+      "review_cases",
+      "brand_code,content_version_id",
+      "content_versions",
+      "brand_code,id"
+    ],
+    [
+      "review_cases",
+      "brand_code,asset_admission_id",
+      "asset_admissions",
+      "brand_code,id"
+    ],
+    [
+      "review_decisions",
+      "brand_code,case_id",
+      "review_cases",
+      "brand_code,id"
+    ],
+    [
+      "working_assets",
+      "brand_code,task_id",
+      "content_tasks",
+      "brand_code,id"
+    ],
+    [
+      "working_assets",
+      "brand_code,campaign_id",
+      "campaigns",
+      "brand_code,id"
+    ],
+    [
+      "working_assets",
+      "brand_code,topic_id",
+      "master_topics",
+      "brand_code,id"
+    ],
+    [
+      "working_assets",
+      "brand_code,generation_job_id",
+      "generation_jobs",
+      "brand_code,id"
+    ],
+    [
+      "working_assets",
+      "brand_code,file_version_id",
+      "file_versions",
+      "brand_code,id"
+    ],
+    [
+      "generation_jobs",
+      "brand_code,task_id",
+      "content_tasks",
+      "brand_code,id"
+    ],
+    [
+      "generation_jobs",
+      "brand_code,skill_version_id",
+      "skill_versions",
+      "brand_code,id"
+    ],
+    [
+      "generation_jobs",
+      "brand_code,template_id",
+      "creative_templates",
+      "brand_code,id"
+    ],
+    [
+      "video_artifacts",
+      "brand_code,task_id",
+      "content_tasks",
+      "brand_code,id"
+    ],
+    [
+      "video_artifacts",
+      "brand_code,final_asset_id",
+      "working_assets",
+      "brand_code,id"
+    ],
+    [
+      "publishing_schedules",
+      "brand_code,content_version_id",
+      "content_versions",
+      "brand_code,id"
+    ],
+    [
+      "publishing_schedules",
+      "brand_code,channel_id",
+      "channels",
+      "brand_code,id"
+    ],
+    [
+      "publication_records",
+      "brand_code,schedule_id",
+      "publishing_schedules",
+      "brand_code,id"
+    ],
+    [
+      "publication_records",
+      "brand_code,content_version_id",
+      "content_versions",
+      "brand_code,id"
+    ],
+    [
+      "publication_records",
+      "brand_code,channel_id",
+      "channels",
+      "brand_code,id"
+    ],
+    [
+      "published_artifacts",
+      "brand_code,publication_id",
+      "publication_records",
+      "brand_code,id"
+    ],
+    [
+      "published_artifacts",
+      "brand_code,file_version_id",
+      "file_versions",
+      "brand_code,id"
+    ],
+    [
+      "publication_corrections",
+      "brand_code,publication_id",
+      "publication_records",
+      "brand_code,id"
+    ],
+    [
+      "publication_corrections",
+      "brand_code,replacement_publication_id",
+      "publication_records",
+      "brand_code,id"
+    ],
+    [
+      "publication_metrics",
+      "brand_code,publication_id",
+      "publication_records",
+      "brand_code,id"
+    ],
+    [
+      "publication_metrics",
+      "brand_code,channel_id",
+      "channels",
+      "brand_code,id"
+    ],
+    [
+      "asset_admissions",
+      "brand_code,working_asset_id",
+      "working_assets",
+      "brand_code,id"
+    ],
+    [
+      "library_asset_refs",
+      "brand_code,admission_id",
+      "asset_admissions",
+      "brand_code,id"
+    ],
+    [
+      "library_asset_refs",
+      "brand_code,working_asset_id",
+      "working_assets",
+      "brand_code,id"
+    ],
+    [
+      "ingest_jobs",
+      "brand_code,source_id",
+      "source_registry",
+      "brand_code,id"
+    ],
+    [
+      "research_reports",
+      "brand_code,job_id",
+      "research_jobs",
+      "brand_code,id"
+    ],
+    [
+      "research_jobs",
+      "brand_code,report_id",
+      "research_reports",
+      "brand_code,id"
+    ],
+    [
+      "research_findings",
+      "brand_code,report_id",
+      "research_reports",
+      "brand_code,id"
+    ],
+    [
+      "research_findings",
+      "brand_code,source_item_id",
+      "source_items",
+      "brand_code,id"
+    ],
+    [
+      "topic_proposals",
+      "brand_code,report_id",
+      "research_reports",
+      "brand_code,id"
+    ],
+    [
+      "topic_proposals",
+      "brand_code,topic_id",
+      "master_topics",
+      "brand_code,id"
+    ],
+    [
+      "video_render_jobs",
+      "brand_code,task_id",
+      "content_tasks",
+      "brand_code,id"
+    ],
+    [
+      "video_render_jobs",
+      "brand_code,file_version_id",
+      "file_versions",
+      "brand_code,id"
+    ],
+    [
+      "library_admission_jobs",
+      "brand_code,admission_id",
+      "asset_admissions",
+      "brand_code,id"
+    ],
+    [
+      "role_brand_scopes",
+      "grant_id",
+      "user_role_grants",
+      "id"
+    ],
+    [
+      "task_library_refs",
+      "brand_code,task_id",
+      "content_tasks",
+      "brand_code,id"
+    ],
+    [
+      "task_library_refs",
+      "brand_code,library_ref_id",
+      "library_asset_refs",
+      "brand_code,id"
+    ],
+    [
+      "content_version_assets",
+      "brand_code,content_version_id",
+      "content_versions",
+      "brand_code,id"
+    ],
+    [
+      "content_version_assets",
+      "brand_code,asset_id",
+      "working_assets",
+      "brand_code,id"
+    ],
+    [
+      "content_version_assets",
+      "brand_code,file_version_id",
+      "file_versions",
+      "brand_code,id"
+    ],
+    [
+      "content_version_channels",
+      "brand_code,content_version_id",
+      "content_versions",
+      "brand_code,id"
+    ],
+    [
+      "content_version_channels",
+      "brand_code,channel_id",
+      "channels",
+      "brand_code,id"
+    ],
+    [
+      "content_version_evidence",
+      "brand_code,content_version_id",
+      "content_versions",
+      "brand_code,id"
+    ],
+    [
+      "content_version_evidence",
+      "brand_code,evidence_reference_id",
+      "evidence_references",
+      "brand_code,id"
+    ],
+    [
+      "generation_job_outputs",
+      "brand_code,job_id",
+      "generation_jobs",
+      "brand_code,id"
+    ],
+    [
+      "generation_job_outputs",
+      "brand_code,asset_id",
+      "working_assets",
+      "brand_code,id"
+    ],
+    [
+      "video_storyboard_shots",
+      "brand_code,video_artifact_id",
+      "video_artifacts",
+      "brand_code,id"
+    ],
+    [
+      "video_storyboard_shots",
+      "brand_code,asset_id",
+      "working_assets",
+      "brand_code,id"
+    ],
+    [
+      "research_finding_evidence",
+      "brand_code,finding_id",
+      "research_findings",
+      "brand_code,id"
+    ],
+    [
+      "research_finding_evidence",
+      "brand_code,report_id",
+      "research_reports",
+      "brand_code,id"
+    ],
+    [
+      "research_finding_evidence",
+      "evidence_id",
+      "source_evidence",
+      "id"
+    ],
+    [
+      "topic_proposal_findings",
+      "brand_code,proposal_id",
+      "topic_proposals",
+      "brand_code,id"
+    ],
+    [
+      "topic_proposal_findings",
+      "brand_code,finding_id",
+      "research_findings",
+      "brand_code,id"
+    ],
+    [
+      "proposal_dispatch_tasks",
+      "brand_code,proposal_id",
+      "topic_proposals",
+      "brand_code,id"
+    ],
+    [
+      "proposal_dispatch_tasks",
+      "brand_code,task_id",
+      "content_tasks",
+      "brand_code,id"
+    ],
+    [
+      "proposal_dispatch_tasks",
+      "brand_code,plan_item_id",
+      "plan_items",
+      "brand_code,id"
+    ],
+    [
+      "asset_admission_history",
+      "brand_code,admission_id",
+      "asset_admissions",
+      "brand_code,id"
+    ],
+    [
+      "research_report_brands",
+      "brand_code,report_id",
+      "research_reports",
+      "brand_code,id"
+    ],
+    [
+      "video_keyframe_assets",
+      "brand_code,video_artifact_id",
+      "video_artifacts",
+      "brand_code,id"
+    ],
+    [
+      "video_keyframe_assets",
+      "brand_code,asset_id",
+      "working_assets",
+      "brand_code,id"
+    ],
+    [
+      "campaign_library_refs",
+      "brand_code,campaign_id",
+      "campaigns",
+      "brand_code,id"
+    ],
+    [
+      "campaign_library_refs",
+      "brand_code,library_ref_id",
+      "library_asset_refs",
+      "brand_code,id"
+    ],
+    [
+      "research_report_evidence",
+      "brand_code,report_id",
+      "research_reports",
+      "brand_code,id"
+    ],
+    [
+      "research_report_evidence",
+      "evidence_id",
+      "source_evidence",
+      "id"
+    ],
+    [
+      "file_versions",
+      "brand_code,object_id",
+      "file_objects",
+      "brand_code,id"
+    ],
+    [
+      "upload_sessions",
+      "brand_code,object_id",
+      "file_objects",
+      "brand_code,id"
+    ],
+    [
+      "upload_sessions",
+      "brand_code,file_version_id",
+      "file_versions",
+      "brand_code,id"
+    ],
+    [
+      "budget_periods",
+      "policy_id",
+      "provider_budget_policies",
+      "id"
+    ],
+    [
+      "budget_reservations",
+      "brand_code,period_id",
+      "budget_periods",
+      "brand_code,id"
+    ],
+    [
+      "migration_rejections",
+      "run_id",
+      "migration_runs",
+      "id"
+    ],
+    [
+      "idempotency_requests",
+      "brand_code,proposal_id",
+      "topic_proposals",
+      "brand_code,id"
+    ],
+    [
+      "role_brand_scopes",
+      "scope_brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "research_report_brands",
+      "visible_brand_code",
+      "brands",
+      "code"
+    ],
+    [
+      "source_evidence",
+      "source_id",
+      "source_registry",
+      "id"
+    ],
+    [
+      "review_cases",
+      "brand_code,content_version_id,version_hash",
+      "content_versions",
+      "brand_code,id,manifest_hash"
+    ],
+    [
+      "review_decisions",
+      "brand_code,case_id,version_hash",
+      "review_cases",
+      "brand_code,id,version_hash"
+    ],
+    [
+      "review_decisions",
+      "brand_code,case_id,content_version_id",
+      "review_cases",
+      "brand_code,id,content_version_id"
+    ],
+    [
+      "review_decisions",
+      "brand_code,case_id,asset_admission_id",
+      "review_cases",
+      "brand_code,id,asset_admission_id"
+    ],
+    [
+      "research_finding_evidence",
+      "brand_code,finding_id,report_id",
+      "research_findings",
+      "brand_code,id,report_id"
+    ],
+    [
+      "research_finding_evidence",
+      "brand_code,report_id,evidence_id",
+      "research_report_evidence",
+      "brand_code,report_id,evidence_id"
+    ]
+  ]
+}
