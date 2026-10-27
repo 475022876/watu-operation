@@ -1,0 +1,74 @@
+  PASS  ENV-01 服务器启动且 /api/health 正常  :: http://127.0.0.1:9665
+  PASS  ENV-02 管理员首次登录成功（引导口令）  :: HTTP 200
+  PASS  ENV-03 首登强制改密成功  :: {"ok":true}
+  PASS  ENV-04 六个测试身份登录成功  :: creator/creator.ucard/publisher/reviewer/approver/nobody
+
+--- E2E-03 AI 创作与审核链 ---
+  PASS  E2E03-01 Skill 清单可读且声明可用性  :: HTTP 200 state=REFERENCE_ONLY body={"ok":true,"brandCode":"VFIB","items":[{"id":"skv_vfib_guardian_12","brandCode":"VFIB","skillCode":"VISUAL_BRAND_GUARDIAN","version":"1.2","checksum":"UNVERIFIED_FILE_PACKAGE","approvalRef":"","state":"REFERENCE_ONLY","n
+  PASS  E2E03-02 创建内容版本草稿（DRAFT，number=1）  :: HTTP 200 state=DRAFT number=1 body={"ok":true,"version":{"id":"cv_mvqlbyr7_fc04980e2578","brandCode":"VFIB","contentTaskId":"task_demo_01","taskCode":"MOS-TASK-0001","taskTitle":"储备透明化 · LinkedIn 长文初稿（DEMO）","number":1,"code":"MOS-TASK-0001-v1","title":"E
+  PASS  E2E03-03 草稿可编辑且正文哈希随之变化  :: hash c4fb727b → 17e7d15c
+  PASS  E2E03-04 冻结送审成功，状态进入 LOCKED_FOR_REVIEW  :: state=LOCKED_FOR_REVIEW
+  PASS  E2E03-05 冻结时固化 Manifest 哈希与清单快照  :: hash=cade49e9df343d17
+  PASS  SEC-02-a 冻结后正文与引用资产不可直接改写（409 VERSION_IMMUTABLE）
+  PASS  E2E03-06 G2 内容自动生成「专业审核 + 发布审批」两条独立链  :: cases=PUBLICATION_APPROVAL,PROFESSIONAL_REVIEW
+  PASS  E2E03-07 职责分离：创作者不能审批自己创建的内容（403）  :: code=FORBIDDEN
+  PASS  E2E03-08 有身份但无审核权限者被拒绝（403）  :: HTTP 403 code=FORBIDDEN
+  PASS  E2E03-09 专业审核未过时发布审批被阻塞（PROFESSIONAL_REVIEW_PENDING）  :: HTTP 409
+  PASS  E2E03-10 专业审核员批准专业审核  :: state=APPROVED
+  PASS  E2E03-11 发布审批通过后版本进入 APPROVED（两条链都完成才生效）  :: case=APPROVED version=APPROVED
+  PASS  E2E03-11b 批准联动任务状态推进到 READY
+  PASS  E2E03-12 Manifest 冻结值与实时重算值一致（SEC-02 正向）
+  PASS  E2E03-13 已批准版本可派生新版本，旧版本标记 SUPERSEDED  :: new=2
+  PASS  E2E03-14 旧版本被标记 SUPERSEDED 且未被删除  :: state=SUPERSEDED
+  PASS  E2E03-15 文本 Provider 未配置时作业落到 NOT_CONFIGURED（不伪造输出）  :: status=NOT_CONFIGURED
+  PASS  E2E03-16 生成作业幂等：同一 idempotencyKey 不重复执行  :: job=gj_mvqlbys0_061fed1ddf61
+  PASS  E2E03-17 预算闸门在调用 Provider 之前拦截（BUDGET_EXCEEDED）  :: status=BUDGET_EXCEEDED
+  PASS  E2E03-18 U CARD 未批准 Skill 时正式输出被阻塞（不得套用 VFIB 规则）  :: HTTP 200 reason=该品牌 Skill 尚未批准，禁止生成输出（不得套用其他品牌的规则）。
+  PASS  E2E03-19 VFIB Skill 仅 REFERENCE_ONLY 时正式输出同样被阻塞（未批准即不得正式输出）  :: blocked=true
+  PASS  E2E03-20 REFERENCE_ONLY 允许生成受控测试草稿（并返回生效规则哈希）  :: hash=c2667d17414d
+
+--- E2E-04 排期 / 发布 / 归档 ---
+  PASS  E2E04-00a 为发布链创建独立草稿版本  :: state=DRAFT
+  PASS  E2E04-00b G1 内容送审后只生成发布审批链（不强制专业审核）  :: HTTP 200 cases=PUBLICATION_APPROVAL
+  PASS  E2E04-00c 该版本已批准，可用于排期  :: state=APPROVED
+  PASS  E2E04-01 渠道登记可读且含启用渠道  :: channels=2
+  PASS  SEC-04-a 渠道数据不含任何口令/令牌字段（不代持平台凭据）
+  PASS  E2E04-00d 可创建临时任务作为未批准内容载体  :: id=task_mvqlbysi_51b87162f243
+  PASS  E2E04-00e 未批准草稿版本已创建（DRAFT）  :: state=DRAFT
+  PASS  SEC-04-b 未批准内容版本的排期只能落为 BLOCKED（不得 READY）  :: state=BLOCKED
+  PASS  SEC-04-c 未批准内容强推 READY 被拒绝（NOT_APPROVED）  :: HTTP 409 code=NOT_APPROVED
+  PASS  E2E04-02 已批准版本可创建排期（直接进入 READY）  :: state=READY
+  PASS  E2E04-03 排期状态机越级/非法迁移被拒绝（ILLEGAL_TRANSITION）  :: HTTP 409 code=ILLEGAL_TRANSITION
+  PASS  E2E04-04 排期 READY → SCHEDULED  :: state=SCHEDULED
+  PASS  E2E04-05 无真实 URL / 证据引用不能登记发布  :: code=MISSING_PROOF
+  PASS  E2E04-06 人工登记发布成功并生成归档记录  :: id=pub_mvqlbysv_77a7ad2829ab status=PUBLISHED
+  PASS  E2E04-07 归档记录带正文哈希与清单哈希（可追溯批准对象）
+  PASS  E2E04-08 归档快照物理落盘（正文 + 清单文件）  :: files=[content.md,manifest.json]
+  PASS  E2E04-09 归档正文只读可读（从快照读取，非工作副本）  :: bytes=16
+  PASS  E2E04-10 更正事件 append-only 追加成功  :: HTTP 200
+  PASS  E2E04-11 更正后原归档快照仍保留（不可编辑、仅追加）  :: corrections=1
+  PASS  E2E04-12 发布指标以人工登记方式记录（含来源与截止日）  :: HTTP 200
+  PASS  E2E04-13 第二条排期成功进入 SCHEDULED（用于无自动发布验证）  :: state=SCHEDULED
+  PASS  E2E04-14 系统不存在自动发布：到期后状态与归档均不变  :: state=SCHEDULED pubs 1→1
+
+--- 视频工作区（首期范围） ---
+  PASS  VID-01 视频工作区按任务惰性创建（初始 BRIEF）  :: state=BRIEF
+  PASS  VID-02 保存脚本后状态推进到 SCRIPT  :: state=SCRIPT
+  PASS  VID-03 保存分镜后状态推进到 STORYBOARD  :: state=STORYBOARD
+  PASS  VID-04 字幕时间倒置被拒绝（BAD_SUBTITLE）  :: code=BAD_SUBTITLE
+  PASS  VID-05 合法字幕保存后状态推进到 SUBTITLE  :: state=SUBTITLE
+  PASS  PUB-01 日历与排期为同一数据源（同区间条目数完全一致）  :: calendar=3 schedules=3
+  PASS  PUB-02 日历响应显式声明状态色不单独表达含义
+  PASS  SEC-04-d 渠道登记拒绝任何密码/令牌字段（SECRET_NOT_ALLOWED）  :: HTTP 400 code=SECRET_NOT_ALLOWED
+  PASS  SEC-04-e 渠道 URL 强制 HTTPS（拒绝 http://）  :: HTTP 400 code=BAD_URL
+
+--- SEC-02 Manifest 绑定（直接改盘后审批必须失败） ---
+  PASS  SEC-02-b 送审后审核单绑定冻结的 Manifest 哈希  :: case=PUBLICATION_APPROVAL
+  PASS  SEC-02-c 目标版本与审核单已确认落盘（前置条件）  :: version=true case=true
+  PASS  SEC-02-d 服务器重启后重新加载被篡改的数据
+  PASS  SEC-02-e 审核详情显示冻结哈希与实时重算值不一致（manifestMatches=false）  :: matches=false
+  PASS  SEC-02-f 批准被篡改的底稿被拒绝（MANIFEST_CHANGED）  :: HTTP 409 code=MANIFEST_CHANGED
+  PASS  SEC-02-g 被拒绝后审核单未被改动（仍为未终结状态）  :: HTTP 200 state=SUBMITTED
+
+端到端测试（BUILD-02）：63/63 通过
+证据目录：C:\Users\three\.codex\worktrees\baseline-consolidation-phase1\VFIB-Marketing-OS\TEST_EVIDENCE_MOS_BUILD02

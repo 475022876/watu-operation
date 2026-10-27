@@ -1,0 +1,56 @@
+[provideradmin] stub @ http://127.0.0.1:9689 | server port 9661
+
+--- A. 管理接口（HTTP + RBAC + 密钥密文） ---
+  PASS  PA-00 服务器启动并健康
+  PASS  PA-01 未登录读取接入配置 → 401（不泄露任何供应商信息）  :: 401 {"ok":false,"error":"登录状态已失效，请重新登录","code":"UNAUTHORIZED"}
+  PASS  PA-02 管理员登录成功  :: 200
+  PASS  PA-03 首登改密成功（后续接口才可用）  :: 200
+  PASS  PA-04 返回四类接入（文本/图像/视频/网页检索）且不含 apiKey 明文字段  :: kinds=text,image,video,websearch
+  PASS  PA-05 保存文本接入成功：密钥只回掩码、就绪度 CONFIGURED_NOT_TESTED  :: mask=sk-••••••••ec51 readiness=CONFIGURED_NOT_TESTED
+  PASS  PA-06 密钥以 AES-256-GCM 密文落库（数据文件不含明文，密文含 iv/tag/ct）  :: hasPlain=false sealedKeys=v,alg,iv,tag,ct,kf
+  PASS  PA-07 再次读取仍无明文密钥（掩码 + 指纹）
+  PASS  PA-08 非法接入方式被拒绝（400 BAD_MODE）  :: 400/BAD_MODE
+  PASS  PA-09 端点指向内网地址被拒绝（400 BAD_BASE_URL）  :: 400/BAD_BASE_URL
+  PASS  PA-10 过短密钥被拒绝（400 BAD_API_KEY）  :: 400
+  PASS  PA-11 普通角色（P1）读取接入配置 → 403（仅技术管理员 settings.manage）  :: mk=200 login=200 read=403/FORBIDDEN
+  PASS  PA-12 越权访问写入 permission.denied 审计  :: denied=1
+  PASS  PA-13 连接测试走真实 chat 管线并成功（替身收到请求）  :: ok=true code= calls=1
+  PASS  PA-14 有真实成功证据后就绪度晋级 REAL（不再是"未联调"）  :: readiness=REAL ev={"at":"2026-10-27T11:13:29.511Z","provider":"openai","model":"stub-model","id":"
+  PASS  PA-15 连接测试频控（8 秒内重复 → 400 TEST_TOO_FREQUENT）  :: 400/TEST_TOO_FREQUENT
+  PASS  PA-16 预算上限保存成功  :: {"brandMonthlyUsd":50,"perJobUsdMax":0.5,"currency":"USD","note":"0 表示不设上限。上限用于**事前拦截**（按配置单价估算）与**事后核对**（只用供应商回执）。"}
+  PASS  PA-17 开启受限数据外发但未填确认人 → 400 ACK_REQUIRED  :: 400/ACK_REQUIRED
+  PASS  PA-18 填确认人后可开启受限外发（并留审计）  :: {"allowConfidential":false,"allowRestricted":true,"allowRestrictedRaw":true,"acknowledgedBy":"compliance@vfib (test)","updatedAt":"2026-10-27T11:13:29.520Z","note":"默认全部关闭：判定为机密/受限的内容不会发送到任何外部服务。开启即视为该部署的合规责任人已确认。"}
+  PASS  PA-19 调用账本可查：probe 计入 text 且带延迟  :: {"text":{"calls":1,"ok":1,"failed":0,"tokens":51,"costConfirmed":0.00021,"costUnknown":0}}
+  PASS  PA-20 账本响应中不含任何密钥明文
+  PASS  PA-21 清除密钥后回到 NOT_CONFIGURED（不保留"假可用"）  :: readiness=NOT_CONFIGURED
+
+--- B. 适配器真实调用（同一份真实实现，只把对端换成本地契约替身） ---
+  ------------------------------------------------------------
+  【DEMO 演示账号】仅用于沙盒演示，生产环境请勿启用：
+    mosadmin  /  ZD6baa9ywg2kHn   （引导管理员（首登需改密））
+    demo.p1  /  jPe8CJm2PYFm   （DEMO · P1）
+    demo.p2  /  jPe8CJm2PYFm   （DEMO · P2）
+    demo.p3  /  jPe8CJm2PYFm   （DEMO · P3+PUBLISHING_APPROVER）
+    demo.reviewer  /  jPe8CJm2PYFm   （DEMO · PROFESSIONAL_REVIEWER）
+    demo.lfa  /  jPe8CJm2PYFm   （DEMO · LIBRARY_FINAL_APPROVER）
+  ------------------------------------------------------------
+
+[mos-store] 首次运行，已生成 Marketing OS 数据库
+  PASS  PB-01 文本真实调用成功（研究报告任务走通 chat/completions）  :: state=SUCCEEDED len=14 provider=openai
+  PASS  PB-02 请求带 Bearer 鉴权、模型名与防提示注入声明  :: authPrefix=Bearer sk-test
+  PASS  PB-03 用量与费用回执如实记录（token 来自供应商，费用 confirmed）  :: usage={"prompt_tokens":42,"completion_tokens":9,"total_tokens":51,"promptTokens":42,"completionTokens":9,"totalTokens":51,"providerJobId":"chatcmpl-stub","promptChars":329} cost={"amount":0.00021,"currency":"USD","confirmed":true,"source":"
+  PASS  PB-01b 五类文本产出全部走真实管线并成功（资料总结/研究报告/选题/英文文案/视频脚本）  :: SUMMARY=SUCCEEDED REPORT=SUCCEEDED TOPIC=SUCCEEDED COPY_EN=SUCCEEDED VIDEO_SCRIPT=SUCCEEDED calls=5
+  PASS  PB-01c 五类任务各自携带专属指令（模板未串用、未退化为同一提示）  :: SUMMARY:ok REPORT:ok TOPIC:ok COPY_EN:ok VIDEO_SCRIPT:ok
+  PASS  PB-01d 未知任务码 → 明确拒绝且零出站（不猜测用户意图）  :: state=FAILED code=PROVIDER_UNKNOWN_MODE calls=0
+  PASS  PB-04 供应商 503 → 有界重试后成功（attempts=3，符合 maxRetries=2）  :: state=SUCCEEDED attempts=3 flaky=3
+  PASS  PB-05 供应商慢响应 → PROVIDER_TIMEOUT（硬超时生效，不无限等待）  :: state=FAILED code=PROVIDER_TIMEOUT
+  PASS  PB-06 预估费用超单次上限 → BUDGET_EXCEEDED 且零出站  :: state=BLOCKED code=PROVIDER_BUDGET_EXCEEDED calls=0
+  PASS  PB-07 含身份证号的内容 → BLOCKED_DATA_CLASS 且零出站  :: state=BLOCKED code=PROVIDER_BLOCKED_DATA_CLASS calls=0
+  PASS  PB-08 显式受限数据在未豁免时同样被拦截（分级取更严者）  :: PROVIDER_BLOCKED_DATA_CLASS
+  PASS  PB-09 管理员豁免机密数据后可以外发（策略可运营，非写死）  :: state=SUCCEEDED
+  FAIL  PB-10 图像真实调用（b64）成功并返回真实字节  :: state=NOT_CONFIGURED bytes=undefined
+  FAIL  EXCEPTION 套件未抛出异常  :: TypeError: Cannot read properties of undefined (reading 'bytes')
+    at partB (C:\Users\three\.codex\worktrees\baseline-consolidation-phase1\VFIB-Marketing-OS\tools\mos-provider-admin-test.js:526:31)
+    at process.processTicksAndRejections
+
+provideradmin 结果：34/36 通过

@@ -1,0 +1,59 @@
+V0.1.2 Phase C · 编辑域端到端（真实 HTTP + 隔离实例）
+  实例 http://127.0.0.1:9674   数据目录 C:\Users\three\.codex\worktrees\baseline-consolidation-phase1\VFIB-Marketing-OS\data-mos-e12-d8038c
+  PASS  SV-01 服务器启动并探活
+  PASS  SV-02 引导管理员登录
+  PASS  SV-03 改密并重登
+  PASS  U-01 P1(VFIB) 登录
+  PASS  U-02 P2(VFIB) 登录
+  PASS  U-03 创作者(VFIB) 登录
+  PASS  U-04 P2(UCARD) 登录
+
+--- A. 批准入池（APPROVED_UNSCHEDULED） ---
+  PASS  AP-01 AI_RECOMMENDED 直接批准入池 → 409（须先提交审核）
+  PASS  AP-02 批准入池 → 200 且 Topic state=APPROVED_UNSCHEDULED  :: {"id":"topic_mvqltyu7_1ebfd3d27c45","title":"Pool topic ajz8d","state":"APPROVED_UNSCHEDULED","pillarCode":"C02","narrativeCode":"N01","riskGrade":"G1"}
+  PASS  AP-03 栏目映射正确（C02）且叙事 N01
+  PASS  AP-04 证据如实计数（无真实来源条目 → linked=0/skipped=0，不伪造）  :: {"linked":0,"skipped":0}
+  PASS  AP-05 重复批准入池 → 409（不重复建 Topic）  :: status=409
+  PASS  AP-06 正式 Topic 恰好 1 条且带溯源  :: items=1
+  PASS  AP-07 P2 尝试批准入池 → 403（默认拒绝）  :: status=403
+  PASS  AP-08 UCARD 用户操作 VFIB 提案 → 404 防枚举  :: status=404
+
+--- B. 批准并安排（幂等 Saga）—— 校验负例 ---
+  PASS  SC-01 缺 idempotencyKey → 400  :: status=400 code=MISSING_IDEMPOTENCY_KEY
+  PASS  SC-02 无平台交付物 → 400（改用批准入池）
+  PASS  SC-03 非法平台 → 400
+  PASS  SC-04 负责人不是真实在职用户 → 400
+  PASS  SC-05 缺制作期限 → 400
+  PASS  SC-06 工作日期格式非法 → 400
+  PASS  SC-07 全部负例后提案仍为 PENDING（fail-fast 未触碰状态）
+
+--- C. Saga 正向执行与幂等重放 ---
+  PASS  SG-01 Saga 完成 → 200，Topic state=ASSIGNED  :: {"id":"topic_mvqltyze_c448e378eadf","title":"Scheduled topic tun45","state":"ASSIGNED"}
+  PASS  SG-02 两个平台任务 PLANNED 且编号不同  :: LINKEDIN:MOS-TASK-0003 / X:MOS-TASK-0004
+  PASS  SG-03 自动创建月度计划（autoCreated=true）+ 2 个 PlanItem  :: {"id":"plan_mvqltyze_54752bb76f6e","code":"VFIB-2026-11-v1","year":2026,"month":11,"autoCreated":true}
+  PASS  SG-04 提案 APPROVED 且回链 Topic
+  PASS  SG-05 同 idempotencyKey 重放 → replay=true 且返回首次快照  :: replay=true
+  PASS  SG-06 重放后正式 Topic 仍恰好 1 条（双击/重试不重复建题）  :: items=1
+  PASS  SG-07 已 APPROVED 提案换 key 再派工 → 409（状态机防护）  :: status=409
+  PASS  SG-08 P2 尝试批准并安排 → 403（默认拒绝）  :: status=403
+
+--- D. 日 / 周 / 月同源视图 ---
+  PASS  VW-01 月视图含 11-05 的 2 个事项且按状态聚合  :: {"total":2,"byStatus":{"PLANNED":2},"scheduled":0}
+  PASS  VW-02 月视图范围覆盖整月  :: {"from":"2026-11-01","to":"2026-11-30"}
+  PASS  VW-03 日视图恰为当日 2 项
+  PASS  VW-04 周视图包含同一 2 项（同源过滤，非复制）
+  PASS  VW-05 空时段如实为 0（不伪造条目）
+  PASS  VW-06 跨品牌读视图 → 404 防枚举  :: status=404
+
+--- E. 平台任务独立推进 ---
+  PASS  TK-01 LinkedIn 任务独立推进 → IN_PRODUCTION  :: status=200
+  PASS  TK-02 X 任务不受影响（仍 PLANNED，平台独立退回/推进）
+  PASS  TK-03 视图聚合随任务状态真实更新（IN_PRODUCTION=1 / PLANNED=1）  :: {"total":2,"byStatus":{"IN_PRODUCTION":1,"PLANNED":1},"scheduled":0}
+
+--- F. 审计落盘（停服后直读数据文件） ---
+  PASS  AU-01 editorial.approve_to_pool 已落审计
+  PASS  AU-02 editorial.saga_completed 已落审计
+  PASS  AU-03 plan.created(autoBySaga) 已落审计
+  PASS  AU-04 proposal.decision 已落审计
+
+[v012-editorial] 43/43 通过

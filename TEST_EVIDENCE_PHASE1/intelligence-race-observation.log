@@ -1,0 +1,1 @@
+{"suite":"t09-observation","at":"2026-10-27T11:23:01.244Z","status":"KNOWN_FAIL_OUT_OF_SCOPE","freshResponseRendered":true,"staleResponseOverwrites":true,"scope":"H05 is not authorized for repair in Phase1; source unchanged","repairPerformed":false}

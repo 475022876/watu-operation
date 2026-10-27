@@ -1,0 +1,7 @@
+PASS T02 active user of another brand is not a valid assignee
+PASS T02 revoked brand permission is checked at dispatch time
+PASS T02 active user with non-production role is rejected
+PASS T02 disabled creator is rejected
+PASS T02 missing assignee is rejected
+PASS T02 authorized producer is assigned and other brand unchanged
+{"suite":"h02","total":6,"passed":6,"failed":0}
