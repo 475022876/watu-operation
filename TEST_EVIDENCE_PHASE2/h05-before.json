@@ -1,0 +1,110 @@
+{
+  "suite": "h05",
+  "mode": "before",
+  "total": 21,
+  "passed": 4,
+  "failed": 17,
+  "results": [
+    {
+      "name": "classification fail closed executive",
+      "ok": false,
+      "error": "Missing expected exception."
+    },
+    {
+      "name": "classification fail closed Executive Confidential",
+      "ok": false,
+      "error": "Missing expected exception."
+    },
+    {
+      "name": "classification fail closed EXECUTIVE_CONFIDENTIAL",
+      "ok": false,
+      "error": "Missing expected exception."
+    },
+    {
+      "name": "classification fail closed unknown-security-level",
+      "ok": false,
+      "error": "Missing expected exception."
+    },
+    {
+      "name": "open classification explicitly maps PUBLIC",
+      "ok": true
+    },
+    {
+      "name": "fresh authorized open metadata allowed",
+      "ok": true
+    },
+    {
+      "name": "fresh authorized internal metadata allowed",
+      "ok": true
+    },
+    {
+      "name": "untrusted or non-exportable metadata denied 7",
+      "ok": false,
+      "error": "Missing expected exception."
+    },
+    {
+      "name": "untrusted or non-exportable metadata denied 8",
+      "ok": false,
+      "error": "Missing expected exception."
+    },
+    {
+      "name": "untrusted or non-exportable metadata denied 9",
+      "ok": true
+    },
+    {
+      "name": "untrusted or non-exportable metadata denied 10",
+      "ok": false,
+      "error": "Missing expected exception."
+    },
+    {
+      "name": "untrusted or non-exportable metadata denied 11",
+      "ok": false,
+      "error": "Missing expected exception."
+    },
+    {
+      "name": "untrusted or non-exportable metadata denied 12",
+      "ok": false,
+      "error": "Missing expected exception."
+    },
+    {
+      "name": "untrusted or non-exportable metadata denied 13",
+      "ok": false,
+      "error": "Missing expected exception."
+    },
+    {
+      "name": "untrusted or non-exportable metadata denied 14",
+      "ok": false,
+      "error": "Missing expected exception."
+    },
+    {
+      "name": "fresh Provider checked on every call",
+      "ok": false,
+      "error": "Expected values to be strictly equal:"
+    },
+    {
+      "name": "revoked Provider permission denies even client PUBLIC override",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "cross-brand task rejected before Provider request",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "actor brand permission revoked cannot use reference",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "unknown local reference denied",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "missing trusted metadata from current authority rejected",
+      "ok": false,
+      "error": "Missing expected rejection."
+    }
+  ]
+}
