@@ -72,7 +72,7 @@ rels=[
 for n,c,s,u,note in rels:table(n,c,scope=s,group='relation',unique=u,note=note)
 # 16 persistence/operations tables; migration-tool bookkeeping is not included.
 ops=[
-('file_objects','storage_backend text NOT NULL|bucket_ref text|object_key text NOT NULL|legacy_path text|state text NOT NULL|owner_id text|visibility text|retention_until timestamptz','brand',['brand_code,storage_backend,object_key'],'仅元数据，不搬文件'),
+('file_objects','storage_backend text NOT NULL|bucket_ref text|object_key text NOT NULL|legacy_path text|state text NOT NULL|owner_id text|visibility text|retention_until timestamptz','brand',['brand_code,storage_backend,bucket_ref,object_key'],'仅元数据，不搬文件；桶/后端命名空间属于存储身份'),
 ('file_versions','object_id text NOT NULL|version_no integer NOT NULL|storage_version text|sha256 text NOT NULL|byte_length bigint NOT NULL CHECK (byte_length >= 0)|mime text|upload_state text NOT NULL|verified_at timestamptz|immutable boolean NOT NULL DEFAULT false','brand',['brand_code,object_id,version_no'],'文件内容哈希，不以ETag代替SHA256'),
 ('upload_sessions','object_id text NOT NULL|file_version_id text|expected_sha256 text|expected_bytes bigint|status text NOT NULL|expires_at timestamptz|owner_id text','brand',[],'暂存、校验、READY提交与孤儿对账'),
 ('provider_configs','kind text NOT NULL|mode text NOT NULL|base_url text|model text|timeout_ms integer|retry_limit integer|secret_ref text|secret_ciphertext text|secret_key_id text|nonsecret_options jsonb|last_test_at timestamptz','global',['kind'],'现有全局配置及env>DB>file优先级保留；凭据不放自由JSONB'),
@@ -149,7 +149,7 @@ for t in tables:
  cs+=t['columns'].split('|')
  cs += ['row_version integer NOT NULL DEFAULT 1 CHECK (row_version > 0)','created_at timestamptz','recorded_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP','updated_at timestamptz','created_by_ref text','updated_by_ref text','demo boolean NOT NULL DEFAULT false',"legacy_extra jsonb NOT NULL DEFAULT '{}'::jsonb"]
  if t['scope'] in ['brand','optional']:cs.append('UNIQUE (brand_code,id)')
- for u in t['unique']:cs.append('UNIQUE '+('NULLS NOT DISTINCT ' if t['name']=='library_invalidations' else '')+'('+u+')')
+ for u in t['unique']:cs.append('UNIQUE '+('NULLS NOT DISTINCT ' if t['name'] in ['library_invalidations','file_objects'] else '')+'('+u+')')
  sql+=['','-- '+t['group']+' / source '+str(t['source'])+' / '+t['note'],'CREATE TABLE mos.'+t['name']+' (\n  '+',\n  '.join(cs)+'\n);']
 for i,(c,cols,p,pcols) in enumerate(fks,1):sql.append(f'ALTER TABLE mos.{c} ADD CONSTRAINT fk_{i:03d} FOREIGN KEY ({cols}) REFERENCES mos.{p} ({pcols}) ON DELETE RESTRICT DEFERRABLE INITIALLY IMMEDIATE;')
 sql += ["CREATE UNIQUE INDEX users_username_ci ON mos.users (lower(username));", "CREATE INDEX outbox_ready ON mos.outbox_events (available_at,id) WHERE status IN ('PENDING','RETRY');", "CREATE INDEX outbox_leased ON mos.outbox_events (lease_until) WHERE status='LEASED';", "CREATE INDEX session_expiry ON mos.auth_sessions (expires_at);", "CREATE INDEX ticket_expiry ON mos.library_ticket_cache (expires_at);", "CREATE INDEX invalidation_target ON mos.library_invalidations (kind,target_id);", "CREATE INDEX file_integrity ON mos.file_versions (brand_code,sha256,byte_length);"]
@@ -197,7 +197,7 @@ CREATE POLICY evidence_read ON mos.source_evidence FOR SELECT TO mos_app,mos_wor
 -- REQUIRED BEFORE EXECUTION: immutable-manifest/append-only triggers; grant catalog; global/nullable-brand policies;
 -- snapshot file READY gate, report/evidence/source brand consistency, active membership epoch locking,
 -- admission subject snapshot freeze, legacy field codec and date/time decisions. See PG07. No statement was executed.''']
-(OUT/'POSTGRESQL_SCHEMA_DRAFT.sql').write_text('\n'.join(sql)+'\n',encoding='utf-8')
+(OUT/'POSTGRESQL_SCHEMA_DRAFT.sql').write_text('\n'.join(line.rstrip() for line in '\n'.join(sql).splitlines())+'\n',encoding='utf-8')
 (OUT/'TABLE_CATALOG.json').write_text(json.dumps({'baseline':BASE,'collections':43,'coreTables':43,'relationshipTables':15,'supportTables':16,'totalTables':74,'tables':tables,'foreignKeys':fks},ensure_ascii=False,indent=2),encoding='utf-8')
 HEADER=f'''设计日期：2026-10-27。唯一分析基线：`{BASE}`，分支 `baseline/consolidation-phase2`，仓库 `475022876/watu-operation`。开始时HEAD、origin远程分支及干净工作树一致。应用0.1.6、mosSchemaVersion=8保持不变。
 

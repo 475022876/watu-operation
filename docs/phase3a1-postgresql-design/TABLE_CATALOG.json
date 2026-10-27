@@ -694,9 +694,9 @@
       "scope": "brand",
       "group": "ops",
       "unique": [
-        "brand_code,storage_backend,object_key"
+        "brand_code,storage_backend,bucket_ref,object_key"
       ],
-      "note": "仅元数据，不搬文件",
+      "note": "仅元数据，不搬文件；桶/后端命名空间属于存储身份",
       "indexes": []
     },
     {

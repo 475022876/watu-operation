@@ -82,7 +82,7 @@
 |video_keyframe_assets|relation|id:text；brand_code,video_artifact_id,ordinal|`brand_code,video_artifact_id`→video_artifacts; `brand_code,asset_id`→working_assets|PK/FK索引；row_version|
 |campaign_library_refs|relation|id:text；brand_code,campaign_id,claim_path,ordinal|`brand_code,campaign_id`→campaigns; `brand_code,library_ref_id`→library_asset_refs|PK/FK索引；row_version|
 |research_report_evidence|relation|id:text；brand_code,report_id,evidence_id|`brand_code,report_id`→research_reports; `evidence_id`→source_evidence|PK/FK索引；row_version|
-|file_objects|ops|id:text；brand_code,storage_backend,object_key|—|PK/FK索引；row_version|
+|file_objects|ops|id:text；brand_code,storage_backend,bucket_ref,object_key|—|PK/FK索引；row_version|
 |file_versions|ops|id:text；brand_code,object_id,version_no|`brand_code,object_id`→file_objects|PK/FK索引；row_version|
 |upload_sessions|ops|id:text；无未经确认的自然唯一键|`brand_code,object_id`→file_objects; `brand_code,file_version_id`→file_versions|PK/FK索引；row_version|
 |provider_configs|ops|id:text；kind|—|PK/FK索引；row_version|

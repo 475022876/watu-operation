@@ -86,7 +86,7 @@ CREATE TABLE mos.auth_sessions (
   UNIQUE (token_digest)
 );
 
--- core / source monthly_plans / 
+-- core / source monthly_plans /
 CREATE TABLE mos.monthly_plans (
   id text PRIMARY KEY,
   brand_code text NOT NULL,
@@ -178,7 +178,7 @@ CREATE TABLE mos.monthly_campaign_links (
   UNIQUE (brand_code,plan_id,campaign_id)
 );
 
--- core / source master_topics / 
+-- core / source master_topics /
 CREATE TABLE mos.master_topics (
   id text PRIMARY KEY,
   brand_code text NOT NULL,
@@ -201,7 +201,7 @@ CREATE TABLE mos.master_topics (
   UNIQUE (brand_code,id)
 );
 
--- core / source campaign_topic_links / 
+-- core / source campaign_topic_links /
 CREATE TABLE mos.campaign_topic_links (
   id text PRIMARY KEY,
   brand_code text NOT NULL,
@@ -219,7 +219,7 @@ CREATE TABLE mos.campaign_topic_links (
   UNIQUE (brand_code,campaign_id,topic_id)
 );
 
--- core / source content_tasks / 
+-- core / source content_tasks /
 CREATE TABLE mos.content_tasks (
   id text PRIMARY KEY,
   brand_code text NOT NULL,
@@ -334,7 +334,7 @@ CREATE TABLE mos.evidence_references (
   UNIQUE (brand_code,id)
 );
 
--- core / source skill_versions / 
+-- core / source skill_versions /
 CREATE TABLE mos.skill_versions (
   id text PRIMARY KEY,
   brand_code text NOT NULL,
@@ -965,7 +965,7 @@ CREATE TABLE mos.topic_proposals (
   UNIQUE (code)
 );
 
--- core / source research_jobs / 
+-- core / source research_jobs /
 CREATE TABLE mos.research_jobs (
   id text PRIMARY KEY,
   brand_code text NOT NULL,
@@ -1039,7 +1039,7 @@ CREATE TABLE mos.provider_calls (
   UNIQUE (brand_code,id)
 );
 
--- core / source video_render_jobs / 
+-- core / source video_render_jobs /
 CREATE TABLE mos.video_render_jobs (
   id text PRIMARY KEY,
   brand_code text NOT NULL,
@@ -1492,7 +1492,7 @@ CREATE TABLE mos.research_report_evidence (
   UNIQUE (brand_code,report_id,evidence_id)
 );
 
--- ops / source None / 仅元数据，不搬文件
+-- ops / source None / 仅元数据，不搬文件；桶/后端命名空间属于存储身份
 CREATE TABLE mos.file_objects (
   id text PRIMARY KEY,
   brand_code text NOT NULL,
@@ -1513,7 +1513,7 @@ CREATE TABLE mos.file_objects (
   demo boolean NOT NULL DEFAULT false,
   legacy_extra jsonb NOT NULL DEFAULT '{}'::jsonb,
   UNIQUE (brand_code,id),
-  UNIQUE (brand_code,storage_backend,object_key)
+  UNIQUE NULLS NOT DISTINCT (brand_code,storage_backend,bucket_ref,object_key)
 );
 
 -- ops / source None / 文件内容哈希，不以ETag代替SHA256
