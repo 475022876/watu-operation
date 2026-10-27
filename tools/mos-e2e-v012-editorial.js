@@ -242,7 +242,10 @@ async function main() {
 
   const replay = await cP1.call('POST', '/api/mos/topic-proposals/' + pSched.id + '/approve-and-schedule', {
     idempotencyKey: KEY, workDate: '2026-11-05',
-    deliverables: [{ platform: 'LINKEDIN', ownerId: creatorId, productionDue: '2026-11-10' }]
+    deliverables: [
+      { platform: 'LINKEDIN', ownerId: creatorId, productionDue: '2026-11-10' },
+      { platform: 'X', ownerId: creatorId, productionDue: '2026-11-10' }
+    ], comments: '双平台派工'
   });
   check('SG-05 同 idempotencyKey 重放 → replay=true 且返回首次快照', replay.status === 200
     && replay.json.replay === true && replay.json.dispatch.topicId === saga.json.topic.id
