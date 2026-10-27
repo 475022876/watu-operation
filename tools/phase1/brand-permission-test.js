@@ -4,7 +4,7 @@ async function denied(owner,edit){h.fixture();if(edit)edit();const p=h.proposal(
 (async()=>{
  await h.check('T02 active user of another brand is not a valid assignee',()=>denied('foreignCreator'));
  await h.check('T02 revoked brand permission is checked at dispatch time',()=>denied('creator',()=>{h.db.user_roles=h.db.user_roles.filter(x=>x.userId!=='creator');}));
- await h.check('T02 active user with non-production role is rejected',()=>denied('other'));
+ await h.check('T02 active user with non-production role is rejected',()=>denied('other',()=>{h.db.user_roles.find(x=>x.userId==='other').roleCode='P3';}));
  await h.check('T02 disabled creator is rejected',()=>denied('creator',()=>{h.db.users.find(x=>x.id==='creator').status='disabled';}));
  await h.check('T02 missing assignee is rejected',()=>denied('missing'));
  await h.check('T02 authorized producer is assigned and other brand unchanged',async()=>{h.fixture();const p=h.proposal();const r=await h.call(p.id,h.payload());assert.equal(r.tasks[0].ownerId,'creator');assert.equal(h.db.content_tasks.filter(x=>x.brandCode==='UCARD').length,0);});
