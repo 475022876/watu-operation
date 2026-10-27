@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),assert=require('node:assert/strict'),{spawnSync}=require('node:child_process');
 const root=path.resolve(__dirname,'../..'),dir=fs.mkdtempSync(path.join(os.tmpdir(),'mos-phase2-store-')),results=[];
-function child(p){return spawnSync(process.execPath,['-e',"console.log=()=>{};try{require('./lib/mos/store').getDb();process.exitCode=0}catch(e){console.error(e.code||e.message);process.exitCode=2}"],{cwd:root,env:{...process.env,MOS_DATA_DIR:p,MOS_DEMO_SEED:'0',MOS_ADMIN_PASSWORD:'Synthetic-fixture-only-2026'},encoding:'utf8'});}
+function child(p, production=false){return spawnSync(process.execPath,['-e',"console.log=()=>{};try{require('./lib/mos/store').getDb();process.exitCode=0}catch(e){console.error(e.code||e.message);process.exitCode=2}"],{cwd:root,env:{...process.env,MOS_DATA_DIR:p,MOS_PRODUCTION:production?'1':'0',MOS_DEMO_SEED:'0',MOS_ADMIN_PASSWORD:'Synthetic-fixture-only-2026'},encoding:'utf8'});}
 function check(name,fn){try{fn();results.push({name,ok:true});console.log('PASS '+name);}catch(e){results.push({name,ok:false,error:e.message.split("\n")[0].slice(0,180)});console.log('FAIL '+name+' '+e.message);}}
 try{
  const fresh=path.join(dir,'fresh');fs.mkdirSync(fresh);assert.equal(child(fresh).status,0);const good=fs.readFileSync(path.join(fresh,'mos.json'));
@@ -9,6 +9,7 @@ try{
   const p=path.join(dir,label.replace(/ /g,'-'));fs.mkdirSync(p);const file=path.join(p,'mos.json');fs.writeFileSync(file,bytes);
   check('H06 '+label+' is blocked and original bytes retained',()=>{assert.equal(child(p).status,2);assert(fs.readFileSync(file).equals(bytes),"original bytes changed");assert.deepEqual(fs.readdirSync(p),['mos.json']);});
  }
+ check('H06 missing production database cannot be automatically reseeded',()=>{const p=path.join(dir,'production-missing');fs.mkdirSync(p);assert.equal(child(p,true).status,2);assert.deepEqual(fs.readdirSync(p),[]);});
  check('H06 valid schema8 loads without rewriting',()=>{const before=fs.readFileSync(path.join(fresh,'mos.json'));assert.equal(child(fresh).status,0);assert(fs.readFileSync(path.join(fresh,'mos.json')).equals(before),'valid database was rewritten');});
  check('H06 authorized isolated restoration is byte identical',()=>{const p=path.join(dir,'corrupt-JSON'),file=path.join(p,'mos.json');const corrupt=fs.readFileSync(file);fs.writeFileSync(path.join(p,'mos.json.investigation'),corrupt);fs.writeFileSync(file,good);assert.equal(child(p).status,0);assert(fs.readFileSync(file).equals(good),'restored bytes changed');assert(fs.readFileSync(path.join(p,'mos.json.investigation')).equals(corrupt),'investigation bytes changed');});
  check('H06 failed restoration does not unblock corrupted source',()=>{const p=path.join(dir,'restore-failure');fs.mkdirSync(p);const file=path.join(p,'mos.json'),bytes=Buffer.from('{broken');fs.writeFileSync(file,bytes);assert.throws(()=>fs.copyFileSync(path.join(p,'missing-approved-backup'),file));assert.equal(child(p).status,2);assert(fs.readFileSync(file).equals(bytes),"original bytes changed");});

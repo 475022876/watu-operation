@@ -1,0 +1,7 @@
+{
+  "backupSha256": "01E85B57C57E786398443140A84A19AC0BA9768F54EF93D00425F2A92C20B596",
+  "verified": true,
+  "recovery": "Authenticated memory-only decryption; same Windows DPAPI user/profile required; no production write",
+  "atUtc": "2026-10-27T12:51:59.5957907Z",
+  "entries": 9
+}

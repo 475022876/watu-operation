@@ -1,9 +1,9 @@
 {
   "suite": "h05",
   "mode": "before",
-  "total": 21,
+  "total": 22,
   "passed": 4,
-  "failed": 17,
+  "failed": 18,
   "results": [
     {
       "name": "classification fail closed executive",
@@ -49,12 +49,12 @@
     },
     {
       "name": "untrusted or non-exportable metadata denied 9",
-      "ok": true
+      "ok": false,
+      "error": "Missing expected exception."
     },
     {
       "name": "untrusted or non-exportable metadata denied 10",
-      "ok": false,
-      "error": "Missing expected exception."
+      "ok": true
     },
     {
       "name": "untrusted or non-exportable metadata denied 11",
@@ -73,6 +73,11 @@
     },
     {
       "name": "untrusted or non-exportable metadata denied 14",
+      "ok": false,
+      "error": "Missing expected exception."
+    },
+    {
+      "name": "untrusted or non-exportable metadata denied 15",
       "ok": false,
       "error": "Missing expected exception."
     },
