@@ -1,9 +1,9 @@
 {
   "suite": "h06",
-  "at": "2026-10-27T12:34:28.037Z",
-  "total": 6,
+  "at": "2026-10-27T12:56:44.886Z",
+  "total": 7,
   "passed": 0,
-  "failed": 6,
+  "failed": 7,
   "results": [
     {
       "name": "H06 corrupt JSON is blocked and original bytes retained",
@@ -21,14 +21,19 @@
       "error": "Expected values to be strictly equal:"
     },
     {
+      "name": "H06 missing production database cannot be automatically reseeded",
+      "ok": false,
+      "error": "Expected values to be strictly equal:"
+    },
+    {
       "name": "H06 valid schema8 loads without rewriting",
       "ok": false,
-      "error": "Expected values to be strictly deep-equal:"
+      "error": "valid database was rewritten"
     },
     {
       "name": "H06 authorized isolated restoration is byte identical",
       "ok": false,
-      "error": "Expected values to be strictly deep-equal:"
+      "error": "restored bytes changed"
     },
     {
       "name": "H06 failed restoration does not unblock corrupted source",
