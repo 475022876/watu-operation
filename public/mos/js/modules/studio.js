@@ -685,9 +685,21 @@ async function saveVersion(v) {
       saveError(t('phase1.changed_during_save'));
       return false;
     }
-    draftBuffers.delete(v.id); dirty = false;
-    toast('草稿已保存', 'ok');
+    // Retain the buffer throughout refresh too: employees may keep typing while GETs run.
+    snapshot.rowVersion = r.version ? r.version.rowVersion : snapshot.rowVersion;
+    const savedCurrent = Object.assign({}, current, {version: r.version || v});
     await reload(sid);
+    if (!hostEl || epoch !== editorEpoch || sid !== taskId || brand !== ctxRef.brand) return false;
+    if (!current || !current.version || current.version.id !== v.id) {
+      current = savedCurrent; dirty = true; paint();
+      saveError(t('phase1.save_failed'));
+      return false;
+    }
+    if (draftBuffers.get(v.id) !== snapshot) {
+      dirty = true; saveError(t('phase1.changed_during_save')); return false;
+    }
+    draftBuffers.delete(v.id); dirty = false;
+    toast('草稿已保存', 'ok'); paint();
     return true;
   } catch (err) {
     if (hostEl && epoch === editorEpoch && sid === taskId && brand === ctxRef.brand) {
