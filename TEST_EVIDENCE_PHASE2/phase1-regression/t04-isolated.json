@@ -1,0 +1,33 @@
+{
+  "suite": "t04-isolated",
+  "at": "2026-10-27T12:49:36.794Z",
+  "total": 6,
+  "passed": 6,
+  "failed": 0,
+  "results": [
+    {
+      "name": "T04 isolated preflight accepts valid schema8 copy",
+      "ok": true
+    },
+    {
+      "name": "T04 corrupted isolated copy blocks launch without rewriting",
+      "ok": true
+    },
+    {
+      "name": "T04 backup restoration is byte identical and parseable",
+      "ok": true
+    },
+    {
+      "name": "T04 future schema is rejected without downgrading",
+      "ok": true
+    },
+    {
+      "name": "T04 test preflight refuses production source directory",
+      "ok": true
+    },
+    {
+      "name": "T04 H06 production loader blocks corrupt disposable copy after Phase2",
+      "ok": true
+    }
+  ]
+}

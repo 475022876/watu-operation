@@ -1,0 +1,34 @@
+  ------------------------------------------------------------
+  【DEMO 演示账号】仅用于沙盒演示，生产环境请勿启用：
+    mosadmin  /  xTEkvEAnXS2JMh   （引导管理员（首登需改密））
+    demo.p1  /  2VnKYwahShd3   （DEMO · P1）
+    demo.p2  /  2VnKYwahShd3   （DEMO · P2）
+    demo.p3  /  2VnKYwahShd3   （DEMO · P3+PUBLISHING_APPROVER）
+    demo.reviewer  /  2VnKYwahShd3   （DEMO · PROFESSIONAL_REVIEWER）
+    demo.lfa  /  2VnKYwahShd3   （DEMO · LIBRARY_FINAL_APPROVER）
+  ------------------------------------------------------------
+
+[mos-store] 首次运行，已生成 Marketing OS 数据库
+  PASS  SCH-01 schema 不低于 v7，且存在 ingest_jobs 与四项集成态集合  :: schemaVersion=8 ingest_jobs=array
+  PASS  SCH-02 调度器默认关闭（未获运营授权不自动出站）  :: configured=false running=false
+  PASS  SCH-03 关闭状态下 start() 不启动定时器  :: {"started":false,"reason":"DISABLED","note":"调度器默认关闭（mos.scheduler.enabled=false）；未获得运营授权时不自动出站。"}
+  PASS  SCH-04 可调度判定矩阵：仅 ACTIVE + 非 MANUAL + 白名单内可自动调度  :: ACTIVE="" / 待核验="状态为 PENDING_VERIFICATION（只有 ACTIVE 可自动调度）" / 停用="状态为 DISABLED（只有 ACTIVE 可自动调度）" / MANUAL方式="采集方式为 MANUAL（人工登记来源不自动抓取）" / MANUAL频率="频率为 MANUAL（未开启自动采集）" / 白名单外="域名 evil.example.com 不在出站白名单内"
+  PASS  SCH-05 到期来源被真实采集：作业 SUCCEEDED 且条目落库  :: ran=1 job=SUCCEEDED trigger=SCHEDULED inserted=2 items=2
+  PASS  SCH-06 作业记录含开始/结束/耗时/幂等桶键（可审计）  :: dedupeKey=src_test_bsygah:29864880 duration=13ms
+  PASS  SCH-07 同一调度桶重复巡检：不重复抓取（幂等去重）  :: ran=0 items=2 succeededJobs=1
+  PASS  SCH-08 下一周期增量采集：新增 1 条、重复 2 条按 URL/digest 去重  :: items=3 inserted=1 skipped=2
+[mos-store] 已加载 Marketing OS 数据库：C:\Users\three\AppData\Local\Temp\data-mos-sched-1793105100101-476669\mos.json
+  PASS  SCH-09 进程重启后不凭空补发：作业记录（含桶键）已持久化，同桶仍判定为已执行  :: jobs(before/after)=2/2 ran=0
+  PASS  SCH-10 瞬时失败：作业 FAILED + 失败理由 + 退避 nextRunAt + failures 递增  :: code=UPSTREAM_STATUS nextRunAt=2026-10-13T14:07:00.000Z failures=1 backoffMs=300000
+  PASS  SCH-11 退避期内不重试：未到期来源被跳过（避免故障放大）  :: 本轮该来源执行次数=0 jobs=1
+  PASS  SCH-12 作业序列化如实暴露 retryable/permanent（瞬时失败=true，供运维判断）  :: retryable=true permanent=false status=FAILED code=UPSTREAM_STATUS
+  PASS  SCH-13 连续失败达上限后停止自动重试并置 ERROR（重试有界，不无限重试）  :: maxFailures=2 failures=2 state=ERROR nextRunAt=null retryable=false note=连续失败达上限（2 次）：已停止自动重试并把来源置 ERROR，交人工核查
+  PASS  SCH-13b 已熔断来源不再执行采集，且失败码与真实状态一致（SOURCE_ERROR，不误报待核验）  :: status=SOURCE_ERROR job=BLOCKED/SOURCE_ERROR retryable=false
+  PASS  SCH-14 永久失败（白名单外）：不自动重试、来源置 ERROR，并如实记录失败码  :: status=HOST_NOT_ALLOWLISTED sourceState=ERROR nextRunAt=null
+  PASS  SCH-15 ERROR 来源不再被自动调度  :: reason=状态为 ERROR（只有 ACTIVE 可自动调度）
+  PASS  SCH-16 单实例限制：检测到他实例新鲜心跳锁 → 本轮拒绝执行并如实上报  :: ran=0 codes=["LOCK_HELD_BY_OTHER_INSTANCE"] msg=另一个实例正在调度（单文件存储不支持多实例并发采集）。
+  PASS  SCH-17 fail closed：未核验来源的手工采集被阻断并落 BLOCKED 作业（不伪造成功）  :: status=SOURCE_PENDING_VERIFICATION job=BLOCKED/SOURCE_PENDING_VERIFICATION
+  PASS  SCH-18 MANUAL 频率来源：不在到期预览中、也不会被自动调度  :: schedulable=false due=false reason=频率为 MANUAL（未开启自动采集） jobs=0
+  PASS  SCH-19 指数退避：递增且被上限封顶  :: b1=300000 b2=600000 b9(capped)=21600000
+
+调度自检结果：20/20 通过

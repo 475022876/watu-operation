@@ -1,0 +1,29 @@
+{
+  "suite": "h07-browser",
+  "at": "2026-10-27T12:49:39.687Z",
+  "total": 5,
+  "passed": 5,
+  "failed": 0,
+  "results": [
+    {
+      "name": "T08 real Chrome 409 retains draft and blocks review lock",
+      "ok": true
+    },
+    {
+      "name": "T08 real Chrome 500 retains draft and blocks review lock",
+      "ok": true
+    },
+    {
+      "name": "T08 real Chrome offline retains draft and blocks review lock",
+      "ok": true
+    },
+    {
+      "name": "T08 real Chrome switching tabs retains failed draft",
+      "ok": true
+    },
+    {
+      "name": "T08 real Chrome retry commits latest draft",
+      "ok": true
+    }
+  ]
+}

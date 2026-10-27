@@ -1,0 +1,122 @@
+{
+  "suite": "i18n",
+  "total": 21,
+  "passed": 21,
+  "failed": 0,
+  "ranAt": "2026-10-27T12:56:46.256Z",
+  "zhKeys": 531,
+  "enKeys": 531,
+  "errorCodeCoverage": {
+    "covered": 89,
+    "total": 100,
+    "percent": 89
+  },
+  "i18nImportIssues": [],
+  "results": [
+    {
+      "name": "I18N-01 zh-CN / en-US 键集合一致（一一对应）",
+      "ok": true,
+      "detail": "zh=531 en=531"
+    },
+    {
+      "name": "I18N-02 无空取值",
+      "ok": true,
+      "detail": "zh 空=0 en 空=0"
+    },
+    {
+      "name": "I18N-03 同一中文取值对应唯一英文（无反向索引歧义）",
+      "ok": true,
+      "detail": "471 个唯一中文键"
+    },
+    {
+      "name": "I18N-04 插值占位符 {x} 双语一致",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "I18N-05 后端枚举全部有统一映射（completion/status/job/gap/kind/availability）",
+      "ok": true,
+      "detail": "覆盖 46/46"
+    },
+    {
+      "name": "I18N-06 路由错误码映射覆盖率 ≥ 80%（未覆盖的回落通用码，不静默）",
+      "ok": true,
+      "detail": "89/100 = 89% 未映射(前5): ADMISSION_NOT_FOUND,BAD_MODE,BAD_ANCHOR,BAD_EDIT,UNAUTHORIZED"
+    },
+    {
+      "name": "I18N-07 引擎内置不可翻译选择器（data-notranslate/表单/代码/contenteditable）",
+      "ok": true,
+      "detail": "NO_I18N_SELECTOR 含 9 类受保护节点"
+    },
+    {
+      "name": "I18N-08 引擎提供 bindDom 并逐节点执行保护判定（非全局无差别替换）",
+      "ok": true,
+      "detail": "isProtectedNode + isNoTranslate 均在替换前判定"
+    },
+    {
+      "name": "I18N-09 显式标记绑定（data-i18n / placeholder / title / aria-label / params）",
+      "ok": true,
+      "detail": "含 ARIA 与占位符标记"
+    },
+    {
+      "name": "I18N-10 统一状态/错误码 API 齐备（statusLabel/errorLabel/readinessLabel/...）",
+      "ok": true,
+      "detail": "11 个映射函数"
+    },
+    {
+      "name": "I18N-11 参数插值实现（{key} 占位符）",
+      "ok": true,
+      "detail": "interpolate() 支持命名参数"
+    },
+    {
+      "name": "I18N-12 public/mos/js/modules/intelligence.js 已保护研究/来源/AI 原文（≥20 处）",
+      "ok": true,
+      "detail": "26 处标记"
+    },
+    {
+      "name": "I18N-12 public/mos/js/modules/studio.js 已保护任务正文与备注（≥4 处）",
+      "ok": true,
+      "detail": "10 处标记"
+    },
+    {
+      "name": "I18N-12 public/mos/js/components/reviewkit.js 已保护审核意见与文件名（≥2 处）",
+      "ok": true,
+      "detail": "3 处标记"
+    },
+    {
+      "name": "I18N-12 public/mos/js/modules/content.js 已保护资产文件名与备注（≥1 处）",
+      "ok": true,
+      "detail": "2 处标记"
+    },
+    {
+      "name": "I18N-12 public/mos/js/modules/governance.js 已保护上传文件名与回执原文（≥1 处）",
+      "ok": true,
+      "detail": "2 处标记"
+    },
+    {
+      "name": "I18N-12 public/mos/js/modules/publishing.js 已保护归档文件名（≥1 处）",
+      "ok": true,
+      "detail": "1 处标记"
+    },
+    {
+      "name": "I18N-13 语言切换保留未保存编辑（hasUnsaved 判定，不 remount 丢状态）",
+      "ok": true,
+      "detail": "切语言前检查 hasUnsaved()"
+    },
+    {
+      "name": "I18N-14 语言切换仅写偏好接口（不写业务文本）",
+      "ok": true,
+      "detail": "仅 PUT /auth/preferences"
+    },
+    {
+      "name": "I18N-15 ApiError.message 经统一错误码映射（覆盖全部 err.message 调用点）",
+      "ok": true,
+      "detail": "服务端原文保留在 rawMessage（不翻译）"
+    },
+    {
+      "name": "I18N-16 前端使用 i18n API 的模块均已正确导入（无运行期 ReferenceError）",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

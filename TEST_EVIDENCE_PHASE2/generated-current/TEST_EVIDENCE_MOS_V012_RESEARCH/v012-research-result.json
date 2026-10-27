@@ -1,0 +1,286 @@
+{
+  "suite": "v012-research",
+  "phase": "V0.1.2 Phase B（AI 情报研究 / 候选选题）",
+  "total": 55,
+  "passed": 55,
+  "failed": 0,
+  "ranAt": "2026-10-27T12:56:27.782Z",
+  "base": "http://127.0.0.1:9667",
+  "results": [
+    {
+      "name": "SV-01 服务器启动并可通过 /api/health 探活",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SV-02 引导管理员首次登录成功",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "SV-03 首登强制改密流程可用",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "SV-04 改密后重新登录成功",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "U-01 P1(VFIB) 登录",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "U-02 P2(VFIB) 登录",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "U-03 P2(UCARD) 登录",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "PS-01 未登录读取 provider-status → 401",
+      "ok": true,
+      "detail": "status=401"
+    },
+    {
+      "name": "PS-02 provider-status 可读且 Web Search 未配置",
+      "ok": true,
+      "detail": "status=200 configured=false"
+    },
+    {
+      "name": "TD-01 P2 发起每日汇编 → 200 且 COMPLETED",
+      "ok": true,
+      "detail": "status=200 mode=TRUSTED_DAILY"
+    },
+    {
+      "name": "TD-02 报告编号 RS-xxxx 且品牌范围正确",
+      "ok": true,
+      "detail": "code=RS-0001"
+    },
+    {
+      "name": "TD-03 发现数与实际生成数一致（不虚报）",
+      "ok": true,
+      "detail": "findingCount=0"
+    },
+    {
+      "name": "TD-04 第二次汇编编号自增（不重叠）",
+      "ok": true,
+      "detail": "RS-0001 vs RS-0002"
+    },
+    {
+      "name": "WB-01 无凭据 Web 研究 → 200 但状态 BLOCKED",
+      "ok": true,
+      "detail": "status=200 report=BLOCKED"
+    },
+    {
+      "name": "WB-02 blockedReason 说明未配置且不伪造（NOT_CONFIGURED）",
+      "ok": true,
+      "detail": "reason=搜索 Provider 未配置（mos.websearch.provider / MOS_WEBSEARCH_API_KEY）。系统不会以模型参数或旧知识伪称「"
+    },
+    {
+      "name": "WB-03 BLOCKED 报告零发现（不产生任何伪造 Finding）",
+      "ok": true,
+      "detail": "findings=0"
+    },
+    {
+      "name": "WB-04 注入字符串按纯数据原样存储（不进入指令通道）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "WB-05 缺少主题 → 400 MISSING_QUERY",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "RP-01 报告列表可见（P2 VFIB）",
+      "ok": true,
+      "detail": "items=3"
+    },
+    {
+      "name": "RP-02 报告详情可读",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "RP-03 跨品牌读报告 → 拒绝（404 防枚举，与不存在同形）",
+      "ok": true,
+      "detail": "status=404"
+    },
+    {
+      "name": "RP-04 不存在的报告 → 404",
+      "ok": true,
+      "detail": "status=404"
+    },
+    {
+      "name": "TP-01 非法栏目 → 400 BAD_PROPOSAL",
+      "ok": true,
+      "detail": "status=400 code=BAD_PROPOSAL"
+    },
+    {
+      "name": "TP-02 C06 无公告授权 → 员工新建待审且 needsVerification=true",
+      "ok": true,
+      "detail": "status=PENDING_EDITORIAL_REVIEW needsVerification=true"
+    },
+    {
+      "name": "TP-03 C06 附带 SPECIAL-01 提示语",
+      "ok": true,
+      "detail": "2 条"
+    },
+    {
+      "name": "TP-04 C01 缺正式依据 → needsVerification=true",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "TP-05 C02 无附加约束 → needsVerification=false",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "TP-06 注入/XSS 字符串按纯数据原样存储（不执行不清洗为空）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "TP-07 缺标题 → 400",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "TP-08 跨品牌创建（UCARD 用户建 VFIB 选题）→ 拒绝（404 防枚举）",
+      "ok": true,
+      "detail": "status=404"
+    },
+    {
+      "name": "ST-01 员工新建 → PENDING_EDITORIAL_REVIEW",
+      "ok": true,
+      "detail": "status=PENDING_EDITORIAL_REVIEW"
+    },
+    {
+      "name": "ST-02 P2 尝试审核 → 403（editorial.approve 缺失，默认拒绝）",
+      "ok": true,
+      "detail": "status=403"
+    },
+    {
+      "name": "ST-03 AI 建议 → AI_RECOMMENDED 并回链报告",
+      "ok": true,
+      "detail": "status=AI_RECOMMENDED"
+    },
+    {
+      "name": "ST-04 AI_RECOMMENDED → 提交后 PENDING_EDITORIAL_REVIEW",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ST-05 重复提交 → 409 BAD_TRANSITION",
+      "ok": true,
+      "detail": "status=409"
+    },
+    {
+      "name": "ST-06 P1 批准 + 修改标题 → APPROVED",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "ST-07 审核人 / 标题修改落库",
+      "ok": true,
+      "detail": "reviewer=user_mvqovxd"
+    },
+    {
+      "name": "ST-08 editDiff 记录人工改动（from→to）",
+      "ok": true,
+      "detail": "diff=[{\"field\":\"suggestedTitleEN\",\"from\":\"AI picked topic\",\"to\":\"AI picked topic (edited by editor)\"}]"
+    },
+    {
+      "name": "ST-09 APPROVED 终态再决策 → 409",
+      "ok": true,
+      "detail": "status=409"
+    },
+    {
+      "name": "ST-10 非法决策值 → 409/400（不落入状态机外状态）",
+      "ok": true,
+      "detail": "status=409"
+    },
+    {
+      "name": "ST-11 UCARD 用户审核 VFIB 提案 → 拒绝（404 防枚举）",
+      "ok": true,
+      "detail": "status=404"
+    },
+    {
+      "name": "ST-12 退回修订 → REVISION_REQUESTED 且 revision+1",
+      "ok": true,
+      "detail": "revision=1"
+    },
+    {
+      "name": "ST-13 修订后可重新提审",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ST-14 C06 缺授权批准 → needsVerification 仍为 true（不洗白）",
+      "ok": true,
+      "detail": "needsVerification=true"
+    },
+    {
+      "name": "SS-01 拒绝 http 明文（仅 https）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SS-02 拒绝环回地址",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SS-03 拒绝链路本地元数据（169.254.169.254）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SS-04 拒绝私网段（10.x）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SS-05 拒绝内网主机名（.local / .internal）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SS-06 拒绝非 443 端口",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SS-07 放行正常 https 公网 URL",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "AU-01 审计事件已持久化（audit_events 非空）",
+      "ok": true,
+      "detail": "30 条"
+    },
+    {
+      "name": "AU-02 research.daily_completed 已落审计",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "AU-03 research.web_blocked 已落审计（BLOCKED 也是真实状态）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "AU-04 proposal.created / submitted / decision 已落审计",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+  PASS  A-00 引导管理员登录  :: status=200
+  PASS  A-01 P2(VFIB) 登录
+  PASS  A-02 P2(UCARD) 登录
+  PASS  A-03 P3(VFIB) 登录
+
+---- B. 受控临时任务（无研究来源） ----
+  PASS  B-01 创建 AD_HOC 任务  :: status=200
+  PASS  B-02 studio 聚合 200（含 deliverables/nextActions）  :: keys=TEXT,IMAGE,VIDEO
+  PASS  B-03 无研究主题时 research=null 且未登记依据  :: research=null
+  PASS  B-04 技术参数收纳进 advanced（不在首屏字段）
+
+---- C. 提交审核前检查（服务端判定） ----
+  PASS  C-01 无版本 → body 阻断  :: blocking=["source","body"]
+  PASS  C-02 无版本且无依据 → source 阻断  :: blocking=["source","body"]
+  PASS  C-03 写入正文后 body 解除阻断  :: blocking=["source"]
+  PASS  C-04 仍缺来源（source 阻断保持）
+
+---- D. 业务依据登记（无 AI / 无研究也可交付） ----
+  PASS  D-01 非法依据类型 → 400  :: status=400
+  PASS  D-02 空说明 → 400  :: status=400
+  PASS  D-03 登记依据 → 200 且 requiresReview=true（不豁免审核）  :: status=200
+  PASS  D-04 登记依据后 source 解除阻断  :: blocking=[]
+
+---- E. 平台变体（同一任务，多平台独立制作） ----
+  PASS  E-01 缺 idempotencyKey → 400  :: status=400
+  PASS  E-02 非法平台 → 400  :: status=400
+  PASS  E-03 创建 X 变体 → 200（独立任务）  :: code=MOS-TASK-0004
+  PASS  E-04 变体继承栏目/风险与平台切换
+  PASS  E-05 幂等重放 → deduplicated=true 零新增
+  PASS  E-06 第二平台变体（YOUTUBE）成功且任务数 +1  :: total=5
+
+---- F. 越权防护 ----
+  PASS  F-01 跨品牌读 studio → 404（防枚举，SEC-03 同形）  :: status=404
+  PASS  F-02 跨品牌创建变体 → 404  :: status=404
+  PASS  F-03 P3（无 content.edit）创建变体 → 403  :: status=403
+  PASS  F-04 P3 登记依据 → 403  :: status=403
+
+---- G. 任务内上级备注 ----
+  PASS  G-01 添加备注 → 200  :: status=200
+  PASS  G-02 空备注 → 400  :: status=400
+  PASS  G-03 备注进入 studio 聚合（含作者与时间）  :: notes=1
+
+Studio e2e：29/29 通过

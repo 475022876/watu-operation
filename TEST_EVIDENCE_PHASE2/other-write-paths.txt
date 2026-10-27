@@ -1,0 +1,28 @@
+lib/mos/store.js:202:function persistSync() {
+lib/mos/store.js:242:    // 停服 saveNow() 同步写入更新快照，最后排队的旧 rename 落地 → 旧快照覆盖新快照（丢数据）。
+lib/mos/store.js:399:      if (parsed.mosSchemaVersion < MOS_SCHEMA_VERSION && migrate(db)) persistSync();
+lib/mos/store.js:436:  persistSync();
+lib/mos/store.js:446:function save() {
+lib/mos/store.js:451:function saveNow() {
+lib/mos/store.js:455:  try { persistSync(); } catch (err) { console.error('[mos-store] 同步落盘失败：' + err.message); }
+lib/mos/store.js:459:// business operations are transactional; other save() paths retain legacy semantics.
+lib/mos/store.js:461:function atomicMutation(fn) {
+lib/mos/store.js:472:    persistSync(); // A successful HTTP response may follow only after rename succeeds.
+lib/mos/store.js:494:module.exports = { getDb, load, save, saveNow, atomicMutation, reset, migrate, MOS_SCHEMA_VERSION, BASE_SHAPE };
+lib/mos/eventconsumer.js:97:  store.save();
+lib/mos/eventconsumer.js:105:    store.save();
+lib/mos/eventconsumer.js:113:    store.save();
+lib/mos/eventconsumer.js:199:  store.save();
+lib/mos/eventconsumer.js:217:  store.save();
+lib/mos/eventconsumer.js:228:  store.save();
+lib/mos/eventconsumer.js:247:  if (n) store.save();
+lib/mos/eventconsumer.js:262:  if (n) store.save();
+lib/mos/eventconsumer.js:285:    store.save();
+lib/mos/eventconsumer.js:308:    store.save();
+lib/mos/eventconsumer.js:339:  store.save();
+lib/mos/providerlog.js:74:  save();
+lib/mos/providerlog.js:188:  save();
+lib/mos/provideradmin.js:574:  save();
+lib/mos/provideradmin.js:625:  save();
+lib/mos/provideradmin.js:707:  save();
+lib/mos/provideradmin.js:733:  save();

@@ -1,0 +1,18 @@
+{
+  "lib/mos/routes/sources.js": 7,
+  "lib/mos/routes/campaigns.js": 6,
+  "lib/mos/routes/studio.js": 3,
+  "lib/mos/routes/admin.js": 1,
+  "lib/mos/routes/meta.js": 3,
+  "lib/mos/routes/plans.js": 6,
+  "lib/mos/routes/reviews.js": 1,
+  "lib/mos/routes/video.js": 6,
+  "lib/mos/routes/topics.js": 5,
+  "lib/mos/routes/tasks.js": 4,
+  "lib/mos/routes/research.js": 6,
+  "lib/mos/routes/content.js": 1,
+  "lib/mos/routes/admissions.js": 13,
+  "lib/mos/routes/publishing.js": 5,
+  "lib/mos/routes/channels.js": 2,
+  "lib/mos/routes/creative.js": 4
+}

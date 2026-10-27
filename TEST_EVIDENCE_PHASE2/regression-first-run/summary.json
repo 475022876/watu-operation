@@ -1,0 +1,107 @@
+{
+  "at": "2026-10-27T12:46:59.042Z",
+  "rows": [
+    {
+      "suite": "mos-unit-test",
+      "exitCode": 0,
+      "elapsedMs": 631,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-unit-test.log"
+    },
+    {
+      "suite": "mos-smoke-test",
+      "exitCode": 0,
+      "elapsedMs": 1878,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-smoke-test.log"
+    },
+    {
+      "suite": "mos-security-egress-test",
+      "exitCode": 0,
+      "elapsedMs": 297,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-security-egress-test.log"
+    },
+    {
+      "suite": "mos-scheduler-test",
+      "exitCode": 0,
+      "elapsedMs": 376,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-scheduler-test.log"
+    },
+    {
+      "suite": "mos-provider-contract-test",
+      "exitCode": 1,
+      "elapsedMs": 10228,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-provider-contract-test.log"
+    },
+    {
+      "suite": "mos-provider-admin-test",
+      "exitCode": 0,
+      "elapsedMs": 5967,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-provider-admin-test.log"
+    },
+    {
+      "suite": "mos-workspace-contract-test",
+      "exitCode": 0,
+      "elapsedMs": 334,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-workspace-contract-test.log"
+    },
+    {
+      "suite": "mos-dual-identity-test",
+      "exitCode": 0,
+      "elapsedMs": 3828,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-dual-identity-test.log"
+    },
+    {
+      "suite": "mos-e2e-test",
+      "exitCode": 0,
+      "elapsedMs": 4511,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-e2e-test.log"
+    },
+    {
+      "suite": "mos-e2e-build02",
+      "exitCode": 0,
+      "elapsedMs": 6470,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-e2e-build02.log"
+    },
+    {
+      "suite": "mos-e2e-build03",
+      "exitCode": 0,
+      "elapsedMs": 4368,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-e2e-build03.log"
+    },
+    {
+      "suite": "mos-e2e-v012-research",
+      "exitCode": 0,
+      "elapsedMs": 5393,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-e2e-v012-research.log"
+    },
+    {
+      "suite": "mos-e2e-v012-editorial",
+      "exitCode": 0,
+      "elapsedMs": 5570,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-e2e-v012-editorial.log"
+    },
+    {
+      "suite": "mos-e2e-v013-studio",
+      "exitCode": 0,
+      "elapsedMs": 2738,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-e2e-v013-studio.log"
+    },
+    {
+      "suite": "mos-e2e-v013-research",
+      "exitCode": 0,
+      "elapsedMs": 8986,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-e2e-v013-research.log"
+    },
+    {
+      "suite": "mos-i18n-check",
+      "exitCode": 0,
+      "elapsedMs": 278,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-i18n-check.log"
+    },
+    {
+      "suite": "mos-ui-check",
+      "exitCode": 0,
+      "elapsedMs": 59982,
+      "log": "TEST_EVIDENCE_PHASE2/regression/mos-ui-check.log"
+    }
+  ]
+}

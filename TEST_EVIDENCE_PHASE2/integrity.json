@@ -1,0 +1,55 @@
+{
+  "originalAndPhase1": [
+    {
+      "root": "D:\\运营系统\\VFIB-Marketing-OS",
+      "head": "3d738981eb484a96b2a80d57608496800eacfa29",
+      "headUnchanged": true,
+      "checkedFiles": 429,
+      "changedFiles": [],
+      "statusUnchanged": true
+    },
+    {
+      "root": "C:\\Users\\three\\.codex\\worktrees\\baseline-consolidation-phase1\\VFIB-Marketing-OS",
+      "head": "319c5b3f357a8bfc077554e0f95b8ff00c3798df",
+      "headUnchanged": true,
+      "checkedFiles": 529,
+      "changedFiles": [],
+      "statusUnchanged": true
+    }
+  ],
+  "protectedCapabilitiesAndContracts": [
+    {
+      "file": "package.json",
+      "unchanged": true
+    },
+    {
+      "file": "lib/mos/workspace-contract.js",
+      "unchanged": true
+    },
+    {
+      "file": "lib/mos/adapters/workspace.js",
+      "unchanged": true
+    },
+    {
+      "file": "lib/mos/workspace-client.js",
+      "unchanged": true
+    },
+    {
+      "file": "lib/mos/eventconsumer.js",
+      "unchanged": true
+    },
+    {
+      "file": "lib/mos/routes/reviews.js",
+      "unchanged": true
+    },
+    {
+      "file": "lib/mos/routes/publishing.js",
+      "unchanged": true
+    },
+    {
+      "file": "lib/mos/routes/admissions.js",
+      "unchanged": true
+    }
+  ],
+  "ok": true
+}

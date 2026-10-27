@@ -1,0 +1,20 @@
+  PASS  SEC-11 出站拒绝矩阵：回环/私网/元数据/IPv6(含 IPv4-mapped)/非白名单/http/非标准端口 全部拒绝  :: 回环=SSRF_BLOCKED 私网 10/8=SSRF_BLOCKED 私网 172.16/12=SSRF_BLOCKED 私网 192.168/16=SSRF_BLOCKED 云元数据=SSRF_BLOCKED 0.0.0.0/8=SSRF_BLOCKED CGNAT=SSRF_BLOCKED IPv6 回环=SSRF_BLOCKED IPv4-mapped IPv6（十进制定点写法）=SSRF_BLOCKED IPv4-mapped IPv6（十六进制写法·绕过面回归）=SSRF_BLOCKED NAT64 内嵌私网=SSRF_BLOCKED IPv6 链路本地=SSRF_BLOCKED IPv6 ULA=SSRF_BLOCKED 非白名单主机=HOST_NOT_ALLOWLISTED 明文 http=SCHEME_NOT_ALLOWED 非 443 端口=PORT_NOT_ALLOWED
+  PASS  SEC-13 前置：本地测试源通过出站校验（含已校验 IP）  :: ip=127.0.0.1
+  PASS  SEC-13a 合法同源跳转被跟随（不是一律拒绝，逐跳校验后放行）  :: chain=["http://127.0.0.1:53527/redir-ok","http://127.0.0.1:53527/feed.xml"]
+  PASS  SEC-13b 跳转到**非白名单域名**被拒（逐跳重新校验）  :: REDIRECT_BLOCKED/HOST_NOT_ALLOWLISTED
+  PASS  SEC-13c 跳转到**云元数据地址**被拒  :: REDIRECT_BLOCKED/HOST_NOT_ALLOWLISTED
+  PASS  SEC-13d 跳转到**私网地址**被拒（即使当前跳为同源）  :: REDIRECT_BLOCKED/HOST_NOT_ALLOWLISTED
+  PASS  SEC-13e 跳转次数超过上限被拒（防重定向环）  :: TOO_MANY_REDIRECTS
+  PASS  SEC-16a 上游返回压缩编码被拒（不解压，杜绝膨胀炸弹）  :: UNSUPPORTED_ENCODING
+  PASS  SEC-16b 响应体超过上限被截断拒绝（体积上限生效）  :: RESPONSE_TOO_LARGE
+  PASS  SEC-12 DNS 重绑定：连接固定绑定已校验 IP（解析器不再被二次调用，连接未被改指）  :: resolverCalls=1 status=200 ip=127.0.0.1 | rebind.test->127.0.0.1
+  PASS  SEC-14a 上游 5xx：如实返回失败（ok=false, items=[]），不伪造成功  :: UPSTREAM_STATUS: 上游返回 HTTP 500
+  PASS  SEC-14b 私网端点：直接判定 SSRF 阻断，不发起任何请求  :: SSRF_BLOCKED
+  PASS  SEC-15a 注入文本被当作**普通数据**解析（进入条目，不产生任何指令副作用）  :: items=2
+  PASS  SEC-15b 注入条目的 canonicalUrl 追踪参数被剥离（按数据规范化处理）  :: https://bis.org/b
+  PASS  SEC-15c 解析过程未污染进程全局状态（无提示注入执行面）  :: global=undefined
+  PASS  SEC-11b 生产模式：测试放行开关（http/loopback）一律失效  :: SCHEME_NOT_ALLOWED
+  PASS  SEC-11c 生产模式下 egressTestFlags 全为 false  :: {"allowLoopback":false,"allowHttp":false,"testMode":false}
+
+出站安全套件：17/17 通过
+证据：C:\Users\three\.codex\worktrees\baseline-consolidation-phase2\VFIB-Marketing-OS\TEST_EVIDENCE_MOS_BUILD01\security-egress-result.json

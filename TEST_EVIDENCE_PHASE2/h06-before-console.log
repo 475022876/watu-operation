@@ -1,0 +1,23 @@
+FAIL H06 corrupt JSON is blocked and original bytes retained Expected values to be strictly equal:
+
+0 !== 2
+
+FAIL H06 future schema is blocked and original bytes retained Expected values to be strictly equal:
+
+0 !== 2
+
+FAIL H06 wrong collection shape is blocked and original bytes retained Expected values to be strictly equal:
+
+0 !== 2
+
+FAIL H06 missing production database cannot be automatically reseeded Expected values to be strictly equal:
+
+0 !== 2
+
+FAIL H06 valid schema8 loads without rewriting valid database was rewritten
+FAIL H06 authorized isolated restoration is byte identical restored bytes changed
+FAIL H06 failed restoration does not unblock corrupted source Expected values to be strictly equal:
+
+0 !== 2
+
+{"passed":0,"failed":7}

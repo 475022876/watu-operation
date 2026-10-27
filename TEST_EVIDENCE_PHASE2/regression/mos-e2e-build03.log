@@ -1,0 +1,121 @@
+  PASS  ENV-01 服务器启动且 /api/health 正常  :: http://127.0.0.1:9697
+  PASS  ENV-02 管理员首次登录成功（引导口令）  :: HTTP 200
+  PASS  ENV-03 首登强制改密成功  :: {"ok":true}
+  PASS  ENV-04 八个测试身份登录成功  :: creator/creator.ucard/assetrev/final/publisher/approver/nobody/dual
+  PASS  ENV-05 角色目录含 ASSET_REVIEWER 与 LIBRARY_FINAL_APPROVER 两个权限集
+  PASS  ENV-06 ★会话在登录后立即落盘（不依赖 60ms 合并窗口）  :: 8/8
+
+--- ANALYTICS 真实聚合与缺失语义 ---
+  PASS  AN-01 Analytics 端点可用且返回四段  :: HTTP 200
+  PASS  AN-02 跨品牌请求分析数据被拒（404，不泄露存在性）  :: HTTP 404
+  PASS  AN-03 无指标数据时渠道指标显示「缺失」而非 0  :: reason=无指标数据来源（平台 API 未接通，且尚无人工/导入记录）
+  PASS  AN-04 无生成作业时 AI 成本显示「缺失」，不显示估算金额  :: reason=无可核费用：供应商未返回计费回执
+  PASS  AN-05 缺失项被显式汇总（前端据此展示，不用占位数字）  :: missing=5
+  PASS  AN-06 生成作业带数据分级字段并如实落到 NOT_CONFIGURED  :: status=NOT_CONFIGURED
+  PASS  AN-07 作业写入后 AI 成本段反映真实作业数（byKind.TEXT）  :: total=1
+  PASS  AN-08 Operations 段可用且含计划/任务维度  :: tasks=2
+
+--- SEC-10 受限资料禁止外发模型 ---
+  PASS  SEC-10-a RESTRICTED 作业在调用 Provider 之前被阻断（BLOCKED）  :: status=BLOCKED
+  PASS  SEC-10-b 未发生任何外部调用（无 providerJobId / 无产物）
+  PASS  SEC-10-c 未知数据分级被拒绝（fail closed，不静默降级）  :: HTTP 400 code=BAD_DATA_CLASS
+
+--- SEC-07 供应商密钥不外泄 ---
+  PASS  SEC-07-a 前端 bundle 与 API 响应中不含类似密钥的字面量
+  PASS  SEC-07-b 模型适配器声明 hasServerKey=false（无密钥即不宣称已配置）
+
+--- E2E-05 Asset Admission → Library Reference ---
+  PASS  E2E05-01 上传工作素材（魔数校验通过、真实落盘、带 sha256）  :: sha256=fc4be069a7d8
+  PASS  E2E05-01b 伪装成图片的脚本被魔数校验拒绝  :: HTTP 400
+  PASS  E2E05-02 创建入库申请 → SUBMITTED，双字段初始为 PENDING / NOT_STARTED  :: state=SUBMITTED
+  PASS  E2E05-03 入库申请幂等：同一 idempotencyKey 不重复创建
+  PASS  E2E05-04 非法资产分类被拒绝（A01–A08 字典强制）  :: HTTP 400
+  PASS  E2E05-04b 缺 libraryPrimaryCategory/classification/licenseStatus → 400 BAD_ADMISSION_INPUT 且回传 missing[]  :: HTTP 400 missing=["libraryPrimaryCategory","classification","licenseStatus"]
+  PASS  E2E05-04c 自由文本许可被拒且给出保守替代值建议（suggested.licenseStatus=unknown），绝不映射 cleared  :: HTTP 400 suggested={"licenseStatus":"unknown"}
+  PASS  E2E05-05 无 asset.review 权限者不能执行预检（403）  :: HTTP 403 code=FORBIDDEN
+  PASS  E2E05-06 预检通过（PASS）并记录检查项，状态进入 PRECHECK  :: checks=15
+  PASS  E2E05-07 提交最终审批 → 开 ASSET_ADMISSION 审核单（第三条独立链）  :: case=rc_mvqovv6c_90f7050e68ae
+  PASS  E2E05-08 最终审批未过时不能提交同步（NOT_APPROVED）  :: HTTP 409
+  PASS  SEC-01-a 无 library.asset.approve.final 者执行最终入库被拒（403）  :: HTTP 403 code=FORBIDDEN
+  PASS  SEC-01-b 资产预检员（asset.review）不能执行最终入库审批（分权）  :: HTTP 403
+  PASS  SEC-01-c 技术管理员（MOS_ADMIN）不自动获得最终入库特权（403）  :: HTTP 403
+  PASS  SEC-01-d 每次越权尝试都写入审计事件（append-only）  :: total=3
+  PASS  E2E05-07b 职责分离用例前置：预检 PASS 且已开 ASSET_ADMISSION 审核单  :: precheck=PASS case=rc_mvqovva8_e37abad1a759
+  PASS  SEC-01-e 职责分离：提交人即使持有最终特权也不能审批自己的入库申请（403）  :: HTTP 403 err=职责分离：不能审批自己提交的入库申请
+  PASS  SEC-01-e2 正向对照：非提交人的最终审批人可裁决（同一权限、不同主体）  :: HTTP 200
+  PASS  SEC-02-x 入库审批绑定哈希已冻结并对外可见  :: hash=e540d801e56e
+  PASS  E2E05-09 最终入库审批人批准 → FINAL_APPROVAL_GRANTED  :: HTTP 200 state=APPROVED
+  PASS  E2E05-10 最终审批通过：finalApprovalStatus=APPROVED，授权来源如实记录为 MOCK  :: status=APPROVED mode=MOCK
+  PASS  E2E05-11 批准后仍未同步：syncStatus 独立保持 NOT_STARTED（双字段不互相推导）  :: syncStatus=NOT_STARTED
+  PASS  E2E05-12 资料库同步成功并返回 MOCK 资产 ID  :: libraryId=MOCK_ASSET_adm-1793105780520 state=SYNC_COMPLETED
+  PASS  SEC-09-a Mock 同步**不得**把申请标记为 AVAILABLE（Mock 下结构性不可达）  :: state=SYNC_COMPLETED
+  PASS  SEC-09-b 可复用资格为计算判定且为 false，并给出全部阻塞原因  :: blocking=3
+  PASS  SEC-09-c 沙盒引用条目带 MOCK 标记、权限未核验、资产状态为沙盒  :: assetState=MOCK_SANDBOX
+  PASS  E2E05-13 重复同步被幂等拦截，未重复调用资料库  :: HTTP 200
+  PASS  E2E05-14 Approved Assets：正式库检索恒空，沙盒条目分列  :: gateway=0 sandbox=1
+  PASS  E2E05-15 可复用资产数为 0（Mock 下不允许出现"可复用"资产）  :: reusable=0
+  PASS  E2E05-16 列表汇总不含任何 AVAILABLE / 可复用条目  :: reusable=0
+  PASS  E2E05-17 同内容重复入库被预检明确拒绝（not_duplicate=FAIL）  :: verdict=FAIL
+  PASS  E2E05-18 预检未通过的申请不能提交最终审批（状态机强制）  :: HTTP 409 state=PRECHECK
+
+--- Analytics 数据落盘后由「缺失」转为真实聚合 ---
+  PASS  PUB-01 冻结送审生成发布审批链  :: cases=1
+  PASS  PUB-02 版本进入 APPROVED  :: state=APPROVED
+  PASS  PUB-03 人工登记实际发布并生成不可覆盖快照  :: pub=pub_mvqovvhm_882ee7d10173
+  PASS  AN-09 渠道指标真实落盘（带来源与统计时点）  :: HTTP 200
+  PASS  AN-10 指标录入后渠道段由「缺失」转为真实聚合  :: records=1
+  PASS  AN-11 渠道段同时反映发布数（真实聚合，不是占位数字）
+  PASS  AN-12 审核耗时按审核链分组统计（含 ASSET_ADMISSION）  :: types=ASSET_ADMISSION,PUBLICATION_APPROVAL
+  PASS  AN-13 未知分析分段被拒绝（400）  :: HTTP 400
+
+--- SEC-08 资料库同步失败与幂等恢复 ---
+  PASS  SEC-08-00 以故障注入模式重启服务器（模拟资料库瞬时超时）
+  PASS  SEC-08-01 同步失败用例前置：独立审批人批准入库（finalApprovalStatus=APPROVED）  :: HTTP 200
+  PASS  SEC-08-a 资料库同步失败 → SYNC_FAILED 且保留错误原因  :: state=SYNC_FAILED err=MOCK_TRANSIENT_TIMEOUT
+  PASS  SEC-08-b 同步失败的申请**不可复用**（未生成引用）
+  PASS  SEC-08-c 幂等重试成功（复用同一幂等键）  :: attempts=2
+  PASS  SEC-08-d 重试未产生双资产（该申请只有 1 条引用）  :: refs=1
+  PASS  SEC-08-e 同步失败写入审计事件（失败不静默）  :: total=1
+  PASS  SEC-08-f 已成功的申请再重试被拒绝（NOT_FAILED，状态机强制）  :: HTTP 409
+
+--- 权限与审计收口 ---
+  PASS  GOV-01 审核历史 append-only 可查（含资产入库决策）  :: total=4
+  PASS  GOV-02 无 library.asset.read 的账号被拒（本用例中 P4 也持有该权限，故允许读）  :: HTTP 200
+  PASS  GOV-03 跨品牌读取资产引用被拒（404）  :: HTTP 404
+  PASS  GOV-04 跨品牌读取入库申请被拒（404）  :: HTTP 404
+  PASS  GOV-05 审计事件 metadata 已脱敏（不含 password/token 明文）
+  PASS  GOV-06 schema 版本不低于 v7（只增不改；v6 用户偏好、v7 研究域、v8 Provider 调用账本）  :: schema=8
+
+--- Phase 3 · A-01 情报采集调度（服务端 API，默认关闭 + 单实例限制） ---
+  PASS  SCH-API-01 调度总览可读，且默认关闭、如实声明单实例限制  :: configured=false singleInstance=true
+  PASS  SCH-API-02 到期预览逐条给出不可调度原因（DEMO 来源：未核验 / MANUAL 频率）  :: BIS 国际清算银行（候选来源·未核验）:状态为 PENDING_VERIFI | 人工登记来源（演示用）:采集方式为 MANUAL（人工登记来
+  PASS  SCH-API-03 手工巡检真实执行且不粉饰：DEMO 来源全部不可调度 → 执行 0  :: ran=0 skipped=2
+  PASS  SCH-API-04 采集作业记录接口可用（无假数据：无作业时为空数组并给出说明）  :: items=0
+  PASS  SCH-API-05 未核验来源的手工采集被阻断（fail closed，不伪造采集成功）  :: HTTP 200 status=SOURCE_PENDING_VERIFICATION
+  PASS  SCH-API-06 被阻断的采集同样留下作业记录（BLOCKED + 失败码，可审计）  :: job=BLOCKED/SOURCE_PENDING_VERIFICATION
+  PASS  SCH-API-07 调度开关双向可用（开启后可关闭，且状态如实回读）  :: on=true off=false
+  PASS  SCH-API-08 非法开关取值被拒绝（400，不做宽松解析）  :: HTTP 400 code=BAD_ENABLED
+  PASS  SCH-API-09 无 source.manage 权限的主体不能触发巡检（403，服务端强制）  :: HTTP 403 code=FORBIDDEN
+
+--- Phase 3 · F-07 专业字典 provisional 核验（不伪造官方标签） ---
+  PASS  DV-01 待核验项登记接口可用，且全部保持 UNVERIFIED（未取得原件）  :: items=41 verified=0
+  PASS  DV-02 权威原件登记如实声明「本轮未随包提供」  :: ["VFIB 全球社交媒体运营与内容生产指导手册@V1.1","VFIB Visual Brand Guardian Skill@V1.2"]
+  PASS  DV-03 缺证据的核验请求被拒绝（400，不写入任何记录）  :: HTTP 400 code=MISSING_SOURCE_VERSION
+  PASS  DV-04 字典输出中 provisional 项标签仍为「待核验」（不存在伪造的官方名称）  :: label=待核验 provisional=true
+
+--- Phase 3 · A-05 Provider 契约探针与 A-06 资料库适配层状态 ---
+  PASS  A05-01 Provider 契约探针可用，声明 7 项契约面且给出错误码表  :: contract=["health","status","invoke","timeout","rateLimit","costReceipt","errorCode"]
+  PASS  A05-02 未配置供应商时如实为 NOT_CONFIGURED（不含任何密钥字段）  :: text=NOT_CONFIGURED image=NOT_CONFIGURED
+  PASS  A06-01 资料库适配层状态可用：未配置凭据 → configured=false 且如实列出缺失项  :: missing=["baseUrl","keyId","privateKey"]
+  PASS  A06-02 能力声明不夸大：真实联调 NOT_VERIFIED、服务账户无最终审批权、无归档能力  :: joint=NOT_VERIFIED
+  PASS  A06-03 资料库适配层状态不含私钥/票据字段（密钥只在服务端）  :: len=1135
+  PASS  A06-04 meta 集成状态矩阵新增企业资料库项，且未配置时如实为 not_configured  :: mode=not_configured
+
+--- A-25 Topic 复用视图（真实聚合，不再是空壳） ---
+  PASS  REUSE-01 Topic 复用视图可用且返回真实计数  :: tasks=2
+  PASS  REUSE-02 已授权资产检索恒为空并如实标注资料库为 mock（不伪造正式资产）  :: mode=mock
+  PASS  REUSE-03 新建内容版本后复用视图计数随之增长（真实聚合，非硬编码空数组）  :: 0 → 1
+  PASS  REUSE-04 复用的版本条目带状态与风险等级（可安全外显字段）  :: code=MOS-TASK-0001-v1
+
+[e2e03] 96/96 通过
+[e2e03] 证据：TEST_EVIDENCE_MOS_BUILD03\e2e-build03-result.json

@@ -1,0 +1,35 @@
+{
+  "status": "READY_FOR_HUMAN_PHASE2_REVIEW",
+  "applicationVersion": "0.1.6",
+  "schema": 8,
+  "codeCommit": "e21da0a",
+  "rollbackCommit": "319c5b3",
+  "regressionSuites": 17,
+  "regressionAssertions": 880,
+  "phase1Checks": 57,
+  "phase2Checks": {
+    "h04": 13,
+    "h05": 22,
+    "h05-adapter": 3,
+    "h06": 7,
+    "m05": 6,
+    "m05-browser": 2
+  },
+  "passedAssertionsAndCases": 990,
+  "externalServices": "NOT_VERIFIED",
+  "productionAcceptance": "NOT_PERFORMED",
+  "phase3Authorized": false,
+  "remainingRisks": [
+    "TX01",
+    "TX02",
+    "TX03",
+    "TX04",
+    "TX05",
+    "TX06",
+    "TX07",
+    "TX08",
+    "TX09",
+    "TX10",
+    "OP01"
+  ]
+}

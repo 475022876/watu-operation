@@ -1,0 +1,45 @@
+{
+  "suite": "h01",
+  "at": "2026-10-27T12:49:34.307Z",
+  "total": 9,
+  "passed": 9,
+  "failed": 0,
+  "results": [
+    {
+      "name": "T01 identical replay creates no additional objects",
+      "ok": true
+    },
+    {
+      "name": "T01 normalized object order and defaults replay",
+      "ok": true
+    },
+    {
+      "name": "T01 changed payload returns 409",
+      "ok": true
+    },
+    {
+      "name": "T01 another actor cannot reuse key",
+      "ok": true
+    },
+    {
+      "name": "T01 another proposal cannot reuse key",
+      "ok": true
+    },
+    {
+      "name": "T01 another brand cannot obtain previous dispatch",
+      "ok": true
+    },
+    {
+      "name": "T01 unauthorized requested brand returns 404 before replay",
+      "ok": true
+    },
+    {
+      "name": "T01 revoked actor permission rejects replay before returning data",
+      "ok": true
+    },
+    {
+      "name": "T01 legacy dispatch without request digest fails closed",
+      "ok": true
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+B2/B3 专项自检（双重身份调用客户端 + 变更事件消费）
+
+--- L1 出站收敛 egressGuard（非回环必须 https；白名单留空=拒绝） ---
+  PASS  D-01 非回环 + 明文 http → 拒绝（集成接口不得明文出网）  :: 非回环主机必须使用 https（集成接口不得明文出网）
+  PASS  D-02 https 但主机不在 allowedHosts（留空）→ 拒绝（fail closed）  :: 主机不在 workspace.allowedHosts 白名单内（留空=一律拒绝）
+  PASS  D-03 https + 主机命中 allowedHosts → 放行  :: 主机在白名单内
+  PASS  D-04 回环明文但未显式 allowLoopbackHttp → 拒绝（默认 fail closed）  :: 未显式开启 allowLoopbackHttp，拒绝回环明文出站（默认 fail closed）
+  PASS  D-05 生产模式 + 回环明文（即使显式开启）→ 一律拒绝  :: 生产模式禁止回环明文 HTTP（MOS_WORKSPACE_ALLOW_LOOPBACK_HTTP 在生产失效）
+  PASS  D-06 隔离测试口径（回环 + 显式开启 + 非生产）→ 放行并标记 loopback  :: 回环明文（仅隔离测试）
+
+--- L2 受限用户票据（服务账户换票 / 账户绑定 / 缓存 / 单飞 / 不落盘） ---
+  ------------------------------------------------------------
+  【DEMO 演示账号】仅用于沙盒演示，生产环境请勿启用：
+    mosadmin  /  JkiYjMHFAavvaK   （引导管理员（首登需改密））
+    demo.p1  /  VJRajt6Cw6Uc   （DEMO · P1）
+    demo.p2  /  VJRajt6Cw6Uc   （DEMO · P2）
+    demo.p3  /  VJRajt6Cw6Uc   （DEMO · P3+PUBLISHING_APPROVER）
+    demo.reviewer  /  VJRajt6Cw6Uc   （DEMO · PROFESSIONAL_REVIEWER）
+    demo.lfa  /  VJRajt6Cw6Uc   （DEMO · LIBRARY_FINAL_APPROVER）
+  ------------------------------------------------------------
+
+[mos-store] 首次运行，已生成 Marketing OS 数据库
+  PASS  D-07 status().configured=true 且绝不回传私钥/PEM  :: configured=true egress=true
+  PASS  D-08 缺真实用户 → MISSING_USER，零出站（服务账户不能替代用户身份）  :: MISSING_USER
+  PASS  D-09 品牌不在 workspace.brands 白名单 → BRAND_NOT_ALLOWED，零出站（本侧主动拒绝）  :: BRAND_NOT_ALLOWED
+  PASS  D-10 首次换票：refreshed=true，且 admission.final.decision 在**出站前**即被剔除  :: granted=["assets.read"] stripped=["admission.final.decision"]
+  PASS  D-11 二次请求命中内存缓存：cached=true 且**零新增出站**  :: hits=0
+  PASS  D-12 并发单飞：同 (keyId,brand,user) 并发 5 次只发**一次**换票出站，且共享同一票据  :: issueCalls=1 coalesced=4
+  PASS  D-13 票据缓存键含 keyId/brand/user → 跨账户、跨品牌**绝不**复用  :: svc_mos_1|VFIB|emp-001 / svc_mos_1|VFIB|emp-002 / svc_mos_1|VFIB2|emp-001
+  PASS  D-14 票据密文只在内存：落盘元数据含 ticketKey/expiresAt，但**不含** STUBTICKET 明文  :: metaRows=2 blobHasTicket=false
+  PASS  D-15 dropTicket 后 cachedTicket 立即失效（可用性判定 usable=false / null）  :: before=true after=null
+
+--- L3 有界重试分类 + 401 票据回退（含"只重试一次"上限） ---
+  PASS  D-16 classify：传输失败(0)→transport/可重试；429→可重试；未识别码→**不可重试**(fail safe)  :: unknown={"retryable":false,"layer":"unknown","code":"TEAPOT_UNKNOWN"}
+  PASS  D-17 429 限流 → 有界重试后成功（attemptsUsed>=2，且每次重新签名换 nonce）  :: attemptsUsed=2 hits=3
+  PASS  D-18 401 TICKET_BAD_SIGNATURE → 丢弃票据 + 重新换票 + 只重试一次后成功（revalidated=true）  :: ok=true code= first=TICKET_BAD_SIGNATURE issueCalls=2 revalidated=true
+  PASS  D-19 401 BAD_SIGNATURE（签名/账户类）→ **不重试、不刷新票据**，立即如实上报  :: attemptsUsed=1 code=BAD_SIGNATURE
+
+--- L4 服务身份结构性不可代签最终审批 ---
+  PASS  D-20 finalDecision() 恒拒绝（TICKET_KIND_MISMATCH / 403），与适配层双重闭合  :: TICKET_KIND_MISMATCH
+
+--- L5 准入三步推送：申请≠资产；未最终审批时如实 409，不伪造可复用 ---
+  PASS  D-21 未配置时 pushAdmission → stage=preflight、零出站（fail closed）  :: stage=preflight hits=0
+  PASS  D-22 三步顺序严格 create > submit > artifact，且未完成最终审批时 ok=false、isReusable=false  :: stages=create>submit>artifact code=FINAL_APPROVAL_REQUIRED
+  PASS  D-23 submit 步骤真实携带 reviews[]（不得"提交即通过"空复核）  :: reviews=[{"reviewerId":"emp-009","verdict":"PASS"}]
+  PASS  D-24 真实审批完成（桩返回 200 + isReusable=true）→ 取得正式 Asset ID，ok=true  :: assetId=VFIB-ASSET-0001
+  PASS  D-24b 缺 fileName → 出站前即拒（MISSING_FILE_NAME，零出站），不把申请推进到 Provider 的 REVISION_REQUIRED  :: stage=preflight code=MISSING_FILE_NAME hits=0
+  PASS  D-24c knowledge.search / assets.search 的检索参数落在 POST body（query/topK/limit/offset），url 上不出现 query  :: knowledgePath=/api/integrations/marketing/knowledge/search knowledgeBody={"query":"品牌语气","brandId":"VFIB","topK":3} assetPath=/api/integrations/marketing/assets/search assetBody={"query":"logo","brandId":"VFIB","limit":3,"offset":0}
+  PASS  D-24d reuseScope 缺失 / 为 none → 出站前零出站拒绝（MISSING_REUSE_SCOPE / REUSE_SCOPE_NONE）  :: missing=MISSING_REUSE_SCOPE none=REUSE_SCOPE_NONE hits=0
+  PASS  D-24e admissionlib 层面同构判定：reuseScopeUsable / licenseAdmissionGate 与出站预检一致  :: none=REUSE_SCOPE_NONE unknown=true
+
+--- L6 变更事件消费：幂等 / 失效 / 游标 / truncated / degraded ---
+  PASS  E-01 asset.revoked 事件：本地引用置 INVALIDATED、permissionValid=false，且**同 seq 重复投递不重复生效**  :: first=APPLIED dup=DUPLICATE_SEQ state=INVALIDATED
+  PASS  E-02 撤回登记进入 client.isInvalidated（新调用据此拒绝复用）  :: isInvalidated=true
+  PASS  E-03 skill.version.changed → 登记失效（Skill 版本变更须使旧版本缓存失效）  :: ["skill.version.changed:SK-01"]
+  PASS  E-04 permission.changed → 丢弃全部票据 + 该品牌全部引用失效  :: permission.changed:droppedTickets=2
+  PASS  E-05 service_account.changed（**下划线**字面量）→ 丢弃全部票据（票据与签发账户绑定）  :: service_account.changed:droppedTickets=0
+  PASS  E-06 未识别事件类型：仍推进 seq（不卡死游标）但明确标记 unhandled（可观测）  :: unhandled:brand.unknown.event.tbd:reconcile_required
+  PASS  E-06b 未识别事件类型 → 置位 reconcileRequired（要求全量对账，而非静默忽略）  :: reason=UNKNOWN_EVENT_TYPE:brand.unknown.event.tbd
+  PASS  E-07 invalidate 幂等：同一 (kind,targetId) 重复登记不产生重复行  :: before=1 after=1
+  PASS  E-08 未知失效类型被拒绝（不静默接受）
+  PASS  E-09 pollBrand 正常：游标持久化推进到 nextCursor（进程重启可续传）  :: cursor=42
+  PASS  E-10 truncated=true → 清空事件累积的失效登记 + 游标重置到 oldestCursor + 重放集合清空  :: cursor=70 invalidations 4→0
+  PASS  E-10b 全量对账同时清掉「未识别事件类型」置位的 reconcileRequired（避免永久待对账）  :: reconcileRequired=false at=2026-10-27T12:56:05.878Z
+  PASS  E-11 clearInvalidations 留下可审计的重建记录（settings.lastInvalidationReset）  :: 4
+  PASS  E-12 事件流连续失败 ≥2 → degraded=true，authoritativeUsable=false（拒绝新的权威授权调用）  :: consecutiveFailures=2 reason=EVENT_STREAM_DEGRADED
+  PASS  E-13 degraded 下 verifyAssetUsable **不出站**即拒绝（绝不沿用过期 Approved 缓存）  :: blocked
+  PASS  E-14 事件流恢复后 degraded 复位、authoritativeUsable 恢复 usable=true
+  PASS  E-15 verifyAssetUsable 遇 410 ASSET_GONE → 如实判不可用并**立即登记撤回**（不等下轮轮询）  :: reason=ASSET_GONE
+  PASS  E-16 verifyAssetUsable 对已撤回资产**直接拒绝**（INVALIDATED_LOCALLY，零出站）  :: reason=INVALIDATED_LOCALLY hits=0
+
+--- L7 轮询作业默认关闭 / 单实例锁 / 状态不外泄机密 ---
+  PASS  E-17 轮询默认关闭（POLL_DISABLED），不因未显式开启而偷偷出站  :: POLL_DISABLED
+  PASS  E-18 tick 正常路径：加单实例锁、按品牌轮询、汇总 totalItems  :: brands=1
+  PASS  E-19 轮询锁登记 ownerId/pid/heartbeatAt（跨实例互斥可审计）  :: owner=mos-event-consumer
+  PASS  E-20 event 状态如实披露间隔为"建议值"而非 SLA，且不含票据密文  :: cursors=1
+  PASS  E-21 未配置集成：authoritativeUsable=false 且 tick 零出站（fail closed）  :: INTEGRATION_NOT_CONFIGURED
+
+  NOTE  本套件为**离线专项自检**：桩 Provider 按 V1.1.7 契约复刻验签/防重放/封套/换票/事件流，证明票据生命周期、401 回退、出站收敛、事件幂等与 fail closed 语义正确；**未与真实企业资料库发生任何联调**（真实双进程 E2E 见 mos-e2e-build03 / 后续 e2e04）。
+B2/B3 专项自检结果：51/51 通过

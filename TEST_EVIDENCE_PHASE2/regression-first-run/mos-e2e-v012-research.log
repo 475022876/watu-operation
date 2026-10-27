@@ -1,0 +1,75 @@
+V0.1.2 Phase B · AI 情报研究 / 候选选题端到端（真实 HTTP + 隔离实例）
+  实例 http://127.0.0.1:9662   数据目录 C:\Users\three\.codex\worktrees\baseline-consolidation-phase2\VFIB-Marketing-OS\data-mos-r12-e2a991
+  PASS  SV-01 服务器启动并可通过 /api/health 探活
+  PASS  SV-02 引导管理员首次登录成功  :: status=200
+  PASS  SV-03 首登强制改密流程可用  :: status=200
+  PASS  SV-04 改密后重新登录成功  :: status=200
+  PASS  U-01 P1(VFIB) 登录
+  PASS  U-02 P2(VFIB) 登录
+  PASS  U-03 P2(UCARD) 登录
+
+--- A. Provider 状态与鉴权 ---
+  PASS  PS-01 未登录读取 provider-status → 401  :: status=401
+  PASS  PS-02 provider-status 可读且 Web Search 未配置  :: status=200 configured=false
+
+--- B. TRUSTED_DAILY 每日情报汇编 ---
+  PASS  TD-01 P2 发起每日汇编 → 200 且 COMPLETED  :: status=200 mode=TRUSTED_DAILY
+  PASS  TD-02 报告编号 RS-xxxx 且品牌范围正确  :: code=RS-0001
+  PASS  TD-03 发现数与实际生成数一致（不虚报）  :: findingCount=0
+  PASS  TD-04 第二次汇编编号自增（不重叠）  :: RS-0001 vs RS-0002
+
+--- C. WEB_RESEARCH 无凭据 BLOCKED ---
+  PASS  WB-01 无凭据 Web 研究 → 200 但状态 BLOCKED  :: status=200 report=BLOCKED
+  PASS  WB-02 blockedReason 说明未配置且不伪造（NOT_CONFIGURED）  :: reason=搜索 Provider 未配置（mos.websearch.provider / MOS_WEBSEARCH_API_KEY）。系统不会以模型参数或旧知识伪称「
+  PASS  WB-03 BLOCKED 报告零发现（不产生任何伪造 Finding）  :: findings=0
+  PASS  WB-04 注入字符串按纯数据原样存储（不进入指令通道）
+  PASS  WB-05 缺少主题 → 400 MISSING_QUERY
+
+--- D. 报告列表与品牌范围 ---
+  PASS  RP-01 报告列表可见（P2 VFIB）  :: items=3
+  PASS  RP-02 报告详情可读
+  PASS  RP-03 跨品牌读报告 → 拒绝（404 防枚举，与不存在同形）  :: status=404
+  PASS  RP-04 不存在的报告 → 404  :: status=404
+
+--- E. 候选选题创建与 SPECIAL-01 适配 ---
+  PASS  TP-01 非法栏目 → 400 BAD_PROPOSAL  :: status=400 code=BAD_PROPOSAL
+  PASS  TP-02 C06 无公告授权 → 员工新建待审且 needsVerification=true  :: status=PENDING_EDITORIAL_REVIEW needsVerification=true
+  PASS  TP-03 C06 附带 SPECIAL-01 提示语  :: 2 条
+  PASS  TP-04 C01 缺正式依据 → needsVerification=true
+  PASS  TP-05 C02 无附加约束 → needsVerification=false
+  PASS  TP-06 注入/XSS 字符串按纯数据原样存储（不执行不清洗为空）
+  PASS  TP-07 缺标题 → 400
+  PASS  TP-08 跨品牌创建（UCARD 用户建 VFIB 选题）→ 拒绝（404 防枚举）  :: status=404
+
+--- F. Proposal 状态机 / 一屏审核 / RBAC 负例 ---
+  PASS  ST-01 员工新建 → PENDING_EDITORIAL_REVIEW  :: status=PENDING_EDITORIAL_REVIEW
+  PASS  ST-02 P2 尝试审核 → 403（editorial.approve 缺失，默认拒绝）  :: status=403
+  PASS  ST-03 AI 建议 → AI_RECOMMENDED 并回链报告  :: status=AI_RECOMMENDED
+  PASS  ST-04 AI_RECOMMENDED → 提交后 PENDING_EDITORIAL_REVIEW
+  PASS  ST-05 重复提交 → 409 BAD_TRANSITION  :: status=409
+  PASS  ST-06 P1 批准 + 修改标题 → APPROVED  :: status=200
+  PASS  ST-07 审核人 / 标题修改落库  :: reviewer=user_mvqoi28
+  PASS  ST-08 editDiff 记录人工改动（from→to）  :: diff=[{"field":"suggestedTitleEN","from":"AI picked topic","to":"AI picked topic (edited by editor)"}]
+  PASS  ST-09 APPROVED 终态再决策 → 409  :: status=409
+  PASS  ST-10 非法决策值 → 409/400（不落入状态机外状态）  :: status=409
+  PASS  ST-11 UCARD 用户审核 VFIB 提案 → 拒绝（404 防枚举）  :: status=404
+  PASS  ST-12 退回修订 → REVISION_REQUESTED 且 revision+1  :: revision=1
+  PASS  ST-13 修订后可重新提审
+  PASS  ST-14 C06 缺授权批准 → needsVerification 仍为 true（不洗白）  :: needsVerification=true
+
+--- G. SSRF 判定负例（websearch 适配层） ---
+  PASS  SS-01 拒绝 http 明文（仅 https）
+  PASS  SS-02 拒绝环回地址
+  PASS  SS-03 拒绝链路本地元数据（169.254.169.254）
+  PASS  SS-04 拒绝私网段（10.x）
+  PASS  SS-05 拒绝内网主机名（.local / .internal）
+  PASS  SS-06 拒绝非 443 端口
+  PASS  SS-07 放行正常 https 公网 URL
+
+--- H. 审计落盘（停服后直读数据文件） ---
+  PASS  AU-01 审计事件已持久化（audit_events 非空）  :: 30 条
+  PASS  AU-02 research.daily_completed 已落审计
+  PASS  AU-03 research.web_blocked 已落审计（BLOCKED 也是真实状态）
+  PASS  AU-04 proposal.created / submitted / decision 已落审计
+
+[v012-research] 55/55 通过

@@ -1,0 +1,6 @@
+PASS T03 real HTTP disk failure responds 500 instead of success
+PASS T03 real HTTP failure leaves proposal and task state unchanged
+PASS T03 real HTTP retry safely commits once
+PASS T01 real HTTP replay creates no duplicate task
+PASS T01 real HTTP changed payload returns 409
+{"suite":"http-durability","total":5,"passed":5,"failed":0}

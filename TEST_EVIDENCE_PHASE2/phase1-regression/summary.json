@@ -1,0 +1,32 @@
+{
+  "rows": [
+    {
+      "suite": "idempotency-test",
+      "exitCode": 0
+    },
+    {
+      "suite": "brand-permission-test",
+      "exitCode": 0
+    },
+    {
+      "suite": "transaction-test",
+      "exitCode": 0
+    },
+    {
+      "suite": "http-durability-test",
+      "exitCode": 0
+    },
+    {
+      "suite": "draft-protection-test",
+      "exitCode": 0
+    },
+    {
+      "suite": "storage-recovery-test",
+      "exitCode": 0
+    },
+    {
+      "suite": "browser-draft-test",
+      "exitCode": 0
+    }
+  ]
+}

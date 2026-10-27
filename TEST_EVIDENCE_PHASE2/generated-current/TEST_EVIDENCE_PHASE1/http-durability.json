@@ -1,0 +1,29 @@
+{
+  "suite": "http-durability",
+  "at": "2026-10-27T12:49:36.248Z",
+  "total": 5,
+  "passed": 5,
+  "failed": 0,
+  "results": [
+    {
+      "name": "T03 real HTTP disk failure responds 500 instead of success",
+      "ok": true
+    },
+    {
+      "name": "T03 real HTTP failure leaves proposal and task state unchanged",
+      "ok": true
+    },
+    {
+      "name": "T03 real HTTP retry safely commits once",
+      "ok": true
+    },
+    {
+      "name": "T01 real HTTP replay creates no duplicate task",
+      "ok": true
+    },
+    {
+      "name": "T01 real HTTP changed payload returns 409",
+      "ok": true
+    }
+  ]
+}

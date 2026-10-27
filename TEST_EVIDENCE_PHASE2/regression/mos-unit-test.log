@@ -1,0 +1,79 @@
+  PASS  U-01 字典：C01-C06/N01-N05/V01-V05/F01-F04/M01-M05/A01-A08/G0-G3 全部存在
+  PASS  U-01b F01-F04 标签来自主控（Cinema/Documentary/Explainer/Tutorial）
+  PASS  U-01c 缺失的 SPECIAL-01 标签必须显式标记 provisional（不得臆造）
+  PASS  U-01d dictValid 对全部字典生效（含来源相关）
+  PASS  U-01e G2/G3 必须强制专业审核且禁止自动发布
+  PASS  U-02 内容任务状态机：合法迁移通过、越级迁移被拒
+  PASS  U-03 月度计划状态机：批准/退回/关闭路径完整
+  PASS  U-04 P1 拥有 plan.approve，P2/P3 不拥有
+  PASS  U-04b 职能可叠加：P1+PROFESSIONAL_REVIEWER 同时具备两类能力
+  PASS  U-04c ★library.asset.approve.final 是独立特权：仅 LIBRARY_FINAL_APPROVER 持有，P1 与 MOS_ADMIN 均不自动获得
+  PASS  U-05 品牌范围：VFIB-only 主体不可触达 UCARD
+  PASS  U-05b 无任何角色 → 默认拒绝（fail closed）
+  PASS  U-06 canonical URL：去 utm_*、去 fragment、主机小写
+  PASS  U-07 SSRF：私网/回环/链路本地/云元数据/IPv6 ULA 全部判为阻断
+  PASS  U-07b SSRF 判定：非白名单主机 / 明文 http / 回环 / 合法字面量 IP（**不依赖公网 DNS**）
+  PASS  U-07c URL 内嵌凭据一律拒绝（CREDENTIALS_IN_URL）
+  PASS  U-07d 生产模式：测试放行开关失效 + 端口收紧到 allowedPorts
+  PASS  U-07e pinnedLookup：连接被固定绑定到已校验 IP（DNS 重绑定防线）
+  PASS  U-07f 字面量 IPv6 回环/ULA 被拒（走 SSRF 判定，无 DNS）
+  PASS  U-07g 内嵌 IPv4 的 IPv6 写法不得绕过地址段拦截（NAT64 / 6to4 / IPv4-mapped 十六进制）
+  PASS  U-08 极简 RSS 解析：item/title/link/pubDate/description
+  PASS  U-10 persistItems：URL/digest 去重；METADATA_ONLY 不落全文
+  PASS  U-10b OPEN + allowFullText 才允许保存全文
+  PASS  U-11 审计 metadata 脱敏：password/token/apiKey 一律 [redacted]，超长截断
+  PASS  U-12 contentHash：键序无关、内容敏感
+  PASS  U-12b uid 唯一性与前缀
+  PASS  U-12c 业务编码：计划号与任务号格式
+  PASS  U-13 所有角色引用的权限码都在权限表中
+  PASS  U-13b 品牌定义：VFIB 与 UCARD，U CARD 非 VFIB CARD
+  PASS  U-14 入库状态机：状态集与迁移表自洽（无悬空目标、终态无出边）
+  PASS  U-14b assertTransition：合法放行、非法阻断并给出中文原因
+  PASS  U-15 ★Mock 下 reuseEligibility 结构性为 false，且逐项给出阻塞原因
+  PASS  U-15b 仅当 REAL 回执 + 权限核验 + ACTIVE + 审批通过 + 同步完成 才可复用
+  PASS  U-16 预检 not_duplicate：同品牌同摘要已存在引用则 FAIL（其余检查全通过）
+  PASS  U-16b 预检 license 待人工核定（历史自由文本保守转 unknown）必须拒绝
+  PASS  U-16b2 预检缺 libraryPrimaryCategory / classification 必须拒绝（不得猜测补齐）
+  PASS  U-16b4 预检 reuseScope 缺省 / none 必须 FAIL（D-06.5：否则申请在资料库侧永久卡死）
+  PASS  U-16b5 预检 licenseStatus=unknown / expired 必须 FAIL，并说明是「人工确认闸门」而非占位值
+  PASS  U-16b3 normalizeProviderFields：自由文本许可绝不映射为 cleared，一律保守转 unknown
+  PASS  U-16b4 toProviderAdmissionInput：不发送 originSystem（服务端强制覆写），且字段名与契约一致
+  PASS  U-16c 预检 digest 不匹配（素材被替换）必须拒绝
+  PASS  U-17 数据分级：RESTRICTED 默认拒发，PUBLIC/INTERNAL 允许（fail closed）
+  PASS  U-17b dataClasses 纳入统一字典校验（未知分级不可静默降级）
+  PASS  U-18 Mock 网关：同内容摘要去重（返回 deduplicated，不产生第二个资产）
+  PASS  U-18b Mock 网关：回执必须 permissionValid=false 且为沙盒资产（不得冒充正式入库）
+  PASS  U-18c Mock 网关：缺摘要/缺分类/许可未核验 → 引擎级拒绝（不是测试桩）
+  PASS  U-19 schema 版本为 8（v8=供应商调用账本 + AI 成片作业；v7=V0.1.2 研究域 4 集合；v6=用户偏好；v3—v5 迁移保留）且 asset_admissions / library_asset_refs / ingest_jobs / 四项集成态集合在基线形状中
+  PASS  U-19a v7 → v8 迁移只新增供应商账本与成片作业集合，既有集合零改写
+  PASS  U-19b migrate：v2 文档补齐 v3—v8 形状，且**不注入**任何已批准资产或作业记录（08 §6）
+  PASS  U-19c v3 → v5 迁移幂等且只新增集合，既有业务集合零改写
+  PASS  U-19d v4 → v5 保守回填：不猜测密级、自由文本许可绝不映射 cleared、标记待人工核定
+  PASS  U-20 品牌 Marketing Brief 模板存在，且**不预置任何产品宣称**（A-02）
+  PASS  U-20b normalizeMarketingBrief：未关联来源的宣称一律 UNVERIFIED，且阻断正式输出
+  PASS  U-20c 只有真实已核验证据才可让宣称 VERIFIED；Mock 资料库/知识库恒不可核验
+  PASS  U-20d productRefs：已核准资料引用同样由服务端计算核验状态
+  PASS  U-20e 全部宣称已核验时 readyForOfficialUse=true（可达，但 Mock 下不可达）
+  PASS  U-20f defaultMarketingBrief：按品牌回落到模板默认，且不带任何宣称
+  PASS  U-20g Campaign 序列化器统一形状（M-03 / F-05：进展视图数据源一致）
+  PASS  U-20h 共享组件文件存在且导出契约齐备（M-01 / M-02 / M-03）
+  PASS  U-21 provisional 项全部登记在册，且归属权威原件（SPECIAL-01 V1.1 / Visual Skill V1.2）
+  PASS  U-21b 未取得原件时：所有 provisional 项保持「待核验」，不存在被伪造的官方标签
+  PASS  U-21c 权威原件登记如实声明「本轮未随包提供」（不得含糊）
+  PASS  U-21d 配置只给字符串标签 → 仅改显示名，条目**仍然待核验**（封堵"一行配置洗成正式"）
+  PASS  U-21e 缺证据的"核验"一律拒绝：只给 sourceVersion 或只给 evidenceRef 都不行
+  PASS  U-21f 证据齐备时才标记为已核验，并把来源版本 + 证据引用写回条目（可追溯）
+  PASS  U-21g 运行时核验登记：缺证据被拒且不写库；证据齐备则写入并可汇总/撤销
+[mos-store] 已加载 Marketing OS 数据库：C:\Users\three\.codex\worktrees\baseline-consolidation-phase2\VFIB-Marketing-OS\data\mos.json
+  PASS  U-21h 字典 API 输出不含任何伪造正式标签，且给出覆盖拒绝审计
+  PASS  U-22 Provider 契约：失败码分类与可重试判定稳定（429/5xx/4xx/AbortError）
+  PASS  U-22b Provider 费用回执：无供应商回执一律 null，绝不凭空推算（04 §5）
+  PASS  U-22c Provider 限流头解析：缺失字段一律 null，不臆测配额
+  PASS  U-22d 未配置 Provider：contract health 状态为 NOT_CONFIGURED 且不回传密钥
+  PASS  U-23 Workspace 契约：canonicalString 与 sha256 原始字节语义对齐 Workspace 源码
+  PASS  U-23b Workspace 契约：封套校验拒绝「失败却夹带业务数据」
+  PASS  U-23c Workspace 契约：服务账户 scope 表不含 admission.final.decision（双重闭合第一重）
+  PASS  U-23d Workspace 适配器 fail closed：未配置凭据时零出站且恒 INTEGRATION_NOT_CONFIGURED
+  PASS  U-23e Workspace 端点表与契约一致（含 skills；final-decision 要求 session 票据）
+
+单元测试：76/76 通过
