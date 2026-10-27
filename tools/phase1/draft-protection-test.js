@@ -1,0 +1,25 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const results=[];
+async function check(name,fn){try{await fn();results.push({name,ok:true});console.log('PASS '+name);}catch(e){results.push({name,ok:false,error:e.message});console.log('FAIL '+name+' '+e.message);}}
+function component(options={}){
+ const node={value:'Employee unsaved body',textContent:'',setAttribute(k,v){this[k]=v;}};const title={value:'Employee title'};const status={textContent:'',setAttribute(k,v){this[k]=v;}};const calls=[],messages=[];
+ const version={id:'version-fixture',rowVersion:3,riskGrade:'G0',state:'DRAFT'};
+ const fixture={host:{querySelector:s=>s==='#ceText'?node:s==='#ceTitle'?title:s==='#ceSaveState'?status:null},version};
+ const module={exports:{}};
+ const api={put:async(p,b)=>{calls.push({method:'PUT',p,b});if(options.put)return options.put(p,b);if(options.error)throw options.error;return{version:{...version,rowVersion:4}};},get:async(p)=>{calls.push({method:'GET',p});return{blocking:[],items:[]};},post:async(p,b)=>{calls.push({method:'POST',p,b});return{createdCases:[]};}};
+ const sandbox={module,console,api,withBrand:(p,b)=>p+'?brand='+b,t:k=>k,esc:x=>String(x),toast:x=>messages.push(x),openModal:o=>{if(options.modal)options.modal(module.exports.test);o.onOk();},fixture};
+ let source=fs.readFileSync(path.join(__dirname,'../../public/mos/js/modules/studio.js'),'utf8').replace(/^import\s[\s\S]*?from\s+['"][^'"]+['"];\s*/gm,'').replace('export default {','module.exports.default = {');
+ source+=`\nmodule.exports.test={setup(){ctxRef={brand:'VFIB'};hostEl=fixture.host;taskId='task-fixture';current={version:fixture.version};editorEpoch=1;dirty=true;draftBuffers.set(fixture.version.id,{body:'Employee unsaved body',title:'Employee title',rowVersion:3});reload=async()=>{current.version={...current.version,rowVersion:4};};},submit(){return submitForReview(fixture.version);},save(){return saveVersion(fixture.version);},mark(){dirty=true;draftBuffers.set(fixture.version.id,{body:'Newer typing',title:'Employee title',rowVersion:3});},clean(){dirty=false;draftBuffers.clear();},buffer(){return draftBuffers.get(fixture.version.id);},hasUnsaved(){return module.exports.default.hasUnsaved();}};`;
+ vm.runInNewContext(source,sandbox,{filename:'studio.js'});module.exports.test.setup();return{...module.exports.test,calls,messages,node,status};
+}
+(async()=>{
+ for(const [label,error]of [['409',Object.assign(Error('Conflict'),{status:409,code:'ROW_VERSION_CONFLICT'})],['immutable409',Object.assign(Error('Frozen'),{status:409,code:'VERSION_IMMUTABLE'})],['500',Object.assign(Error('Disk failure'),{status:500})],['offline',TypeError('Failed to fetch')]]){
+  await check('T08 '+label+' retains draft and sends no review lock',async()=>{const c=component({error});await c.submit();assert.equal(c.calls.filter(x=>x.method==='POST').length,0);assert.equal(c.buffer().body,'Employee unsaved body');assert.equal(c.node.value,'Employee unsaved body');assert(c.hasUnsaved());assert.equal(c.status.role,'alert');assert(c.status.textContent.includes('phase1.save_failed'));});
+ }
+ await check('T08 edits during save are preserved and never locked',async()=>{let resolve;const c=component({put:()=>new Promise(r=>resolve=r)});const pending=c.submit();c.mark();resolve({version:{rowVersion:4}});await pending;assert.equal(c.buffer().body,'Newer typing');assert.equal(c.buffer().rowVersion,4);assert.equal(c.calls.filter(x=>x.method==='POST').length,0);});
+ await check('T08 save failure after confirmation cannot submit old version',async()=>{const c=component({error:Error('Network failure'),modal:test=>test.mark()});c.clean();await c.submit();assert.equal(c.calls.filter(x=>x.method==='POST').length,0);assert(c.hasUnsaved());});
+ await check('T08 duplicate click does not issue duplicate saves or locks',async()=>{let resolve;const c=component({put:()=>new Promise(r=>resolve=r)});const pending=c.submit();await c.submit();assert.equal(c.calls.filter(x=>x.method==='PUT').length,1);resolve({version:{rowVersion:4}});await pending;assert.equal(c.calls.filter(x=>x.method==='POST').length,1);});
+ await check('T08 successful save sends version concurrency token to lock',async()=>{const c=component();await c.submit();assert.equal(c.calls.filter(x=>x.method==='PUT').length,1);assert.equal(c.calls.filter(x=>x.method==='POST').length,1);assert.equal(c.calls.find(x=>x.method==='POST').b.rowVersion,4);assert(!c.hasUnsaved());});
+ const out={suite:'h07-component',at:new Date().toISOString(),total:results.length,passed:results.filter(x=>x.ok).length,failed:results.filter(x=>!x.ok).length,results};fs.mkdirSync(path.join(__dirname,'../../TEST_EVIDENCE_PHASE1'),{recursive:true});fs.writeFileSync(path.join(__dirname,'../../TEST_EVIDENCE_PHASE1/h07-component.json'),JSON.stringify(out,null,2));console.log(JSON.stringify({total:out.total,passed:out.passed,failed:out.failed}));process.exitCode=out.failed?1:0;
+})().catch(e=>{console.error(e);process.exitCode=1;});

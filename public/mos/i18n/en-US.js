@@ -541,4 +541,7 @@ export default {
   "settings.col_tokens": "Tokens",
   "settings.load_failed": "Could not load provider settings",
   "settings.retry": "Reload",
+  "phase1.save_failed": "Save failed. Your draft is retained and has not been submitted for review.",
+  "phase1.changed_during_save": "The draft changed during saving. Save again before submitting for review.",
+  "phase1.unsaved_refresh": "Save your draft or video script before refreshing."
 };

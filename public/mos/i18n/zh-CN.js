@@ -541,4 +541,7 @@ export default {
   "settings.col_tokens": "token 用量",
   "settings.load_failed": "无法加载接入配置",
   "settings.retry": "重新加载",
+  "phase1.save_failed": "保存失败，当前草稿已保留，未提交审核。",
+  "phase1.changed_during_save": "保存期间内容又有修改，请再次保存后提交审核。",
+  "phase1.unsaved_refresh": "有未保存的正文或视频脚本，请先保存后刷新。"
 };

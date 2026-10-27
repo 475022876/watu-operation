@@ -32,6 +32,16 @@ let assets = [];            // 本任务工作素材
 let leftOpen = true;
 let dirty = false;
 let advancedOpen = false;
+// H07: scoped in-memory buffers, adapted from remediation 1f0f1f0.
+const draftBuffers = new Map();
+const videoScriptBuffers = new Map();
+let saveBusy = false, submitBusy = false, editorEpoch = 0;
+function saveError(message) {
+  toast(message, 'err');
+  const status = hostEl && hostEl.querySelector('#ceSaveState');
+  if (status) { status.textContent = message; status.setAttribute('role', 'alert'); }
+}
+
 
 const RISKY = ['G2', 'G3'];
 const TABS = [
@@ -138,10 +148,12 @@ async function loadVideo() {
 
 function bindHead() {
   const n = hostEl.querySelector('#ceNew'); if (n) n.addEventListener('click', newDraftDialog);
-  const r = hostEl.querySelector('#ceRefresh'); if (r) r.addEventListener('click', async () => { current = null; await render(); toast('已刷新', 'ok'); });
+  const r = hostEl.querySelector('#ceRefresh'); if (r) r.addEventListener('click', async () => { if (dirty || videoScriptBuffers.has(taskId)) { saveError(t('phase1.unsaved_refresh')); return; } current = null; await render(); toast('已刷新', 'ok'); });
   const sel = hostEl.querySelector('#ceTask');
   if (sel) sel.addEventListener('change', async () => {
-    if (dirty && !(await confirmDialog('放弃未保存修改？', '当前草稿有未保存的正文修改。', '放弃并切换'))) { sel.value = taskId; return; }
+    if ((dirty || videoScriptBuffers.has(taskId)) && !(await confirmDialog('放弃未保存修改？', '当前草稿有未保存的正文修改。', '放弃并切换'))) { sel.value = taskId; return; }
+    if (current) draftBuffers.delete(current.version.id);
+    videoScriptBuffers.delete(taskId);
     dirty = false; taskId = sel.value; current = null; tab = 'TEXT'; await render();
   });
 }
@@ -330,6 +342,7 @@ function paintText(pane) {
     pane.innerHTML = h;
   } else {
     const v = current.version;
+    const buffer = draftBuffers.get(v.id);
     const editable = !!v.editable;
     let banner = '';
     if (v.state === 'LOCKED_FOR_REVIEW') banner = '<div class="lock-banner">🔒 已提交审核并冻结。修改请点击「派生新版本」。</div>';
@@ -338,9 +351,9 @@ function paintText(pane) {
     else if (v.state === 'SUPERSEDED') banner = '<div class="lock-banner">历史版本（已被新版本取代），只读留档。</div>';
 
     h += banner
-      + '<label class="field"><span>标题</span><input id="ceTitle" type="text" value="' + esc(v.title || '') + '"'
+      + '<label class="field"><span>标题</span><input id="ceTitle" type="text" value="' + esc(buffer ? buffer.title : (v.title || '')) + '"'
       + (editable ? '' : ' readonly') + '></label>'
-      + '<textarea id="ceText" class="ed-body"' + (editable ? '' : ' readonly') + '>' + esc(v.body || '') + '</textarea>'
+      + '<textarea id="ceText" class="ed-body"' + (editable ? '' : ' readonly') + '>' + esc(buffer ? buffer.body : (v.body || '')) + '</textarea>'
       + '<div class="ed-meta" style="margin-top:6px"><span id="ceCount">' + String(v.body || '').length + ' 字</span>'
       + '<span id="ceDirty" class="muted">' + (dirty ? '有未保存修改' : '') + '</span></div>'
       + '<div class="divider"></div>'
@@ -359,7 +372,7 @@ function paintText(pane) {
     const ta = hostEl.querySelector('#ceText');
     const cnt = hostEl.querySelector('#ceCount');
     const dt = hostEl.querySelector('#ceDirty');
-    const mark = () => { dirty = true; if (dt) dt.textContent = '有未保存修改'; const ss = hostEl.querySelector('#ceSaveState'); if (ss) ss.textContent = '有未保存修改'; };
+    const mark = () => { dirty = true; const prior = draftBuffers.get(v.id); draftBuffers.set(v.id, {body:ta.value,title:hostEl.querySelector('#ceTitle').value,rowVersion:prior ? prior.rowVersion : v.rowVersion}); if (dt) dt.textContent = '有未保存修改'; const ss = hostEl.querySelector('#ceSaveState'); if (ss) ss.textContent = '有未保存修改'; };
     ta.addEventListener('input', () => { cnt.textContent = ta.value.length + ' 字'; mark(); });
     const ti = hostEl.querySelector('#ceTitle');
     ti.addEventListener('input', mark);
@@ -375,7 +388,8 @@ function paintText(pane) {
   }
 
   pane.querySelectorAll('[data-ver]').forEach((b) => b.addEventListener('click', async () => {
-    if (dirty && !(await confirmDialog('放弃未保存修改？', '当前草稿有未保存的正文修改。', '放弃并切换'))) return;
+    if ((dirty || videoScriptBuffers.has(taskId)) && !(await confirmDialog('放弃未保存修改？', '当前草稿有未保存的正文修改。', '放弃并切换'))) return;
+    if (current) draftBuffers.delete(current.version.id);
     dirty = false;
     await openVersion(b.dataset.ver);
     paintMid();
@@ -497,6 +511,10 @@ function paintVideo(pane) {
 
   pane.innerHTML = h;
 
+  const scriptEditor = hostEl.querySelector('#tvScript');
+  scriptEditor.value = videoScriptBuffers.has(taskId) ? videoScriptBuffers.get(taskId)
+    : sections.map(s => (s.heading || '') + '｜' + (s.content || '')).join('\n');
+  scriptEditor.addEventListener('input', () => videoScriptBuffers.set(taskId, scriptEditor.value));
   const addShot = hostEl.querySelector('#tvAddShot');
   if (addShot) addShot.addEventListener('click', async () => {
     const next = (video.storyboard || []).concat([{ shot: (video.storyboard || []).length + 1, description: '', durationSec: 5, motionCode: video.motionCode || 'M01', keyframeAssetId: null }]);
@@ -521,6 +539,7 @@ function paintVideo(pane) {
       '要点｜1 个核心信息 + 1 个具体例子',
       '合规｜必要免责声明与来源标注',
       '行动｜明确的下一步引导'].join('\n');
+    videoScriptBuffers.set(taskId, st.value);
     toast('已生成脚本骨架（草稿，需人工核验事实）', 'ok');
   });
   const up = hostEl.querySelector('#tvUp');
@@ -542,7 +561,7 @@ function paintVideo(pane) {
       const parts = line.split('｜');
       return { heading: (parts[0] || '').trim(), content: (parts[1] || '').trim(), durationSec: 0 };
     }) : (video.script && video.script.sections) || [];
-    await saveVideo({ script: { sections } });
+    if (await saveVideo({ script: { sections } })) videoScriptBuffers.delete(taskId);
   });
 }
 
@@ -643,24 +662,54 @@ async function openVersion(id) {
 }
 
 async function saveVersion(v) {
+  if (saveBusy || !hostEl) return false;
   const ta = hostEl.querySelector('#ceText');
-  if (!ta) return;
-  const title = (hostEl.querySelector('#ceTitle') || {}).value || '';
+  const prior = draftBuffers.get(v.id);
+  if (!ta && !prior) return !dirty;
+  const snapshot = {body: ta ? ta.value : prior.body,
+    title: ta ? ((hostEl.querySelector('#ceTitle') || {}).value || '') : prior.title,
+    rowVersion: prior ? prior.rowVersion : v.rowVersion};
+  draftBuffers.set(v.id, snapshot);
+  const epoch = editorEpoch, sid = taskId, brand = ctxRef.brand;
+  saveBusy = true;
   try {
-    await api.put(withBrand('/api/mos/content-versions/' + v.id, ctxRef.brand), {
-      body: ta.value, title: title.trim(), rowVersion: v.rowVersion
+    const r = await api.put(withBrand('/api/mos/content-versions/' + v.id, brand), {
+      body: snapshot.body, title: snapshot.title.trim(), rowVersion: snapshot.rowVersion
     });
-    dirty = false;
+    if (!hostEl || epoch !== editorEpoch || sid !== taskId || brand !== ctxRef.brand) return false;
+    // Typing during the request creates a newer buffer. Never discard or lock it.
+    const latest = draftBuffers.get(v.id);
+    if (latest !== snapshot) {
+      if (latest && r.version) latest.rowVersion = r.version.rowVersion;
+      dirty = true;
+      saveError(t('phase1.changed_during_save'));
+      return false;
+    }
+    draftBuffers.delete(v.id); dirty = false;
     toast('草稿已保存', 'ok');
-    await reload(taskId);
+    await reload(sid);
+    return true;
   } catch (err) {
-    if (err.status === 409 && err.code === 'VERSION_IMMUTABLE') { toast('该版本已冻结，不能直接修改', 'err'); await reload(taskId); }
-    else toast(err.message, 'err');
-  }
+    if (hostEl && epoch === editorEpoch && sid === taskId && brand === ctxRef.brand) {
+      dirty = true;
+      // Including VERSION_IMMUTABLE: do not reload and overwrite the employee's input.
+      saveError(t('phase1.save_failed') + ' ' + err.message);
+    }
+    return false;
+  } finally { if (epoch === editorEpoch) saveBusy = false; }
 }
 
 /** 提交审核：先服务端检查 → 展示检查清单 → 确认冻结 */
 async function submitForReview(v) {
+  if (submitBusy || saveBusy) return;
+  submitBusy = true;
+  try { await submitReview(v); } finally { submitBusy = false; }
+}
+async function submitReview(v) {
+  const epoch = editorEpoch, sid = taskId, brand = ctxRef.brand;
+  if ((dirty || draftBuffers.has(v.id)) && !await saveVersion(v)) return;
+  if (!hostEl || epoch !== editorEpoch || sid !== taskId || brand !== ctxRef.brand) return;
+  v = (current && current.version) || v;
   let chk = null;
   try { chk = await api.get(withBrand('/api/mos/tasks/' + taskId + '/submit-check', ctxRef.brand, {})); }
   catch (_) { chk = null; }
@@ -693,9 +742,11 @@ async function submitForReview(v) {
     });
   });
   if (!ok) return;
-  if (dirty) await saveVersion(v);
+  if (!hostEl || epoch !== editorEpoch || sid !== taskId || brand !== ctxRef.brand) return;
+  if ((dirty || draftBuffers.has(v.id)) && !await saveVersion(v)) return;
+  v = (current && current.version) || v;
   try {
-    const r = await api.post(withBrand('/api/mos/content-versions/' + v.id + '/lock', ctxRef.brand), {});
+    const r = await api.post(withBrand('/api/mos/content-versions/' + v.id + '/lock', brand), {rowVersion: v.rowVersion});
     const n = (r.createdCases || r.cases || []).length;
     toast('已提交审核，生成 ' + n + ' 张审核单', 'ok');
     await reload(taskId);
@@ -713,6 +764,7 @@ async function reviseVersion(v) {
 }
 
 async function newDraftDialog() {
+  if (dirty && current && !await saveVersion(current.version)) return;
   const ok = await confirmDialog('新建草稿？', '将在当前任务下创建一个新的草稿版本。', '创建');
   if (!ok) return;
   try {
@@ -882,7 +934,8 @@ async function saveVideo(patch) {
     video = r.video;
     toast('视频与分镜已保存', 'ok');
     paintMid(); paintRight();
-  } catch (err) { toast(err.message, 'err'); }
+    return true;
+  } catch (err) { toast(err.message, 'err'); return false; }
 }
 
 async function addNote() {
@@ -957,7 +1010,7 @@ async function reload(sid) {
 }
 
 export default {
-  async mount(host, ctx) { ctxRef = ctx; hostEl = host; dirty = false; advancedOpen = false; await render(); },
-  unmount() { hostEl = null; current = null; studio = null; video = null; dirty = false; },
-  hasUnsaved() { return dirty; }
+  async mount(host, ctx) { ctxRef = ctx; hostEl = host; editorEpoch++; saveBusy = false; submitBusy = false; dirty = false; advancedOpen = false; await render(); },
+  unmount() { editorEpoch++; draftBuffers.clear(); videoScriptBuffers.clear(); hostEl = null; current = null; studio = null; video = null; dirty = false; },
+  hasUnsaved() { return dirty || saveBusy || submitBusy || videoScriptBuffers.has(taskId); }
 };
