@@ -285,9 +285,9 @@ async function main() {
 
   applyEnv({ MOS_IMAGE_BASE_URL: base + '/err' });
   const iErr = await image.invoke({ op: 'generate', prompt: 'p' });
-  ok('PC-18 图像 5xx：errorCode=PROVIDER_HTTP_ERROR、retryable=true、失败原因原样上报',
+  ok('PC-18 图像 5xx：errorCode=PROVIDER_HTTP_ERROR、retryable=true、保留状态码且隐藏上游正文',
     iErr.state === 'FAILED' && iErr.errorCode === pc.ERROR_CODES.HTTP_ERROR && iErr.retryable === true
-      && /stub upstream failure/.test(iErr.note),
+      && /HTTP 500/.test(iErr.note) && !/stub upstream failure/.test(iErr.note),
     'state=' + iErr.state + ' errorCode=' + iErr.errorCode);
 
   applyEnv({ MOS_IMAGE_BASE_URL: base + '/slow', MOS_IMAGE_TIMEOUT_MS: '1000' });

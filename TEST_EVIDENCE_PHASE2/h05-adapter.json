@@ -1,0 +1,20 @@
+{
+  "suite": "h05-adapter",
+  "total": 3,
+  "passed": 3,
+  "failed": 0,
+  "results": [
+    {
+      "name": "text adapter rejects revoked Workspace data before URL or model request",
+      "ok": true
+    },
+    {
+      "name": "image adapter rejects revoked Workspace data before URL or model request",
+      "ok": true
+    },
+    {
+      "name": "video adapter rejects revoked Workspace data before URL or model request",
+      "ok": true
+    }
+  ]
+}
