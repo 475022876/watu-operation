@@ -1,0 +1,33 @@
+{
+  "suite": "h06",
+  "at": "2026-10-27T12:35:32.429Z",
+  "total": 6,
+  "passed": 6,
+  "failed": 0,
+  "results": [
+    {
+      "name": "H06 corrupt JSON is blocked and original bytes retained",
+      "ok": true
+    },
+    {
+      "name": "H06 future schema is blocked and original bytes retained",
+      "ok": true
+    },
+    {
+      "name": "H06 wrong collection shape is blocked and original bytes retained",
+      "ok": true
+    },
+    {
+      "name": "H06 valid schema8 loads without rewriting",
+      "ok": true
+    },
+    {
+      "name": "H06 authorized isolated restoration is byte identical",
+      "ok": true
+    },
+    {
+      "name": "H06 failed restoration does not unblock corrupted source",
+      "ok": true
+    }
+  ]
+}
