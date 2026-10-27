@@ -1,0 +1,46 @@
+{
+  "recovery": "Same Windows account/profile DPAPI; memory-only authenticated decrypt, each entry hash checked; mos.json parsed; no secret plaintext copied",
+  "backupSha256": "01E85B57C57E786398443140A84A19AC0BA9768F54EF93D00425F2A92C20B596",
+  "noAppWriterDetected": true,
+  "head": "3d738981eb484a96b2a80d57608496800eacfa29",
+  "atUtc": "2026-10-27T11:02:37.1184304Z",
+  "verified": true,
+  "fileManifest": {
+    "data/mos.json.bak-20261011-215314": {
+      "bytes": 23892,
+      "sha256": "e8c59e4917b489190d2dd9270fc8a0ec490d711c4c210e1be513ef9097839f7e"
+    },
+    "data/mos.json.bak-20261012074459": {
+      "bytes": 25549,
+      "sha256": "ce98fe79f52860435d1d674db72374d6810f01e318c06150d70c58e26f91f884"
+    },
+    "data/mos.json.bak-1791916546140": {
+      "bytes": 53942,
+      "sha256": "ecae6d00361c26be6b5ba37b4a10a1a5fa222e4ceca727c4add75a27c7ba3898"
+    },
+    "data/mos.json.bak-20261011-214010": {
+      "bytes": 16896,
+      "sha256": "21c6fb1055a011c2cd6a6bac7d4c57047d4e597f6f8977845ebc041f24977cf6"
+    },
+    "data/.mos-secret.key": {
+      "bytes": 64,
+      "sha256": "96c082d9df9df6edc15de9498f99b5c63ced0af01ebb94703b600ecdd7329fbd"
+    },
+    "data/mos.json.bak-20261013-173859": {
+      "bytes": 52243,
+      "sha256": "67a8539ae727103cce38a36b4246c70fc052e729203db62bc557391ab50c555c"
+    },
+    "config.json": {
+      "bytes": 1861,
+      "sha256": "b7354b8e0083e012bbdc953d5dcb4ee255196a5ae49c0f0244b89ed8e021510d"
+    },
+    "data/mos.json": {
+      "bytes": 174794,
+      "sha256": "f755e341343c2317d941bdd8bac8961bd732d4e70dcfa8a2e7bad7d034f788ab"
+    },
+    "data/backup-mos-before-research-clean-20261014.json": {
+      "bytes": 130141,
+      "sha256": "d2c61c77db05ebb3c488268425f52140748b99ea2c7fd8cd3bde24d6179180b6"
+    }
+  }
+}

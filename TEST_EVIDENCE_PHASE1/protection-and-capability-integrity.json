@@ -1,0 +1,29 @@
+{
+  "originalHead": "3d738981eb484a96b2a80d57608496800eacfa29",
+  "originalStatus": "",
+  "changedOriginalCode": [],
+  "changedOriginalDataConfigOrKey": [],
+  "originalUnchanged": true,
+  "criticalCapabilitiesUnchanged": {
+    "lib/mos/provideradmin.js": true,
+    "lib/mos/providerlog.js": true,
+    "lib/mos/egress.js": true,
+    "lib/mos/adapters/video.js": true,
+    "lib/mos/workspace-contract.js": true,
+    "lib/mos/workspace-client.js": true,
+    "lib/mos/eventconsumer.js": true,
+    "lib/mos/rbac.js": true,
+    "lib/mos/routes/reviews.js": true,
+    "lib/mos/routes/publishing.js": true,
+    "lib/mos/routes/plans.js": true,
+    "lib/mos/routes/topics.js": true,
+    "lib/mos/routes/admissions.js": true,
+    "lib/mos/routes/video.js": true,
+    "lib/mos/dict.js": true,
+    "package.json": true
+  },
+  "candidateHead": "6db3c0d1d1a80543c22138e3d4d4a89fd0b698d2",
+  "branch": "baseline/consolidation-phase1",
+  "worktree": "C:\\Users\\three\\.codex\\worktrees\\baseline-consolidation-phase1\\VFIB-Marketing-OS",
+  "backupSHA256": "01e85b57c57e786398443140a84a19ac0ba9768f54ef93d00425f2a92c20b596"
+}

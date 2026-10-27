@@ -1,0 +1,49 @@
+{
+  "suite": "h07-component",
+  "at": "2026-10-27T11:31:00.758Z",
+  "total": 10,
+  "passed": 10,
+  "failed": 0,
+  "results": [
+    {
+      "name": "T08 409 retains draft and sends no review lock",
+      "ok": true
+    },
+    {
+      "name": "T08 immutable409 retains draft and sends no review lock",
+      "ok": true
+    },
+    {
+      "name": "T08 500 retains draft and sends no review lock",
+      "ok": true
+    },
+    {
+      "name": "T08 offline retains draft and sends no review lock",
+      "ok": true
+    },
+    {
+      "name": "T08 edits during save are preserved and never locked",
+      "ok": true
+    },
+    {
+      "name": "T08 save failure after confirmation cannot submit old version",
+      "ok": true
+    },
+    {
+      "name": "T08 duplicate click does not issue duplicate saves or locks",
+      "ok": true
+    },
+    {
+      "name": "T08 successful save sends version concurrency token to lock",
+      "ok": true
+    },
+    {
+      "name": "T08 refresh failure after PUT retains draft and blocks lock",
+      "ok": true
+    },
+    {
+      "name": "T08 editing during refresh is retained and never locked",
+      "ok": true
+    }
+  ]
+}

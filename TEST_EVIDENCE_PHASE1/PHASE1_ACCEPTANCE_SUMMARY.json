@@ -1,0 +1,18 @@
+{
+  "testedCommit": "6db3c0d1d1a80543c22138e3d4d4a89fd0b698d2",
+  "specializedPassed": 57,
+  "standardRegression": {
+    "suites": 17,
+    "assertionsPassed": 880
+  },
+  "knownFailures": [
+    {
+      "test": "T09",
+      "issue": "M05 stale intelligence response",
+      "fixed": false
+    }
+  ],
+  "H06": "Production load policy unchanged; isolated safety/recovery protocol verified only",
+  "containsProductionData": false,
+  "containsProductionCredentials": false
+}

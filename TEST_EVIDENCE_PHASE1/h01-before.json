@@ -1,0 +1,46 @@
+{
+  "suite": "h01",
+  "at": "2026-10-27T11:05:04.799Z",
+  "total": 8,
+  "passed": 3,
+  "failed": 5,
+  "results": [
+    {
+      "name": "T01 identical replay creates no additional objects",
+      "ok": true
+    },
+    {
+      "name": "T01 normalized object order and defaults replay",
+      "ok": true
+    },
+    {
+      "name": "T01 changed payload returns 409",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "T01 another actor cannot reuse key",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "T01 another proposal cannot reuse key",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "T01 another brand cannot obtain previous dispatch",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "T01 unauthorized requested brand returns 404 before replay",
+      "ok": true
+    },
+    {
+      "name": "T01 legacy dispatch without request digest fails closed",
+      "ok": false,
+      "error": "Missing expected rejection."
+    }
+  ]
+}
