@@ -142,6 +142,8 @@ Remove-Item Env:PHASE2_BEFORE
 ```
 
 专项正常模式命令见PHASE2_SECURITY_FIXES。回滚、备份校验均通过；未对生产执行任何恢复。当前无未解决的本地回归失败；未验证的外部服务与生产验收不能列为通过。
+格式检查：业务源码、工具和Markdown的git diff --check通过（diff-check.json）。全目录检查另外报告两份原始UI控制台日志共6处表格末尾制表符；为保留原始证据未改写，未将其归为业务代码通过项。
+
 ''')
 write('PHASE2_REGRESSION_MATRIX.md','Phase 2 业务回归矩阵','''## 保留能力与证据
 
@@ -172,7 +174,7 @@ H01仍绑定Actor/Brand/Proposal/Normalized Payload并在冲突409；H02仍读�
 & $node tools/phase2/run-regression.js              # 17套880通过
 & $node tools/phase2/run-phase1-regression.js       # 57通过
 & $node tools/phase2/browser-intelligence-test.js    # 2通过
- git diff --check 319c5b3 HEAD
+ git diff --check 319c5b3 HEAD -- lib public tools "*.md"
  git diff --stat 319c5b3 HEAD
 ```
 

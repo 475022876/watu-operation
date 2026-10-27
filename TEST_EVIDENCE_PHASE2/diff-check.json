@@ -1,0 +1,6 @@
+{
+  "businessCodeAndDocumentation": "PASS",
+  "command": "git diff --check 319c5b3 HEAD -- lib public tools *.md",
+  "rawEvidenceFormatting": "Six trailing-tab warnings in two UI console logs; retained verbatim as table output, not business source defects",
+  "unresolvedRegressionFailures": 0
+}

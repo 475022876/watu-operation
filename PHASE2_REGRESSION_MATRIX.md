@@ -37,7 +37,7 @@ H01仍绑定Actor/Brand/Proposal/Normalized Payload并在冲突409；H02仍读�
 & $node tools/phase2/run-regression.js              # 17套880通过
 & $node tools/phase2/run-phase1-regression.js       # 57通过
 & $node tools/phase2/browser-intelligence-test.js    # 2通过
- git diff --check 319c5b3 HEAD
+ git diff --check 319c5b3 HEAD -- lib public tools "*.md"
  git diff --stat 319c5b3 HEAD
 ```
 
