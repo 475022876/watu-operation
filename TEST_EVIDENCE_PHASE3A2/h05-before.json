@@ -1,0 +1,68 @@
+{
+  "suite": "phase3a2-h05",
+  "at": "2026-10-28T07:47:40.100Z",
+  "mode": "before",
+  "total": 12,
+  "passed": 2,
+  "failed": 10,
+  "rows": [
+    {
+      "name": "H05 contentTaskId-only version rejects revoked",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "H05 contentTaskId-only version rejects restricted",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "H05 contentTaskId-only version rejects executive",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "H05 contentTaskId-only version rejects unknown classification",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "H05 contentTaskId-only version rejects missing metadata",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "H05 contentTaskId-only version rejects external transfer blocked",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "H05 authorized open version asset reaches fresh authority",
+      "ok": false,
+      "error": "Expected values to be strictly equal:"
+    },
+    {
+      "name": "H05 authorized internal version asset allowed by policy",
+      "ok": false,
+      "error": "Expected values to be strictly equal:"
+    },
+    {
+      "name": "H05 cross-brand library reference denied",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "H05 revoked local actor cannot use version asset",
+      "ok": false,
+      "error": "Missing expected rejection."
+    },
+    {
+      "name": "H05 direct reference control still rejects revoked authority",
+      "ok": true
+    },
+    {
+      "name": "H05 no library references remains ordinary manual text",
+      "ok": true
+    }
+  ]
+}
