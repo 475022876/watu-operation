@@ -1,0 +1,3 @@
+PASS T09 real Chrome delayed VFIB response cannot overwrite UCARD
+PASS T09 real Chrome rapid roundtrip and stale failure keep latest brand
+{"suite":"m05-browser","at":"2026-10-28T08:46:30.551Z","total":2,"passed":2,"failed":0,"results":[{"name":"T09 real Chrome delayed VFIB response cannot overwrite UCARD","ok":true},{"name":"T09 real Chrome rapid roundtrip and stale failure keep latest brand","ok":true}]}

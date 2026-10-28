@@ -1,0 +1,8 @@
+PASS H06 corrupt JSON is blocked and original bytes retained
+PASS H06 future schema is blocked and original bytes retained
+PASS H06 wrong collection shape is blocked and original bytes retained
+PASS H06 missing production database cannot be automatically reseeded
+PASS H06 valid schema8 loads without rewriting
+PASS H06 authorized isolated restoration is byte identical
+PASS H06 failed restoration does not unblock corrupted source
+{"passed":7,"failed":0}

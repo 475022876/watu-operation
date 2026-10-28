@@ -1,0 +1,33 @@
+{
+  "suite": "h02",
+  "at": "2026-10-28T08:46:20.134Z",
+  "total": 6,
+  "passed": 6,
+  "failed": 0,
+  "results": [
+    {
+      "name": "T02 active user of another brand is not a valid assignee",
+      "ok": true
+    },
+    {
+      "name": "T02 revoked brand permission is checked at dispatch time",
+      "ok": true
+    },
+    {
+      "name": "T02 active user with non-production role is rejected",
+      "ok": true
+    },
+    {
+      "name": "T02 disabled creator is rejected",
+      "ok": true
+    },
+    {
+      "name": "T02 missing assignee is rejected",
+      "ok": true
+    },
+    {
+      "name": "T02 authorized producer is assigned and other brand unchanged",
+      "ok": true
+    }
+  ]
+}

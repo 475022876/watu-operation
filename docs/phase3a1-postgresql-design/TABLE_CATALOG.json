@@ -1963,5 +1963,23 @@
       "research_report_evidence",
       "brand_code,report_id,evidence_id"
     ]
-  ]
+  ],
+  "implementation": {
+    "phase": "3A-2",
+    "date": "2026-10-28",
+    "migrations": "migrations/postgresql",
+    "versions": 5,
+    "tables": 74,
+    "foreignKeys": 181,
+    "primaryKeys": 74,
+    "uniqueConstraints": 113,
+    "checkConstraints": 103,
+    "notNullConstraints": 659,
+    "indexes": 307,
+    "forcedRlsTables": 61,
+    "redundantIndexesOmitted": 84,
+    "fieldChanges": "No business columns removed; signed context uses protected system_settings key; trigger protections and controlled evidence ingest use existing fields.",
+    "validation": "TEST_EVIDENCE_PHASE3A2/schema-inventory.json",
+    "historicalDraft": "Original bbd3658 draft executed and failed 42501; implemented migrations correct ownership permissions and security policies."
+  }
 }

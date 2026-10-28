@@ -1,0 +1,7 @@
+PASS T04 isolated preflight accepts valid schema8 copy
+PASS T04 corrupted isolated copy blocks launch without rewriting
+PASS T04 backup restoration is byte identical and parseable
+PASS T04 future schema is rejected without downgrading
+PASS T04 test preflight refuses production source directory
+PASS T04 H06 production loader blocks corrupt disposable copy after Phase2
+{"suite":"t04-isolated","total":6,"passed":6,"failed":0}

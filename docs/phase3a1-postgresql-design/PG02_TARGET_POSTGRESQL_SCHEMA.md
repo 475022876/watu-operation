@@ -174,3 +174,8 @@ erDiagram
 ```
 
 图中是关键链路子集；完整74表和所有外键以TABLE_CATALOG.json/SQL为准。外部Workspace资产不是本库实体的可级联FK；以外部ID和实时授权核验保持隔离。
+
+
+## Phase 3A-2 实施校正（2026-10-28）
+
+实际执行入口为 migrations/postgresql 的五个版本，字段目录 implementation 记录实际约束统计。74 张表、181 个外键保持；84 个被主键/唯一索引/前缀索引覆盖的冗余索引省略，实际 307 个索引。61 张表启用 FORCE RLS。原始草案在隔离 PostgreSQL 18.6 实际执行时因函数所有者转移缺少 schema CREATE 权限而失败（42501），事务回滚；修正版临时授权后收回。RLS 改为绑定 actor/brand/backend/transaction/expiry 的 HMAC 上下文，并以当前授权再次校验；未签名 GUC 不构成信任。新增不可变审核/审计、冻结内容/文件及审批状态触发器；不删除业务字段或正式 API。具体以 PHASE3A2_SCHEMA_VALIDATION.md 和实际 Migration 为准。历史草案不是当前初始化入口，旧生成器不得覆盖已审查的 Migration。

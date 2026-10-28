@@ -1,0 +1,16 @@
+{
+  "format": 1,
+  "textNormalization": "UTF8, no BOM, LF",
+  "files": {
+    "001-schema.sql": "a6eb72b831feead8672bd323d6bb41400bd0f5b77023104f3d7066f27480dd9f",
+    "002-security.sql": "299ab6368942536497796538a60935bde7454faab9f7dabb5766645a5a5e3e9a",
+    "003-policies.sql": "32998de9002bf729cefe46fae767b89a0f4a398537673e5748fbd2af997638fa",
+    "004-integrity.sql": "1086cc06e8e2556da68bac6e7c330a044ab70c2133b3eff8dc7e484b02edd3ee",
+    "005-compatibility-integrity.sql": "32d19366437e47ce66ead25babf555ba4106c1fc20018a361ee767055ed162c3",
+    "1782600000001-schema.cjs": "f4d6710dd1b5509af6b3cfbc3176093ddd211a9fbc3cf4518b3cb627119bc3e1",
+    "1782600000002-security.cjs": "445693a20dad47679381c4d6d276194d2a17706c23ad5a38d20432d340b73afb",
+    "1782600000003-policies.cjs": "c0cc456bf0e0489787c33cc8b3d676c2b18f941c479710b288c7674ad726d037",
+    "1782600000004-integrity.cjs": "4c9fefc2d22210bb5d50b56ef273b07b7214a721adbedf5097e84def928e4929",
+    "1782600000005-compatibility-integrity.cjs": "edcf6da1dea51ed5e678784fb0384600c3d0ec6cc5f77a90b394baaede1d08eb"
+  }
+}

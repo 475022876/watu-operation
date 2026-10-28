@@ -1,0 +1,2019 @@
+{
+  "postgres": "postgres (PostgreSQL) 18.6",
+  "at": "2026-10-28T09:13:27.963Z",
+  "constraints": [
+    {
+      "contype": "c",
+      "n": 103
+    },
+    {
+      "contype": "f",
+      "n": 181
+    },
+    {
+      "contype": "n",
+      "n": 659
+    },
+    {
+      "contype": "p",
+      "n": 74
+    },
+    {
+      "contype": "u",
+      "n": 113
+    }
+  ],
+  "indexes": [
+    {
+      "tablename": "asset_admission_history",
+      "indexname": "asset_admission_history_brand_code_admission_id_ordinal_key",
+      "indexdef": "CREATE UNIQUE INDEX asset_admission_history_brand_code_admission_id_ordinal_key ON mos.asset_admission_history USING btree (brand_code, admission_id, ordinal)"
+    },
+    {
+      "tablename": "asset_admission_history",
+      "indexname": "asset_admission_history_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX asset_admission_history_brand_code_id_key ON mos.asset_admission_history USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "asset_admission_history",
+      "indexname": "asset_admission_history_pkey",
+      "indexdef": "CREATE UNIQUE INDEX asset_admission_history_pkey ON mos.asset_admission_history USING btree (id)"
+    },
+    {
+      "tablename": "asset_admission_history",
+      "indexname": "fk_lookup_077",
+      "indexdef": "CREATE INDEX fk_lookup_077 ON mos.asset_admission_history USING btree (actor_id)"
+    },
+    {
+      "tablename": "asset_admissions",
+      "indexname": "asset_admissions_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX asset_admissions_brand_code_id_key ON mos.asset_admissions USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "asset_admissions",
+      "indexname": "asset_admissions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX asset_admissions_pkey ON mos.asset_admissions USING btree (id)"
+    },
+    {
+      "tablename": "asset_admissions",
+      "indexname": "fk_lookup_123",
+      "indexdef": "CREATE INDEX fk_lookup_123 ON mos.asset_admissions USING btree (brand_code, working_asset_id)"
+    },
+    {
+      "tablename": "audit_events",
+      "indexname": "audit_events_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX audit_events_brand_code_id_key ON mos.audit_events USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "audit_events",
+      "indexname": "audit_events_pkey",
+      "indexdef": "CREATE UNIQUE INDEX audit_events_pkey ON mos.audit_events USING btree (id)"
+    },
+    {
+      "tablename": "audit_events",
+      "indexname": "fk_lookup_078",
+      "indexdef": "CREATE INDEX fk_lookup_078 ON mos.audit_events USING btree (actor_user_id)"
+    },
+    {
+      "tablename": "audit_events",
+      "indexname": "ix_audit_events_0",
+      "indexdef": "CREATE INDEX ix_audit_events_0 ON mos.audit_events USING btree (brand_code, occurred_at)"
+    },
+    {
+      "tablename": "audit_events",
+      "indexname": "ix_audit_events_1",
+      "indexdef": "CREATE INDEX ix_audit_events_1 ON mos.audit_events USING btree (correlation_id)"
+    },
+    {
+      "tablename": "auth_sessions",
+      "indexname": "auth_sessions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX auth_sessions_pkey ON mos.auth_sessions USING btree (id)"
+    },
+    {
+      "tablename": "auth_sessions",
+      "indexname": "auth_sessions_token_digest_key",
+      "indexdef": "CREATE UNIQUE INDEX auth_sessions_token_digest_key ON mos.auth_sessions USING btree (token_digest)"
+    },
+    {
+      "tablename": "auth_sessions",
+      "indexname": "fk_lookup_062",
+      "indexdef": "CREATE INDEX fk_lookup_062 ON mos.auth_sessions USING btree (user_id)"
+    },
+    {
+      "tablename": "auth_sessions",
+      "indexname": "session_expiry",
+      "indexdef": "CREATE INDEX session_expiry ON mos.auth_sessions USING btree (expires_at)"
+    },
+    {
+      "tablename": "brands",
+      "indexname": "brands_pkey",
+      "indexdef": "CREATE UNIQUE INDEX brands_pkey ON mos.brands USING btree (code)"
+    },
+    {
+      "tablename": "budget_periods",
+      "indexname": "budget_periods_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX budget_periods_brand_code_id_key ON mos.budget_periods USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "budget_periods",
+      "indexname": "budget_periods_brand_code_policy_id_period_start_key",
+      "indexdef": "CREATE UNIQUE INDEX budget_periods_brand_code_policy_id_period_start_key ON mos.budget_periods USING btree (brand_code, policy_id, period_start)"
+    },
+    {
+      "tablename": "budget_periods",
+      "indexname": "budget_periods_pkey",
+      "indexdef": "CREATE UNIQUE INDEX budget_periods_pkey ON mos.budget_periods USING btree (id)"
+    },
+    {
+      "tablename": "budget_periods",
+      "indexname": "fk_lookup_169",
+      "indexdef": "CREATE INDEX fk_lookup_169 ON mos.budget_periods USING btree (policy_id)"
+    },
+    {
+      "tablename": "budget_reservations",
+      "indexname": "budget_reservations_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX budget_reservations_brand_code_id_key ON mos.budget_reservations USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "budget_reservations",
+      "indexname": "budget_reservations_brand_code_invocation_key_key",
+      "indexdef": "CREATE UNIQUE INDEX budget_reservations_brand_code_invocation_key_key ON mos.budget_reservations USING btree (brand_code, invocation_key)"
+    },
+    {
+      "tablename": "budget_reservations",
+      "indexname": "budget_reservations_pkey",
+      "indexdef": "CREATE UNIQUE INDEX budget_reservations_pkey ON mos.budget_reservations USING btree (id)"
+    },
+    {
+      "tablename": "budget_reservations",
+      "indexname": "fk_lookup_170",
+      "indexdef": "CREATE INDEX fk_lookup_170 ON mos.budget_reservations USING btree (brand_code, period_id)"
+    },
+    {
+      "tablename": "campaign_library_refs",
+      "indexname": "campaign_library_refs_brand_code_campaign_id_claim_path_ord_key",
+      "indexdef": "CREATE UNIQUE INDEX campaign_library_refs_brand_code_campaign_id_claim_path_ord_key ON mos.campaign_library_refs USING btree (brand_code, campaign_id, claim_path, ordinal)"
+    },
+    {
+      "tablename": "campaign_library_refs",
+      "indexname": "campaign_library_refs_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX campaign_library_refs_brand_code_id_key ON mos.campaign_library_refs USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "campaign_library_refs",
+      "indexname": "campaign_library_refs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX campaign_library_refs_pkey ON mos.campaign_library_refs USING btree (id)"
+    },
+    {
+      "tablename": "campaign_library_refs",
+      "indexname": "fk_lookup_163",
+      "indexdef": "CREATE INDEX fk_lookup_163 ON mos.campaign_library_refs USING btree (brand_code, library_ref_id)"
+    },
+    {
+      "tablename": "campaign_topic_links",
+      "indexname": "campaign_topic_links_brand_code_campaign_id_topic_id_key",
+      "indexdef": "CREATE UNIQUE INDEX campaign_topic_links_brand_code_campaign_id_topic_id_key ON mos.campaign_topic_links USING btree (brand_code, campaign_id, topic_id)"
+    },
+    {
+      "tablename": "campaign_topic_links",
+      "indexname": "campaign_topic_links_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX campaign_topic_links_brand_code_id_key ON mos.campaign_topic_links USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "campaign_topic_links",
+      "indexname": "campaign_topic_links_pkey",
+      "indexdef": "CREATE UNIQUE INDEX campaign_topic_links_pkey ON mos.campaign_topic_links USING btree (id)"
+    },
+    {
+      "tablename": "campaign_topic_links",
+      "indexname": "fk_lookup_087",
+      "indexdef": "CREATE INDEX fk_lookup_087 ON mos.campaign_topic_links USING btree (brand_code, topic_id)"
+    },
+    {
+      "tablename": "campaigns",
+      "indexname": "campaigns_brand_code_code_key",
+      "indexdef": "CREATE UNIQUE INDEX campaigns_brand_code_code_key ON mos.campaigns USING btree (brand_code, code)"
+    },
+    {
+      "tablename": "campaigns",
+      "indexname": "campaigns_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX campaigns_brand_code_id_key ON mos.campaigns USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "campaigns",
+      "indexname": "campaigns_pkey",
+      "indexdef": "CREATE UNIQUE INDEX campaigns_pkey ON mos.campaigns USING btree (id)"
+    },
+    {
+      "tablename": "campaigns",
+      "indexname": "fk_lookup_064",
+      "indexdef": "CREATE INDEX fk_lookup_064 ON mos.campaigns USING btree (owner_id)"
+    },
+    {
+      "tablename": "channels",
+      "indexname": "channels_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX channels_brand_code_id_key ON mos.channels USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "channels",
+      "indexname": "channels_pkey",
+      "indexdef": "CREATE UNIQUE INDEX channels_pkey ON mos.channels USING btree (id)"
+    },
+    {
+      "tablename": "channels",
+      "indexname": "fk_lookup_071",
+      "indexdef": "CREATE INDEX fk_lookup_071 ON mos.channels USING btree (owner_id)"
+    },
+    {
+      "tablename": "code_counters",
+      "indexname": "code_counters_counter_key_key",
+      "indexdef": "CREATE UNIQUE INDEX code_counters_counter_key_key ON mos.code_counters USING btree (counter_key)"
+    },
+    {
+      "tablename": "code_counters",
+      "indexname": "code_counters_pkey",
+      "indexdef": "CREATE UNIQUE INDEX code_counters_pkey ON mos.code_counters USING btree (id)"
+    },
+    {
+      "tablename": "content_tasks",
+      "indexname": "content_tasks_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX content_tasks_brand_code_id_key ON mos.content_tasks USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "content_tasks",
+      "indexname": "content_tasks_code_key",
+      "indexdef": "CREATE UNIQUE INDEX content_tasks_code_key ON mos.content_tasks USING btree (code)"
+    },
+    {
+      "tablename": "content_tasks",
+      "indexname": "content_tasks_pkey",
+      "indexdef": "CREATE UNIQUE INDEX content_tasks_pkey ON mos.content_tasks USING btree (id)"
+    },
+    {
+      "tablename": "content_tasks",
+      "indexname": "fk_lookup_066",
+      "indexdef": "CREATE INDEX fk_lookup_066 ON mos.content_tasks USING btree (owner_id)"
+    },
+    {
+      "tablename": "content_tasks",
+      "indexname": "fk_lookup_088",
+      "indexdef": "CREATE INDEX fk_lookup_088 ON mos.content_tasks USING btree (brand_code, campaign_id)"
+    },
+    {
+      "tablename": "content_tasks",
+      "indexname": "fk_lookup_089",
+      "indexdef": "CREATE INDEX fk_lookup_089 ON mos.content_tasks USING btree (brand_code, topic_id)"
+    },
+    {
+      "tablename": "content_tasks",
+      "indexname": "fk_lookup_090",
+      "indexdef": "CREATE INDEX fk_lookup_090 ON mos.content_tasks USING btree (brand_code, parent_task_id)"
+    },
+    {
+      "tablename": "content_tasks",
+      "indexname": "ix_content_tasks_0",
+      "indexdef": "CREATE INDEX ix_content_tasks_0 ON mos.content_tasks USING btree (brand_code, owner_id, status)"
+    },
+    {
+      "tablename": "content_tasks",
+      "indexname": "ix_content_tasks_1",
+      "indexdef": "CREATE INDEX ix_content_tasks_1 ON mos.content_tasks USING btree (brand_code, production_due)"
+    },
+    {
+      "tablename": "content_version_assets",
+      "indexname": "content_version_assets_brand_code_content_version_id_asset__key",
+      "indexdef": "CREATE UNIQUE INDEX content_version_assets_brand_code_content_version_id_asset__key ON mos.content_version_assets USING btree (brand_code, content_version_id, asset_id)"
+    },
+    {
+      "tablename": "content_version_assets",
+      "indexname": "content_version_assets_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX content_version_assets_brand_code_id_key ON mos.content_version_assets USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "content_version_assets",
+      "indexname": "content_version_assets_pkey",
+      "indexdef": "CREATE UNIQUE INDEX content_version_assets_pkey ON mos.content_version_assets USING btree (id)"
+    },
+    {
+      "tablename": "content_version_assets",
+      "indexname": "fk_lookup_140",
+      "indexdef": "CREATE INDEX fk_lookup_140 ON mos.content_version_assets USING btree (brand_code, asset_id)"
+    },
+    {
+      "tablename": "content_version_assets",
+      "indexname": "fk_lookup_141",
+      "indexdef": "CREATE INDEX fk_lookup_141 ON mos.content_version_assets USING btree (brand_code, file_version_id)"
+    },
+    {
+      "tablename": "content_version_channels",
+      "indexname": "content_version_channels_brand_code_content_version_id_chan_key",
+      "indexdef": "CREATE UNIQUE INDEX content_version_channels_brand_code_content_version_id_chan_key ON mos.content_version_channels USING btree (brand_code, content_version_id, channel_id)"
+    },
+    {
+      "tablename": "content_version_channels",
+      "indexname": "content_version_channels_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX content_version_channels_brand_code_id_key ON mos.content_version_channels USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "content_version_channels",
+      "indexname": "content_version_channels_pkey",
+      "indexdef": "CREATE UNIQUE INDEX content_version_channels_pkey ON mos.content_version_channels USING btree (id)"
+    },
+    {
+      "tablename": "content_version_channels",
+      "indexname": "fk_lookup_143",
+      "indexdef": "CREATE INDEX fk_lookup_143 ON mos.content_version_channels USING btree (brand_code, channel_id)"
+    },
+    {
+      "tablename": "content_version_evidence",
+      "indexname": "content_version_evidence_brand_code_content_version_id_evid_key",
+      "indexdef": "CREATE UNIQUE INDEX content_version_evidence_brand_code_content_version_id_evid_key ON mos.content_version_evidence USING btree (brand_code, content_version_id, evidence_reference_id)"
+    },
+    {
+      "tablename": "content_version_evidence",
+      "indexname": "content_version_evidence_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX content_version_evidence_brand_code_id_key ON mos.content_version_evidence USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "content_version_evidence",
+      "indexname": "content_version_evidence_pkey",
+      "indexdef": "CREATE UNIQUE INDEX content_version_evidence_pkey ON mos.content_version_evidence USING btree (id)"
+    },
+    {
+      "tablename": "content_version_evidence",
+      "indexname": "fk_lookup_145",
+      "indexdef": "CREATE INDEX fk_lookup_145 ON mos.content_version_evidence USING btree (brand_code, evidence_reference_id)"
+    },
+    {
+      "tablename": "content_versions",
+      "indexname": "content_versions_brand_code_content_task_id_number_key",
+      "indexdef": "CREATE UNIQUE INDEX content_versions_brand_code_content_task_id_number_key ON mos.content_versions USING btree (brand_code, content_task_id, number)"
+    },
+    {
+      "tablename": "content_versions",
+      "indexname": "content_versions_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX content_versions_brand_code_id_key ON mos.content_versions USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "content_versions",
+      "indexname": "content_versions_brand_code_id_manifest_hash_key",
+      "indexdef": "CREATE UNIQUE INDEX content_versions_brand_code_id_manifest_hash_key ON mos.content_versions USING btree (brand_code, id, manifest_hash)"
+    },
+    {
+      "tablename": "content_versions",
+      "indexname": "content_versions_code_key",
+      "indexdef": "CREATE UNIQUE INDEX content_versions_code_key ON mos.content_versions USING btree (code)"
+    },
+    {
+      "tablename": "content_versions",
+      "indexname": "content_versions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX content_versions_pkey ON mos.content_versions USING btree (id)"
+    },
+    {
+      "tablename": "content_versions",
+      "indexname": "fk_lookup_068",
+      "indexdef": "CREATE INDEX fk_lookup_068 ON mos.content_versions USING btree (author_id)"
+    },
+    {
+      "tablename": "content_versions",
+      "indexname": "fk_lookup_097",
+      "indexdef": "CREATE INDEX fk_lookup_097 ON mos.content_versions USING btree (brand_code, supersedes_id)"
+    },
+    {
+      "tablename": "content_versions",
+      "indexname": "fk_lookup_098",
+      "indexdef": "CREATE INDEX fk_lookup_098 ON mos.content_versions USING btree (brand_code, superseded_by_id)"
+    },
+    {
+      "tablename": "creative_templates",
+      "indexname": "creative_templates_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX creative_templates_brand_code_id_key ON mos.creative_templates USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "creative_templates",
+      "indexname": "creative_templates_brand_code_template_code_version_key",
+      "indexdef": "CREATE UNIQUE INDEX creative_templates_brand_code_template_code_version_key ON mos.creative_templates USING btree (brand_code, template_code, version)"
+    },
+    {
+      "tablename": "creative_templates",
+      "indexname": "creative_templates_pkey",
+      "indexdef": "CREATE UNIQUE INDEX creative_templates_pkey ON mos.creative_templates USING btree (id)"
+    },
+    {
+      "tablename": "creative_templates",
+      "indexname": "fk_lookup_095",
+      "indexdef": "CREATE INDEX fk_lookup_095 ON mos.creative_templates USING btree (brand_code, skill_version_id)"
+    },
+    {
+      "tablename": "evidence_references",
+      "indexname": "evidence_references_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX evidence_references_brand_code_id_key ON mos.evidence_references USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "evidence_references",
+      "indexname": "evidence_references_pkey",
+      "indexdef": "CREATE UNIQUE INDEX evidence_references_pkey ON mos.evidence_references USING btree (id)"
+    },
+    {
+      "tablename": "evidence_references",
+      "indexname": "fk_lookup_092",
+      "indexdef": "CREATE INDEX fk_lookup_092 ON mos.evidence_references USING btree (brand_code, source_item_id)"
+    },
+    {
+      "tablename": "evidence_references",
+      "indexname": "fk_lookup_093",
+      "indexdef": "CREATE INDEX fk_lookup_093 ON mos.evidence_references USING btree (brand_code, topic_id)"
+    },
+    {
+      "tablename": "evidence_references",
+      "indexname": "fk_lookup_094",
+      "indexdef": "CREATE INDEX fk_lookup_094 ON mos.evidence_references USING btree (brand_code, content_version_id)"
+    },
+    {
+      "tablename": "file_objects",
+      "indexname": "file_objects_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX file_objects_brand_code_id_key ON mos.file_objects USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "file_objects",
+      "indexname": "file_objects_brand_code_storage_backend_bucket_ref_object_k_key",
+      "indexdef": "CREATE UNIQUE INDEX file_objects_brand_code_storage_backend_bucket_ref_object_k_key ON mos.file_objects USING btree (brand_code, storage_backend, bucket_ref, object_key) NULLS NOT DISTINCT"
+    },
+    {
+      "tablename": "file_objects",
+      "indexname": "file_objects_pkey",
+      "indexdef": "CREATE UNIQUE INDEX file_objects_pkey ON mos.file_objects USING btree (id)"
+    },
+    {
+      "tablename": "file_versions",
+      "indexname": "file_integrity",
+      "indexdef": "CREATE INDEX file_integrity ON mos.file_versions USING btree (brand_code, sha256, byte_length)"
+    },
+    {
+      "tablename": "file_versions",
+      "indexname": "file_versions_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX file_versions_brand_code_id_key ON mos.file_versions USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "file_versions",
+      "indexname": "file_versions_brand_code_object_id_version_no_key",
+      "indexdef": "CREATE UNIQUE INDEX file_versions_brand_code_object_id_version_no_key ON mos.file_versions USING btree (brand_code, object_id, version_no)"
+    },
+    {
+      "tablename": "file_versions",
+      "indexname": "file_versions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX file_versions_pkey ON mos.file_versions USING btree (id)"
+    },
+    {
+      "tablename": "generation_job_outputs",
+      "indexname": "fk_lookup_147",
+      "indexdef": "CREATE INDEX fk_lookup_147 ON mos.generation_job_outputs USING btree (brand_code, asset_id)"
+    },
+    {
+      "tablename": "generation_job_outputs",
+      "indexname": "generation_job_outputs_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX generation_job_outputs_brand_code_id_key ON mos.generation_job_outputs USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "generation_job_outputs",
+      "indexname": "generation_job_outputs_brand_code_job_id_asset_id_key",
+      "indexdef": "CREATE UNIQUE INDEX generation_job_outputs_brand_code_job_id_asset_id_key ON mos.generation_job_outputs USING btree (brand_code, job_id, asset_id)"
+    },
+    {
+      "tablename": "generation_job_outputs",
+      "indexname": "generation_job_outputs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX generation_job_outputs_pkey ON mos.generation_job_outputs USING btree (id)"
+    },
+    {
+      "tablename": "generation_jobs",
+      "indexname": "fk_lookup_070",
+      "indexdef": "CREATE INDEX fk_lookup_070 ON mos.generation_jobs USING btree (requested_by)"
+    },
+    {
+      "tablename": "generation_jobs",
+      "indexname": "fk_lookup_107",
+      "indexdef": "CREATE INDEX fk_lookup_107 ON mos.generation_jobs USING btree (brand_code, task_id)"
+    },
+    {
+      "tablename": "generation_jobs",
+      "indexname": "fk_lookup_108",
+      "indexdef": "CREATE INDEX fk_lookup_108 ON mos.generation_jobs USING btree (brand_code, skill_version_id)"
+    },
+    {
+      "tablename": "generation_jobs",
+      "indexname": "fk_lookup_109",
+      "indexdef": "CREATE INDEX fk_lookup_109 ON mos.generation_jobs USING btree (brand_code, template_id)"
+    },
+    {
+      "tablename": "generation_jobs",
+      "indexname": "generation_jobs_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX generation_jobs_brand_code_id_key ON mos.generation_jobs USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "generation_jobs",
+      "indexname": "generation_jobs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX generation_jobs_pkey ON mos.generation_jobs USING btree (id)"
+    },
+    {
+      "tablename": "generation_jobs",
+      "indexname": "ix_generation_jobs_0",
+      "indexdef": "CREATE INDEX ix_generation_jobs_0 ON mos.generation_jobs USING btree (brand_code, status, created_at)"
+    },
+    {
+      "tablename": "idempotency_requests",
+      "indexname": "fk_lookup_172",
+      "indexdef": "CREATE INDEX fk_lookup_172 ON mos.idempotency_requests USING btree (brand_code, proposal_id)"
+    },
+    {
+      "tablename": "idempotency_requests",
+      "indexname": "idempotency_requests_brand_code_actor_id_operation_resource_key",
+      "indexdef": "CREATE UNIQUE INDEX idempotency_requests_brand_code_actor_id_operation_resource_key ON mos.idempotency_requests USING btree (brand_code, actor_id, operation, resource_key, idempotency_key)"
+    },
+    {
+      "tablename": "idempotency_requests",
+      "indexname": "idempotency_requests_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX idempotency_requests_brand_code_id_key ON mos.idempotency_requests USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "idempotency_requests",
+      "indexname": "idempotency_requests_pkey",
+      "indexdef": "CREATE UNIQUE INDEX idempotency_requests_pkey ON mos.idempotency_requests USING btree (id)"
+    },
+    {
+      "tablename": "inbox_events",
+      "indexname": "inbox_events_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX inbox_events_brand_code_id_key ON mos.inbox_events USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "inbox_events",
+      "indexname": "inbox_events_brand_code_provider_stream_key_event_key_key",
+      "indexdef": "CREATE UNIQUE INDEX inbox_events_brand_code_provider_stream_key_event_key_key ON mos.inbox_events USING btree (brand_code, provider, stream_key, event_key)"
+    },
+    {
+      "tablename": "inbox_events",
+      "indexname": "inbox_events_pkey",
+      "indexdef": "CREATE UNIQUE INDEX inbox_events_pkey ON mos.inbox_events USING btree (id)"
+    },
+    {
+      "tablename": "ingest_jobs",
+      "indexname": "fk_lookup_126",
+      "indexdef": "CREATE INDEX fk_lookup_126 ON mos.ingest_jobs USING btree (brand_code, source_id)"
+    },
+    {
+      "tablename": "ingest_jobs",
+      "indexname": "ingest_jobs_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX ingest_jobs_brand_code_id_key ON mos.ingest_jobs USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "ingest_jobs",
+      "indexname": "ingest_jobs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX ingest_jobs_pkey ON mos.ingest_jobs USING btree (id)"
+    },
+    {
+      "tablename": "ingest_jobs",
+      "indexname": "ix_ingest_jobs_0",
+      "indexdef": "CREATE INDEX ix_ingest_jobs_0 ON mos.ingest_jobs USING btree (brand_code, status, next_run_at)"
+    },
+    {
+      "tablename": "library_admission_jobs",
+      "indexname": "library_admission_jobs_brand_code_admission_id_key",
+      "indexdef": "CREATE UNIQUE INDEX library_admission_jobs_brand_code_admission_id_key ON mos.library_admission_jobs USING btree (brand_code, admission_id)"
+    },
+    {
+      "tablename": "library_admission_jobs",
+      "indexname": "library_admission_jobs_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX library_admission_jobs_brand_code_id_key ON mos.library_admission_jobs USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "library_admission_jobs",
+      "indexname": "library_admission_jobs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX library_admission_jobs_pkey ON mos.library_admission_jobs USING btree (id)"
+    },
+    {
+      "tablename": "library_asset_refs",
+      "indexname": "fk_lookup_124",
+      "indexdef": "CREATE INDEX fk_lookup_124 ON mos.library_asset_refs USING btree (brand_code, admission_id)"
+    },
+    {
+      "tablename": "library_asset_refs",
+      "indexname": "fk_lookup_125",
+      "indexdef": "CREATE INDEX fk_lookup_125 ON mos.library_asset_refs USING btree (brand_code, working_asset_id)"
+    },
+    {
+      "tablename": "library_asset_refs",
+      "indexname": "ix_library_asset_refs_0",
+      "indexdef": "CREATE INDEX ix_library_asset_refs_0 ON mos.library_asset_refs USING btree (brand_code, library_id)"
+    },
+    {
+      "tablename": "library_asset_refs",
+      "indexname": "library_asset_refs_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX library_asset_refs_brand_code_id_key ON mos.library_asset_refs USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "library_asset_refs",
+      "indexname": "library_asset_refs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX library_asset_refs_pkey ON mos.library_asset_refs USING btree (id)"
+    },
+    {
+      "tablename": "library_event_cursors",
+      "indexname": "library_event_cursors_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX library_event_cursors_brand_code_id_key ON mos.library_event_cursors USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "library_event_cursors",
+      "indexname": "library_event_cursors_brand_code_key",
+      "indexdef": "CREATE UNIQUE INDEX library_event_cursors_brand_code_key ON mos.library_event_cursors USING btree (brand_code)"
+    },
+    {
+      "tablename": "library_event_cursors",
+      "indexname": "library_event_cursors_pkey",
+      "indexdef": "CREATE UNIQUE INDEX library_event_cursors_pkey ON mos.library_event_cursors USING btree (id)"
+    },
+    {
+      "tablename": "library_invalidations",
+      "indexname": "invalidation_target",
+      "indexdef": "CREATE INDEX invalidation_target ON mos.library_invalidations USING btree (kind, target_id)"
+    },
+    {
+      "tablename": "library_invalidations",
+      "indexname": "library_invalidations_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX library_invalidations_brand_code_id_key ON mos.library_invalidations USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "library_invalidations",
+      "indexname": "library_invalidations_brand_code_kind_target_id_key",
+      "indexdef": "CREATE UNIQUE INDEX library_invalidations_brand_code_kind_target_id_key ON mos.library_invalidations USING btree (brand_code, kind, target_id) NULLS NOT DISTINCT"
+    },
+    {
+      "tablename": "library_invalidations",
+      "indexname": "library_invalidations_pkey",
+      "indexdef": "CREATE UNIQUE INDEX library_invalidations_pkey ON mos.library_invalidations USING btree (id)"
+    },
+    {
+      "tablename": "library_ticket_cache",
+      "indexname": "library_ticket_cache_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX library_ticket_cache_brand_code_id_key ON mos.library_ticket_cache USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "library_ticket_cache",
+      "indexname": "library_ticket_cache_pkey",
+      "indexdef": "CREATE UNIQUE INDEX library_ticket_cache_pkey ON mos.library_ticket_cache USING btree (id)"
+    },
+    {
+      "tablename": "library_ticket_cache",
+      "indexname": "library_ticket_cache_ticket_key_key",
+      "indexdef": "CREATE UNIQUE INDEX library_ticket_cache_ticket_key_key ON mos.library_ticket_cache USING btree (ticket_key)"
+    },
+    {
+      "tablename": "library_ticket_cache",
+      "indexname": "ticket_expiry",
+      "indexdef": "CREATE INDEX ticket_expiry ON mos.library_ticket_cache USING btree (expires_at)"
+    },
+    {
+      "tablename": "master_topics",
+      "indexname": "fk_lookup_065",
+      "indexdef": "CREATE INDEX fk_lookup_065 ON mos.master_topics USING btree (owner_id)"
+    },
+    {
+      "tablename": "master_topics",
+      "indexname": "master_topics_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX master_topics_brand_code_id_key ON mos.master_topics USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "master_topics",
+      "indexname": "master_topics_pkey",
+      "indexdef": "CREATE UNIQUE INDEX master_topics_pkey ON mos.master_topics USING btree (id)"
+    },
+    {
+      "tablename": "migration_rejections",
+      "indexname": "fk_lookup_171",
+      "indexdef": "CREATE INDEX fk_lookup_171 ON mos.migration_rejections USING btree (run_id)"
+    },
+    {
+      "tablename": "migration_rejections",
+      "indexname": "migration_rejections_pkey",
+      "indexdef": "CREATE UNIQUE INDEX migration_rejections_pkey ON mos.migration_rejections USING btree (id)"
+    },
+    {
+      "tablename": "migration_runs",
+      "indexname": "migration_runs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX migration_runs_pkey ON mos.migration_runs USING btree (id)"
+    },
+    {
+      "tablename": "migration_runs",
+      "indexname": "migration_runs_source_sha256_mapping_version_key",
+      "indexdef": "CREATE UNIQUE INDEX migration_runs_source_sha256_mapping_version_key ON mos.migration_runs USING btree (source_sha256, mapping_version)"
+    },
+    {
+      "tablename": "monthly_campaign_links",
+      "indexname": "fk_lookup_085",
+      "indexdef": "CREATE INDEX fk_lookup_085 ON mos.monthly_campaign_links USING btree (brand_code, campaign_id)"
+    },
+    {
+      "tablename": "monthly_campaign_links",
+      "indexname": "monthly_campaign_links_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX monthly_campaign_links_brand_code_id_key ON mos.monthly_campaign_links USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "monthly_campaign_links",
+      "indexname": "monthly_campaign_links_brand_code_plan_id_campaign_id_key",
+      "indexdef": "CREATE UNIQUE INDEX monthly_campaign_links_brand_code_plan_id_campaign_id_key ON mos.monthly_campaign_links USING btree (brand_code, plan_id, campaign_id)"
+    },
+    {
+      "tablename": "monthly_campaign_links",
+      "indexname": "monthly_campaign_links_pkey",
+      "indexdef": "CREATE UNIQUE INDEX monthly_campaign_links_pkey ON mos.monthly_campaign_links USING btree (id)"
+    },
+    {
+      "tablename": "monthly_plans",
+      "indexname": "fk_lookup_063",
+      "indexdef": "CREATE INDEX fk_lookup_063 ON mos.monthly_plans USING btree (owner_id)"
+    },
+    {
+      "tablename": "monthly_plans",
+      "indexname": "fk_lookup_081",
+      "indexdef": "CREATE INDEX fk_lookup_081 ON mos.monthly_plans USING btree (brand_code, supersedes_id)"
+    },
+    {
+      "tablename": "monthly_plans",
+      "indexname": "monthly_plans_brand_code_code_key",
+      "indexdef": "CREATE UNIQUE INDEX monthly_plans_brand_code_code_key ON mos.monthly_plans USING btree (brand_code, code)"
+    },
+    {
+      "tablename": "monthly_plans",
+      "indexname": "monthly_plans_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX monthly_plans_brand_code_id_key ON mos.monthly_plans USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "monthly_plans",
+      "indexname": "monthly_plans_brand_code_year_month_version_key",
+      "indexdef": "CREATE UNIQUE INDEX monthly_plans_brand_code_year_month_version_key ON mos.monthly_plans USING btree (brand_code, year, month, version)"
+    },
+    {
+      "tablename": "monthly_plans",
+      "indexname": "monthly_plans_pkey",
+      "indexdef": "CREATE UNIQUE INDEX monthly_plans_pkey ON mos.monthly_plans USING btree (id)"
+    },
+    {
+      "tablename": "outbox_events",
+      "indexname": "outbox_events_brand_code_dedupe_key_key",
+      "indexdef": "CREATE UNIQUE INDEX outbox_events_brand_code_dedupe_key_key ON mos.outbox_events USING btree (brand_code, dedupe_key)"
+    },
+    {
+      "tablename": "outbox_events",
+      "indexname": "outbox_events_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX outbox_events_brand_code_id_key ON mos.outbox_events USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "outbox_events",
+      "indexname": "outbox_events_pkey",
+      "indexdef": "CREATE UNIQUE INDEX outbox_events_pkey ON mos.outbox_events USING btree (id)"
+    },
+    {
+      "tablename": "outbox_events",
+      "indexname": "outbox_leased",
+      "indexdef": "CREATE INDEX outbox_leased ON mos.outbox_events USING btree (lease_until) WHERE (status = 'LEASED'::text)"
+    },
+    {
+      "tablename": "outbox_events",
+      "indexname": "outbox_ready",
+      "indexdef": "CREATE INDEX outbox_ready ON mos.outbox_events USING btree (available_at, id) WHERE (status = ANY (ARRAY['PENDING'::text, 'RETRY'::text]))"
+    },
+    {
+      "tablename": "plan_items",
+      "indexname": "fk_lookup_082",
+      "indexdef": "CREATE INDEX fk_lookup_082 ON mos.plan_items USING btree (brand_code, plan_id)"
+    },
+    {
+      "tablename": "plan_items",
+      "indexname": "fk_lookup_083",
+      "indexdef": "CREATE INDEX fk_lookup_083 ON mos.plan_items USING btree (brand_code, content_task_id)"
+    },
+    {
+      "tablename": "plan_items",
+      "indexname": "ix_plan_items_0",
+      "indexdef": "CREATE INDEX ix_plan_items_0 ON mos.plan_items USING btree (brand_code, work_date)"
+    },
+    {
+      "tablename": "plan_items",
+      "indexname": "plan_items_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX plan_items_brand_code_id_key ON mos.plan_items USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "plan_items",
+      "indexname": "plan_items_pkey",
+      "indexdef": "CREATE UNIQUE INDEX plan_items_pkey ON mos.plan_items USING btree (id)"
+    },
+    {
+      "tablename": "proposal_dispatch_tasks",
+      "indexname": "fk_lookup_156",
+      "indexdef": "CREATE INDEX fk_lookup_156 ON mos.proposal_dispatch_tasks USING btree (brand_code, task_id)"
+    },
+    {
+      "tablename": "proposal_dispatch_tasks",
+      "indexname": "fk_lookup_157",
+      "indexdef": "CREATE INDEX fk_lookup_157 ON mos.proposal_dispatch_tasks USING btree (brand_code, plan_item_id)"
+    },
+    {
+      "tablename": "proposal_dispatch_tasks",
+      "indexname": "proposal_dispatch_tasks_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX proposal_dispatch_tasks_brand_code_id_key ON mos.proposal_dispatch_tasks USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "proposal_dispatch_tasks",
+      "indexname": "proposal_dispatch_tasks_brand_code_proposal_id_task_id_key",
+      "indexdef": "CREATE UNIQUE INDEX proposal_dispatch_tasks_brand_code_proposal_id_task_id_key ON mos.proposal_dispatch_tasks USING btree (brand_code, proposal_id, task_id)"
+    },
+    {
+      "tablename": "proposal_dispatch_tasks",
+      "indexname": "proposal_dispatch_tasks_pkey",
+      "indexdef": "CREATE UNIQUE INDEX proposal_dispatch_tasks_pkey ON mos.proposal_dispatch_tasks USING btree (id)"
+    },
+    {
+      "tablename": "provider_budget_policies",
+      "indexname": "provider_budget_policies_pkey",
+      "indexdef": "CREATE UNIQUE INDEX provider_budget_policies_pkey ON mos.provider_budget_policies USING btree (id)"
+    },
+    {
+      "tablename": "provider_budget_policies",
+      "indexname": "provider_budget_policies_scope_key_kind_key",
+      "indexdef": "CREATE UNIQUE INDEX provider_budget_policies_scope_key_kind_key ON mos.provider_budget_policies USING btree (scope_key, kind)"
+    },
+    {
+      "tablename": "provider_calls",
+      "indexname": "ix_provider_calls_0",
+      "indexdef": "CREATE INDEX ix_provider_calls_0 ON mos.provider_calls USING btree (brand_code, created_at)"
+    },
+    {
+      "tablename": "provider_calls",
+      "indexname": "ix_provider_calls_1",
+      "indexdef": "CREATE INDEX ix_provider_calls_1 ON mos.provider_calls USING btree (provider, state, created_at)"
+    },
+    {
+      "tablename": "provider_calls",
+      "indexname": "provider_calls_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX provider_calls_brand_code_id_key ON mos.provider_calls USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "provider_calls",
+      "indexname": "provider_calls_pkey",
+      "indexdef": "CREATE UNIQUE INDEX provider_calls_pkey ON mos.provider_calls USING btree (id)"
+    },
+    {
+      "tablename": "provider_configs",
+      "indexname": "provider_configs_kind_key",
+      "indexdef": "CREATE UNIQUE INDEX provider_configs_kind_key ON mos.provider_configs USING btree (kind)"
+    },
+    {
+      "tablename": "provider_configs",
+      "indexname": "provider_configs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX provider_configs_pkey ON mos.provider_configs USING btree (id)"
+    },
+    {
+      "tablename": "publication_corrections",
+      "indexname": "fk_lookup_119",
+      "indexdef": "CREATE INDEX fk_lookup_119 ON mos.publication_corrections USING btree (brand_code, publication_id)"
+    },
+    {
+      "tablename": "publication_corrections",
+      "indexname": "fk_lookup_120",
+      "indexdef": "CREATE INDEX fk_lookup_120 ON mos.publication_corrections USING btree (brand_code, replacement_publication_id)"
+    },
+    {
+      "tablename": "publication_corrections",
+      "indexname": "publication_corrections_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX publication_corrections_brand_code_id_key ON mos.publication_corrections USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "publication_corrections",
+      "indexname": "publication_corrections_pkey",
+      "indexdef": "CREATE UNIQUE INDEX publication_corrections_pkey ON mos.publication_corrections USING btree (id)"
+    },
+    {
+      "tablename": "publication_metrics",
+      "indexname": "fk_lookup_122",
+      "indexdef": "CREATE INDEX fk_lookup_122 ON mos.publication_metrics USING btree (brand_code, channel_id)"
+    },
+    {
+      "tablename": "publication_metrics",
+      "indexname": "ix_publication_metrics_0",
+      "indexdef": "CREATE INDEX ix_publication_metrics_0 ON mos.publication_metrics USING btree (brand_code, publication_id, as_of)"
+    },
+    {
+      "tablename": "publication_metrics",
+      "indexname": "publication_metrics_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX publication_metrics_brand_code_id_key ON mos.publication_metrics USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "publication_metrics",
+      "indexname": "publication_metrics_pkey",
+      "indexdef": "CREATE UNIQUE INDEX publication_metrics_pkey ON mos.publication_metrics USING btree (id)"
+    },
+    {
+      "tablename": "publication_records",
+      "indexname": "fk_lookup_114",
+      "indexdef": "CREATE INDEX fk_lookup_114 ON mos.publication_records USING btree (brand_code, schedule_id)"
+    },
+    {
+      "tablename": "publication_records",
+      "indexname": "fk_lookup_115",
+      "indexdef": "CREATE INDEX fk_lookup_115 ON mos.publication_records USING btree (brand_code, content_version_id)"
+    },
+    {
+      "tablename": "publication_records",
+      "indexname": "fk_lookup_116",
+      "indexdef": "CREATE INDEX fk_lookup_116 ON mos.publication_records USING btree (brand_code, channel_id)"
+    },
+    {
+      "tablename": "publication_records",
+      "indexname": "publication_records_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX publication_records_brand_code_id_key ON mos.publication_records USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "publication_records",
+      "indexname": "publication_records_pkey",
+      "indexdef": "CREATE UNIQUE INDEX publication_records_pkey ON mos.publication_records USING btree (id)"
+    },
+    {
+      "tablename": "published_artifacts",
+      "indexname": "fk_lookup_117",
+      "indexdef": "CREATE INDEX fk_lookup_117 ON mos.published_artifacts USING btree (brand_code, publication_id)"
+    },
+    {
+      "tablename": "published_artifacts",
+      "indexname": "fk_lookup_118",
+      "indexdef": "CREATE INDEX fk_lookup_118 ON mos.published_artifacts USING btree (brand_code, file_version_id)"
+    },
+    {
+      "tablename": "published_artifacts",
+      "indexname": "published_artifacts_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX published_artifacts_brand_code_id_key ON mos.published_artifacts USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "published_artifacts",
+      "indexname": "published_artifacts_pkey",
+      "indexdef": "CREATE UNIQUE INDEX published_artifacts_pkey ON mos.published_artifacts USING btree (id)"
+    },
+    {
+      "tablename": "publishing_schedules",
+      "indexname": "fk_lookup_112",
+      "indexdef": "CREATE INDEX fk_lookup_112 ON mos.publishing_schedules USING btree (brand_code, content_version_id)"
+    },
+    {
+      "tablename": "publishing_schedules",
+      "indexname": "fk_lookup_113",
+      "indexdef": "CREATE INDEX fk_lookup_113 ON mos.publishing_schedules USING btree (brand_code, channel_id)"
+    },
+    {
+      "tablename": "publishing_schedules",
+      "indexname": "ix_publishing_schedules_0",
+      "indexdef": "CREATE INDEX ix_publishing_schedules_0 ON mos.publishing_schedules USING btree (brand_code, planned_at_utc, state)"
+    },
+    {
+      "tablename": "publishing_schedules",
+      "indexname": "publishing_schedules_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX publishing_schedules_brand_code_id_key ON mos.publishing_schedules USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "publishing_schedules",
+      "indexname": "publishing_schedules_pkey",
+      "indexdef": "CREATE UNIQUE INDEX publishing_schedules_pkey ON mos.publishing_schedules USING btree (id)"
+    },
+    {
+      "tablename": "research_finding_evidence",
+      "indexname": "fk_lookup_151",
+      "indexdef": "CREATE INDEX fk_lookup_151 ON mos.research_finding_evidence USING btree (brand_code, report_id)"
+    },
+    {
+      "tablename": "research_finding_evidence",
+      "indexname": "fk_lookup_152",
+      "indexdef": "CREATE INDEX fk_lookup_152 ON mos.research_finding_evidence USING btree (evidence_id)"
+    },
+    {
+      "tablename": "research_finding_evidence",
+      "indexname": "fk_lookup_180",
+      "indexdef": "CREATE INDEX fk_lookup_180 ON mos.research_finding_evidence USING btree (brand_code, finding_id, report_id)"
+    },
+    {
+      "tablename": "research_finding_evidence",
+      "indexname": "fk_lookup_181",
+      "indexdef": "CREATE INDEX fk_lookup_181 ON mos.research_finding_evidence USING btree (brand_code, report_id, evidence_id)"
+    },
+    {
+      "tablename": "research_finding_evidence",
+      "indexname": "research_finding_evidence_brand_code_finding_id_evidence_id_key",
+      "indexdef": "CREATE UNIQUE INDEX research_finding_evidence_brand_code_finding_id_evidence_id_key ON mos.research_finding_evidence USING btree (brand_code, finding_id, evidence_id)"
+    },
+    {
+      "tablename": "research_finding_evidence",
+      "indexname": "research_finding_evidence_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX research_finding_evidence_brand_code_id_key ON mos.research_finding_evidence USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "research_finding_evidence",
+      "indexname": "research_finding_evidence_pkey",
+      "indexdef": "CREATE UNIQUE INDEX research_finding_evidence_pkey ON mos.research_finding_evidence USING btree (id)"
+    },
+    {
+      "tablename": "research_findings",
+      "indexname": "fk_lookup_129",
+      "indexdef": "CREATE INDEX fk_lookup_129 ON mos.research_findings USING btree (brand_code, report_id)"
+    },
+    {
+      "tablename": "research_findings",
+      "indexname": "fk_lookup_130",
+      "indexdef": "CREATE INDEX fk_lookup_130 ON mos.research_findings USING btree (brand_code, source_item_id)"
+    },
+    {
+      "tablename": "research_findings",
+      "indexname": "research_findings_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX research_findings_brand_code_id_key ON mos.research_findings USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "research_findings",
+      "indexname": "research_findings_brand_code_id_report_id_key",
+      "indexdef": "CREATE UNIQUE INDEX research_findings_brand_code_id_report_id_key ON mos.research_findings USING btree (brand_code, id, report_id)"
+    },
+    {
+      "tablename": "research_findings",
+      "indexname": "research_findings_pkey",
+      "indexdef": "CREATE UNIQUE INDEX research_findings_pkey ON mos.research_findings USING btree (id)"
+    },
+    {
+      "tablename": "research_jobs",
+      "indexname": "fk_lookup_074",
+      "indexdef": "CREATE INDEX fk_lookup_074 ON mos.research_jobs USING btree (actor_id)"
+    },
+    {
+      "tablename": "research_jobs",
+      "indexname": "fk_lookup_128",
+      "indexdef": "CREATE INDEX fk_lookup_128 ON mos.research_jobs USING btree (brand_code, report_id)"
+    },
+    {
+      "tablename": "research_jobs",
+      "indexname": "research_jobs_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX research_jobs_brand_code_id_key ON mos.research_jobs USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "research_jobs",
+      "indexname": "research_jobs_code_key",
+      "indexdef": "CREATE UNIQUE INDEX research_jobs_code_key ON mos.research_jobs USING btree (code)"
+    },
+    {
+      "tablename": "research_jobs",
+      "indexname": "research_jobs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX research_jobs_pkey ON mos.research_jobs USING btree (id)"
+    },
+    {
+      "tablename": "research_report_brands",
+      "indexname": "fk_lookup_174",
+      "indexdef": "CREATE INDEX fk_lookup_174 ON mos.research_report_brands USING btree (visible_brand_code)"
+    },
+    {
+      "tablename": "research_report_brands",
+      "indexname": "research_report_brands_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX research_report_brands_brand_code_id_key ON mos.research_report_brands USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "research_report_brands",
+      "indexname": "research_report_brands_brand_code_report_id_ordinal_key",
+      "indexdef": "CREATE UNIQUE INDEX research_report_brands_brand_code_report_id_ordinal_key ON mos.research_report_brands USING btree (brand_code, report_id, ordinal)"
+    },
+    {
+      "tablename": "research_report_brands",
+      "indexname": "research_report_brands_pkey",
+      "indexdef": "CREATE UNIQUE INDEX research_report_brands_pkey ON mos.research_report_brands USING btree (id)"
+    },
+    {
+      "tablename": "research_report_evidence",
+      "indexname": "fk_lookup_165",
+      "indexdef": "CREATE INDEX fk_lookup_165 ON mos.research_report_evidence USING btree (evidence_id)"
+    },
+    {
+      "tablename": "research_report_evidence",
+      "indexname": "research_report_evidence_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX research_report_evidence_brand_code_id_key ON mos.research_report_evidence USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "research_report_evidence",
+      "indexname": "research_report_evidence_brand_code_report_id_evidence_id_key",
+      "indexdef": "CREATE UNIQUE INDEX research_report_evidence_brand_code_report_id_evidence_id_key ON mos.research_report_evidence USING btree (brand_code, report_id, evidence_id)"
+    },
+    {
+      "tablename": "research_report_evidence",
+      "indexname": "research_report_evidence_pkey",
+      "indexdef": "CREATE UNIQUE INDEX research_report_evidence_pkey ON mos.research_report_evidence USING btree (id)"
+    },
+    {
+      "tablename": "research_reports",
+      "indexname": "fk_lookup_072",
+      "indexdef": "CREATE INDEX fk_lookup_072 ON mos.research_reports USING btree (requester_id)"
+    },
+    {
+      "tablename": "research_reports",
+      "indexname": "fk_lookup_127",
+      "indexdef": "CREATE INDEX fk_lookup_127 ON mos.research_reports USING btree (brand_code, job_id)"
+    },
+    {
+      "tablename": "research_reports",
+      "indexname": "research_reports_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX research_reports_brand_code_id_key ON mos.research_reports USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "research_reports",
+      "indexname": "research_reports_code_key",
+      "indexdef": "CREATE UNIQUE INDEX research_reports_code_key ON mos.research_reports USING btree (code)"
+    },
+    {
+      "tablename": "research_reports",
+      "indexname": "research_reports_pkey",
+      "indexdef": "CREATE UNIQUE INDEX research_reports_pkey ON mos.research_reports USING btree (id)"
+    },
+    {
+      "tablename": "review_cases",
+      "indexname": "fk_lookup_099",
+      "indexdef": "CREATE INDEX fk_lookup_099 ON mos.review_cases USING btree (brand_code, content_version_id)"
+    },
+    {
+      "tablename": "review_cases",
+      "indexname": "fk_lookup_100",
+      "indexdef": "CREATE INDEX fk_lookup_100 ON mos.review_cases USING btree (brand_code, asset_admission_id)"
+    },
+    {
+      "tablename": "review_cases",
+      "indexname": "fk_lookup_176",
+      "indexdef": "CREATE INDEX fk_lookup_176 ON mos.review_cases USING btree (brand_code, content_version_id, version_hash)"
+    },
+    {
+      "tablename": "review_cases",
+      "indexname": "ix_review_cases_0",
+      "indexdef": "CREATE INDEX ix_review_cases_0 ON mos.review_cases USING btree (brand_code, state, type)"
+    },
+    {
+      "tablename": "review_cases",
+      "indexname": "review_cases_brand_code_id_asset_admission_id_key",
+      "indexdef": "CREATE UNIQUE INDEX review_cases_brand_code_id_asset_admission_id_key ON mos.review_cases USING btree (brand_code, id, asset_admission_id)"
+    },
+    {
+      "tablename": "review_cases",
+      "indexname": "review_cases_brand_code_id_content_version_id_key",
+      "indexdef": "CREATE UNIQUE INDEX review_cases_brand_code_id_content_version_id_key ON mos.review_cases USING btree (brand_code, id, content_version_id)"
+    },
+    {
+      "tablename": "review_cases",
+      "indexname": "review_cases_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX review_cases_brand_code_id_key ON mos.review_cases USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "review_cases",
+      "indexname": "review_cases_brand_code_id_version_hash_key",
+      "indexdef": "CREATE UNIQUE INDEX review_cases_brand_code_id_version_hash_key ON mos.review_cases USING btree (brand_code, id, version_hash)"
+    },
+    {
+      "tablename": "review_cases",
+      "indexname": "review_cases_pkey",
+      "indexdef": "CREATE UNIQUE INDEX review_cases_pkey ON mos.review_cases USING btree (id)"
+    },
+    {
+      "tablename": "review_decisions",
+      "indexname": "fk_lookup_076",
+      "indexdef": "CREATE INDEX fk_lookup_076 ON mos.review_decisions USING btree (actor_id)"
+    },
+    {
+      "tablename": "review_decisions",
+      "indexname": "fk_lookup_101",
+      "indexdef": "CREATE INDEX fk_lookup_101 ON mos.review_decisions USING btree (brand_code, case_id)"
+    },
+    {
+      "tablename": "review_decisions",
+      "indexname": "fk_lookup_177",
+      "indexdef": "CREATE INDEX fk_lookup_177 ON mos.review_decisions USING btree (brand_code, case_id, version_hash)"
+    },
+    {
+      "tablename": "review_decisions",
+      "indexname": "fk_lookup_178",
+      "indexdef": "CREATE INDEX fk_lookup_178 ON mos.review_decisions USING btree (brand_code, case_id, content_version_id)"
+    },
+    {
+      "tablename": "review_decisions",
+      "indexname": "fk_lookup_179",
+      "indexdef": "CREATE INDEX fk_lookup_179 ON mos.review_decisions USING btree (brand_code, case_id, asset_admission_id)"
+    },
+    {
+      "tablename": "review_decisions",
+      "indexname": "review_decisions_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX review_decisions_brand_code_id_key ON mos.review_decisions USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "review_decisions",
+      "indexname": "review_decisions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX review_decisions_pkey ON mos.review_decisions USING btree (id)"
+    },
+    {
+      "tablename": "role_brand_scopes",
+      "indexname": "fk_lookup_173",
+      "indexdef": "CREATE INDEX fk_lookup_173 ON mos.role_brand_scopes USING btree (scope_brand_code)"
+    },
+    {
+      "tablename": "role_brand_scopes",
+      "indexname": "role_brand_scopes_grant_id_scope_brand_code_key",
+      "indexdef": "CREATE UNIQUE INDEX role_brand_scopes_grant_id_scope_brand_code_key ON mos.role_brand_scopes USING btree (grant_id, scope_brand_code)"
+    },
+    {
+      "tablename": "role_brand_scopes",
+      "indexname": "role_brand_scopes_pkey",
+      "indexdef": "CREATE UNIQUE INDEX role_brand_scopes_pkey ON mos.role_brand_scopes USING btree (id)"
+    },
+    {
+      "tablename": "role_definitions",
+      "indexname": "role_definitions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX role_definitions_pkey ON mos.role_definitions USING btree (id)"
+    },
+    {
+      "tablename": "role_definitions",
+      "indexname": "role_definitions_role_code_key",
+      "indexdef": "CREATE UNIQUE INDEX role_definitions_role_code_key ON mos.role_definitions USING btree (role_code)"
+    },
+    {
+      "tablename": "role_permissions",
+      "indexname": "role_permissions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX role_permissions_pkey ON mos.role_permissions USING btree (id)"
+    },
+    {
+      "tablename": "role_permissions",
+      "indexname": "role_permissions_role_code_permission_code_key",
+      "indexdef": "CREATE UNIQUE INDEX role_permissions_role_code_permission_code_key ON mos.role_permissions USING btree (role_code, permission_code)"
+    },
+    {
+      "tablename": "skill_versions",
+      "indexname": "skill_versions_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX skill_versions_brand_code_id_key ON mos.skill_versions USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "skill_versions",
+      "indexname": "skill_versions_brand_code_skill_code_version_key",
+      "indexdef": "CREATE UNIQUE INDEX skill_versions_brand_code_skill_code_version_key ON mos.skill_versions USING btree (brand_code, skill_code, version)"
+    },
+    {
+      "tablename": "skill_versions",
+      "indexname": "skill_versions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX skill_versions_pkey ON mos.skill_versions USING btree (id)"
+    },
+    {
+      "tablename": "source_evidence",
+      "indexname": "fk_lookup_175",
+      "indexdef": "CREATE INDEX fk_lookup_175 ON mos.source_evidence USING btree (source_id)"
+    },
+    {
+      "tablename": "source_evidence",
+      "indexname": "source_evidence_pkey",
+      "indexdef": "CREATE UNIQUE INDEX source_evidence_pkey ON mos.source_evidence USING btree (id)"
+    },
+    {
+      "tablename": "source_items",
+      "indexname": "ix_source_items_0",
+      "indexdef": "CREATE INDEX ix_source_items_0 ON mos.source_items USING btree (brand_code, source_id, fetched_at)"
+    },
+    {
+      "tablename": "source_items",
+      "indexname": "ix_source_items_1",
+      "indexdef": "CREATE INDEX ix_source_items_1 ON mos.source_items USING btree (brand_code, canonical_url_hash)"
+    },
+    {
+      "tablename": "source_items",
+      "indexname": "source_items_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX source_items_brand_code_id_key ON mos.source_items USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "source_items",
+      "indexname": "source_items_pkey",
+      "indexdef": "CREATE UNIQUE INDEX source_items_pkey ON mos.source_items USING btree (id)"
+    },
+    {
+      "tablename": "source_registry",
+      "indexname": "fk_lookup_067",
+      "indexdef": "CREATE INDEX fk_lookup_067 ON mos.source_registry USING btree (owner_id)"
+    },
+    {
+      "tablename": "source_registry",
+      "indexname": "ix_source_registry_0",
+      "indexdef": "CREATE INDEX ix_source_registry_0 ON mos.source_registry USING btree (brand_code, status, next_run_at)"
+    },
+    {
+      "tablename": "source_registry",
+      "indexname": "source_registry_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX source_registry_brand_code_id_key ON mos.source_registry USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "source_registry",
+      "indexname": "source_registry_pkey",
+      "indexdef": "CREATE UNIQUE INDEX source_registry_pkey ON mos.source_registry USING btree (id)"
+    },
+    {
+      "tablename": "system_settings",
+      "indexname": "system_settings_pkey",
+      "indexdef": "CREATE UNIQUE INDEX system_settings_pkey ON mos.system_settings USING btree (id)"
+    },
+    {
+      "tablename": "system_settings",
+      "indexname": "system_settings_setting_key_key",
+      "indexdef": "CREATE UNIQUE INDEX system_settings_setting_key_key ON mos.system_settings USING btree (setting_key)"
+    },
+    {
+      "tablename": "task_library_refs",
+      "indexname": "fk_lookup_138",
+      "indexdef": "CREATE INDEX fk_lookup_138 ON mos.task_library_refs USING btree (brand_code, library_ref_id)"
+    },
+    {
+      "tablename": "task_library_refs",
+      "indexname": "task_library_refs_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX task_library_refs_brand_code_id_key ON mos.task_library_refs USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "task_library_refs",
+      "indexname": "task_library_refs_brand_code_task_id_library_ref_id_key",
+      "indexdef": "CREATE UNIQUE INDEX task_library_refs_brand_code_task_id_library_ref_id_key ON mos.task_library_refs USING btree (brand_code, task_id, library_ref_id)"
+    },
+    {
+      "tablename": "task_library_refs",
+      "indexname": "task_library_refs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX task_library_refs_pkey ON mos.task_library_refs USING btree (id)"
+    },
+    {
+      "tablename": "topic_proposal_findings",
+      "indexname": "fk_lookup_154",
+      "indexdef": "CREATE INDEX fk_lookup_154 ON mos.topic_proposal_findings USING btree (brand_code, finding_id)"
+    },
+    {
+      "tablename": "topic_proposal_findings",
+      "indexname": "topic_proposal_findings_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX topic_proposal_findings_brand_code_id_key ON mos.topic_proposal_findings USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "topic_proposal_findings",
+      "indexname": "topic_proposal_findings_brand_code_proposal_id_finding_id_key",
+      "indexdef": "CREATE UNIQUE INDEX topic_proposal_findings_brand_code_proposal_id_finding_id_key ON mos.topic_proposal_findings USING btree (brand_code, proposal_id, finding_id)"
+    },
+    {
+      "tablename": "topic_proposal_findings",
+      "indexname": "topic_proposal_findings_pkey",
+      "indexdef": "CREATE UNIQUE INDEX topic_proposal_findings_pkey ON mos.topic_proposal_findings USING btree (id)"
+    },
+    {
+      "tablename": "topic_proposals",
+      "indexname": "fk_lookup_073",
+      "indexdef": "CREATE INDEX fk_lookup_073 ON mos.topic_proposals USING btree (created_by_id)"
+    },
+    {
+      "tablename": "topic_proposals",
+      "indexname": "fk_lookup_131",
+      "indexdef": "CREATE INDEX fk_lookup_131 ON mos.topic_proposals USING btree (brand_code, report_id)"
+    },
+    {
+      "tablename": "topic_proposals",
+      "indexname": "fk_lookup_132",
+      "indexdef": "CREATE INDEX fk_lookup_132 ON mos.topic_proposals USING btree (brand_code, topic_id)"
+    },
+    {
+      "tablename": "topic_proposals",
+      "indexname": "topic_proposals_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX topic_proposals_brand_code_id_key ON mos.topic_proposals USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "topic_proposals",
+      "indexname": "topic_proposals_code_key",
+      "indexdef": "CREATE UNIQUE INDEX topic_proposals_code_key ON mos.topic_proposals USING btree (code)"
+    },
+    {
+      "tablename": "topic_proposals",
+      "indexname": "topic_proposals_pkey",
+      "indexdef": "CREATE UNIQUE INDEX topic_proposals_pkey ON mos.topic_proposals USING btree (id)"
+    },
+    {
+      "tablename": "upload_sessions",
+      "indexname": "fk_lookup_167",
+      "indexdef": "CREATE INDEX fk_lookup_167 ON mos.upload_sessions USING btree (brand_code, object_id)"
+    },
+    {
+      "tablename": "upload_sessions",
+      "indexname": "fk_lookup_168",
+      "indexdef": "CREATE INDEX fk_lookup_168 ON mos.upload_sessions USING btree (brand_code, file_version_id)"
+    },
+    {
+      "tablename": "upload_sessions",
+      "indexname": "upload_sessions_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX upload_sessions_brand_code_id_key ON mos.upload_sessions USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "upload_sessions",
+      "indexname": "upload_sessions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX upload_sessions_pkey ON mos.upload_sessions USING btree (id)"
+    },
+    {
+      "tablename": "user_role_grants",
+      "indexname": "fk_lookup_061",
+      "indexdef": "CREATE INDEX fk_lookup_061 ON mos.user_role_grants USING btree (user_id)"
+    },
+    {
+      "tablename": "user_role_grants",
+      "indexname": "fk_lookup_079",
+      "indexdef": "CREATE INDEX fk_lookup_079 ON mos.user_role_grants USING btree (role_code)"
+    },
+    {
+      "tablename": "user_role_grants",
+      "indexname": "user_role_grants_pkey",
+      "indexdef": "CREATE UNIQUE INDEX user_role_grants_pkey ON mos.user_role_grants USING btree (id)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "users_pkey",
+      "indexdef": "CREATE UNIQUE INDEX users_pkey ON mos.users USING btree (id)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "users_username_ci",
+      "indexdef": "CREATE UNIQUE INDEX users_username_ci ON mos.users USING btree (lower(username))"
+    },
+    {
+      "tablename": "video_artifacts",
+      "indexname": "fk_lookup_111",
+      "indexdef": "CREATE INDEX fk_lookup_111 ON mos.video_artifacts USING btree (brand_code, final_asset_id)"
+    },
+    {
+      "tablename": "video_artifacts",
+      "indexname": "video_artifacts_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX video_artifacts_brand_code_id_key ON mos.video_artifacts USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "video_artifacts",
+      "indexname": "video_artifacts_brand_code_task_id_key",
+      "indexdef": "CREATE UNIQUE INDEX video_artifacts_brand_code_task_id_key ON mos.video_artifacts USING btree (brand_code, task_id)"
+    },
+    {
+      "tablename": "video_artifacts",
+      "indexname": "video_artifacts_pkey",
+      "indexdef": "CREATE UNIQUE INDEX video_artifacts_pkey ON mos.video_artifacts USING btree (id)"
+    },
+    {
+      "tablename": "video_keyframe_assets",
+      "indexname": "fk_lookup_161",
+      "indexdef": "CREATE INDEX fk_lookup_161 ON mos.video_keyframe_assets USING btree (brand_code, asset_id)"
+    },
+    {
+      "tablename": "video_keyframe_assets",
+      "indexname": "video_keyframe_assets_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX video_keyframe_assets_brand_code_id_key ON mos.video_keyframe_assets USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "video_keyframe_assets",
+      "indexname": "video_keyframe_assets_brand_code_video_artifact_id_ordinal_key",
+      "indexdef": "CREATE UNIQUE INDEX video_keyframe_assets_brand_code_video_artifact_id_ordinal_key ON mos.video_keyframe_assets USING btree (brand_code, video_artifact_id, ordinal)"
+    },
+    {
+      "tablename": "video_keyframe_assets",
+      "indexname": "video_keyframe_assets_pkey",
+      "indexdef": "CREATE UNIQUE INDEX video_keyframe_assets_pkey ON mos.video_keyframe_assets USING btree (id)"
+    },
+    {
+      "tablename": "video_render_jobs",
+      "indexname": "fk_lookup_075",
+      "indexdef": "CREATE INDEX fk_lookup_075 ON mos.video_render_jobs USING btree (actor_id)"
+    },
+    {
+      "tablename": "video_render_jobs",
+      "indexname": "fk_lookup_133",
+      "indexdef": "CREATE INDEX fk_lookup_133 ON mos.video_render_jobs USING btree (brand_code, task_id)"
+    },
+    {
+      "tablename": "video_render_jobs",
+      "indexname": "fk_lookup_134",
+      "indexdef": "CREATE INDEX fk_lookup_134 ON mos.video_render_jobs USING btree (brand_code, file_version_id)"
+    },
+    {
+      "tablename": "video_render_jobs",
+      "indexname": "video_render_jobs_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX video_render_jobs_brand_code_id_key ON mos.video_render_jobs USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "video_render_jobs",
+      "indexname": "video_render_jobs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX video_render_jobs_pkey ON mos.video_render_jobs USING btree (id)"
+    },
+    {
+      "tablename": "video_storyboard_shots",
+      "indexname": "fk_lookup_149",
+      "indexdef": "CREATE INDEX fk_lookup_149 ON mos.video_storyboard_shots USING btree (brand_code, asset_id)"
+    },
+    {
+      "tablename": "video_storyboard_shots",
+      "indexname": "video_storyboard_shots_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX video_storyboard_shots_brand_code_id_key ON mos.video_storyboard_shots USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "video_storyboard_shots",
+      "indexname": "video_storyboard_shots_brand_code_video_artifact_id_ordinal_key",
+      "indexdef": "CREATE UNIQUE INDEX video_storyboard_shots_brand_code_video_artifact_id_ordinal_key ON mos.video_storyboard_shots USING btree (brand_code, video_artifact_id, ordinal)"
+    },
+    {
+      "tablename": "video_storyboard_shots",
+      "indexname": "video_storyboard_shots_pkey",
+      "indexdef": "CREATE UNIQUE INDEX video_storyboard_shots_pkey ON mos.video_storyboard_shots USING btree (id)"
+    },
+    {
+      "tablename": "working_assets",
+      "indexname": "fk_lookup_069",
+      "indexdef": "CREATE INDEX fk_lookup_069 ON mos.working_assets USING btree (owner_id)"
+    },
+    {
+      "tablename": "working_assets",
+      "indexname": "fk_lookup_102",
+      "indexdef": "CREATE INDEX fk_lookup_102 ON mos.working_assets USING btree (brand_code, task_id)"
+    },
+    {
+      "tablename": "working_assets",
+      "indexname": "fk_lookup_103",
+      "indexdef": "CREATE INDEX fk_lookup_103 ON mos.working_assets USING btree (brand_code, campaign_id)"
+    },
+    {
+      "tablename": "working_assets",
+      "indexname": "fk_lookup_104",
+      "indexdef": "CREATE INDEX fk_lookup_104 ON mos.working_assets USING btree (brand_code, topic_id)"
+    },
+    {
+      "tablename": "working_assets",
+      "indexname": "fk_lookup_105",
+      "indexdef": "CREATE INDEX fk_lookup_105 ON mos.working_assets USING btree (brand_code, generation_job_id)"
+    },
+    {
+      "tablename": "working_assets",
+      "indexname": "fk_lookup_106",
+      "indexdef": "CREATE INDEX fk_lookup_106 ON mos.working_assets USING btree (brand_code, file_version_id)"
+    },
+    {
+      "tablename": "working_assets",
+      "indexname": "working_assets_brand_code_id_key",
+      "indexdef": "CREATE UNIQUE INDEX working_assets_brand_code_id_key ON mos.working_assets USING btree (brand_code, id)"
+    },
+    {
+      "tablename": "working_assets",
+      "indexname": "working_assets_pkey",
+      "indexdef": "CREATE UNIQUE INDEX working_assets_pkey ON mos.working_assets USING btree (id)"
+    }
+  ],
+  "tables": [
+    {
+      "relname": "asset_admission_history",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "asset_admissions",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "audit_events",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "auth_sessions",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "brands",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "budget_periods",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "budget_reservations",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "campaign_library_refs",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "campaign_topic_links",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "campaigns",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "channels",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "code_counters",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "content_tasks",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "content_version_assets",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "content_version_channels",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "content_version_evidence",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "content_versions",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "creative_templates",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "evidence_references",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "file_objects",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "file_versions",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "generation_job_outputs",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "generation_jobs",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "idempotency_requests",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "inbox_events",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "ingest_jobs",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "library_admission_jobs",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "library_asset_refs",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "library_event_cursors",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "library_invalidations",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "library_ticket_cache",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "master_topics",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "migration_rejections",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "migration_runs",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "monthly_campaign_links",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "monthly_plans",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "outbox_events",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "plan_items",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "proposal_dispatch_tasks",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "provider_budget_policies",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "provider_calls",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "provider_configs",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "publication_corrections",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "publication_metrics",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "publication_records",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "published_artifacts",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "publishing_schedules",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "research_finding_evidence",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "research_findings",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "research_jobs",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "research_report_brands",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "research_report_evidence",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "research_reports",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "review_cases",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "review_decisions",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "role_brand_scopes",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "role_definitions",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "role_permissions",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "skill_versions",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "source_evidence",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "source_items",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "source_registry",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "system_settings",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "task_library_refs",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "topic_proposal_findings",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "topic_proposals",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "upload_sessions",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "user_role_grants",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "users",
+      "relrowsecurity": false,
+      "relforcerowsecurity": false,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "video_artifacts",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "video_keyframe_assets",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "video_render_jobs",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "video_storyboard_shots",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    },
+    {
+      "relname": "working_assets",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true,
+      "owner": "mos_owner"
+    }
+  ],
+  "extensions": [
+    {
+      "extname": "pgcrypto",
+      "extversion": "1.4"
+    },
+    {
+      "extname": "plpgsql",
+      "extversion": "1.0"
+    }
+  ]
+}

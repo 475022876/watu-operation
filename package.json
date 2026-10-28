@@ -12,7 +12,9 @@
     "test:e2e": "node tools/mos-e2e-test.js",
     "test:ui": "node tools/mos-ui-check.js",
     "test:pg": "node tools/phase3a2/run-foundation.cjs",
-    "test:h05": "node tools/phase3a2/h05-version-reference-test.cjs"
+    "test:h05": "node tools/phase3a2/h05-version-reference-test.cjs",
+    "pg:probe": "node tools/phase3a2/migration-probe.cjs",
+    "pg:manifest": "node tools/phase3a2/migration-manifest.cjs"
   },
   "engines": {
     "node": ">=18"

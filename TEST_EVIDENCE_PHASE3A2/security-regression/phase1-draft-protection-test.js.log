@@ -1,0 +1,11 @@
+PASS T08 409 retains draft and sends no review lock
+PASS T08 immutable409 retains draft and sends no review lock
+PASS T08 500 retains draft and sends no review lock
+PASS T08 offline retains draft and sends no review lock
+PASS T08 edits during save are preserved and never locked
+PASS T08 save failure after confirmation cannot submit old version
+PASS T08 duplicate click does not issue duplicate saves or locks
+PASS T08 successful save sends version concurrency token to lock
+PASS T08 refresh failure after PUT retains draft and blocks lock
+PASS T08 editing during refresh is retained and never locked
+{"total":10,"passed":10,"failed":0}

@@ -1,0 +1,286 @@
+{
+  "note": "脱敏检索 trace：仅记录端点主机/路径、状态、耗时、字节数、条数；查询串与凭据不入 trace。",
+  "generatedAt": "2026-10-28T08:27:38.785Z",
+  "job": {
+    "id": "rsj_mvruq12z_aac775ddb877",
+    "code": "RJ-0001",
+    "status": "COMPLETED",
+    "stage": "DONE",
+    "progress": 100,
+    "providerTraceId": "ws-4a0604b30dcfa2e4c24c",
+    "trace": {
+      "traceId": "ws-4a0604b30dcfa2e4c24c",
+      "provider": "searxng",
+      "method": "GET",
+      "endpointHost": "127.0.0.1",
+      "endpointPath": "/search",
+      "queryLength": 17,
+      "status": 200,
+      "elapsedMs": 22,
+      "responseBytes": 1046,
+      "rawCount": 7,
+      "acceptedCount": 5,
+      "rejectedCount": 2,
+      "attempts": 1,
+      "errorCode": null,
+      "authRedacted": true,
+      "note": "查询串与凭据一律不入 trace（仅记录长度与端点主机/路径）。"
+    },
+    "logTail": [
+      {
+        "at": "2026-10-28T08:27:32.219Z",
+        "stage": "QUEUED",
+        "message": "作业已创建，等待调度。"
+      },
+      {
+        "at": "2026-10-28T08:27:32.220Z",
+        "stage": "SEARCHING",
+        "message": "发起真实检索（provider=searxng）。"
+      },
+      {
+        "at": "2026-10-28T08:27:32.245Z",
+        "stage": "SEARCHING",
+        "message": "检索 trace=ws-4a0604b30dcfa2e4c24c 状态=OK 原始=7 采纳=5"
+      },
+      {
+        "at": "2026-10-28T08:27:32.249Z",
+        "stage": "FETCHING",
+        "message": "抓取第 1/5 篇：AVAILABLE"
+      },
+      {
+        "at": "2026-10-28T08:27:32.250Z",
+        "stage": "FETCHING",
+        "message": "抓取第 2/5 篇：AVAILABLE"
+      },
+      {
+        "at": "2026-10-28T08:27:32.251Z",
+        "stage": "FETCHING",
+        "message": "抓取第 3/5 篇：AVAILABLE"
+      },
+      {
+        "at": "2026-10-28T08:27:32.252Z",
+        "stage": "FETCHING",
+        "message": "抓取第 4/5 篇：NOT_FOUND (UPSTREAM_STATUS)"
+      },
+      {
+        "at": "2026-10-28T08:27:32.255Z",
+        "stage": "FETCHING",
+        "message": "抓取第 5/5 篇：UNAVAILABLE (ECONNREFUSED)"
+      },
+      {
+        "at": "2026-10-28T08:27:32.255Z",
+        "stage": "VERIFYING",
+        "message": "证据 5 条（去重丢弃 0），独立主机 1 个，正文可用 3 条；缺口 5 项。"
+      },
+      {
+        "at": "2026-10-28T08:27:32.261Z",
+        "stage": "DONE",
+        "message": "完成：completion=AI_RESEARCH_COMPLETE 证据=5 发现=5 候选选题=2 未决=10"
+      }
+    ]
+  },
+  "report": {
+    "id": "rsr_mvruq12y_db31b84c2a0e",
+    "code": "RS-0001",
+    "mode": "DEEP_RESEARCH",
+    "completion": "AI_RESEARCH_COMPLETE",
+    "conflictDetection": "MODEL_ASSISTED",
+    "sources": [
+      {
+        "title": "FATF 高风险司法辖区名单更新（报告期）",
+        "url": "http://127.0.0.1:9750/doc/regulator-a",
+        "sourceName": "fixture-regulator",
+        "publishedAt": "2026-09-30T00:00:00Z",
+        "retrievedAt": "2026-10-28T08:27:32.245Z",
+        "availability": "AVAILABLE"
+      },
+      {
+        "title": "BIS 季度评估：跨境支付韧性指标改善",
+        "url": "http://127.0.0.1:9750/doc/org-b",
+        "sourceName": "fixture-org-b",
+        "publishedAt": "2026-10-01T00:00:00Z",
+        "retrievedAt": "2026-10-28T08:27:32.249Z",
+        "availability": "AVAILABLE"
+      },
+      {
+        "title": "IMF 观点：稳定币监管碎片化带来合规成本",
+        "url": "http://127.0.0.1:9750/doc/org-c",
+        "sourceName": "fixture-org-c",
+        "publishedAt": null,
+        "retrievedAt": "2026-10-28T08:27:32.250Z",
+        "availability": "AVAILABLE"
+      },
+      {
+        "title": "已下架页面（404 负例）",
+        "url": "http://127.0.0.1:9750/doc/missing",
+        "sourceName": "fixture-broken",
+        "publishedAt": null,
+        "retrievedAt": "2026-10-28T08:27:32.251Z",
+        "availability": "NOT_FOUND"
+      },
+      {
+        "title": "回环地址探测（SSRF 负例·字面层拒绝）",
+        "url": "https://127.0.0.1/doc/org-b",
+        "sourceName": "fixture-ssrf",
+        "publishedAt": null,
+        "retrievedAt": "2026-10-28T08:27:32.252Z",
+        "availability": "UNAVAILABLE"
+      }
+    ],
+    "findings": [
+      {
+        "kind": "FACT",
+        "origin": "MODEL",
+        "evidenceIds": [
+          "sev_mvruq13z_8c7046ce58bf"
+        ],
+        "verificationState": "UNVERIFIED",
+        "downgraded": false
+      },
+      {
+        "kind": "FACT",
+        "origin": "MODEL",
+        "evidenceIds": [
+          "sev_mvruq13z_b9be75e9339e"
+        ],
+        "verificationState": "UNVERIFIED",
+        "downgraded": false
+      },
+      {
+        "kind": "INTERPRETATION",
+        "origin": "MODEL",
+        "evidenceIds": [],
+        "verificationState": "NEEDS_VERIFICATION",
+        "downgraded": true
+      },
+      {
+        "kind": "INTERPRETATION",
+        "origin": "MODEL",
+        "evidenceIds": [
+          "sev_mvruq13z_1ea4aeab02fa"
+        ],
+        "verificationState": "NEEDS_VERIFICATION",
+        "downgraded": false
+      },
+      {
+        "kind": "RECOMMENDATION",
+        "origin": "MODEL",
+        "evidenceIds": [
+          "sev_mvruq13z_8c7046ce58bf",
+          "sev_mvruq13z_1ea4aeab02fa"
+        ],
+        "verificationState": "NEEDS_VERIFICATION",
+        "downgraded": false
+      }
+    ],
+    "unresolvedClaims": [
+      {
+        "kind": "DATE_UNKNOWN",
+        "claim": "发布时间未知"
+      },
+      {
+        "kind": "NOT_FOUND",
+        "claim": "来源返回 404（内容已下架或 URL 失效）"
+      },
+      {
+        "kind": "DATE_UNKNOWN",
+        "claim": "发布时间未知"
+      },
+      {
+        "kind": "DATE_UNKNOWN",
+        "claim": "发布时间未知"
+      },
+      {
+        "kind": "SINGLE_SOURCE",
+        "claim": "仅单一来源（127.0.0.1）支撑，未取得跨来源一致/矛盾证据"
+      },
+      {
+        "kind": "TIME_SENSITIVE",
+        "claim": "时间敏感表述（监管/费用/资格等），须重新核验时效性"
+      },
+      {
+        "kind": "TIME_SENSITIVE",
+        "claim": "时间敏感表述（监管/费用/资格等），须重新核验时效性"
+      },
+      {
+        "kind": "TIME_SENSITIVE",
+        "claim": "时间敏感表述（监管/费用/资格等），须重新核验时效性"
+      },
+      {
+        "kind": "CONFLICT",
+        "claim": "来源 1 与来源 2 对\"韧性是否改善\"给出不一致表述"
+      },
+      {
+        "kind": "TIME_SENSITIVE",
+        "claim": "稳定币监管规则生效时间可能已变更"
+      }
+    ],
+    "editorialOpportunities": [
+      {
+        "primaryCategory": "C05",
+        "needsVerification": false,
+        "factCheckNeeds": [
+          "核对两来源发布日与统计口径"
+        ]
+      },
+      {
+        "primaryCategory": "C01",
+        "needsVerification": true,
+        "factCheckNeeds": [
+          "必须取得企业正式已批准的内部事实依据"
+        ]
+      }
+    ],
+    "unresolvedSample": 10,
+    "modelRun": {
+      "provider": "deepseek",
+      "mock": false,
+      "state": "SUCCEEDED",
+      "called": true,
+      "allowed": true,
+      "usage": {
+        "prompt_tokens": 2140,
+        "completion_tokens": 890,
+        "total_tokens": 3030,
+        "promptTokens": 2140,
+        "completionTokens": 890,
+        "totalTokens": 3030,
+        "providerJobId": "chatcmpl-fixture-0001",
+        "promptChars": 4816
+      },
+      "errorCode": null,
+      "at": "2026-10-28T08:27:32.260Z",
+      "note": "真实模型返回；事实与措辞仍须人工核验后方可送审。"
+    },
+    "cost": {
+      "confirmed": true,
+      "modelConfirmedUsd": 0.0123,
+      "searchConfirmedUsd": null,
+      "estimated": true,
+      "searchCalls": 1,
+      "note": "模型与搜索费用以供应商账单为准；本侧只记录调用次数与供应商回执中的真实金额。"
+    }
+  },
+  "degradedReport": {
+    "id": "rsr_mvruq2i2_dd6eca0f6208",
+    "code": "RS-0001",
+    "completion": "RETRIEVAL_ONLY",
+    "sources": 5,
+    "findings": 5,
+    "opportunities": 0
+  },
+  "blockedSample": {
+    "jobStatus": "BLOCKED",
+    "errorCode": "NOT_CONFIGURED",
+    "reason": "搜索 Provider 未配置（mos.websearch.provider / MOS_WEBSEARCH_API_KEY）。系统不会以模型参数或旧知识伪称「今日研究」；配置凭据并获授权后本接口才发起真实搜索。"
+  },
+  "budgetGateSample": {
+    "jobStatus": "BLOCKED",
+    "errorCode": "BUDGET_EXCEEDED",
+    "reason": "计费型搜索供应商（bing）未配置预算上限（budget.perJobUsdMax）→ fail closed，不发起付费调用（执行包 02 §预算限额）。"
+  },
+  "cancelledSample": {
+    "jobStatus": "CANCELLED",
+    "reportCompletion": "BLOCKED"
+  }
+}

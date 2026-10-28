@@ -1,0 +1,91 @@
+{
+  "at": "2026-10-28T08:46:31.004Z",
+  "mode": "executed anew on Phase3A2 branch; no paid services",
+  "passed": 122,
+  "rows": [
+    {
+      "script": "phase1/idempotency-test.js",
+      "exitCode": 0,
+      "passed": 9,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase1-idempotency-test.js.log"
+    },
+    {
+      "script": "phase1/brand-permission-test.js",
+      "exitCode": 0,
+      "passed": 6,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase1-brand-permission-test.js.log"
+    },
+    {
+      "script": "phase1/transaction-test.js",
+      "exitCode": 0,
+      "passed": 16,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase1-transaction-test.js.log"
+    },
+    {
+      "script": "phase1/http-durability-test.js",
+      "exitCode": 0,
+      "passed": 5,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase1-http-durability-test.js.log"
+    },
+    {
+      "script": "phase1/draft-protection-test.js",
+      "exitCode": 0,
+      "passed": 10,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase1-draft-protection-test.js.log"
+    },
+    {
+      "script": "phase1/storage-recovery-test.js",
+      "exitCode": 0,
+      "passed": 6,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase1-storage-recovery-test.js.log"
+    },
+    {
+      "script": "phase1/browser-draft-test.js",
+      "exitCode": 0,
+      "passed": 5,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase1-browser-draft-test.js.log"
+    },
+    {
+      "script": "phase2/egress-test.js",
+      "exitCode": 0,
+      "passed": 13,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase2-egress-test.js.log"
+    },
+    {
+      "script": "phase2/workspace-policy-test.js",
+      "exitCode": 0,
+      "passed": 22,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase2-workspace-policy-test.js.log"
+    },
+    {
+      "script": "phase2/adapter-policy-test.js",
+      "exitCode": 0,
+      "passed": 3,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase2-adapter-policy-test.js.log"
+    },
+    {
+      "script": "phase2/storage-test.js",
+      "exitCode": 0,
+      "passed": 7,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase2-storage-test.js.log"
+    },
+    {
+      "script": "phase2/intelligence-test.js",
+      "exitCode": 0,
+      "passed": 6,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase2-intelligence-test.js.log"
+    },
+    {
+      "script": "phase2/browser-intelligence-test.js",
+      "exitCode": 0,
+      "passed": 2,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase2-browser-intelligence-test.js.log"
+    },
+    {
+      "script": "phase3a2/h05-version-reference-test.cjs",
+      "exitCode": 0,
+      "passed": 12,
+      "log": "TEST_EVIDENCE_PHASE3A2/security-regression/phase3a2-h05-version-reference-test.cjs.log"
+    }
+  ]
+}

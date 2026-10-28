@@ -1,3 +1,5 @@
+-- HISTORICAL Phase3A1 draft. Original bbd3658 executed on PG18.6: 42501, rolled back.
+-- Current executable source: migrations/postgresql/*.cjs (five versions). See PHASE3A2_SCHEMA_VALIDATION.md.
 -- PHASE 3A-1 DESIGN DRAFT ONLY. DO NOT EXECUTE. No database has validated this file.
 -- Baseline 7f05078614a789b94a040f67b18e462f2284f063
 -- Requires approved roles mos_owner / mos_app / mos_worker / mos_guard provisioned separately.

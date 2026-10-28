@@ -8,6 +8,7 @@ async function startCluster(){
  if(!fs.existsSync(exe('initdb')))throw Error('PG18_BIN_REQUIRED');
  const version=execFileSync(exe('postgres'),['--version'],{encoding:'utf8',windowsHide:true}).trim();if(!/PostgreSQL\) 18\./.test(version))throw Error('POSTGRESQL_18_REQUIRED');
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'mos-pg-phase3a2-')),data=path.join(root,'cluster'),pw=path.join(root,'bootstrap-password.tmp');
+ fs.writeFileSync(path.join(root,'phase3a2.marker.json'),JSON.stringify({format:'vfib-pg-phase3a2-owned-v1',root:path.resolve(root),bin:path.resolve(bin),createdAt:new Date().toISOString()}));
  const password=crypto.randomBytes(32).toString('hex');fs.writeFileSync(pw,password,{mode:0o600});
  const env={...process.env};for(const k of Object.keys(env))if(/^PG[A-Z_]+$/.test(k))delete env[k];
  const run=(name,args)=>execFileSync(exe(name),args,{encoding:'utf8',windowsHide:true,env,stdio:'ignore'});

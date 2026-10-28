@@ -1,10 +1,10 @@
 {
   "suite": "phase3a2-pg18-foundation",
-  "at": "2026-10-28T08:27:03.495Z",
+  "at": "2026-10-28T09:13:39.340Z",
   "postgres": "postgres (PostgreSQL) 18.6",
   "scope": "REAL isolated loopback PostgreSQL, synthetic fixtures only; no live providers or production services",
-  "total": 76,
-  "passed": 76,
+  "total": 100,
+  "passed": 100,
   "failed": 0,
   "results": [
     {
@@ -14,7 +14,7 @@
     },
     {
       "group": "schema",
-      "name": "all four migrations execute in real PostgreSQL",
+      "name": "all five migrations execute in real PostgreSQL",
       "status": "EXECUTED_PASS"
     },
     {
@@ -239,12 +239,32 @@
     },
     {
       "group": "schema",
+      "name": "draft can be superseded without freezing per original state machine",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "frozen author identity cannot change",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "creator cannot set content APPROVED without publication approval",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
       "name": "review cannot bind wrong manifest hash",
       "status": "EXECUTED_PASS"
     },
     {
       "group": "schema",
       "name": "review target and policy cannot change after submission",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "review submitter identity cannot change",
       "status": "EXECUTED_PASS"
     },
     {
@@ -283,6 +303,16 @@
       "status": "EXECUTED_PASS"
     },
     {
+      "group": "schema",
+      "name": "terminal review cannot be rewritten",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "authorized publishing approver can apply exact approved manifest",
+      "status": "EXECUTED_PASS"
+    },
+    {
       "group": "security",
       "name": "ordinary actor cannot read audit history",
       "status": "EXECUTED_PASS"
@@ -295,6 +325,86 @@
     {
       "group": "security",
       "name": "audit actor cannot be forged",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "synthetic file metadata initializes without any real media access",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "frozen asset reference pins a ready immutable file version",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "ready file digest cannot be changed even by owner",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "ready file location cannot be changed",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "asset material referenced by frozen content cannot be changed",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "frozen asset reference cannot be deleted",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "published snapshot requires ready file metadata",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "valid snapshot is immutable independent archive version",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "creator cannot grant final library approval",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "technical admin does not inherit final library approval",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "independent final approver preserves MOCK status in synthetic fixture",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "approved admission metadata cannot be downgraded",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "MOCK approved admission cannot be relabeled REAL",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "application cannot SET ROLE guard or disable RLS",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "lost connection during COMMIT is UNKNOWN and is never blindly retried",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "whole transaction deadline also covers COMMIT and reports UNKNOWN",
       "status": "EXECUTED_PASS"
     },
     {
@@ -370,6 +480,16 @@
     {
       "group": "security",
       "name": "no default database or elevated runtime role accepted",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "original Phase3A1 draft is executed and its ownership defect safely rolls back",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "migration source digests are locked and verify without DB access",
       "status": "EXECUTED_PASS"
     },
     {
@@ -608,6 +728,22 @@
       "attempt": 0
     },
     {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_IMMUTABLE_RECORD",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
       "event": "transaction_failed",
       "code": "PG_ACCESS_DENIED",
       "attempt": 0
@@ -635,8 +771,70 @@
       "contextCleared": true
     },
     {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
       "event": "transaction_failed",
       "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_IMMUTABLE_RECORD",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_IMMUTABLE_RECORD",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "active_connection_error",
+      "code": "PG_UNAVAILABLE"
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_COMMIT_OUTCOME_UNKNOWN",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_COMMIT_OUTCOME_UNKNOWN",
       "attempt": 0
     },
     {
@@ -752,7 +950,7 @@
     },
     {
       "event": "transaction_failed",
-      "code": "PG_UNAVAILABLE",
+      "code": "PG_BAD_PARAMETER",
       "attempt": 0
     },
     {

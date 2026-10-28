@@ -1,0 +1,101 @@
+PASS schema PG18 loopback isolated cluster
+PASS schema all five migrations execute in real PostgreSQL
+PASS schema 74 real business tables and separate migration metadata
+PASS schema second migration run is no-op
+PASS schema 181 foreign keys retained
+PASS transaction commit persists and every SQL uses same backend
+PASS transaction callback failure rolls back every write
+PASS schema duplicate PK rejected and transaction remains atomic
+PASS schema duplicate global business code rejected
+PASS schema cross-brand composite task FK rejected
+PASS schema invalid task state rejected
+PASS schema negative budget and invalid period rejected
+PASS schema content cannot be inserted already frozen or approved
+PASS security VFIB cannot read UCARD rows
+PASS security UCARD cannot read VFIB rows
+PASS security VFIB cannot write UCARD rows through raw SQL
+PASS security forged plain JS context rejected before connection use
+PASS security request body actorId cannot override trusted identity resolver
+PASS security no verified session cannot mint context
+PASS security raw app connection with no context sees zero brand rows
+PASS security plain actor/brand GUC spoof cannot mint trusted DB claims
+PASS security signed context cannot be tampered with
+PASS security signed context replay in a different transaction rejected
+PASS security expired correctly signed synthetic claims rejected
+PASS security pool max1 reuses backend and isolates brand context
+PASS security session-level GUC contamination is cleared before release
+PASS security runtime roles are non-owner and NOBYPASSRLS
+PASS security row_security=off does not bypass RLS
+PASS security cannot SET ROLE owner
+PASS security cannot modify schema
+PASS security cannot create public schema objects
+PASS security cannot read credential or identity table
+PASS security cannot read protected context key
+PASS security cannot read permission revocation details
+PASS security dedicated identity path returns only current nonsecret principal
+PASS security ordinary user denied global config accessor
+PASS security admin global config accessor excludes secret columns
+PASS security global revocation applies without exposing other brand invalidations
+PASS security permission revocation invalidates an already issued JS context
+PASS security account deactivation invalidates access
+PASS security worker role has same scoped access without bypass
+PASS schema valid frozen manifest created using existing JS canonical algorithm
+PASS schema frozen body cannot be overwritten
+PASS schema frozen version cannot be reopened as draft
+PASS schema frozen reference insertion is rejected
+PASS schema manifest digest cannot be faked during freeze
+PASS schema draft can be superseded without freezing per original state machine
+PASS schema frozen author identity cannot change
+PASS schema creator cannot set content APPROVED without publication approval
+PASS schema review cannot bind wrong manifest hash
+PASS schema review target and policy cannot change after submission
+PASS schema review submitter identity cannot change
+PASS security creator cannot approve own review case at SQL boundary
+PASS schema review_decisions owner UPDATE denied by immutable trigger
+PASS schema review_decisions owner DELETE denied by immutable trigger
+PASS security review_decisions ordinary DELETE denied by grant
+PASS schema audit_events owner UPDATE denied by immutable trigger
+PASS schema audit_events owner DELETE denied by immutable trigger
+PASS security audit_events ordinary DELETE denied by grant
+PASS schema terminal review cannot be rewritten
+PASS schema authorized publishing approver can apply exact approved manifest
+PASS security ordinary actor cannot read audit history
+PASS security admin can read scoped audit history
+PASS security audit actor cannot be forged
+PASS schema synthetic file metadata initializes without any real media access
+PASS schema frozen asset reference pins a ready immutable file version
+PASS schema ready file digest cannot be changed even by owner
+PASS schema ready file location cannot be changed
+PASS schema asset material referenced by frozen content cannot be changed
+PASS schema frozen asset reference cannot be deleted
+PASS schema published snapshot requires ready file metadata
+PASS schema valid snapshot is immutable independent archive version
+PASS security creator cannot grant final library approval
+PASS security technical admin does not inherit final library approval
+PASS security independent final approver preserves MOCK status in synthetic fixture
+PASS schema approved admission metadata cannot be downgraded
+PASS schema MOCK approved admission cannot be relabeled REAL
+PASS security application cannot SET ROLE guard or disable RLS
+PASS transaction lost connection during COMMIT is UNKNOWN and is never blindly retried
+PASS transaction whole transaction deadline also covers COMMIT and reports UNKNOWN
+PASS security source evidence RLS follows authorized report links
+PASS security cannot forge a report link to another brand evidence
+PASS security evidence ingestion cannot target another brand report
+PASS security runtime cannot create global evidence directly
+PASS transaction optimistic concurrent version conflict is detected
+PASS transaction actual PostgreSQL deadlock gets bounded safe retry
+PASS transaction statement timeout rolls back and releases connection
+PASS transaction wall deadline closes unit of work and late SQL is blocked
+PASS transaction external-operation boundary rejects execution inside transaction
+PASS transaction outside-transaction operation remains available
+PASS transaction backend termination rolls back transaction with no JSON fallback
+PASS transaction pool is reusable and all connections are released
+PASS security invalid SQL parameter error never leaks sensitive fixture to logs
+PASS security repository table and mutable column identifiers are allowlisted
+PASS security no default database or elevated runtime role accepted
+PASS schema original Phase3A1 draft is executed and its ownership defect safely rolls back
+PASS schema migration source digests are locked and verify without DB access
+PASS schema failed migration atomically restores empty schema and can retry
+PASS schema runtime cannot mutate migration version register
+PASS transaction PostgreSQL unavailable fails closed with generic error
+{"total":100,"passed":100,"failed":0}

@@ -1,0 +1,379 @@
+{
+  "suite": "provideradmin",
+  "ranAt": "2026-10-28T08:26:56.639Z",
+  "total": 70,
+  "passed": 70,
+  "failed": 0,
+  "ok": true,
+  "node": "v24.19.0",
+  "stub": {
+    "url": "http://127.0.0.1:9691",
+    "counters": {
+      "chat": 8,
+      "chatOk": 8,
+      "image": 2,
+      "imageUrl": 1,
+      "videoStart": 1,
+      "videoCheck": 2,
+      "videoDownload": 1,
+      "search": 0,
+      "flaky": 3,
+      "slow": 1,
+      "volcStart": 2,
+      "volcCheck": 3,
+      "volcDownload": 1
+    }
+  },
+  "cases": [
+    {
+      "name": "PA-00 服务器启动并健康",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "PA-01 未登录读取接入配置 → 401（不泄露任何供应商信息）",
+      "ok": true,
+      "detail": "401 {\"ok\":false,\"error\":\"登录状态已失效，请重新登录\",\"code\":\"UNAUTHORIZED\"}"
+    },
+    {
+      "name": "PA-02 管理员登录成功",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "PA-03 首登改密成功（后续接口才可用）",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "PA-04 返回四类接入（文本/图像/视频/网页检索）且不含 apiKey 明文字段",
+      "ok": true,
+      "detail": "kinds=text,image,video,websearch"
+    },
+    {
+      "name": "PA-05 保存文本接入成功：密钥只回掩码、就绪度 CONFIGURED_NOT_TESTED",
+      "ok": true,
+      "detail": "mask=sk-••••••••915b readiness=CONFIGURED_NOT_TESTED"
+    },
+    {
+      "name": "PA-06 密钥以 AES-256-GCM 密文落库（数据文件不含明文，密文含 iv/tag/ct）",
+      "ok": true,
+      "detail": "hasPlain=false sealedKeys=v,alg,iv,tag,ct,kf"
+    },
+    {
+      "name": "PA-07 再次读取仍无明文密钥（掩码 + 指纹）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "PA-08 非法接入方式被拒绝（400 BAD_MODE）",
+      "ok": true,
+      "detail": "400/BAD_MODE"
+    },
+    {
+      "name": "PA-09 端点指向内网地址被拒绝（400 BAD_BASE_URL）",
+      "ok": true,
+      "detail": "400/BAD_BASE_URL"
+    },
+    {
+      "name": "PA-10 过短密钥被拒绝（400 BAD_API_KEY）",
+      "ok": true,
+      "detail": "400"
+    },
+    {
+      "name": "PA-11 普通角色（P1）读取接入配置 → 403（仅技术管理员 settings.manage）",
+      "ok": true,
+      "detail": "mk=200 login=200 read=403/FORBIDDEN"
+    },
+    {
+      "name": "PA-12 越权访问写入 permission.denied 审计",
+      "ok": true,
+      "detail": "denied=1"
+    },
+    {
+      "name": "PA-13 连接测试走真实 chat 管线并成功（替身收到请求）",
+      "ok": true,
+      "detail": "ok=true code= calls=1"
+    },
+    {
+      "name": "PA-14 有真实成功证据后就绪度晋级 REAL（不再是\"未联调\"）",
+      "ok": true,
+      "detail": "readiness=REAL ev={\"at\":\"2026-10-28T08:26:53.090Z\",\"provider\":\"openai\",\"model\":\"stub-model\",\"id\":\""
+    },
+    {
+      "name": "PA-15 连接测试频控（8 秒内重复 → 400 TEST_TOO_FREQUENT）",
+      "ok": true,
+      "detail": "400/TEST_TOO_FREQUENT"
+    },
+    {
+      "name": "PA-16 预算上限保存成功",
+      "ok": true,
+      "detail": "{\"brandMonthlyUsd\":50,\"perJobUsdMax\":0.5,\"currency\":\"USD\",\"note\":\"0 表示不设上限。上限用于**事前拦截**（按配置单价估算）与**事后核对**（只用供应商回执）。\"}"
+    },
+    {
+      "name": "PA-17 开启受限数据外发但未填确认人 → 400 ACK_REQUIRED",
+      "ok": true,
+      "detail": "400/ACK_REQUIRED"
+    },
+    {
+      "name": "PA-18 填确认人后可开启受限外发（并留审计）",
+      "ok": true,
+      "detail": "{\"allowConfidential\":false,\"allowRestricted\":true,\"allowRestrictedRaw\":true,\"acknowledgedBy\":\"compliance@vfib (test)\",\"updatedAt\":\"2026-10-28T08:26:53.142Z\",\"note\":\"默认全部关闭：判定为机密/受限的内容不会发送到任何外部服务。开启即视为该部署的合规责任人已确认。\"}"
+    },
+    {
+      "name": "PA-19 调用账本可查：probe 计入 text 且带延迟",
+      "ok": true,
+      "detail": "{\"text\":{\"calls\":1,\"ok\":1,\"failed\":0,\"tokens\":51,\"costConfirmed\":0.00021,\"costUnknown\":0}}"
+    },
+    {
+      "name": "PA-20 账本响应中不含任何密钥明文",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "PA-21 清除密钥后回到 NOT_CONFIGURED（不保留\"假可用\"）",
+      "ok": true,
+      "detail": "readiness=NOT_CONFIGURED"
+    },
+    {
+      "name": "PB-01 文本真实调用成功（研究报告任务走通 chat/completions）",
+      "ok": true,
+      "detail": "state=SUCCEEDED len=14 provider=openai"
+    },
+    {
+      "name": "PB-02 请求带 Bearer 鉴权、模型名与防提示注入声明",
+      "ok": true,
+      "detail": "authPrefix=Bearer sk-test"
+    },
+    {
+      "name": "PB-03 用量与费用回执如实记录（token 来自供应商，费用 confirmed）",
+      "ok": true,
+      "detail": "usage={\"prompt_tokens\":42,\"completion_tokens\":9,\"total_tokens\":51,\"promptTokens\":42,\"completionTokens\":9,\"totalTokens\":51,\"providerJobId\":\"chatcmpl-stub\",\"promptChars\":329} cost={\"amount\":0.00021,\"currency\":\"USD\",\"confirmed\":true,\"source\":\"provider-receipt\"}"
+    },
+    {
+      "name": "PB-01b 五类文本产出全部走真实管线并成功（资料总结/研究报告/选题/英文文案/视频脚本）",
+      "ok": true,
+      "detail": "SUMMARY=SUCCEEDED REPORT=SUCCEEDED TOPIC=SUCCEEDED COPY_EN=SUCCEEDED VIDEO_SCRIPT=SUCCEEDED calls=5"
+    },
+    {
+      "name": "PB-01c 五类任务各自携带专属指令（模板未串用、未退化为同一提示）",
+      "ok": true,
+      "detail": "SUMMARY:ok REPORT:ok TOPIC:ok COPY_EN:ok VIDEO_SCRIPT:ok"
+    },
+    {
+      "name": "PB-01d 未知任务码 → 明确拒绝且零出站（不猜测用户意图）",
+      "ok": true,
+      "detail": "state=FAILED code=PROVIDER_UNKNOWN_MODE calls=0"
+    },
+    {
+      "name": "PB-04 供应商 503 → 有界重试后成功（attempts=3，符合 maxRetries=2）",
+      "ok": true,
+      "detail": "state=SUCCEEDED attempts=3 flaky=3"
+    },
+    {
+      "name": "PB-05 供应商慢响应 → PROVIDER_TIMEOUT（硬超时生效，不无限等待）",
+      "ok": true,
+      "detail": "state=FAILED code=PROVIDER_TIMEOUT"
+    },
+    {
+      "name": "PB-06 预估费用超单次上限 → BUDGET_EXCEEDED 且零出站",
+      "ok": true,
+      "detail": "state=BLOCKED code=PROVIDER_BUDGET_EXCEEDED calls=0"
+    },
+    {
+      "name": "PB-07 含身份证号的内容 → BLOCKED_DATA_CLASS 且零出站",
+      "ok": true,
+      "detail": "state=BLOCKED code=PROVIDER_BLOCKED_DATA_CLASS calls=0"
+    },
+    {
+      "name": "PB-08 显式受限数据在未豁免时同样被拦截（分级取更严者）",
+      "ok": true,
+      "detail": "PROVIDER_BLOCKED_DATA_CLASS"
+    },
+    {
+      "name": "PB-09 管理员豁免机密数据后可以外发（策略可运营，非写死）",
+      "ok": true,
+      "detail": "state=SUCCEEDED"
+    },
+    {
+      "name": "PB-10 图像真实调用（b64）成功并返回真实字节",
+      "ok": true,
+      "detail": "state=SUCCEEDED bytes=24"
+    },
+    {
+      "name": "PB-11 业务比例 16:9 映射为供应商尺寸 1536x1024（技术参数不下放给员工）",
+      "ok": true,
+      "detail": "sizeInBytes=PNG-STUB-BYTES-1536x1024"
+    },
+    {
+      "name": "PB-12 图像 url 返回形态可下载（不是只支持 b64）",
+      "ok": true,
+      "detail": "state=SUCCEEDED ext=.png"
+    },
+    {
+      "name": "PB-13 视频任务提交成功并拿到供应商任务 id",
+      "ok": true,
+      "detail": "state=SUCCEEDED id=vid_stub_1"
+    },
+    {
+      "name": "PB-14 视频轮询：首次 PENDING（含进度），不谎报完成",
+      "ok": true,
+      "detail": "state=PENDING progress=40"
+    },
+    {
+      "name": "PB-15 视频轮询：第二次 COMPLETED",
+      "ok": true,
+      "detail": "state=SUCCEEDED"
+    },
+    {
+      "name": "PB-16 视频成片下载并落盘（真实文件，非占位）",
+      "ok": true,
+      "detail": "file=AI-VIDEO-VFIB-1793176016426.mp4 bytes=14"
+    },
+    {
+      "name": "PB-17a 火山方舟创建体：content 数组 + ratio 枚举（像素尺寸被翻译，技术参数不下放）",
+      "ok": true,
+      "detail": "state=SUCCEEDED id=cgt-stub-1 body={\"model\":\"doubao-seedance-2-0-mini\",\"content\":[{\"type\":\"text\",\"text\":\"品牌 5 秒片头\"}],\"duration\":5,\"ratio\":\"16:9\",\"watermark\":false}"
+    },
+    {
+      "name": "PB-17b 任务未完成时拒绝下载（绝不把状态 JSON 冒充成 MP4）",
+      "ok": true,
+      "detail": "state=FAILED raw=NOT_READY note=任务尚未完成，拒绝下载（当前状态：running）。"
+    },
+    {
+      "name": "PB-17c 火山方舟 succeeded 被正确识别，并带回 content.video_url",
+      "ok": true,
+      "detail": "state=SUCCEEDED url=.0.1:9691/files/volc.mp4"
+    },
+    {
+      "name": "PB-17d 从 content.video_url 下载并落盘（走同一出站校验，非直连裸取）",
+      "ok": true,
+      "detail": "state=SUCCEEDED bytes=18 downloads=1"
+    },
+    {
+      "name": "PB-17e 竖版尺寸被翻译为 ratio=9:16",
+      "ok": true,
+      "detail": "ratio=9:16 state=SUCCEEDED"
+    },
+    {
+      "name": "PB-17 视频未配置 → NOT_CONFIGURED，绝不产出占位成片",
+      "ok": true,
+      "detail": "NOT_CONFIGURED/PROVIDER_NOT_CONFIGURED"
+    },
+    {
+      "name": "PB-18 主密钥轮换后旧密文不可解：明确报错并回落到 NOT_CONFIGURED",
+      "ok": true,
+      "detail": "keyError=主密钥与密文不匹配（密钥已轮换）：请重新录入该供应商的密钥 readiness=NOT_CONFIGURED"
+    },
+    {
+      "name": "PC4-01 内容分级：身份证号 → CONFIDENTIAL 并给出命中规则",
+      "ok": true,
+      "detail": "CONFIDENTIAL/CN_ID_NUMBER,BANK_CARD"
+    },
+    {
+      "name": "PC4-02 内容分级：银行卡号 → CONFIDENTIAL",
+      "ok": true,
+      "detail": "CONFIDENTIAL"
+    },
+    {
+      "name": "PC4-03 内容分级：显式受限标记 → RESTRICTED（优先级最高）",
+      "ok": true,
+      "detail": "RESTRICTED"
+    },
+    {
+      "name": "PC4-04 仅开机密豁免不足以外发受限数据（两档独立）",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "PC4-05 公网明文 HTTP 端点被拒绝（生产一律 https）",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "PC4-06 测试模式下环回端点放行（仅 MOS_EGRESS_ALLOW_* 双开关，生产失效）",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "PC4-07 云元数据地址被拒绝",
+      "ok": true,
+      "detail": "true"
+    },
+    {
+      "name": "PC4-08 加解密可逆且掩码不泄露中段",
+      "ok": true,
+      "detail": "sk-••••••••mnop"
+    },
+    {
+      "name": "PC4-09 调用账本落库且全字段脱敏（不含 sk-test 明文）",
+      "ok": true,
+      "detail": "calls=19"
+    },
+    {
+      "name": "PC4-10 账本聚合：区分确认费用与未回执调用，错误率可算",
+      "ok": true,
+      "detail": "total=19 errRate=0.2105 cost=0.0015 unknown=8"
+    },
+    {
+      "name": "PC4-11 清除真实成功证据后就绪度回落 CONFIGURED_NOT_TESTED（REAL 不靠配置自封）",
+      "ok": true,
+      "detail": "CONFIGURED_NOT_TESTED"
+    },
+    {
+      "name": "PC4-12 视频能力声明诚实：未配置时不声明 AI_RENDER",
+      "ok": true,
+      "detail": "SCRIPT/STORYBOARD/KEYFRAME/ASSET_UPLOAD/FINAL_CUT_UPLOAD"
+    },
+    {
+      "name": "PF-01 文本可选接入方式含 zhipu / dashscope / siliconflow（先免费试、后付费）",
+      "ok": true,
+      "detail": "none,openai,deepseek,zhipu,dashscope,siliconflow,anthropic,mock"
+    },
+    {
+      "name": "PF-02 免费档信息随接口下发（页面据此提示，不自行编造额度）",
+      "ok": true,
+      "detail": "GLM-4.7-Flash / GLM-4-Flash 长期免费不限量（2026-10 核实）"
+    },
+    {
+      "name": "PF-03 智谱默认端点与模型可直接用（不改配置也能发）",
+      "ok": true,
+      "detail": "https://open.bigmodel.cn/api/paas/v4 | glm-4.7-flash"
+    },
+    {
+      "name": "PF-04 智谱走 OpenAI 兼容协议：POST {base}/chat/completions + Bearer 鉴权",
+      "ok": true,
+      "detail": "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+    },
+    {
+      "name": "PF-05 智谱默认模型为免费档 glm-4.7-flash",
+      "ok": true,
+      "detail": "glm-4.7-flash"
+    },
+    {
+      "name": "PF-06 百炼兼容模式端点拼接正确（/compatible-mode/v1/chat/completions）",
+      "ok": true,
+      "detail": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+    },
+    {
+      "name": "PF-07 硅基流动端点拼接正确（/v1/chat/completions）",
+      "ok": true,
+      "detail": "https://api.siliconflow.cn/v1/chat/completions"
+    },
+    {
+      "name": "PF-08 端点尾部多个斜杠被归一化（不会拼出 //chat/completions）",
+      "ok": true,
+      "detail": "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+    },
+    {
+      "name": "PF-09 图像侧也有免费档（智谱 CogView-3-Flash），选它即可验证出图链路",
+      "ok": true,
+      "detail": "cogview-3-flash | CogView-3-Flash 长期免费不限量（2026-10 核实）"
+    },
+    {
+      "name": "PF-10 免费档信息不进入 effective()（只做展示，不参与调用与就绪度判定）",
+      "ok": true,
+      "detail": "effective().freeTier=undefined"
+    }
+  ]
+}

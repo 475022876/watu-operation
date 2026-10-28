@@ -1,0 +1,61 @@
+{
+  "suite": "h04",
+  "mode": "after",
+  "total": 13,
+  "passed": 13,
+  "failed": 0,
+  "results": [
+    {
+      "name": "redirects forbidden and target receives zero requests",
+      "ok": true
+    },
+    {
+      "name": "response byte limit enforced while streaming",
+      "ok": true
+    },
+    {
+      "name": "timeout includes response body",
+      "ok": true
+    },
+    {
+      "name": "request body capped before network",
+      "ok": true
+    },
+    {
+      "name": "normal response and rate limit headers preserved",
+      "ok": true
+    },
+    {
+      "name": "abort cancels body read",
+      "ok": true
+    },
+    {
+      "name": "validated address pins actual TLS socket lookup and keeps SNI",
+      "ok": true
+    },
+    {
+      "name": "SSRF blocked https://127.0.0.1",
+      "ok": true
+    },
+    {
+      "name": "SSRF blocked https://10.0.0.1",
+      "ok": true
+    },
+    {
+      "name": "SSRF blocked https://169.254.169.254",
+      "ok": true
+    },
+    {
+      "name": "SSRF blocked https://[::1]",
+      "ok": true
+    },
+    {
+      "name": "SSRF blocked https://metadata.google.internal",
+      "ok": true
+    },
+    {
+      "name": "mixed public/private DNS records rejected",
+      "ok": true
+    }
+  ]
+}

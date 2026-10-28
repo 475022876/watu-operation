@@ -4,6 +4,7 @@ const credentials=new WeakMap();
 const {ROLES}=require('../../lib/mos/dict');
 function isolated(config){if(!config||!['127.0.0.1','::1'].includes(config.host)||!/^mos_phase3a2_[a-z0-9_]+$/.test(config.database)||!Number.isInteger(config.port)||!config.user||!config.password)throw Error('ISOLATED_TEST_DATABASE_REQUIRED');return config;}
 async function createDatabase(cluster,suffix='foundation'){
+ if(!/^[a-z0-9_]{1,30}$/.test(suffix))throw Error('INVALID_TEST_DATABASE_SUFFIX');
  const admin=await cluster.admin(),database='mos_phase3a2_'+suffix+'_'+crypto.randomBytes(4).toString('hex');
  let passwords=credentials.get(cluster);if(!passwords){passwords={};for(const r of ['mos_migrator','mos_app','mos_worker'])passwords[r]=crypto.randomBytes(32).toString('hex');credentials.set(cluster,passwords);}
  try{
@@ -19,9 +20,11 @@ async function createDatabase(cluster,suffix='foundation'){
  return {database,configFor:role=>isolated({...cluster.config,database,user:role,password:passwords[role]})};
 }
 async function migrate(config,extra={}){
- isolated(config);if(Number(process.versions.node.split('.')[0])<20)throw Error('PG_MIGRATION_NODE20_REQUIRED');
+ isolated(config);if(!extra.dir)require('./migration-manifest.cjs').validate();
+ if(extra.dir){const os=require('node:os'),resolved=path.resolve(extra.dir);if(!resolved.startsWith(path.resolve(os.tmpdir())+path.sep)||!path.basename(resolved).startsWith('mos-pg-phase3a2-migrations-'))throw Error('MIGRATION_FIXTURE_DIRECTORY_REQUIRED');}
+ if(Number(process.versions.node.split('.')[0])<20)throw Error('PG_MIGRATION_NODE20_REQUIRED');
  const c=new Client({...config,connectionTimeoutMillis:2000});await c.connect();
- try{const {runner}=await import('node-pg-migrate');return await runner({dbClient:c,dir:path.resolve(__dirname,'../../migrations/postgresql'),ignorePattern:'.*\\.sql',migrationsTable:'schema_migrations',migrationsSchema:'mos_meta',createMigrationsSchema:true,direction:'up',singleTransaction:true,checkOrder:true,noLock:false,logger:{info(){},warn(){},error(){},debug(){}},...extra});}finally{await c.end();}
+ try{const {runner}=await import('node-pg-migrate');return await runner({dbClient:c,dir:path.resolve(__dirname,'../../migrations/postgresql'),ignorePattern:'(?![0-9]+-.*\\.cjs$).*',migrationsTable:'schema_migrations',migrationsSchema:'mos_meta',createMigrationsSchema:true,direction:'up',singleTransaction:true,checkOrder:true,noLock:false,logger:{info(){},warn(){},error(){},debug(){}},...extra});}finally{await c.end();}
 }
 async function seedSynthetic(cluster,database){
  const admin=await cluster.admin(database),key=crypto.randomBytes(32);

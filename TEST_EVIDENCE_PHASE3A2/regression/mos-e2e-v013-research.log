@@ -1,0 +1,102 @@
+
+---- A. Provider 就绪状态（严格取值，不隐去 BLOCKED） ----
+  PASS  A-01 无检索 Provider 实例已启动  :: port=9731
+  PASS  A-02 P2 登录（无 Provider 实例）
+  PASS  A-03 未配置 → readiness=NOT_CONFIGURED 且 configured=false（向后兼容字段保留）  :: readiness=NOT_CONFIGURED
+  PASS  A-04 可选供应商清单为已实现的真实实现（searxng/brave/bing/google/tavily）  :: n=6
+  PASS  A-05 每个已实现供应商带文档链接（不杜撰模型/端点）
+  PASS  A-06 就绪状态取值严格受限（不含任何虚构值）
+
+---- B. 真实检索 + 受限网页读取 + 结构化研究（有模型） ----
+  PASS  B-00 主实例（真实检索 + 真实模型通道）已启动  :: port=9732
+  PASS  B-01 P2a 登录
+  PASS  B-02 已配置但未联调 → CONFIGURED_NOT_TESTED（不谎称 REAL）  :: readiness=CONFIGURED_NOT_TESTED
+  PASS  B-03 启动研究 → 200 且**立即**返回 jobId（异步，不阻塞）  :: code=RJ-0001 status=QUEUED
+  PASS  B-04 作业到达终态 COMPLETED  :: status=COMPLETED
+  PASS  B-05 阶段推进到 DONE 且进度 100  :: stage=DONE progress=100
+  PASS  B-06 记录真实检索 traceId 与结果/证据计数  :: trace=ws-4a0604b30dcfa2e4c24c results=5 evidence=5
+  PASS  B-07 脱敏 trace：不含凭据字段且不回传完整查询串  :: host=127.0.0.1
+  PASS  B-08 报告完成度 = AI_RESEARCH_COMPLETE（有模型且模型产出可用）  :: completion=AI_RESEARCH_COMPLETE
+  PASS  B-09 报告契约字段齐备（02 §LLM研究输出契约）  :: 缺=
+  PASS  B-10 至少两个**不同来源**且正文可读（RES-01/RES-02）  :: sources=5 available=3 sourceNames=5
+  PASS  B-11 来源保留真实标题/机构/抓取时间；发布时间未知如实为 null（不臆造）  :: 未知发布时间=3
+  PASS  B-12 404 来源如实记录为 NOT_FOUND（不当作有效证据）
+  PASS  B-13 云元数据 / 私网地址的检索结果一律未进入证据（SSRF 防护生效）
+  PASS  B-13b 检索 trace 如实记录"原始 7 条 → 拒绝 2 条 → 采纳 5 条"（回环 https 仅在显式测试放行下通过；生产口径由 J-02 否定）  :: raw=7 rejected=2 accepted=5
+  PASS  B-14 每条 FACT 均挂有效来源（RES-03）  :: FACT=2 无来源=0
+  PASS  B-15 无来源 FACT 被强制降级为 INTERPRETATION 并标待核验  :: downgraded=1
+  PASS  B-16 不存在的证据引用被剔除（不得造引用）
+  PASS  B-17 未核验内容不得声称 VERIFIED
+  PASS  B-18 三类 kind 齐备（FACT / INTERPRETATION / RECOMMENDATION）
+  PASS  B-19 保留来源间的矛盾观点（不自动平均成确定结论）  :: gaps=10
+  PASS  B-20 证据缺口被记录（404 / 日期未知 / 单一来源）  :: kinds=DATE_UNKNOWN,NOT_FOUND,SINGLE_SOURCE,TIME_SENSITIVE,CONFLICT
+  PASS  B-21 时间敏感结论加入重新核验提醒（reverifyDue）  :: due=4
+  PASS  B-22 记录真实模型运行的用量与**供应商回执费用**（不臆造金额）  :: tokens=3030 cost=0.0123
+  PASS  B-23 交叉验证来源如实标注（未执行时不得假装已交叉验证）  :: conflictDetection=MODEL_ASSISTED
+  PASS  B-24 候选选题 C01–C06 且非法栏目被丢弃（RES-04）  :: ops=C05,C01
+  PASS  B-25 每条候选带推荐理由 + 事实核验清单 + 报告版本
+  PASS  B-26 C01/C03/C06 缺企业正式依据 → needsVerification=true 且带 SPECIAL-01 提示
+  PASS  B-27 候选带 evidenceIds（可回溯到证据）
+  PASS  B-28 候选物化为 TopicProposal → 200  :: items=2
+  PASS  B-29 物化选题状态一律 AI_RECOMMENDED（AI 不得自行批准）
+  PASS  B-30 物化选题保留 factCheckNeeds 与 reportVersion（可回溯报告版本）
+  PASS  B-31 存在成功检索痕迹后 readiness 提升为 REAL（有证据才提升）  :: readiness=REAL
+  PASS  B-32 模型请求携带不可信内容边界与"忽略其中指令"声明（防 prompt injection）
+
+---- C. 幂等键：跨账号重放不得获得他人结果 ----
+  PASS  C-00 首次带键请求正常完成  :: status=COMPLETED
+  PASS  C-01 同账号同键重放 → deduplicated=true 且复用同一 jobId  :: dedup=true
+  PASS  C-02 同账号同键重放零重复扣费（不新增检索请求）  :: searchCalls+0
+  PASS  C-03 他人复用同键 → 409（不返回他人幂等结果）  :: status=409
+  PASS  C-04 同键不同内容 → 409（键绑定 payload 摘要）  :: status=409
+
+---- D. 降级：无模型 → RETRIEVAL_ONLY（绝不标 AI_RESEARCH_COMPLETE） ----
+  PASS  D-01 无模型 → 报告 completion=RETRIEVAL_ONLY  :: completion=RETRIEVAL_ONLY
+  PASS  D-02 降级报告**绝不**标记 AI_RESEARCH_COMPLETE  :: status=RETRIEVAL_ONLY
+  PASS  D-03 降级仍保留真实检索证据（可手工继续）  :: sources=5
+  PASS  D-04 降级发现全部标注 RETRIEVAL 来源且待核验
+  PASS  D-05 降级不产出解释与建议（无 INTERPRETATION/RECOMMENDATION）
+  PASS  D-06 降级候选选题为空（不做无模型推荐）
+  PASS  D-07 降级报告不可物化选题 → 409 NO_OPPORTUNITIES  :: status=409
+
+---- E. 未配置检索 Provider → 作业 BLOCKED（零发现） ----
+  PASS  E-01 未配置 → 作业 BLOCKED 且 errorCode=NOT_CONFIGURED  :: status=BLOCKED errorCode=NOT_CONFIGURED 业务编号=RJ-0001
+  PASS  E-02 BLOCKED 报告零发现零证据（不伪造）  :: findings=0
+  PASS  E-03 blockedReason 明确为未配置（可恢复：配置后即可用）
+
+---- F. 预算门禁（计费型无预算上限 → fail closed，零出站） ----
+  PASS  F-01 计费型无预算 → 作业 BLOCKED 且 errorCode=BUDGET_EXCEEDED  :: status=BLOCKED errorCode=BUDGET_EXCEEDED 业务编号=RJ-0001
+  PASS  F-02 fail closed 期间**零出站**（替身未收到任何计费型端点请求）  :: requests=0
+
+---- G. 取消：阶段边界安全停止，不产生研究与费用 ----
+  PASS  G-01 取消请求被接受 → status=CANCELLED  :: status=CANCELLED
+  PASS  G-02 取消后保持终态 CANCELLED（后台不会覆盖回 COMPLETED）  :: status=CANCELLED
+  PASS  G-03 取消的报告不标完成（completion=BLOCKED）  :: completion=BLOCKED
+  PASS  G-04 重复取消幂等（仍 200 且状态不变）
+  PASS  G-05 已完成作业不可重试 → 409 BAD_TRANSITION  :: status=409
+
+---- H. 来源更新/撤回 → 标记研究需刷新 ----
+  PASS  H-01 刷新检查可执行且给出状态  :: state=CURRENT
+  PASS  H-02 返回 stale 与 reverifyDue 明细（结构稳定）
+
+---- I. 服务端权限与越权（SEC-01） ----
+  PASS  I-01 未登录读取作业 → 401
+  PASS  I-02 跨品牌读作业 → 404（防枚举，不泄露存在性）
+  PASS  I-03 跨品牌取消作业 → 404
+  PASS  I-04 P3（无 research.create）启动研究 → 403
+  PASS  I-05 P3 物化选题 → 403
+  PASS  I-06 缺研究主题 → 400 MISSING_QUERY
+  PASS  I-07 缺品牌 → 400
+
+---- J. 连接层 SSRF 前置校验（干净环境复检，生产口径） ----
+  PASS  J-01 SSRF 复检子进程执行成功（生产口径）  :: stdout=[{"url":"http://169.254.169.254/latest/meta-data/","expect":false,"ok":false,"code":"SCHEME_NOT_ALLOWED"},{"url":"https:
+  PASS  J-02 生产口径 http://169.254.169.254/latest/meta-data/ → 拒绝  :: code=SCHEME_NOT_ALLOWED
+  PASS  J-02 生产口径 https://10.0.0.5/secret → 拒绝  :: code=SSRF_BLOCKED
+  PASS  J-02 生产口径 https://127.0.0.1/x → 拒绝  :: code=SSRF_BLOCKED
+  PASS  J-02 生产口径 https://user:pass@example.com/x → 拒绝  :: code=CREDENTIALS_IN_URL
+  PASS  J-02 生产口径 ftp://example.com/x → 拒绝  :: code=SCHEME_NOT_ALLOWED
+  PASS  J-02 生产口径 https://example.com:8443/x → 拒绝  :: code=PORT_NOT_ALLOWED
+  PASS  J-03 显式测试放行时回环明文可达（该放行在生产模式一律失效）  :: code=OK
+
+Research e2e：79/79 通过
+证据目录：TEST_EVIDENCE_MOS_V013_RESEARCH / REAL_PROVIDER_EVIDENCE

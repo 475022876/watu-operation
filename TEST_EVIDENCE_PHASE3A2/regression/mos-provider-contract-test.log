@@ -1,0 +1,54 @@
+Provider 契约自检（A-05）
+
+--- L1 离线诚实性（无凭据 → NOT_CONFIGURED，零出站） ---
+  ------------------------------------------------------------
+  【DEMO 演示账号】仅用于沙盒演示，生产环境请勿启用：
+    mosadmin  /  9ziCHC2PCyNXTf   （引导管理员（首登需改密））
+    demo.p1  /  xJdXazafeYz3   （DEMO · P1）
+    demo.p2  /  xJdXazafeYz3   （DEMO · P2）
+    demo.p3  /  xJdXazafeYz3   （DEMO · P3+PUBLISHING_APPROVER）
+    demo.reviewer  /  xJdXazafeYz3   （DEMO · PROFESSIONAL_REVIEWER）
+    demo.lfa  /  xJdXazafeYz3   （DEMO · LIBRARY_FINAL_APPROVER）
+  ------------------------------------------------------------
+
+[mos-store] 首次运行，已生成 Marketing OS 数据库
+  PASS  PC-01 文本：未配置时 status/health 均如实为未配置（零出站）  :: configured=false health=NOT_CONFIGURED
+  PASS  PC-02 文本：未配置时 invoke 返回 NOT_CONFIGURED 且**不产出任何文字**  :: state=NOT_CONFIGURED text.len=0 errorCode=PROVIDER_NOT_CONFIGURED
+  PASS  PC-03 图像：未配置时 invoke 返回 NOT_CONFIGURED 且 outputs 为空  :: state=NOT_CONFIGURED outputs=0 configured=false
+  PASS  PC-04 选中真实供应商但无密钥：文本/图像一律 NOT_CONFIGURED（绝不伪造模型输出）  :: text=NOT_CONFIGURED image=NOT_CONFIGURED
+  PASS  PC-05 密钥不外泄：status/health 序列化结果不含密钥（只在服务端）  :: blob.len=861
+  PASS  PC-06 hasServerKey 只报布尔、不报密钥本身  :: text.hasServerKey=true
+
+--- V0.1.3 Phase C 就绪度（不得把 MOCK / 未实现 说成 REAL） ---
+  PASS  PC-06a 图像：未配置 → readiness=NOT_CONFIGURED  :: readiness=NOT_CONFIGURED
+  PASS  PC-06b 图像：MOCK 不被标为 REAL（readiness 仍 NOT_CONFIGURED，且标注 simulated）  :: readiness=NOT_CONFIGURED simulated=true
+  PASS  PC-06c 图像：已选真实供应商且有密钥 → CONFIGURED_NOT_TESTED（未联调不称 REAL）  :: readiness=CONFIGURED_NOT_TESTED
+  PASS  PC-06d 视频：适配器已实现，但未配置供应商时 readiness=NOT_CONFIGURED 且不声明 AI_RENDER  :: readiness=NOT_CONFIGURED caps=SCRIPT/STORYBOARD/KEYFRAME/ASSET_UPLOAD/FINAL_CUT_UPLOAD
+  PASS  PC-06e 集成状态矩阵暴露 imageProvider.readiness 与 videoProvider（BLOCKED 不被隐去）  :: image=NOT_CONFIGURED video=NOT_CONFIGURED
+
+--- 契约纯函数（分类/限流/费用回执的诚实性） ---
+  PASS  PC-07 classifyHttp：429→RATE_LIMITED，5xx→HTTP_ERROR，4xx→BAD_REQUEST  :: 429/500/400=PROVIDER_RATE_LIMITED,PROVIDER_HTTP_ERROR,PROVIDER_BAD_REQUEST
+  PASS  PC-08 classifyError：AbortError→TIMEOUT，其余→NETWORK_ERROR，且 TIMEOUT 可重试  :: abort=PROVIDER_TIMEOUT retryable(400)=false
+  PASS  PC-09 parseRateLimit：只回填供应商真实提供的字段，缺失一律 null  :: limit=60 remaining=null retryAfter=7
+  PASS  PC-10 costReceipt：无回执一律 amount=null/confirmed=false（不凭空推算）  :: absent=null present=0.04
+
+--- MOCK 标注与数据分级闸门 ---
+  PASS  PC-11 MOCK 文本草稿：state=MOCK 且醒目标注「非模型输出」  :: state=MOCK mock=true
+  PASS  PC-12 MOCK 图像：产出真实落盘 SVG、标注「非真实模型输出」且同提示词字节可复现  :: state=MOCK bytes=2146
+  PASS  PC-13 数据分级：内部受限内容默认拒发外模型（BLOCKED，errorCode 明确）  :: state=BLOCKED errorCode=PROVIDER_BLOCKED_DATA_CLASS
+  PASS  PC-14 未知供应商：明确报错且不伪造（UNKNOWN_MODE）  :: state=NOT_CONFIGURED errorCode=PROVIDER_UNKNOWN_MODE
+
+--- L2 本地桩契约验证（invoke/timeout/rateLimit/costReceipt/errorCode 真实行为） ---
+  PASS  PC-15 文本成功路径：SUCCEEDED + usage 回执 + rateLimit 解析 + costReceipt 诚实（无回执→null）  :: state=SUCCEEDED usage={"prompt_tokens":11,"completion_tokens":7,"promptTokens":11,"completionTokens":7,"totalTokens":18,"providerJobId":"","promptChars":251} rl.limit=60
+  PASS  PC-16 文本 429：errorCode=RATE_LIMITED、retryable=true、retryAfterSec 如实解析  :: state=FAILED errorCode=PROVIDER_RATE_LIMITED retryAfter=7
+  PASS  PC-17 图像成功路径：SUCCEEDED + 真实 PNG 字节（b64 解码）+ 供应商成本回执透传  :: state=SUCCEEDED bytes=70 cost=0.04
+  PASS  PC-18 图像 5xx：errorCode=PROVIDER_HTTP_ERROR、retryable=true、保留状态码且隐藏上游正文  :: state=FAILED errorCode=PROVIDER_HTTP_ERROR
+  PASS  PC-19 图像超时：硬超时生效 → errorCode=PROVIDER_TIMEOUT、retryable=true  :: state=FAILED errorCode=PROVIDER_TIMEOUT note=调用供应商超时（1000ms）PROVIDER_TIMEOUT
+  PASS  PC-20 图像空响应：errorCode=PROVIDER_EMPTY_RESPONSE（不伪造成成功）  :: state=FAILED errorCode=PROVIDER_EMPTY_RESPONSE
+  PASS  PC-21 invoke 未知 op：明确报错，不做静默降级  :: state=FAILED errorCode=PROVIDER_UNKNOWN_MODE
+
+--- L3 真实端到端（仅当 MOS_PROVIDER_LIVE=1 且持有密钥） ---
+  SKIP  PC-L3 真实端到端未执行（未设置 MOS_PROVIDER_LIVE=1）—— 如实记录为 BLOCKED，不假称已验证
+
+  NOTE  L3 未执行：未设置 MOS_PROVIDER_LIVE=1。**未对任何真实供应商做过端到端验证**（BLOCKED：无凭据/未授权）。
+Provider 契约自检结果：26/26 通过（离线层；真实端到端按 BLOCKED 如实记录）

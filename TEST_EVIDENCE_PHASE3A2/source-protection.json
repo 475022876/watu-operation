@@ -1,0 +1,23 @@
+{
+  "at": "2026-10-28T09:18:35.751Z",
+  "baseline": "bbd365816bfef20f4c5425816a5e4b5675bc516c",
+  "branch": "feature/postgresql-phase3a2",
+  "applicationVersion": "0.1.6",
+  "changedRuntimeFiles": [
+    "lib/mos/pg/context.js",
+    "lib/mos/pg/database.js",
+    "lib/mos/pg/errors.js",
+    "lib/mos/pg/repository.js",
+    "lib/mos/workspace-ai-policy.js"
+  ],
+  "productionDataRead": false,
+  "productionSecretsRead": false,
+  "storageSwitched": false,
+  "dualWrite": false,
+  "verifiedUnchanged": [
+    "server.js",
+    "lib/mos/store.js",
+    "lib/mos/config.js"
+  ],
+  "note": "No production files hashed or copied; comparison uses tracked source only."
+}

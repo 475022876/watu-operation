@@ -1,0 +1,12 @@
+{
+  "baseline": "bbd3658",
+  "postgres": "postgres (PostgreSQL) 18.6",
+  "originalDraft": {
+    "status": "EXECUTED_FAIL",
+    "code": "42501",
+    "message": "permission denied for schema mos"
+  },
+  "partialSchemaRetained": false,
+  "implementedMigrations": "EXECUTED_PASS: separately verified complete foundation migrations",
+  "correction": "temporary CREATE permission for guarded function ownership transfer, then revoke; dedicated signed-context RLS replaces unsafe untrusted GUC assumptions; no PK/FK removed"
+}

@@ -1,12 +1,13 @@
 {
   "suite": "migration-probe",
-  "at": "2026-10-28T08:11:43.511Z",
+  "at": "2026-10-28T09:14:09.837Z",
   "version": "postgres (PostgreSQL) 18.6",
   "migrations": [
     "1782600000001-schema",
     "1782600000002-security",
     "1782600000003-policies",
-    "1782600000004-integrity"
+    "1782600000004-integrity",
+    "1782600000005-compatibility-integrity"
   ],
   "tables": 74,
   "ok": true

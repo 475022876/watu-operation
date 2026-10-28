@@ -1,0 +1,6 @@
+PASS T08 real Chrome 409 retains draft and blocks review lock
+PASS T08 real Chrome 500 retains draft and blocks review lock
+PASS T08 real Chrome offline retains draft and blocks review lock
+PASS T08 real Chrome switching tabs retains failed draft
+PASS T08 real Chrome retry commits latest draft
+{"total":5,"passed":5,"failed":0}
