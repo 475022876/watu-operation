@@ -54,6 +54,8 @@ async function render() {
   const cont = data.continueTask || null;
 
   let html = headHtml(ctx);
+  html += '<div class="card"><div class="card-head"><h2>任务总览</h2></div><div class="card-body row" style="gap:8px;flex-wrap:wrap">'
+    + [['today','今日'],['week','本周'],['month','本月'],['future','未来'],['overdue','逾期'],['urgent','紧急'],['reminders','提醒']].map(([v,l]) => '<button class="btn" data-work-period="'+v+'">'+l+'</button>').join('') + '</div></div>';
 
   /* 首屏横幅：三个数字来自本次接口返回，点击直达对应页面 */
   html += heroHtml(ctx, {
@@ -151,6 +153,7 @@ async function render() {
 
   hostEl.innerHTML = html;
 
+  hostEl.querySelectorAll('[data-work-period]').forEach(b => b.onclick = () => ctx.navigate('tasks', {period: b.dataset.workPeriod, mine:'1'}));
   hostEl.querySelectorAll('[data-go-reviews]').forEach((b) => b.addEventListener('click', () => ctx.navigate('my-reviews')));
   hostEl.querySelectorAll('[data-go-tasks]').forEach((b) => b.addEventListener('click', () => ctx.navigate('tasks')));
   hostEl.querySelectorAll('[data-go-publishing]').forEach((b) => b.addEventListener('click', () => ctx.navigate('publishing')));

@@ -1,0 +1,37 @@
+{
+  "suite": "navigation-workflow-browser",
+  "at": "2026-10-28T14:29:02.793Z",
+  "total": 7,
+  "passed": 7,
+  "failed": 0,
+  "results": [
+    {
+      "name": "six employee sections and task overview filters",
+      "ok": true
+    },
+    {
+      "name": "text studio is separate and has no review action",
+      "ok": true
+    },
+    {
+      "name": "text provider failure retains employee input",
+      "ok": true
+    },
+    {
+      "name": "all tasks includes periods requirements and creator",
+      "ok": true
+    },
+    {
+      "name": "task detail integrates delivery files and review feedback",
+      "ok": true
+    },
+    {
+      "name": "draft box shows existing draft and returns to task",
+      "ok": true
+    },
+    {
+      "name": "data acquisition retains topics and content calendar as inner navigation",
+      "ok": true
+    }
+  ]
+}

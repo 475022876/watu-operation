@@ -1,0 +1,51 @@
+{
+  "at": "2026-10-28T14:26:51.365Z",
+  "passed": 11,
+  "failed": 0,
+  "rows": [
+    {
+      "name": "create requirements future date urgent and eligible owner atomically",
+      "passed": true
+    },
+    {
+      "name": "cross-brand assignee refused",
+      "passed": true
+    },
+    {
+      "name": "revoked assignee refused",
+      "passed": true
+    },
+    {
+      "name": "invalid priority refused",
+      "passed": true
+    },
+    {
+      "name": "start after deadline refused",
+      "passed": true
+    },
+    {
+      "name": "stale row version refuses lost update",
+      "passed": true
+    },
+    {
+      "name": "task workspace denies cross-brand",
+      "passed": true
+    },
+    {
+      "name": "ordinary employee cannot remind",
+      "passed": true
+    },
+    {
+      "name": "manager reminder persisted with recipient no external messages",
+      "passed": true
+    },
+    {
+      "name": "today and future and urgent date filters",
+      "passed": true
+    },
+    {
+      "name": "write failure leaves requirements and row version unchanged",
+      "passed": true
+    }
+  ]
+}

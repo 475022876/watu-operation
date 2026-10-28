@@ -522,3 +522,8 @@ details.adv[open] > summary { margin-bottom: 6px; }
 @media (max-width: 900px) {
   .bar-row { grid-template-columns: 96px minmax(0, 1fr) 40px; }
 }
+
+/* Related work stays inside the employee navigation context. */
+.section-navigation { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 18px; padding:12px; border:1px solid var(--line,#dce3ee); border-radius:12px; background:var(--panel,#fff); }
+
+.task-progress-urgent td:nth-child(2){color:#b42318}.task-progress-completed td:nth-child(2){color:#15803d}.task-progress-pending td:nth-child(2){color:#946200}.task-progress-cancelled td:nth-child(2){color:#667085}.task-requirements{display:block;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.text-conversation{display:grid;gap:12px;margin:16px 0;max-height:55vh;overflow:auto}.text-message{padding:14px;border:1px solid #dce3ee;border-radius:10px}.text-message pre{white-space:pre-wrap;font:inherit;line-height:1.7}

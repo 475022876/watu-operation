@@ -21,7 +21,7 @@ export function fetchTasks(brand, filters) {
   const f = filters || {};
   return api.get(withBrand('/api/mos/tasks', brand, {
     q: f.q || '', status: f.status || '', platform: f.platform || '',
-    campaignId: f.campaignId || '', topicId: f.topicId || '',
+    campaignId: f.campaignId || '', topicId: f.topicId || '', period: f.period || '',
     mine: f.mine ? 1 : '', pageSize: f.pageSize || 200
   }));
 }
@@ -49,14 +49,14 @@ export function taskTable(items, opts) {
     return stateBlock('empty', { title: o.emptyTitle || '没有符合条件的任务', desc: o.emptyDesc }).html;
   }
   return '<div class="table-wrap"><table class="tbl"><thead><tr>'
-    + '<th>编号</th><th>标题</th><th>平台</th><th>风险</th><th>状态</th>'
+    + '<th>编号</th><th>标题</th><th>平台</th><th>风险</th><th>进度</th><th>发起人</th><th>要求</th>'
     + '<th>制作截止</th><th>计划发布</th><th>关联</th><th>负责人</th><th></th></tr></thead><tbody>'
-    + items.map((t) => '<tr>'
+    + items.map((t) => '<tr class="task-progress-' + (t.status === 'CANCELLED' ? 'cancelled' : t.status === 'COMPLETED' ? 'completed' : t.priority === 'URGENT' ? 'urgent' : 'pending') + '">'
       + '<td class="mono">' + esc(t.code) + '</td>'
       + '<td>' + esc(t.title) + ' ' + demoBadge(t.demo) + '</td>'
       + '<td>' + esc(platformLabel(t.platform)) + '</td>'
       + '<td>' + gradeBadge(t.riskGrade) + '</td>'
-      + '<td>' + statusBadge(t.status) + '</td>'
+      + '<td>' + statusBadge(t.status) + '</td><td>' + esc(t.createdByName || '—') + '</td><td><span class="task-requirements" title="' + esc(t.requirements || '') + '">' + esc(t.requirements || '—') + '</span></td>'
       + '<td class="mono small">' + esc(fmtDate(t.productionDue)) + '</td>'
       + '<td class="mono small">' + esc(fmtDate(t.plannedPublishAt)) + '</td>'
       + '<td>' + taskRelation(t) + '</td>'
@@ -78,6 +78,8 @@ export async function openTaskDetail(opts) {
   let data;
   try { data = await fetchTaskDetail(o.id); } catch (err) { toast(err.message, 'err'); return; }
   const t = data.task;
+  let workspace;
+  try { workspace = await api.get('/api/mos/tasks/' + t.id + '/workspace'); } catch (err) { toast('任务交付资料加载失败：' + err.message, 'err'); workspace = { files: [], feedback: [], reviews: [], reminders: [] }; }
   const mo = openModal({
     title: '任务 ' + t.code, okText: '关闭',
     body: '<dl class="kv"><dt>标题</dt><dd>' + esc(t.title) + ' ' + demoBadge(t.demo) + '</dd>'
@@ -92,11 +94,32 @@ export async function openTaskDetail(opts) {
       + '<dt>内容版本</dt><dd>' + (t.versionCount || 0) + ' 个</dd>'
       + '<dt>创建</dt><dd class="small muted">' + esc(fmtDateTime(t.createdAt)) + '</dd>'
       + '</dl>'
+      + '<h3>工作要求</h3><p data-notranslate style="white-space:pre-wrap">' + esc(t.requirements || '未填写') + '</p>'
+      + '<h3>任务文件</h3>' + (workspace.files.length ? workspace.files.map(a => '<p><a target="_blank" rel="noopener" href="' + esc(a.contentUrl) + '">' + esc(a.fileName) + '</a></p>').join('') : '<p class="muted">暂无任务文件</p>')
+      + '<h3>审核与反馈</h3>' + workspace.reviews.map(r => '<p>' + esc(r.type) + ' · ' + statusBadge(r.state) + '</p>').join('')
+      + workspace.feedback.map(r => '<p data-notranslate>' + esc(r.actorName || '') + ' · ' + esc(r.action) + '：' + esc(r.comment) + '</p>').join('')
+      + '<p class="muted">催办记录：' + workspace.reminders.length + '</p>'
+      + '<div class="row" style="gap:8px"><a class="btn btn-primary" href="#/content-editor?task=' + encodeURIComponent(t.id) + '" id="taskDelivery">进入任务制作与交付</a>' + (workspace.canRemind ? '<button class="btn" id="taskRemind">催办负责人</button>' : '') + '</div>'
+      + (t.can && t.can.edit ? '<button class="btn" id="taskEditBrief">编辑任务要求与时间</button>' : '')
       + '<div class="divider"></div>'
       + '<div class="row" style="flex-wrap:wrap">' + (t.allowedTransitions || []).map((s) =>
         '<button class="btn btn-sm" data-tt="' + esc(s) + '">迁移到 ' + esc(s) + '</button>').join('') + '</div>'
       + '<div class="hint">进入 IN_REVIEW / READY 需要 content.submit 权限；版本冻结与专业/发布审核在「Creative Studio → 内容编辑器」发起。</div>'
   });
+  mo.body.querySelector('#taskDelivery').onclick = () => mo.close();
+  const editBrief = mo.body.querySelector('#taskEditBrief');
+  if (editBrief) editBrief.onclick = () => {
+    mo.close();
+    openModal({ title: '编辑任务要求与时间', okText: '保存', body:
+      '<label class="field"><span>要求</span><textarea id="briefText" maxlength="12000">' + esc(t.requirements || '') + '</textarea></label>'
+      + '<label class="field"><span>开始时间</span><input id="briefStart" type="date" value="' + esc(t.startAt || '') + '"></label>'
+      + '<label class="field"><span>截止时间</span><input id="briefDue" type="date" value="' + esc(t.productionDue || '') + '"></label>'
+      + '<label class="field"><span>优先级</span><select id="briefPriority"><option value="NORMAL">普通</option><option value="URGENT"' + (t.priority === 'URGENT' ? ' selected' : '') + '>紧急</option></select></label>',
+      onOk: async b => { try { await api.put('/api/mos/tasks/' + t.id, {rowVersion:t.rowVersion,requirements:b.querySelector('#briefText').value,startAt:b.querySelector('#briefStart').value || null,productionDue:b.querySelector('#briefDue').value || null,priority:b.querySelector('#briefPriority').value}); toast('任务要求已保存','ok'); if(o.onChanged) await o.onChanged(); } catch(err) { toast(err.message,'err'); return false; } }
+    });
+  };
+  const remind = mo.body.querySelector('#taskRemind');
+  if (remind) remind.onclick = async () => { remind.disabled = true; try { const r = await api.post('/api/mos/tasks/' + t.id + '/remind', {}); toast(r.note, 'ok'); mo.close(); if(o.onChanged) o.onChanged(); } catch(err) { toast(err.message, 'err'); remind.disabled = false; } };
   mo.body.querySelectorAll('[data-tt]').forEach((b) => b.addEventListener('click', async () => {
     try {
       await api.post('/api/mos/tasks/' + o.id + '/transition', { status: b.dataset.tt });
@@ -121,6 +144,8 @@ export async function openCreateTaskDialog(opts) {
   const meta = o.meta || {};
   const d = (meta.dictionaries) || {};
 
+  let people = [];
+  try { people = (await api.get(withBrand('/api/mos/task-workspace/people', brand))).items || []; } catch (_) {}
   let campaigns = [];
   let topics = [];
   try {
@@ -152,6 +177,10 @@ export async function openCreateTaskDialog(opts) {
       + (pre.topicId ? '<span class="pill">Topic 预填</span>' : '')
       + '</div>'
       + '<label class="field"><span>标题</span><input id="ktT" type="text" value="' + esc(pre.title || '') + '"></label>'
+      + '<label class="field"><span>工作要求</span><textarea id="ktRequirements" maxlength="12000"></textarea></label>'
+      + '<label class="field"><span>负责人</span><select id="ktOwner"><option value="">我自己</option>' + people.map(u => '<option value="' + esc(u.id) + '">' + esc(u.displayName) + '</option>').join('') + '</select></label>'
+      + '<label class="field"><span>优先级</span><select id="ktPriority"><option value="NORMAL">普通</option><option value="URGENT">紧急</option></select></label>'
+      + '<label class="field"><span>计划开始</span><input id="ktStart" type="date"></label>'
       + '<label class="field"><span>平台</span><select id="ktP">' + dictOptions(d.platforms, pre.platform || 'LINKEDIN', null) + '</select></label>'
       + '<label class="field"><span>栏目</span><select id="ktC">' + dictOptions(d.pillars, pre.pillarCode || 'C01', null) + '</select></label>'
       + '<label class="field"><span>叙事</span><select id="ktN">' + dictOptions(d.narratives, pre.narrativeCode || 'N01', null) + '</select></label>'
@@ -166,6 +195,9 @@ export async function openCreateTaskDialog(opts) {
       try {
         await createTask(brand, {
           title: b.querySelector('#ktT').value,
+          requirements: b.querySelector('#ktRequirements').value,
+          ownerId: b.querySelector('#ktOwner').value || undefined,
+          priority: b.querySelector('#ktPriority').value, startAt: b.querySelector('#ktStart').value || null,
           platform: b.querySelector('#ktP').value,
           pillarCode: b.querySelector('#ktC').value,
           narrativeCode: b.querySelector('#ktN').value,

@@ -543,5 +543,23 @@ export default {
   "settings.retry": "Reload",
   "phase1.save_failed": "Save failed. Your draft is retained and has not been submitted for review.",
   "phase1.changed_during_save": "The draft changed during saving. Save again before submitting for review.",
-  "phase1.unsaved_refresh": "Save your draft or video script before refreshing."
+  "phase1.unsaved_refresh": "Save your draft or video script before refreshing.",
+  "数据工作台": "Data Workspace",
+  "系统扩展": "Extensions",
+  "进行项目": "Active Projects",
+  "数据获取": "Data & Research",
+  "运营数据": "Performance Data",
+  "文字制作区": "Text Studio",
+  "图片制作区": "Image Studio",
+  "视频制作区": "Video Studio",
+  "多平台发布": "Multi-platform Publishing",
+  "品牌规范": "Brand Standards",
+  "内容规范": "Content Standards",
+  "参考资料": "Reference Materials",
+  "AI管理": "AI Management",
+  "平台管理": "Platform Management",
+  "草稿箱": "Drafts",
+  "关联工作": "Related Work",
+  "集中查看当前品牌的内容草稿，继续编辑后按任务提交审核。": "View content drafts for the current brand. Continue editing and submit for review within the task.",
+  "当前没有内容草稿": "No content drafts yet"
 };

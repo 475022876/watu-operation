@@ -19,7 +19,7 @@ let f = { q: '', status: '', platform: '', mine: false, campaignId: '', topicId:
 let relation = { campaignTitle: '', topicTitle: '' };
 
 function head(ctx) {
-  return '<div class="page-head"><div class="crumb">计划中心 / 全部任务</div>'
+  return '<div class="page-head"><div class="crumb">工作台 / 全部任务</div>'
     + '<div class="ph-row"><h1>全部任务</h1>'
     + '<div class="ph-actions">'
     + '<button class="btn btn-sm" id="newAdhoc">新建临时任务（AD_HOC）</button>'
@@ -27,7 +27,7 @@ function head(ctx) {
     + '</div></div>'
     + '<div class="ph-desc">共享 ContentTask 综合视图：Campaign Deliverables、Master Topic Deliverables、'
     + 'Workspace 与本页使用**同一对象与同一 API**。任务可关联 0/1 Campaign 与 0/1 Topic；状态迁移由服务端强制。'
-    + '品牌上下文：' + esc(ctx.brand) + '。内容编辑器与版本冻结在「Creative Studio → 内容编辑器」交付。</div></div>';
+    + '品牌：' + esc(ctx.brand) + '。从任务详情继续内容制作、查看审核意见和交付结果。</div></div>';
 }
 
 function bodyEl() { return hostEl.querySelector('#mosBody') || hostEl; }
@@ -57,6 +57,7 @@ async function render() {
   const d = (ctx.meta && ctx.meta.dictionaries) || {};
 
   let html = relationContextHtml();
+  html += '<div class="filters"><select id="fperiod" aria-label="工作时间">' + [['','全部时间'],['today','今日'],['week','本周'],['month','本月'],['future','未来'],['overdue','逾期'],['urgent','紧急'],['reminders','提醒']].map(([v,l]) => '<option value="'+v+'"'+(f.period===v?' selected':'')+'>'+l+'</option>').join('')+'</select></div>';
   html += '<div class="filters">'
     + '<input type="search" id="fq" placeholder="编号/标题" value="' + esc(f.q) + '" aria-label="搜索任务">'
     + '<select id="fs" aria-label="状态"><option value="">全部状态</option>' + TASK_STATUSES.map((s) =>
@@ -74,6 +75,7 @@ async function render() {
   setBody(html);
 
   const go = () => {
+    f.period = hostEl.querySelector('#fperiod').value;
     f.q = hostEl.querySelector('#fq').value.trim();
     f.status = hostEl.querySelector('#fs').value;
     f.platform = hostEl.querySelector('#fp').value;
@@ -141,6 +143,8 @@ export default {
     f = { q: '', status: '', platform: '', mine: false, campaignId: '', topicId: '' };
     relation = {};
     await applyParams(ctx);
+    f.period = ctx.params.period || '';
+    f.mine = ctx.params.mine === '1';
     await render();
   },
   unmount() { hostEl = null; },

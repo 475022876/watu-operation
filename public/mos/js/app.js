@@ -4,6 +4,7 @@
  * 注意：Marketing Center **不得**命名为 Growth Center（00 §1 明文）。
  */
 import { api, ApiError } from './api.js';
+import { CENTERS, LABELS, RELATED, visibleRoute, primaryRoute } from './navigation.js';
 import { esc, initials, toast, openModal, openDrawer, confirmDialog, stateBlock, loadingHtml, integrationBarHtml } from './ui.js';
 import { initLocale, setLocale, getLocale, availableLocales, t, applyDom, ensureDomObserver } from './i18n.js';
 
@@ -16,24 +17,6 @@ export const store = {
   ready: false
 };
 
-const CENTERS = [
-  /* —— 五大主导航（V0.1.2 Phase A：按员工任务编排；模块 id 不变 → 深链接/收藏天然兼容） —— */
-  { id: 'workspace', label: '工作台', items: ['my-work', 'active-projects'] },
-  { id: 'planning-intel', label: '策划与情报', items: ['intelligence', 'topics', 'planning', 'campaigns', 'marketing-vfib', 'marketing-ucard'] },
-  { id: 'production', label: '内容制作', items: ['tasks', 'content-editor', 'visual-studio', 'video-workspace'] },
-  { id: 'publishing', label: '发布管理', items: ['publishing'] },
-  { id: 'analytics', label: '运营分析', items: ['analytics'] },
-  /* —— 两个辅助入口（次导航；「审批与管理」按权限可见，权限不足者不显示） —— */
-  { id: 'brand-assets', label: '品牌与素材', aux: true,
-    items: ['brand-overview', 'brand-guidelines', 'brand-library'] },
-  { id: 'review-admin', label: '审批与管理', aux: true,
-    requireRoles: ['P1', 'P3', 'PROFESSIONAL_REVIEWER', 'PUBLISHING_APPROVER', 'ASSET_REVIEWER', 'LIBRARY_FINAL_APPROVER'],
-    items: ['my-reviews', 'governance'] },
-  /* V0.1.4：系统接入（仅技术管理员可见；业务同事不需要理解供应商参数） */
-  { id: 'system-integration', label: '系统接入', aux: true,
-    requireRoles: ['MOS_ADMIN'],
-    items: ['settings'] }
-];
 
 const MODULES = [
   { id: 'my-work', label: '我的工作', icon: '☰', center: 'workspace', context: '我负责的任务、草稿与下一步动作',
@@ -96,6 +79,11 @@ const MODULES = [
     loader: () => import('./modules/settings.js') }
 ];
 
+for (const m of MODULES) if (LABELS[m.id]) m.label = LABELS[m.id];
+MODULES.push({ id: 'drafts', label: '草稿箱', icon: '▤', context: '当前品牌的内容草稿', loader: () => import('./modules/drafts.js') });
+MODULES.push({ id: 'platforms', label: '平台管理', icon: '⚙', context: '平台账号与渠道登记；不代表已经完成平台授权登录', loader: () => import('./modules/publishing.js') });
+MODULES.push({ id: 'text-studio', label: '文字制作区', icon: '✎', context: '文字对话、文章与提示词，不送审聊天记录', loader: () => import('./modules/text-studio.js') });
+MODULES.find(m => m.id === 'content-editor').label = '任务制作与交付';
 const els = {};
 let activeModule = null;
 let mounted = null;
@@ -395,7 +383,7 @@ function renderNav() {
 
 function highlightNav() {
   els.nav.querySelectorAll('[data-route]').forEach((b) => {
-    const on = activeModule && b.dataset.route === activeModule.id;
+    const on = activeModule && b.dataset.route === primaryRoute(activeModule.id);
     b.classList.toggle('active', on);
     if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
   });
@@ -434,6 +422,19 @@ async function remount() {
     const inst = imported.default || imported;
     mounted = inst;
     els.content.innerHTML = '';
+    const related = RELATED.find(ids => ids.includes(activeModule.id)) || [];
+    const roles = ((store.me && store.me.roles) || []).map(r => r.roleCode);
+    const links = related.filter(id => visibleRoute(id, roles));
+    if (links.length > 1) {
+      const nav = document.createElement('nav'); nav.className = 'section-navigation'; nav.setAttribute('aria-label', t('关联工作'));
+      for (const id of links) {
+        const m = MODULES.find(item => item.id === id); if (!m) continue;
+        const button = document.createElement('button'); button.type = 'button'; button.dataset.route = id; button.className = 'btn btn-sm' + (id === activeModule.id ? ' btn-primary' : '');
+        button.textContent = t(m.label); if (id === activeModule.id) button.setAttribute('aria-current', 'page');
+        button.onclick = () => navigate(id); nav.appendChild(button);
+      }
+      els.content.appendChild(nav);
+    }
     const host = document.createElement('div');
     els.content.appendChild(host);
     await inst.mount(host, {

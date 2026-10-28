@@ -1,0 +1,73 @@
+{
+  "suite": "h03",
+  "at": "2026-10-28T14:26:51.120Z",
+  "total": 16,
+  "passed": 16,
+  "failed": 0,
+  "results": [
+    {
+      "name": "T03 dispatch success is persisted before response",
+      "ok": true
+    },
+    {
+      "name": "T03 dispatch writeFileSync failure rolls back objects state audit and sequences",
+      "ok": true
+    },
+    {
+      "name": "T03 dispatch renameSync failure rolls back objects state audit and sequences",
+      "ok": true
+    },
+    {
+      "name": "T03 pool approval cannot succeed on disk failure",
+      "ok": true
+    },
+    {
+      "name": "T03 callback exception rolls back all in-memory mutation",
+      "ok": true
+    },
+    {
+      "name": "T03 async callback is rejected before invocation",
+      "ok": true
+    },
+    {
+      "name": "T03 nested transaction is rejected and rolled back",
+      "ok": true
+    },
+    {
+      "name": "T03 failed draft creation cannot advance task or create partial version",
+      "ok": true
+    },
+    {
+      "name": "T03 draft creation is committed before response",
+      "ok": true
+    },
+    {
+      "name": "T03 failed content edit preserves persisted draft and rowVersion",
+      "ok": true
+    },
+    {
+      "name": "T03 failed review lock preserves DRAFT task and empty review chain",
+      "ok": true
+    },
+    {
+      "name": "T03 successful edit is committed before response",
+      "ok": true
+    },
+    {
+      "name": "T07 stale reviewed version token is rejected before lock",
+      "ok": true
+    },
+    {
+      "name": "T07 review lock binds exact persisted content manifest",
+      "ok": true
+    },
+    {
+      "name": "T07 locked version cannot be overwritten",
+      "ok": true
+    },
+    {
+      "name": "T03 schema8 and Provider collections preserved",
+      "ok": true
+    }
+  ]
+}

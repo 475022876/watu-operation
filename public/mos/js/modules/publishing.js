@@ -33,7 +33,8 @@ function renderError(err, retry) {
 }
 
 function head() {
-  return '<div class="page-head"><div class="crumb">发布中心 / 发布管理</div>'
+  if (ctxRef.module.id === 'platforms') return '<div class="page-head"><div class="crumb">系统扩展 / 平台管理</div><h1>平台管理</h1><div class="ph-desc">按品牌登记平台账号，同一平台可管理多个账号。当前为人工发布渠道；OAuth登录与自动发布尚未接入，不在此保存账号密码。</div></div>';
+  return '<div class="page-head"><div class="crumb">发布管理 / 多平台发布</div>'
     + '<div class="ph-row"><h1>发布中心</h1>'
     + '<div class="ph-actions"><button class="btn btn-sm" id="pbRefresh">刷新</button></div></div>'
     + '<div class="ph-desc"><b>系统不会自动发布。</b>到期只会提示，'
@@ -79,7 +80,7 @@ async function loadCalendar() {
 
 function paint() {
   let h = '<div class="tabs">'
-    + [['calendar', '日历'], ['queue', '发布队列'], ['channels', '渠道登记'], ['archive', 'Published Archive']]
+    + (ctxRef.module.id === 'platforms' ? [['channels', '平台账号']] : [['calendar', '日历'], ['queue', '发布队列'], ['channels', '渠道登记'], ['archive', 'Published Archive']])
       .map(([k, l]) => '<button data-tab="' + k + '" class="' + (tab === k ? 'on' : '') + '">' + esc(l) + '</button>').join('')
     + '</div>';
   h += '<div class="filters">'
@@ -496,7 +497,7 @@ function editChannel(id) {
 }
 
 export default {
-  async mount(host, ctx) { ctxRef = ctx; hostEl = host; await render(); },
+  async mount(host, ctx) { ctxRef = ctx; hostEl = host; tab = ctx.module.id === 'platforms' ? 'channels' : (['calendar', 'queue', 'channels', 'archive'].includes(ctx.params.tab) ? ctx.params.tab : 'calendar'); await render(); },
   unmount() { hostEl = null; },
   hasUnsaved() { return false; }
 };
