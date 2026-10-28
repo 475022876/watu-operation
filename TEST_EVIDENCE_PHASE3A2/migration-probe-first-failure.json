@@ -1,0 +1,8 @@
+{
+  "suite": "migration-probe",
+  "at": "2026-10-28T08:10:15.990Z",
+  "version": "postgres (PostgreSQL) 18.6",
+  "ok": false,
+  "errorCode": "42P06",
+  "error": "schema \"mos\" already exists"
+}

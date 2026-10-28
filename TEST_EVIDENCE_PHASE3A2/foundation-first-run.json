@@ -1,0 +1,771 @@
+{
+  "suite": "phase3a2-pg18-foundation",
+  "at": "2026-10-28T08:24:38.282Z",
+  "postgres": "postgres (PostgreSQL) 18.6",
+  "scope": "REAL isolated loopback PostgreSQL, synthetic fixtures only; no live providers or production services",
+  "total": 76,
+  "passed": 75,
+  "failed": 1,
+  "results": [
+    {
+      "group": "schema",
+      "name": "PG18 loopback isolated cluster",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "all four migrations execute in real PostgreSQL",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "74 real business tables and separate migration metadata",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "second migration run is no-op",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "181 foreign keys retained",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "commit persists and every SQL uses same backend",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "callback failure rolls back every write",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "duplicate PK rejected and transaction remains atomic",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "duplicate global business code rejected",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "cross-brand composite task FK rejected",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "invalid task state rejected",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "negative budget and invalid period rejected",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "content cannot be inserted already frozen or approved",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "VFIB cannot read UCARD rows",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "UCARD cannot read VFIB rows",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "VFIB cannot write UCARD rows through raw SQL",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "forged plain JS context rejected before connection use",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "request body actorId cannot override trusted identity resolver",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "no verified session cannot mint context",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "raw app connection with no context sees zero brand rows",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "plain actor/brand GUC spoof cannot mint trusted DB claims",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "signed context cannot be tampered with",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "signed context replay in a different transaction rejected",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "expired correctly signed synthetic claims rejected",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "pool max1 reuses backend and isolates brand context",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "session-level GUC contamination is cleared before release",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "runtime roles are non-owner and NOBYPASSRLS",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "row_security=off does not bypass RLS",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "cannot SET ROLE owner",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "cannot modify schema",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "cannot create public schema objects",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "cannot read credential or identity table",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "cannot read protected context key",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "cannot read permission revocation details",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "dedicated identity path returns only current nonsecret principal",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "ordinary user denied global config accessor",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "admin global config accessor excludes secret columns",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "global revocation applies without exposing other brand invalidations",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "permission revocation invalidates an already issued JS context",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "account deactivation invalidates access",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "worker role has same scoped access without bypass",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "valid frozen manifest created using existing JS canonical algorithm",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "frozen body cannot be overwritten",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "frozen version cannot be reopened as draft",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "frozen reference insertion is rejected",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "manifest digest cannot be faked during freeze",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "review cannot bind wrong manifest hash",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "review target and policy cannot change after submission",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "creator cannot approve own review case at SQL boundary",
+      "status": "EXECUTED_FAIL",
+      "error": "PG_ACCESS_DENIED",
+      "code": "PG_ACCESS_DENIED"
+    },
+    {
+      "group": "schema",
+      "name": "review_decisions owner UPDATE denied by immutable trigger",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "review_decisions owner DELETE denied by immutable trigger",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "review_decisions ordinary DELETE denied by grant",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "audit_events owner UPDATE denied by immutable trigger",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "audit_events owner DELETE denied by immutable trigger",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "audit_events ordinary DELETE denied by grant",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "ordinary actor cannot read audit history",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "admin can read scoped audit history",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "audit actor cannot be forged",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "source evidence RLS follows authorized report links",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "cannot forge a report link to another brand evidence",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "evidence ingestion cannot target another brand report",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "runtime cannot create global evidence directly",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "optimistic concurrent version conflict is detected",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "actual PostgreSQL deadlock gets bounded safe retry",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "statement timeout rolls back and releases connection",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "wall deadline closes unit of work and late SQL is blocked",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "external-operation boundary rejects execution inside transaction",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "outside-transaction operation remains available",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "backend termination rolls back transaction with no JSON fallback",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "pool is reusable and all connections are released",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "invalid SQL parameter error never leaks sensitive fixture to logs",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "repository table and mutable column identifiers are allowlisted",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "security",
+      "name": "no default database or elevated runtime role accepted",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "failed migration atomically restores empty schema and can retry",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "schema",
+      "name": "runtime cannot mutate migration version register",
+      "status": "EXECUTED_PASS"
+    },
+    {
+      "group": "transaction",
+      "name": "PostgreSQL unavailable fails closed with generic error",
+      "status": "EXECUTED_PASS"
+    }
+  ],
+  "events": [
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_UNAVAILABLE",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_UNIQUE_CONFLICT",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_UNIQUE_CONFLICT",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_REFERENCE_CONFLICT",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_INVALID_STATE",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_INVALID_STATE",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_IMMUTABLE_RECORD",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_IMMUTABLE_RECORD",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_IMMUTABLE_RECORD",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_INVALID_STATE",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_VERSION_CONFLICT",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_DEADLOCK",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 1,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_TIMEOUT",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_TRANSACTION_DEADLINE",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "EXTERNAL_IO_IN_TRANSACTION",
+      "attempt": 0
+    },
+    {
+      "event": "active_connection_error",
+      "code": "PG_UNAVAILABLE"
+    },
+    {
+      "event": "active_connection_error",
+      "code": "PG_UNAVAILABLE"
+    },
+    {
+      "event": "active_connection_error",
+      "code": "PG_UNAVAILABLE"
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_UNAVAILABLE",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_committed",
+      "code": "OK",
+      "attempt": 0,
+      "contextCleared": true
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_UNAVAILABLE",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_REPOSITORY_FIELD_NOT_ALLOWED",
+      "attempt": 0
+    },
+    {
+      "event": "transaction_failed",
+      "code": "PG_ACCESS_DENIED",
+      "attempt": 0
+    }
+  ]
+}

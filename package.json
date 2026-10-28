@@ -2,7 +2,7 @@
   "name": "vfib-marketing-os",
   "version": "0.1.6",
   "private": true,
-  "description": "VFIB 智能品牌传播与市场运营中台（Marketing OS V0.1）—— 零第三方依赖 Node 应用",
+  "description": "VFIB Marketing OS V0.1.6 — JSON business store with opt-in isolated PostgreSQL foundation",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,11 +10,18 @@
     "test:unit": "node tools/mos-unit-test.js",
     "test:smoke": "node tools/mos-smoke-test.js",
     "test:e2e": "node tools/mos-e2e-test.js",
-    "test:ui": "node tools/mos-ui-check.js"
+    "test:ui": "node tools/mos-ui-check.js",
+    "test:pg": "node tools/phase3a2/run-foundation.cjs",
+    "test:h05": "node tools/phase3a2/h05-version-reference-test.cjs"
   },
   "engines": {
     "node": ">=18"
   },
-  "dependencies": {},
-  "license": "UNLICENSED"
+  "dependencies": {
+    "pg": "8.23.1"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "node-pg-migrate": "9.0.0"
+  }
 }
