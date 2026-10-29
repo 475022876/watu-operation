@@ -26,6 +26,6 @@ export function visibleRoute(id, roles) {
   return true;
 }
 export function primaryRoute(id) {
-  return ({ 'my-reviews': 'tasks', governance: 'tasks', topics: 'intelligence', planning: 'intelligence',
+  return ({ 'task-detail':'tasks', 'my-reviews': 'tasks', governance: 'tasks', topics: 'intelligence', planning: 'intelligence',
     'marketing-vfib': 'campaigns', 'marketing-ucard': 'campaigns' })[id] || id;
 }

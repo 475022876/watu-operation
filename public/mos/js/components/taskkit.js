@@ -20,9 +20,9 @@ export const TASK_STATUSES = ['IDEA', 'PLANNED', 'IN_PRODUCTION', 'IN_REVIEW', '
 export function fetchTasks(brand, filters) {
   const f = filters || {};
   return api.get(withBrand('/api/mos/tasks', brand, {
-    q: f.q || '', status: f.status || '', platform: f.platform || '',
+    q: f.q || '', status: f.status || '', workState:f.workState || '', platform: f.platform || '',
     campaignId: f.campaignId || '', topicId: f.topicId || '', period: f.period || '',
-    mine: f.mine ? 1 : '', pageSize: f.pageSize || 200
+    mine: f.mine ? 1 : '', page: f.page || 1, pageSize: f.pageSize || 200
   }));
 }
 
@@ -48,6 +48,7 @@ export function taskTable(items, opts) {
   if (!items || !items.length) {
     return stateBlock('empty', { title: o.emptyTitle || '没有符合条件的任务', desc: o.emptyDesc }).html;
   }
+  if(o.compact) return '<div class="table-wrap"><table class="tbl employee-task-table"><thead><tr><th>任务与要求</th><th>负责人</th><th>截止时间</th><th>当前进度</th><th>下一步</th></tr></thead><tbody>' + items.map(t=>'<tr><td><strong data-notranslate>'+esc(t.title)+'</strong><p class="muted small" data-notranslate>'+esc((t.requirements || '查看任务要求').slice(0,100))+'</p></td><td>'+esc(t.ownerName)+'<p class="small muted">由 '+esc(t.createdByName || '—')+' 发起</p></td><td>'+esc(fmtDate(t.productionDue))+(t.priority==='URGENT'?'<p class="delivery-error">紧急</p>':'')+'</td><td>'+statusBadge(t.workState || t.status)+'</td><td><button class="btn btn-sm btn-primary" data-open-task="'+esc(t.id)+'">'+({'REVISION_REQUIRED':'按反馈修改','APPROVED':'查看批准作品','IN_REVIEW':'查看审核进度','READY':'查看交付作品','COMPLETED':'查看结果','CANCELLED':'查看任务'}[t.workState || t.status] || '继续处理')+'</button></td></tr>').join('')+'</tbody></table></div>';
   return '<div class="table-wrap"><table class="tbl"><thead><tr>'
     + '<th>编号</th><th>标题</th><th>平台</th><th>风险</th><th>进度</th><th>发起人</th><th>要求</th>'
     + '<th>制作截止</th><th>计划发布</th><th>关联</th><th>负责人</th><th></th></tr></thead><tbody>'
@@ -66,9 +67,9 @@ export function taskTable(items, opts) {
 }
 
 /** 绑定任务表里的「详情」按钮 */
-export function bindTaskRows(el, onChanged) {
+export function bindTaskRows(el, onChanged, navigate) {
   el.querySelectorAll('[data-open-task]').forEach((b) =>
-    b.addEventListener('click', () => openTaskDetail({ id: b.dataset.openTask, onChanged })));
+    b.addEventListener('click', () => navigate ? navigate('task-detail',{task:b.dataset.openTask}) : openTaskDetail({ id: b.dataset.openTask, onChanged })));
 }
 
 /* ---------------- 任务详情 ---------------- */
@@ -170,7 +171,7 @@ export async function openCreateTaskDialog(opts) {
 
   openModal({
     title: o.title || '新建内容任务',
-    okText: o.okText || '创建（IDEA）',
+    okText: o.okText || '创建任务',
     body: '<div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:6px">'
       + '<span class="pill">品牌预填 ' + esc(brand || '—') + '</span>'
       + (pre.campaignId ? '<span class="pill">Campaign 预填</span>' : '')
@@ -181,6 +182,8 @@ export async function openCreateTaskDialog(opts) {
       + '<label class="field"><span>负责人</span><select id="ktOwner"><option value="">我自己</option>' + people.map(u => '<option value="' + esc(u.id) + '">' + esc(u.displayName) + '</option>').join('') + '</select></label>'
       + '<label class="field"><span>优先级</span><select id="ktPriority"><option value="NORMAL">普通</option><option value="URGENT">紧急</option></select></label>'
       + '<label class="field"><span>计划开始</span><input id="ktStart" type="date"></label>'
+      + '<label class="field"><span>截止时间</span><input id="ktD" type="date"></label>'
+      + '<details class="delivery-details"><summary>发布要求与高级选项</summary>'
       + '<label class="field"><span>平台</span><select id="ktP">' + dictOptions(d.platforms, pre.platform || 'LINKEDIN', null) + '</select></label>'
       + '<label class="field"><span>栏目</span><select id="ktC">' + dictOptions(d.pillars, pre.pillarCode || 'C01', null) + '</select></label>'
       + '<label class="field"><span>叙事</span><select id="ktN">' + dictOptions(d.narratives, pre.narrativeCode || 'N01', null) + '</select></label>'
@@ -189,11 +192,10 @@ export async function openCreateTaskDialog(opts) {
       + '<option value="">不关联</option>' + campOpts + '</select></label>'
       + '<label class="field"><span>关联 Topic（可选）</span><select id="ktTop">'
       + '<option value="">不关联</option>' + topicOpts + '</select></label>'
-      + '<label class="field"><span>制作截止</span><input id="ktD" type="date"></label>'
-      + '<label class="field"><span>计划发布</span><input id="ktPub" type="date"></label>',
+      + '<label class="field"><span>计划发布</span><input id="ktPub" type="date"></label></details>',
     onOk: async (b) => {
       try {
-        await createTask(brand, {
+        const created = await createTask(brand, {
           title: b.querySelector('#ktT').value,
           requirements: b.querySelector('#ktRequirements').value,
           ownerId: b.querySelector('#ktOwner').value || undefined,
@@ -208,7 +210,7 @@ export async function openCreateTaskDialog(opts) {
           plannedPublishAt: b.querySelector('#ktPub').value || null
         });
         toast('任务已创建', 'ok');
-        if (o.onCreated) await o.onCreated();
+        if (o.onCreated) await o.onCreated(created.task);
       } catch (err) { toast(err.message, 'err'); return false; }
     }
   });

@@ -1,0 +1,14 @@
+PASS new task form prioritizes requirements owner and deadline
+PASS text creation uses local MOCK provider and can select result
+PASS failed save 409 retains work and prevents review submission
+PASS failed save 500 retains work and prevents review submission
+PASS failed save offline retains work and prevents review submission
+PASS edits during save do not submit an older body
+PASS task attachment uploads and joins the work
+PASS retry saves latest work and submits frozen version without self approval
+PASS authorized independent reviewer returns work with feedback
+PASS task list highlights work needing revision and opens the right task
+PASS creator revises returned work and resubmits a new bound version
+PASS independent approval completes approved work in task context
+PASS mobile task work surface has no page overflow
+{"total":13,"passed":13,"failed":0}

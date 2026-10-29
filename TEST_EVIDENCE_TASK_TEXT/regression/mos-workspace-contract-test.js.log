@@ -1,0 +1,50 @@
+企业资料库适配层契约自检（A-06）
+
+--- L1 契约常量与纯函数（与 Workspace V1.1.7 源码对齐） ---
+  PASS  WC-01 canonicalString：v1 + 7 段、method 大写、以 \n 连接、末尾无换行  :: "v1\nsvc_1\nGET\n/api/x\n1700000000\nnonce1\nHASH"
+  PASS  WC-02 无体请求的 bodyHash = sha256('') 的固定值（契约 §1.1 第 1 点）  :: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  PASS  WC-03 pathname 含 query 时**直接报错**（不静默截断，避免误以为 query 已签）
+  PASS  WC-04 bodyHash 对原始字符串：'' vs '{}' 不同（禁止重新序列化）  :: h(empty)=e3b0c44298fc
+  PASS  WC-05 错误码表覆盖契约 §3（服务/票据/业务三层的代表码）且 HTTP 状态一致  :: codes=73
+  PASS  WC-06 端点数与路径前缀与源码注册表一致（含文档未列出的 skills）  :: endpoints=12
+  PASS  WC-07 服务账户 scope 无 admission.final.decision；ticket scope 有（双重闭合第一重）  :: serviceScopes=8 ticketScopes=8
+  PASS  WC-08 serviceGrantable 剔除 final 范围（服务账户请求也拿不到）  :: ["assets.read"]
+  PASS  WC-09 封套校验：失败响应 data 必须为 null，缺键即判非法
+  PASS  WC-10 封套解析：错误码分层与可重试判定（429→service/retryable，404→business/不可重试）  :: layer=service retryable=true
+
+--- L2 Ed25519 签名互通（与 Workspace 服务端同构验签） ---
+  PASS  WC-11 本适配器签名可被服务端同构 verify(null, canonical, pub, sig) 通过  :: nonce.len=24 sig.len=88
+  PASS  WC-12 篡改检测：任一要素变化（body / method / pathname / nonce）即验签失败
+  PASS  WC-13 nonce 默认 12 字节随机 hex（24 字符）且两次调用不同
+
+--- fail closed：未配置凭据时零出站、恒 INTEGRATION_NOT_CONFIGURED ---
+  PASS  WC-14 未配置时 status().configured=false 且如实列出缺失项  :: missing=["keyId","privateKey"]
+  PASS  WC-15 未配置时所有业务方法返回 INTEGRATION_NOT_CONFIGURED，且**桩零命中**（真的没出站）  :: state=INTEGRATION_NOT_CONFIGURED stubHits=0
+  PASS  WC-16 私钥非法（解析失败）：configured=false、如实报错、零出站  :: err=私钥 PEM 解析失败：error:1E08010C:DECODER routi hits=0
+
+--- L3 本地桩 Workspace（真实验签 + 防重放 + 统一封套） ---
+  PASS  WC-17 已配置：status().configured=true；health 通则 200 封套（桩如实披露 ticketKeySource）  :: configured=true health=HEALTHY policy=1.0
+  PASS  WC-18 请求头齐全：key-id / timestamp / nonce / signature / ticket / correlation-id  :: headers=10
+  PASS  WC-19 GET 带 query：**query 不参与签名**（服务端仅按 pathname 验签即通过），并原样回带 version  :: version=VFIB-ASSET-2026-0001-V1.0 fileAccess=not-exposed
+  PASS  WC-20 410 ASSET_GONE：errorLayer=business、不可重试（营销侧据此清缓存）  :: code=ASSET_GONE layer=business
+  PASS  WC-21 404 NOT_FOUND：与「无权」同响应、不可探测，且不可重试  :: code=NOT_FOUND retryable=false
+  PASS  WC-22 409 FINAL_APPROVAL_REQUIRED：标记为可重试（审批完成后可重推），状态不改写  :: code=FINAL_APPROVAL_REQUIRED retryable=true
+  PASS  WC-23 检索正文边界：snippet=null + contentWithheld=true + withholdReason，且整篇外送被禁  :: withheld=true
+  PASS  WC-24 变更事件流：游标语义为 seq、下一游标与保留上限提示一致  :: nextCursor=0
+  PASS  WC-25 签发服务票据：本地即剔除 admission.final.decision（双重闭合第一重，可审计）  :: granted=["assets.read"] stripped=["admission.final.decision"]
+  PASS  WC-26 结构性边界：服务侧 finalDecision() **恒拒绝**（最终审批只能本人会话完成）  :: state=FINAL_DECISION_REQUIRES_SESSION
+  PASS  WC-27 能力声明不夸大：服务账户无最终审批权、不提供 Published Content 归档  :: finalByService=false
+  PASS  WC-28 密钥与票据不外泄：status/capabilities/响应序列化不含私钥 PEM 或票据原文  :: blob.len=1149
+  PASS  WC-29 nonce 每次唯一：连续两次调用均不被桩判为 NONCE_REPLAY  :: n1=751a47b7 n2=22beb032
+
+--- L4 与 Workspace V1.1.7 实取源码的逐项对齐（2026-10-13 修正项） ---
+  PASS  WC-31 事件类型表与 Workspace events.js 一致（下划线 service_account.changed + 含 skill.version.changed）  :: policy.version.changed,admission.state.changed,asset.revoked,asset.deprecated,skill.version.changed,permission.changed,service_account.changed
+  PASS  WC-32 补齐 BAD_ADMISSION_INPUT/USER_NOT_FOUND 后可正确分层（不再落 unknown）  :: l1=request l2=request
+  PASS  WC-33 准入入参缺必填字段 → BAD_ADMISSION_INPUT + missing[]，且**零出站**  :: missing=idempotencyKey|libraryPrimaryCategory|classification|licenseStatus hits=0
+  PASS  WC-34 字段齐备：申请放行，请求体含 libraryPrimaryCategory/classification/licenseStatus，且 originSystem 不由调用方指定  :: state=OK body={"idempotencyKey":"idem_1","originObjectId":"wa_1","brandId":"VFIB","libraryPrimaryCategory":"02","classification":"internal","licenseStatus":"cleared","title":
+  PASS  WC-35 knowledgeSearch 以 topK 传参（limit 作为兼容别名映射到 topK）  :: body={"query":"q","brandId":"VFIB","topK":7}
+  PASS  WC-36 assetsSearch 支持 offset 与 marketingCategory 过滤  :: body={"query":"q","brandId":"VFIB","limit":10,"offset":20,"marketingCategory":"A03"}
+  PASS  WC-30 签名不匹配：401 BAD_SIGNATURE → errorLayer=service、不可重试（不掩盖为业务错误）  :: code=BAD_SIGNATURE layer=service
+
+  NOTE  本套件为**离线契约自检**：桩服务按契约逐条复刻验签/防重放/封套，证明适配器请求形成与错误码映射正确；**未与真实 Enterprise Workspace 发生任何联调**（真实联调 NOT_VERIFIED）。
+资料库契约自检结果：36/36 通过

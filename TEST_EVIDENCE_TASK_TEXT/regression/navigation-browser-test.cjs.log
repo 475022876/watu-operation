@@ -1,0 +1,8 @@
+PASS six employee sections and task overview filters
+PASS text studio is separate and has no review action
+PASS text provider failure retains employee input
+PASS all tasks includes periods requirements and creator
+PASS task detail integrates delivery files and review feedback
+PASS draft box shows existing draft and returns to task
+PASS data acquisition retains topics and content calendar as inner navigation
+{"total":7,"passed":7,"failed":0}

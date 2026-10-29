@@ -1,0 +1,14 @@
+PASS create requirements future date urgent and eligible owner atomically
+PASS cross-brand assignee refused
+PASS revoked assignee refused
+PASS invalid priority refused
+PASS start after deadline refused
+PASS stale row version refuses lost update
+PASS task workspace denies cross-brand
+PASS ordinary employee cannot remind
+PASS manager reminder persisted with recipient no external messages
+PASS today and future and urgent date filters
+PASS write failure leaves requirements and row version unchanged
+PASS latest work view shows revision feedback instead of a generic production status
+PASS task list can filter tasks needing revision
+PASS terminal task status takes precedence over historical approval

@@ -1,0 +1,38 @@
+{
+  "suite": "task-text-complete-flow",
+  "at": "2026-10-29T08:53:14.593Z",
+  "total": 7,
+  "passed": 6,
+  "failed": 1,
+  "results": [
+    {
+      "name": "new task form prioritizes requirements owner and deadline",
+      "ok": true
+    },
+    {
+      "name": "text creation uses local MOCK provider and can select result",
+      "ok": true
+    },
+    {
+      "name": "failed save 409 retains work and prevents review submission",
+      "ok": true
+    },
+    {
+      "name": "failed save 500 retains work and prevents review submission",
+      "ok": true
+    },
+    {
+      "name": "failed save offline retains work and prevents review submission",
+      "ok": true
+    },
+    {
+      "name": "retry saves latest work and submits frozen version without self approval",
+      "ok": true
+    },
+    {
+      "name": "browser harness",
+      "ok": false,
+      "error": "Browser condition timed out: !!document.querySelector('[data-dec=\"REQUEST_REVISION\"]')"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "at": "2026-10-29T09:02:54.202Z",
+  "scope": "isolated local services, real Chrome, local MOCK text provider, no paid/live external services",
+  "passed": 251,
+  "failed": 0,
+  "rows": [
+    {
+      "script": "task-text-browser-test.cjs",
+      "exitCode": 0,
+      "passed": 13,
+      "failed": 0,
+      "durationMs": 6649,
+      "evidenceFresh": true
+    },
+    {
+      "script": "navigation-browser-test.cjs",
+      "exitCode": 0,
+      "passed": 7,
+      "failed": 0,
+      "durationMs": 3318,
+      "evidenceFresh": true
+    },
+    {
+      "script": "navigation-workflow-test.cjs",
+      "exitCode": 0,
+      "passed": 14,
+      "failed": 0,
+      "durationMs": 273,
+      "evidenceFresh": true
+    },
+    {
+      "script": "mos-unit-test.js",
+      "exitCode": 0,
+      "passed": 76,
+      "failed": 0,
+      "durationMs": 131,
+      "evidenceFresh": true
+    },
+    {
+      "script": "mos-e2e-test.js",
+      "exitCode": 0,
+      "passed": 48,
+      "failed": 0,
+      "durationMs": 4429,
+      "evidenceFresh": true
+    },
+    {
+      "script": "mos-i18n-check.js",
+      "exitCode": 0,
+      "passed": 21,
+      "failed": 0,
+      "durationMs": 103,
+      "evidenceFresh": true
+    },
+    {
+      "script": "mos-workspace-contract-test.js",
+      "exitCode": 0,
+      "passed": 36,
+      "failed": 0,
+      "durationMs": 293,
+      "evidenceFresh": true
+    },
+    {
+      "script": "phase1/idempotency-test.js",
+      "exitCode": 0,
+      "passed": 9,
+      "failed": 0,
+      "durationMs": 289,
+      "evidenceFresh": true
+    },
+    {
+      "script": "phase1/brand-permission-test.js",
+      "exitCode": 0,
+      "passed": 6,
+      "failed": 0,
+      "durationMs": 394,
+      "evidenceFresh": true
+    },
+    {
+      "script": "phase1/transaction-test.js",
+      "exitCode": 0,
+      "passed": 16,
+      "failed": 0,
+      "durationMs": 383,
+      "evidenceFresh": true
+    },
+    {
+      "script": "phase1/browser-draft-test.js",
+      "exitCode": 0,
+      "passed": 5,
+      "failed": 0,
+      "durationMs": 2848,
+      "evidenceFresh": true
+    }
+  ]
+}

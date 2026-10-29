@@ -1,0 +1,63 @@
+{
+  "at": "2026-10-29T09:02:45.292Z",
+  "passed": 14,
+  "failed": 0,
+  "rows": [
+    {
+      "name": "create requirements future date urgent and eligible owner atomically",
+      "passed": true
+    },
+    {
+      "name": "cross-brand assignee refused",
+      "passed": true
+    },
+    {
+      "name": "revoked assignee refused",
+      "passed": true
+    },
+    {
+      "name": "invalid priority refused",
+      "passed": true
+    },
+    {
+      "name": "start after deadline refused",
+      "passed": true
+    },
+    {
+      "name": "stale row version refuses lost update",
+      "passed": true
+    },
+    {
+      "name": "task workspace denies cross-brand",
+      "passed": true
+    },
+    {
+      "name": "ordinary employee cannot remind",
+      "passed": true
+    },
+    {
+      "name": "manager reminder persisted with recipient no external messages",
+      "passed": true
+    },
+    {
+      "name": "today and future and urgent date filters",
+      "passed": true
+    },
+    {
+      "name": "write failure leaves requirements and row version unchanged",
+      "passed": true
+    },
+    {
+      "name": "latest work view shows revision feedback instead of a generic production status",
+      "passed": true
+    },
+    {
+      "name": "task list can filter tasks needing revision",
+      "passed": true
+    },
+    {
+      "name": "terminal task status takes precedence over historical approval",
+      "passed": true
+    }
+  ]
+}

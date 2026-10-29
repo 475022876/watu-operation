@@ -77,8 +77,8 @@ export async function request(path, options) {
     const headers = applyCsrf(method, Object.assign({}, opts.headers || {}));
     const init = { method, headers, credentials: 'same-origin' };
     if (opts.body !== undefined) {
-      headers['Content-Type'] = 'application/json';
-      init.body = JSON.stringify(opts.body);
+      headers['Content-Type'] = opts.raw ? 'application/octet-stream' : 'application/json';
+      init.body = opts.raw ? opts.body : JSON.stringify(opts.body);
     }
     return fetch(path, init);
   };
@@ -102,6 +102,7 @@ export async function request(path, options) {
 }
 
 export const api = {
+  upload: (p, file) => request(p, {method:'POST',body:file,raw:true}),
   get: (p, o) => request(p, Object.assign({ method: 'GET' }, o)),
   post: (p, body, o) => request(p, Object.assign({ method: 'POST', body: body || {} }, o)),
   put: (p, body, o) => request(p, Object.assign({ method: 'PUT', body: body || {} }, o)),

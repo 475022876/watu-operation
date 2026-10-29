@@ -16,7 +16,7 @@ export default {
           + (data.items || []).map(v => '<tr><td data-notranslate>' + esc(v.title || v.code || v.id) + '</td><td data-notranslate>' + esc(v.code || v.id) + '</td><td>' + esc(fmtDateTime(v.createdAt)) + '</td><td><button class="btn btn-sm" data-draft-task="' + esc(v.contentTaskId) + '">' + esc(t('继续编辑')) + '</button></td></tr>').join('')
           + '</tbody></table></div>' + (!(data.items || []).length ? '<p class="muted">' + esc(t('当前没有内容草稿')) + '</p>' : '')
           + '<div class="ph-actions"><button class="btn" id="draftPrev" ' + (page === 1 ? 'disabled' : '') + '>' + esc(t('上一页')) + '</button><span>' + page + ' / ' + Math.max(1, Math.ceil(data.total / 30)) + '</span><button class="btn" id="draftNext" ' + (page * 30 >= data.total ? 'disabled' : '') + '>' + esc(t('下一页')) + '</button></div></div>';
-        host.querySelectorAll('[data-draft-task]').forEach(b => b.onclick = () => ctx.navigate('content-editor', { task: b.dataset.draftTask }));
+        host.querySelectorAll('[data-draft-task]').forEach(b => b.onclick = () => ctx.navigate('task-detail', { task: b.dataset.draftTask }));
         host.querySelector('#draftPrev').onclick = () => { page--; render(); };
         host.querySelector('#draftNext').onclick = () => { page++; render(); };
       } catch (err) {

@@ -15,19 +15,17 @@ import {
 } from '../components/taskkit.js';
 
 let ctxRef = null; let hostEl = null;
-let f = { q: '', status: '', platform: '', mine: false, campaignId: '', topicId: '' };
+let f = { page:1,q: '', status: '', platform: '', mine: false, campaignId: '', topicId: '' };
 let relation = { campaignTitle: '', topicTitle: '' };
 
 function head(ctx) {
   return '<div class="page-head"><div class="crumb">工作台 / 全部任务</div>'
     + '<div class="ph-row"><h1>全部任务</h1>'
     + '<div class="ph-actions">'
-    + '<button class="btn btn-sm" id="newAdhoc">新建临时任务（AD_HOC）</button>'
+    + '<button class="btn btn-sm" id="newAdhoc">临时任务</button>'
     + '<button class="btn btn-sm btn-primary" id="newTask">新建任务</button>'
     + '</div></div>'
-    + '<div class="ph-desc">共享 ContentTask 综合视图：Campaign Deliverables、Master Topic Deliverables、'
-    + 'Workspace 与本页使用**同一对象与同一 API**。任务可关联 0/1 Campaign 与 0/1 Topic；状态迁移由服务端强制。'
-    + '品牌：' + esc(ctx.brand) + '。从任务详情继续内容制作、查看审核意见和交付结果。</div></div>';
+    + '<div class="ph-desc">找到要处理的工作，查看要求、制作作品并跟进审核。品牌：' + esc(ctx.brand) + '</div></div>';
 }
 
 function bodyEl() { return hostEl.querySelector('#mosBody') || hostEl; }
@@ -46,7 +44,7 @@ async function render() {
   const ctx = ctxRef;
   hostEl.innerHTML = head(ctx) + '<div id="mosBody">' + loadingHtml() + '</div>';
   let data;
-  try { data = await fetchTasks(ctx.brand, f); }
+  try { data = await fetchTasks(ctx.brand, {...f,pageSize:30}); }
   catch (err) {
     const s = stateBlock(err.status === 404 ? 'denied' : 'error', {
       title: err.status === 404 ? '无权访问该品牌' : '加载失败', desc: err.message,
@@ -60,24 +58,30 @@ async function render() {
   html += '<div class="filters"><select id="fperiod" aria-label="工作时间">' + [['','全部时间'],['today','今日'],['week','本周'],['month','本月'],['future','未来'],['overdue','逾期'],['urgent','紧急'],['reminders','提醒']].map(([v,l]) => '<option value="'+v+'"'+(f.period===v?' selected':'')+'>'+l+'</option>').join('')+'</select></div>';
   html += '<div class="filters">'
     + '<input type="search" id="fq" placeholder="编号/标题" value="' + esc(f.q) + '" aria-label="搜索任务">'
-    + '<select id="fs" aria-label="状态"><option value="">全部状态</option>' + TASK_STATUSES.map((s) =>
-      '<option value="' + s + '"' + (f.status === s ? ' selected' : '') + '>' + esc(s) + '</option>').join('') + '</select>'
+    + '<select id="fs" aria-label="状态"><option value="">全部状态</option>' + [...TASK_STATUSES,'REVISION_REQUIRED','APPROVED'].map((s) =>
+      '<option value="' + s + '"' + ((f.status === s || f.workState === s) ? ' selected' : '') + '>' + esc(({REVISION_REQUIRED:'待修改',APPROVED:'已批准',IDEA:'待开始',PLANNED:'已安排',IN_PRODUCTION:'制作中',IN_REVIEW:'审核中',READY:'待发布',COMPLETED:'已完成',ON_HOLD:'暂缓',CANCELLED:'已取消'})[s] || s) + '</option>').join('') + '</select>'
     + '<select id="fp" aria-label="平台">' + dictOptions(d.platforms, f.platform, '全部平台') + '</select>'
     + '<label class="row" style="gap:5px"><input type="checkbox" id="fm"' + (f.mine ? ' checked' : '') + '> 仅我的</label>'
     + '<button class="btn btn-sm" id="fgo">筛选</button>'
     + '<span class="pill">共 ' + data.total + '</span></div>';
 
-  html += '<div class="card"><div class="card-head"><h2>任务列表（All Tasks）</h2>'
-    + '<div class="ch-actions"><span class="small muted">同一 ContentTask 对象 · 多入口同源</span></div></div>'
+  html += '<div class="card"><div class="card-head"><h2>待处理的工作</h2>'
+    + '<div class="ch-actions"><span class="small muted">点击“继续处理”即可开始</span></div></div>'
     + '<div class="card-body tight">'
-    + taskTable(data.items || [], { emptyTitle: '没有符合条件的任务', emptyDesc: '可在 Master Topic 中由选题生成任务，或在 Campaign Deliverables 中按 Campaign 创建。' })
+    + taskTable(data.items || [], { compact:true, emptyTitle: '没有符合条件的任务', emptyDesc: '可以调整筛选条件，或新建任务安排工作。' })
     + '</div></div>';
+  html += '<div class="row" style="gap:12px;margin-top:16px"><button class="btn" id="taskPrev"'+((f.page||1)===1?' disabled':'')+'>上一页</button><span>'+ (f.page||1) +' / '+Math.max(1,Math.ceil(data.total/30))+'</span><button class="btn" id="taskNext"'+((f.page||1)*30>=data.total?' disabled':'')+'>下一页</button></div>';
   setBody(html);
+  hostEl.querySelector('#taskPrev').onclick=()=>{f.page--;render();};
+  hostEl.querySelector('#taskNext').onclick=()=>{f.page++;render();};
 
   const go = () => {
+    f.page = 1;
     f.period = hostEl.querySelector('#fperiod').value;
     f.q = hostEl.querySelector('#fq').value.trim();
-    f.status = hostEl.querySelector('#fs').value;
+    const state=hostEl.querySelector('#fs').value;
+    f.workState=['REVISION_REQUIRED','APPROVED'].includes(state)?state:'';
+    f.status=f.workState?'':state;
     f.platform = hostEl.querySelector('#fp').value;
     f.mine = hostEl.querySelector('#fm').checked;
     render();
@@ -89,10 +93,10 @@ async function render() {
   hostEl.querySelector('#newTask').addEventListener('click', () => openCreateTaskDialog({
     brand: ctx.brand, meta: ctx.meta,
     prefill: { campaignId: f.campaignId, campaignTitle: relation.campaignTitle, topicId: f.topicId, topicTitle: relation.topicTitle },
-    onCreated: render
+    onCreated: task => ctx.navigate('task-detail',{task:task.id})
   }));
   hostEl.querySelector('#newAdhoc').addEventListener('click', newAdhocDialog);
-  bindTaskRows(hostEl, render);
+  bindTaskRows(hostEl, render, ctx.navigate);
 }
 
 function newAdhocDialog() {

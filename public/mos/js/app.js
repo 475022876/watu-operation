@@ -84,6 +84,7 @@ MODULES.push({ id: 'drafts', label: '草稿箱', icon: '▤', context: '当前�
 MODULES.push({ id: 'platforms', label: '平台管理', icon: '⚙', context: '平台账号与渠道登记；不代表已经完成平台授权登录', loader: () => import('./modules/publishing.js') });
 MODULES.push({ id: 'text-studio', label: '文字制作区', icon: '✎', context: '文字对话、文章与提示词，不送审聊天记录', loader: () => import('./modules/text-studio.js') });
 MODULES.find(m => m.id === 'content-editor').label = '任务制作与交付';
+MODULES.push({ id:'task-detail',label:'任务详情',icon:'✎',context:'要求、作品、反馈和交付',loader:()=>import('./modules/task-detail.js') });
 const els = {};
 let activeModule = null;
 let mounted = null;
@@ -206,8 +207,8 @@ async function enterApp(me) {
   els.syncDot.classList.remove('bad');
   els.envChip.textContent = t('沙盒环境') + ' · MOS V0.1';
 
-  const h0 = parseHash().id;
-  navigate(MODULES.some((m) => m.id === h0) ? h0 : 'my-work');
+  const initialRoute = parseHash();
+  navigate(MODULES.some((m) => m.id === initialRoute.id) ? initialRoute.id : 'my-work', initialRoute.qs);
 }
 
 /** V0.1.2 Phase A：右上角语言切换（无损实时切换，偏好持久化到服务端） */
@@ -299,6 +300,7 @@ function bindChrome() {
 
   if (els.menuBtn) els.menuBtn.addEventListener('click', () => { els.sidebar.classList.add('open'); els.mask.classList.add('show'); });
   if (els.mask) els.mask.addEventListener('click', () => { els.sidebar.classList.remove('open'); els.mask.classList.remove('show'); });
+  window.addEventListener('beforeunload', event => { if (mounted?.hasUnsaved?.()) { event.preventDefault(); event.returnValue = ''; } });
   window.addEventListener('hashchange', () => {
     const { id, qs } = parseHash();
     if (!id) return;

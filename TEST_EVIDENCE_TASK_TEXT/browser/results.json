@@ -1,0 +1,61 @@
+{
+  "suite": "task-text-complete-flow",
+  "at": "2026-10-29T09:02:41.533Z",
+  "total": 13,
+  "passed": 13,
+  "failed": 0,
+  "results": [
+    {
+      "name": "new task form prioritizes requirements owner and deadline",
+      "ok": true
+    },
+    {
+      "name": "text creation uses local MOCK provider and can select result",
+      "ok": true
+    },
+    {
+      "name": "failed save 409 retains work and prevents review submission",
+      "ok": true
+    },
+    {
+      "name": "failed save 500 retains work and prevents review submission",
+      "ok": true
+    },
+    {
+      "name": "failed save offline retains work and prevents review submission",
+      "ok": true
+    },
+    {
+      "name": "edits during save do not submit an older body",
+      "ok": true
+    },
+    {
+      "name": "task attachment uploads and joins the work",
+      "ok": true
+    },
+    {
+      "name": "retry saves latest work and submits frozen version without self approval",
+      "ok": true
+    },
+    {
+      "name": "authorized independent reviewer returns work with feedback",
+      "ok": true
+    },
+    {
+      "name": "task list highlights work needing revision and opens the right task",
+      "ok": true
+    },
+    {
+      "name": "creator revises returned work and resubmits a new bound version",
+      "ok": true
+    },
+    {
+      "name": "independent approval completes approved work in task context",
+      "ok": true
+    },
+    {
+      "name": "mobile task work surface has no page overflow",
+      "ok": true
+    }
+  ]
+}
