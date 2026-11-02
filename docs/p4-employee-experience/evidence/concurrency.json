@@ -1,0 +1,64 @@
+{
+  "at": "2026-11-02T12:41:43.762Z",
+  "scope": "Real parallel HTTP requests, isolated single-process MOS JSON; synthetic identities and data; not a multi-instance database transaction test",
+  "passed": 14,
+  "failed": 0,
+  "rows": [
+    {
+      "name": "two employees editing the same row concurrently round 1",
+      "status": "PASS"
+    },
+    {
+      "name": "two employees editing the same row concurrently round 2",
+      "status": "PASS"
+    },
+    {
+      "name": "two employees editing the same row concurrently round 3",
+      "status": "PASS"
+    },
+    {
+      "name": "two employees editing the same row concurrently round 4",
+      "status": "PASS"
+    },
+    {
+      "name": "two employees editing the same row concurrently round 5",
+      "status": "PASS"
+    },
+    {
+      "name": "two employees editing the same row concurrently round 6",
+      "status": "PASS"
+    },
+    {
+      "name": "two employees editing the same row concurrently round 7",
+      "status": "PASS"
+    },
+    {
+      "name": "two employees editing the same row concurrently round 8",
+      "status": "PASS"
+    },
+    {
+      "name": "two employees editing the same row concurrently round 9",
+      "status": "PASS"
+    },
+    {
+      "name": "two employees editing the same row concurrently round 10",
+      "status": "PASS"
+    },
+    {
+      "name": "concurrent lock requests create exactly one independent review chain",
+      "status": "PASS"
+    },
+    {
+      "name": "concurrent independent reviewer decisions append only the winning decision",
+      "status": "PASS"
+    },
+    {
+      "name": "concurrent revisions produce one new version and preserve the frozen original",
+      "status": "PASS"
+    },
+    {
+      "name": "old and pilot HTML entry selection does not modify stored business data",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "codeCommit": "82f473b6a8ce343a2e264d9cf9fc7bf815ce2a66",
+  "sources": {
+    "prototypes/employee-workspace/src/p3/main.tsx": "3a0270de078373c3f11978a2a5c9b6f6aef87eafa86256561d2822bce6a43f9d",
+    "prototypes/employee-workspace/src/p3/draft.ts": "f2cf878da6adb4d256c844b1321e6444663b0ee4c59926827957f0c4977b44a6",
+    "prototypes/employee-workspace/src/p3/client.ts": "50f0efdf3518d9144d8b506b387c448f52db1d6edc0de4f998d6cc34423bb8e0",
+    "prototypes/employee-workspace/src/p3/pilot.css": "e1675141e8de32fffe699a4c21ea3ea8ff1defa3951b254915c07a415dbf11ac",
+    "prototypes/employee-workspace/src/style.css": "b88cdf977a89d6d98867a4952690a113f826d5a7b9df79e0c86865d70a4fc8bf"
+  },
+  "generatedBundle": {
+    "public/employee-pilot/pilot.html": "f8a04e4b86c968d34ee96815d86f7f34c5e8fe4e5c1cc80fa4aa29a03619cd1e",
+    "public/employee-pilot/THIRD_PARTY_NOTICES.txt": "346813be80c3e9b25a7bf336c9f9c92a9688e08666c6ddb075163a471d2935b3",
+    "public/employee-pilot/assets/pilot-BeeWBGiO.css": "588da0db0f1fb72e4627a1e18ed6137f175545900b978ab2d68420515161b34d",
+    "public/employee-pilot/assets/pilot-DuvrIVzU.js": "5e8a4748b0a3370168fc4cdbe50e0c420463dd07773f16be5cd498a9b020b20a"
+  }
+}

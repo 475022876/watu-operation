@@ -1,0 +1,14 @@
+{
+  "at": "2026-11-02T12:41:54.551Z",
+  "scope": "Actual restart of baseline routes against isolated P3 JSON snapshot; no production data",
+  "rows": [
+    {
+      "name": "Baseline runtime loads P3 schema8 file without migration or startup rewrite",
+      "status": "PASS"
+    },
+    {
+      "name": "Existing account and saved work remain readable after code rollback",
+      "status": "PASS"
+    }
+  ]
+}

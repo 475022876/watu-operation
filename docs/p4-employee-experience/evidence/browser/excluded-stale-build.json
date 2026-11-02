@@ -1,0 +1,1287 @@
+{
+  "at": "2026-11-02T12:35:29.246Z",
+  "scope": "Real Chrome + isolated existing MOS HTTP API + synthetic JSON data. Model responses use local Mock Provider only. Browser network errors are CDP fault injections.",
+  "passed": 21,
+  "failed": 0,
+  "rows": [
+    {
+      "name": "unauthenticated pilot displays existing login entry, no mock role selector",
+      "status": "PASS"
+    },
+    {
+      "name": "real server session loads assigned tasks and opens same task",
+      "status": "PASS"
+    },
+    {
+      "name": "two server mock-provider turns produce candidates without replacing work",
+      "status": "PASS"
+    },
+    {
+      "name": "actual save persists selected text, never the discussion transcript",
+      "status": "PASS"
+    },
+    {
+      "name": "save 409 retains edits and blocks old submission",
+      "status": "PASS"
+    },
+    {
+      "name": "save 500 retains edits and blocks old submission",
+      "status": "PASS"
+    },
+    {
+      "name": "save abort retains edits and blocks old submission",
+      "status": "PASS"
+    },
+    {
+      "name": "editing during a delayed real save cannot submit the older saved snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "language switch preserves current body and state",
+      "status": "PASS"
+    },
+    {
+      "name": "lost response after an actual save blocks replay and reconciles the server work",
+      "status": "PASS"
+    },
+    {
+      "name": "refresh requires draft preview and explicit same-version recovery",
+      "status": "PASS"
+    },
+    {
+      "name": "real attachment upload is separately selected and saved",
+      "status": "PASS"
+    },
+    {
+      "name": "submission freezes real work and selected attachment, no self-review",
+      "status": "PASS"
+    },
+    {
+      "name": "independent professional reviewer sees frozen work and must give return feedback",
+      "status": "PASS"
+    },
+    {
+      "name": "author revises in the same task and resubmits without old approval reuse",
+      "status": "PASS"
+    },
+    {
+      "name": "professional and publication approvals remain separate",
+      "status": "PASS"
+    },
+    {
+      "name": "first save preserves preselected upload until explicit attachment binding save",
+      "status": "PASS"
+    },
+    {
+      "name": "brand switch uses actual scoped task data",
+      "status": "PASS"
+    },
+    {
+      "name": "390px mobile work has no horizontal overflow and retains editor body",
+      "status": "PASS"
+    },
+    {
+      "name": "changed session on focus removes the previous employee workspace",
+      "status": "PASS"
+    },
+    {
+      "name": "no external requests, no browser exceptions, original entry remains reachable",
+      "status": "PASS"
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-DrQWZhLi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-BeeWBGiO.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/favicon.ico",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/auth/login",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/generation-jobs",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/generation-jobs",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-DrQWZhLi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-BeeWBGiO.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/favicon.ico",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/assets/upload",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db/lock",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s2zb_94e0d7566e89",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s2zb_f7ad7d9e8507",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-DrQWZhLi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-BeeWBGiO.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s2zb_94e0d7566e89",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s2zb_f7ad7d9e8507",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s2zb_f7ad7d9e8507",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/review-cases/rc_mvz8s2zb_f7ad7d9e8507/decision",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s2zb_94e0d7566e89",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s2zb_f7ad7d9e8507",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-DrQWZhLi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-BeeWBGiO.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s2zb_94e0d7566e89",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s2zb_f7ad7d9e8507",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/content-versions/cv_mvz8s1ip_29ed3861c2db/revise",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s3k8_de45156f9fed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/content-versions/cv_mvz8s3k8_de45156f9fed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s3k8_de45156f9fed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/content-versions/cv_mvz8s3k8_de45156f9fed/lock",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s3k8_de45156f9fed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_49ed86b2e728",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_1fb2658ff0ed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-DrQWZhLi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-BeeWBGiO.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s3k8_de45156f9fed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_49ed86b2e728",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_1fb2658ff0ed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-DrQWZhLi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-BeeWBGiO.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s3k8_de45156f9fed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_49ed86b2e728",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_1fb2658ff0ed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_1fb2658ff0ed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_1fb2658ff0ed/decision",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s3k8_de45156f9fed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_49ed86b2e728",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_1fb2658ff0ed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-DrQWZhLi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-BeeWBGiO.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s3k8_de45156f9fed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_49ed86b2e728",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_1fb2658ff0ed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_49ed86b2e728",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_49ed86b2e728/decision",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0in_e17c0f93239f/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mvz8s3k8_de45156f9fed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_49ed86b2e728",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases/rc_mvz8s3or_1fb2658ff0ed",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-DrQWZhLi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-BeeWBGiO.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s4ip_36c6bf00c520",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s4ip_36c6bf00c520/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/assets/upload",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mos/content-versions/cv_mvz8s4q6_ba671351d28a",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-DrQWZhLi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-BeeWBGiO.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0iq_28ba9bf9b9de",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mvz8s0iq_28ba9bf9b9de/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    }
+  ],
+  "exceptions": [],
+  "usedForAcceptance": false,
+  "excludedReason": "Typecheck failed before this run; browser used the previous bundle. Superseded by rebuilt final run."
+}

@@ -1,0 +1,22 @@
+✔ changed body blocks submitting the previous version (0.6942ms)
+✔ unchanged current snapshot can submit (0.0982ms)
+✔ pending write or unknown outcome blocks submit (0.0657ms)
+✔ changed selected attachments block submit (0.0641ms)
+✔ missing server capability cannot submit (0.0922ms)
+✔ empty work cannot submit (0.1402ms)
+✔ reference ordering alone does not change selected work (0.1666ms)
+✔ old request epoch is rejected after context switch (0.6223ms)
+✔ network failure never automatically retries a write (1.046ms)
+✔ 500 never automatically retries a write (16.578ms)
+✔ 409 is explicit and not an unknown transport outcome (2.0318ms)
+✔ requests carry same-origin credentials and CSRF, no bearer token (0.2996ms)
+✔ external URL is rejected before fetch (0.1006ms)
+✔ all pages are read, not silently limited to the first 200 (0.4515ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 169.2112

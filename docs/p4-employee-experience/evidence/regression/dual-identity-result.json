@@ -1,0 +1,272 @@
+{
+  "suite": "mos-dual-identity",
+  "phase": "V1.1 B2/B3（受限用户票据 + 变更事件消费）",
+  "ranAt": "2026-11-02T12:35:51.106Z",
+  "contractVersion": "1.0",
+  "workspaceAppVersion": "1.1.7",
+  "realJointTest": "NOT_VERIFIED",
+  "publicKeyFingerprint": "4dda8dc2467a6cce",
+  "notes": [
+    "本套件为**离线专项自检**：桩 Provider 按 V1.1.7 契约复刻验签/防重放/封套/换票/事件流，证明票据生命周期、401 回退、出站收敛、事件幂等与 fail closed 语义正确；**未与真实企业资料库发生任何联调**（真实双进程 E2E 见 mos-e2e-build03 / 后续 e2e04）。"
+  ],
+  "total": 51,
+  "passed": 51,
+  "failed": 0,
+  "cases": [
+    {
+      "name": "D-01 非回环 + 明文 http → 拒绝（集成接口不得明文出网）",
+      "ok": true,
+      "detail": "非回环主机必须使用 https（集成接口不得明文出网）"
+    },
+    {
+      "name": "D-02 https 但主机不在 allowedHosts（留空）→ 拒绝（fail closed）",
+      "ok": true,
+      "detail": "主机不在 workspace.allowedHosts 白名单内（留空=一律拒绝）"
+    },
+    {
+      "name": "D-03 https + 主机命中 allowedHosts → 放行",
+      "ok": true,
+      "detail": "主机在白名单内"
+    },
+    {
+      "name": "D-04 回环明文但未显式 allowLoopbackHttp → 拒绝（默认 fail closed）",
+      "ok": true,
+      "detail": "未显式开启 allowLoopbackHttp，拒绝回环明文出站（默认 fail closed）"
+    },
+    {
+      "name": "D-05 生产模式 + 回环明文（即使显式开启）→ 一律拒绝",
+      "ok": true,
+      "detail": "生产模式禁止回环明文 HTTP（MOS_WORKSPACE_ALLOW_LOOPBACK_HTTP 在生产失效）"
+    },
+    {
+      "name": "D-06 隔离测试口径（回环 + 显式开启 + 非生产）→ 放行并标记 loopback",
+      "ok": true,
+      "detail": "回环明文（仅隔离测试）"
+    },
+    {
+      "name": "D-07 status().configured=true 且绝不回传私钥/PEM",
+      "ok": true,
+      "detail": "configured=true egress=true"
+    },
+    {
+      "name": "D-08 缺真实用户 → MISSING_USER，零出站（服务账户不能替代用户身份）",
+      "ok": true,
+      "detail": "MISSING_USER"
+    },
+    {
+      "name": "D-09 品牌不在 workspace.brands 白名单 → BRAND_NOT_ALLOWED，零出站（本侧主动拒绝）",
+      "ok": true,
+      "detail": "BRAND_NOT_ALLOWED"
+    },
+    {
+      "name": "D-10 首次换票：refreshed=true，且 admission.final.decision 在**出站前**即被剔除",
+      "ok": true,
+      "detail": "granted=[\"assets.read\"] stripped=[\"admission.final.decision\"]"
+    },
+    {
+      "name": "D-11 二次请求命中内存缓存：cached=true 且**零新增出站**",
+      "ok": true,
+      "detail": "hits=0"
+    },
+    {
+      "name": "D-12 并发单飞：同 (keyId,brand,user) 并发 5 次只发**一次**换票出站，且共享同一票据",
+      "ok": true,
+      "detail": "issueCalls=1 coalesced=4"
+    },
+    {
+      "name": "D-13 票据缓存键含 keyId/brand/user → 跨账户、跨品牌**绝不**复用",
+      "ok": true,
+      "detail": "svc_mos_1|VFIB|emp-001 / svc_mos_1|VFIB|emp-002 / svc_mos_1|VFIB2|emp-001"
+    },
+    {
+      "name": "D-14 票据密文只在内存：落盘元数据含 ticketKey/expiresAt，但**不含** STUBTICKET 明文",
+      "ok": true,
+      "detail": "metaRows=2 blobHasTicket=false"
+    },
+    {
+      "name": "D-15 dropTicket 后 cachedTicket 立即失效（可用性判定 usable=false / null）",
+      "ok": true,
+      "detail": "before=true after=null"
+    },
+    {
+      "name": "D-16 classify：传输失败(0)→transport/可重试；429→可重试；未识别码→**不可重试**(fail safe)",
+      "ok": true,
+      "detail": "unknown={\"retryable\":false,\"layer\":\"unknown\",\"code\":\"TEAPOT_UNKNOWN\"}"
+    },
+    {
+      "name": "D-17 429 限流 → 有界重试后成功（attemptsUsed>=2，且每次重新签名换 nonce）",
+      "ok": true,
+      "detail": "attemptsUsed=2 hits=3"
+    },
+    {
+      "name": "D-18 401 TICKET_BAD_SIGNATURE → 丢弃票据 + 重新换票 + 只重试一次后成功（revalidated=true）",
+      "ok": true,
+      "detail": "ok=true code= first=TICKET_BAD_SIGNATURE issueCalls=2 revalidated=true"
+    },
+    {
+      "name": "D-19 401 BAD_SIGNATURE（签名/账户类）→ **不重试、不刷新票据**，立即如实上报",
+      "ok": true,
+      "detail": "attemptsUsed=1 code=BAD_SIGNATURE"
+    },
+    {
+      "name": "D-20 finalDecision() 恒拒绝（TICKET_KIND_MISMATCH / 403），与适配层双重闭合",
+      "ok": true,
+      "detail": "TICKET_KIND_MISMATCH"
+    },
+    {
+      "name": "D-21 未配置时 pushAdmission → stage=preflight、零出站（fail closed）",
+      "ok": true,
+      "detail": "stage=preflight hits=0"
+    },
+    {
+      "name": "D-22 三步顺序严格 create > submit > artifact，且未完成最终审批时 ok=false、isReusable=false",
+      "ok": true,
+      "detail": "stages=create>submit>artifact code=FINAL_APPROVAL_REQUIRED"
+    },
+    {
+      "name": "D-23 submit 步骤真实携带 reviews[]（不得\"提交即通过\"空复核）",
+      "ok": true,
+      "detail": "reviews=[{\"reviewerId\":\"emp-009\",\"verdict\":\"PASS\"}]"
+    },
+    {
+      "name": "D-24 真实审批完成（桩返回 200 + isReusable=true）→ 取得正式 Asset ID，ok=true",
+      "ok": true,
+      "detail": "assetId=VFIB-ASSET-0001"
+    },
+    {
+      "name": "D-24b 缺 fileName → 出站前即拒（MISSING_FILE_NAME，零出站），不把申请推进到 Provider 的 REVISION_REQUIRED",
+      "ok": true,
+      "detail": "stage=preflight code=MISSING_FILE_NAME hits=0"
+    },
+    {
+      "name": "D-24c knowledge.search / assets.search 的检索参数落在 POST body（query/topK/limit/offset），url 上不出现 query",
+      "ok": true,
+      "detail": "knowledgePath=/api/integrations/marketing/knowledge/search knowledgeBody={\"query\":\"品牌语气\",\"brandId\":\"VFIB\",\"topK\":3} assetPath=/api/integrations/marketing/assets/search assetBody={\"query\":\"logo\",\"brandId\":\"VFIB\",\"limit\":3,\"offset\":0}"
+    },
+    {
+      "name": "D-24d reuseScope 缺失 / 为 none → 出站前零出站拒绝（MISSING_REUSE_SCOPE / REUSE_SCOPE_NONE）",
+      "ok": true,
+      "detail": "missing=MISSING_REUSE_SCOPE none=REUSE_SCOPE_NONE hits=0"
+    },
+    {
+      "name": "D-24e admissionlib 层面同构判定：reuseScopeUsable / licenseAdmissionGate 与出站预检一致",
+      "ok": true,
+      "detail": "none=REUSE_SCOPE_NONE unknown=true"
+    },
+    {
+      "name": "E-01 asset.revoked 事件：本地引用置 INVALIDATED、permissionValid=false，且**同 seq 重复投递不重复生效**",
+      "ok": true,
+      "detail": "first=APPLIED dup=DUPLICATE_SEQ state=INVALIDATED"
+    },
+    {
+      "name": "E-02 撤回登记进入 client.isInvalidated（新调用据此拒绝复用）",
+      "ok": true,
+      "detail": "isInvalidated=true"
+    },
+    {
+      "name": "E-03 skill.version.changed → 登记失效（Skill 版本变更须使旧版本缓存失效）",
+      "ok": true,
+      "detail": "[\"skill.version.changed:SK-01\"]"
+    },
+    {
+      "name": "E-04 permission.changed → 丢弃全部票据 + 该品牌全部引用失效",
+      "ok": true,
+      "detail": "permission.changed:droppedTickets=2"
+    },
+    {
+      "name": "E-05 service_account.changed（**下划线**字面量）→ 丢弃全部票据（票据与签发账户绑定）",
+      "ok": true,
+      "detail": "service_account.changed:droppedTickets=0"
+    },
+    {
+      "name": "E-06 未识别事件类型：仍推进 seq（不卡死游标）但明确标记 unhandled（可观测）",
+      "ok": true,
+      "detail": "unhandled:brand.unknown.event.tbd:reconcile_required"
+    },
+    {
+      "name": "E-06b 未识别事件类型 → 置位 reconcileRequired（要求全量对账，而非静默忽略）",
+      "ok": true,
+      "detail": "reason=UNKNOWN_EVENT_TYPE:brand.unknown.event.tbd"
+    },
+    {
+      "name": "E-07 invalidate 幂等：同一 (kind,targetId) 重复登记不产生重复行",
+      "ok": true,
+      "detail": "before=1 after=1"
+    },
+    {
+      "name": "E-08 未知失效类型被拒绝（不静默接受）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "E-09 pollBrand 正常：游标持久化推进到 nextCursor（进程重启可续传）",
+      "ok": true,
+      "detail": "cursor=42"
+    },
+    {
+      "name": "E-10 truncated=true → 清空事件累积的失效登记 + 游标重置到 oldestCursor + 重放集合清空",
+      "ok": true,
+      "detail": "cursor=70 invalidations 4→0"
+    },
+    {
+      "name": "E-10b 全量对账同时清掉「未识别事件类型」置位的 reconcileRequired（避免永久待对账）",
+      "ok": true,
+      "detail": "reconcileRequired=false at=2026-11-02T12:35:49.266Z"
+    },
+    {
+      "name": "E-11 clearInvalidations 留下可审计的重建记录（settings.lastInvalidationReset）",
+      "ok": true,
+      "detail": "4"
+    },
+    {
+      "name": "E-12 事件流连续失败 ≥2 → degraded=true，authoritativeUsable=false（拒绝新的权威授权调用）",
+      "ok": true,
+      "detail": "consecutiveFailures=2 reason=EVENT_STREAM_DEGRADED"
+    },
+    {
+      "name": "E-13 degraded 下 verifyAssetUsable **不出站**即拒绝（绝不沿用过期 Approved 缓存）",
+      "ok": true,
+      "detail": "blocked"
+    },
+    {
+      "name": "E-14 事件流恢复后 degraded 复位、authoritativeUsable 恢复 usable=true",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "E-15 verifyAssetUsable 遇 410 ASSET_GONE → 如实判不可用并**立即登记撤回**（不等下轮轮询）",
+      "ok": true,
+      "detail": "reason=ASSET_GONE"
+    },
+    {
+      "name": "E-16 verifyAssetUsable 对已撤回资产**直接拒绝**（INVALIDATED_LOCALLY，零出站）",
+      "ok": true,
+      "detail": "reason=INVALIDATED_LOCALLY hits=0"
+    },
+    {
+      "name": "E-17 轮询默认关闭（POLL_DISABLED），不因未显式开启而偷偷出站",
+      "ok": true,
+      "detail": "POLL_DISABLED"
+    },
+    {
+      "name": "E-18 tick 正常路径：加单实例锁、按品牌轮询、汇总 totalItems",
+      "ok": true,
+      "detail": "brands=1"
+    },
+    {
+      "name": "E-19 轮询锁登记 ownerId/pid/heartbeatAt（跨实例互斥可审计）",
+      "ok": true,
+      "detail": "owner=mos-event-consumer"
+    },
+    {
+      "name": "E-20 event 状态如实披露间隔为\"建议值\"而非 SLA，且不含票据密文",
+      "ok": true,
+      "detail": "cursors=1"
+    },
+    {
+      "name": "E-21 未配置集成：authoritativeUsable=false 且 tick 零出站（fail closed）",
+      "ok": true,
+      "detail": "INTEGRATION_NOT_CONFIGURED"
+    }
+  ]
+}

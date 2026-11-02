@@ -1,0 +1,14 @@
+{
+  "baseline": "95c24deaff853eb310deea0f99953fcb8d0a0f88",
+  "codeCommit": "82f473b6a8ce343a2e264d9cf9fc7bf815ce2a66",
+  "businessBackendAndRootDependenciesUnchanged": true,
+  "schema": 8,
+  "applicationVersion": "0.1.6",
+  "productionDataAccessed": false,
+  "productionConfigurationReadOrCopied": false,
+  "databaseMigrationExecuted": false,
+  "apiContractChanged": false,
+  "newDependenciesInstalled": false,
+  "mainMerged": false,
+  "productionEntryReplaced": false
+}

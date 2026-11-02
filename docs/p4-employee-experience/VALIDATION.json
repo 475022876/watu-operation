@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-02",
+  "baseline": "95c24deaff853eb310deea0f99953fcb8d0a0f88",
+  "codeCommit": "82f473b6a8ce343a2e264d9cf9fc7bf815ce2a66",
+  "branch": "codex/employee-experience-p4",
+  "pilotChecks": {
+    "client": 14,
+    "draft": 14,
+    "http": 21,
+    "concurrency": 14,
+    "browser": 32,
+    "rollback": 2,
+    "totalPassed": 97,
+    "failed": 0
+  },
+  "legacyRegression": {
+    "suites": 17,
+    "passed": 880,
+    "failed": 0
+  },
+  "employeeTrial": "NOT EXECUTED",
+  "liveExternalAI": "NOT EXECUTED",
+  "workspaceLiveIntegration": "NOT EXECUTED",
+  "productionAcceptance": "NOT EXECUTED",
+  "status": "Technical checks passed; awaiting human employee trial and acceptance"
+}

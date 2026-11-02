@@ -1,0 +1,22 @@
+✔ absent draft does not invent content (1.0745ms)
+✔ valid draft restores only its content fields (1.6496ms)
+✔ malformed JSON rejects without clearing any storage (1.7515ms)
+✔ draft scope rejects another actor (0.145ms)
+✔ draft scope rejects another brand (0.5926ms)
+✔ draft scope rejects another task (0.1251ms)
+✔ invalid draft shape rejected null (0.7437ms)
+✔ invalid draft shape rejected {"title":"T","body":2,"refAssetIds":[]} (0.1173ms)
+✔ invalid draft shape rejected {"title":"T","body":"B","refAssetIds":"bad"} (0.0997ms)
+✔ invalid draft shape rejected {"title":"T","body":"B","refAssetIds":[1]} (0.1233ms)
+✔ invalid base row rejects automatic recovery (0.1649ms)
+✔ unknown outcome marker rejects recovery (0.1016ms)
+✔ known uncertain write is preserved as uncertain (0.0739ms)
+✔ storage access failure is explicit, no unsafe fallback (0.0756ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 130.7446
