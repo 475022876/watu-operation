@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-02",
+  "scope": "P0 document/source-metadata consistency only; no runtime or user acceptance tests",
+  "checks": [
+    {
+      "name": "two fixed 40-character source commits",
+      "status": "PASS"
+    },
+    {
+      "name": "22 selected file hashes and fixed source links",
+      "status": "PASS"
+    },
+    {
+      "name": "six P0 reports and index exist",
+      "status": "PASS"
+    },
+    {
+      "name": "relative document links resolve",
+      "status": "PASS"
+    },
+    {
+      "name": "125 baseline source objects retain recorded tree digest",
+      "status": "PASS"
+    },
+    {
+      "name": "no runtime code or dependency diff",
+      "status": "PASS"
+    },
+    {
+      "name": "approval route name matches current source",
+      "status": "PASS"
+    }
+  ],
+  "passed": 7,
+  "failed": 0
+}

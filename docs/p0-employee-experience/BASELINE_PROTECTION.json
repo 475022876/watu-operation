@@ -1,0 +1,16 @@
+{
+  "baseline": "b99b049c17fc885f0c04feace70560cf3d992701",
+  "scope": [
+    "server.js",
+    "lib",
+    "public",
+    "package.json",
+    "package-lock.json",
+    "migrations"
+  ],
+  "trackedSourceFiles": 125,
+  "treeSha256": "d8223f49802889f07b5ba83ca9c13c09fab393a586322d76888ba62131d73ec5",
+  "runtimeDiff": "",
+  "productionDataRead": false,
+  "productionSecretsRead": false
+}
