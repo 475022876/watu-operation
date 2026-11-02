@@ -1,0 +1,19 @@
+{
+  "at": "2026-11-02T11:33:18.619Z",
+  "baseline": "c88a414",
+  "scope": "Unmodified historical route files in isolated temporary runtime only",
+  "rows": [
+    {
+      "check": "Review must not succeed on disk failure",
+      "expected": 500,
+      "actual": 200,
+      "status": "FAIL_REPRODUCED"
+    },
+    {
+      "check": "Revision must not succeed on disk failure",
+      "expected": 500,
+      "actual": 200,
+      "status": "FAIL_REPRODUCED"
+    }
+  ]
+}

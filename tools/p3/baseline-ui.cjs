@@ -1,0 +1,8 @@
+'use strict';
+// Compare the unmodified P2 runtime and unchanged legacy UI suite in a disposable tree.
+const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),cp=require('node:child_process');
+const root=path.resolve(__dirname,'../..'),dir=fs.mkdtempSync(path.join(os.tmpdir(),'vfib-p3-ui-baseline-')),out=path.join(root,'docs/p3-employee-experience/evidence');
+for(const folder of ['lib','public','tools'])fs.cpSync(path.join(root,folder),path.join(dir,folder),{recursive:true});fs.copyFileSync(path.join(root,'server.js'),path.join(dir,'server.js'));
+for(const f of ['lib/mos/routes/content.js','lib/mos/routes/reviews.js'])fs.writeFileSync(path.join(dir,f),cp.execFileSync('git',['show','c88a414:'+f],{cwd:root}));
+const env={};for(const k of ['SystemRoot','WINDIR','PATH','TEMP','TMP','COMSPEC'])if(process.env[k])env[k]=process.env[k];env.NODE_OPTIONS='--require '+JSON.stringify(path.join(dir,'tools/phase1/offline-test-guard.cjs'));
+const p=cp.spawn(process.execPath,['tools/mos-ui-check.js'],{cwd:dir,env,stdio:['ignore','pipe','pipe']});let log='';p.stdout.on('data',x=>log+=x);p.stderr.on('data',x=>log+=x);p.on('close',code=>{const f=path.join(dir,'TEST_EVIDENCE_MOS_BUILD01/ui-check-result.json');if(fs.existsSync(f))fs.copyFileSync(f,path.join(out,'legacy-ui-baseline.json'));fs.writeFileSync(path.join(out,'legacy-ui-baseline-exit.json'),JSON.stringify({baseline:'c88a414',exitCode:code,scope:'Untouched legacy runtime source + unchanged legacy UI suite, isolated data',at:new Date().toISOString()},null,2));console.log('Legacy baseline UI exit '+code);try{fs.rmSync(dir,{recursive:true,force:true});}catch{}process.exitCode=0;});

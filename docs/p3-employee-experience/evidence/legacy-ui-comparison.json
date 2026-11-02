@@ -1,0 +1,26 @@
+{
+  "current": {
+    "passed": 127,
+    "failed": 12
+  },
+  "baseline": {
+    "passed": 127,
+    "failed": 12
+  },
+  "sameFailedChecks": true,
+  "newFailureNames": [],
+  "existingFailureNames": [
+    "工作中心名称齐全（5 主 + 2 辅，非 Growth Center）",
+    "切换 English 后主导航为英文",
+    "等待条件：计划列表工具条",
+    "统一日历渲染出日期格",
+    "日历可切换周视图",
+    "等待条件：VFIB 模板渲染",
+    "BUILD-04 VFIB Banking Marketing 工作区渲染且展示品牌 Brief 模板",
+    "BUILD-04 U CARD 工作区在品牌不匹配时给出提示与切换入口",
+    "等待条件：UCARD 模板渲染",
+    "BUILD-04 切换到 UCARD 后工作区一致且使用 U CARD 模板",
+    "等待条件：回到 VFIB",
+    "SET-02 管理员在侧边导航可见「系统接入」分组与入口"
+  ]
+}

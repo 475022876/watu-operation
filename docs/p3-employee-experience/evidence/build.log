@@ -1,0 +1,14 @@
+
+> vfib-employee-workspace-prototype@0.0.0-p2 build:pilot
+> tsc --noEmit && vite build --config vite.p3.config.mts
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 17 modules transformed.
+rendering chunks...
+computing gzip size...
+../../public/employee-pilot/pilot.html                   0.40 kB │ gzip:  0.28 kB
+../../public/employee-pilot/assets/pilot-BeeWBGiO.css   19.17 kB │ gzip:  4.65 kB
+../../public/employee-pilot/assets/pilot-DgVgnPlq.js   248.78 kB │ gzip: 78.93 kB
+
+✓ built in 135ms

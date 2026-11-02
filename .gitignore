@@ -29,3 +29,6 @@ Thumbs.db
 .idea/
 .vscode/
 node_modules/
+
+# Generated opt-in P3 bundle (build from prototype source)
+/public/employee-pilot/

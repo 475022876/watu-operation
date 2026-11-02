@@ -1,0 +1,10 @@
+PASS T01 identical replay creates no additional objects
+PASS T01 normalized object order and defaults replay
+PASS T01 changed payload returns 409
+PASS T01 another actor cannot reuse key
+PASS T01 another proposal cannot reuse key
+PASS T01 another brand cannot obtain previous dispatch
+PASS T01 unauthorized requested brand returns 404 before replay
+PASS T01 revoked actor permission rejects replay before returning data
+PASS T01 legacy dispatch without request digest fails closed
+{"suite":"h01","total":9,"passed":9,"failed":0}

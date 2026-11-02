@@ -1,0 +1,17 @@
+{
+  "at": "2026-11-02",
+  "baseline": "c88a414262eb2ba242ac20a648ffc10dc885ca67",
+  "branch": "codex/employee-experience-p3",
+  "productionDataReadOrWritten": false,
+  "productionConfigCopied": false,
+  "appVersion": "0.1.6",
+  "schema": 8,
+  "databaseSwitched": false,
+  "newDependencies": false,
+  "businessSourceChanges": [
+    "lib/mos/routes/content.js",
+    "lib/mos/routes/reviews.js"
+  ],
+  "rootPackageUnchanged": true,
+  "workspaceSourceUnchanged": true
+}

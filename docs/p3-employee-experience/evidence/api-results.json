@@ -1,0 +1,92 @@
+{
+  "at": "2026-11-02T11:41:07.563Z",
+  "scope": "Real isolated MOS HTTP and JSON persistence; synthetic data; no live external service",
+  "passed": 21,
+  "failed": 0,
+  "rows": [
+    {
+      "name": "existing API creates a synthetic G2 task",
+      "status": "PASS"
+    },
+    {
+      "name": "create and read work uses contentTaskId and server capabilities",
+      "status": "PASS"
+    },
+    {
+      "name": "cross-brand identity cannot read or modify the work",
+      "status": "PASS"
+    },
+    {
+      "name": "concurrent draft save rejects stale rowVersion",
+      "status": "PASS"
+    },
+    {
+      "name": "failed persistence rolls back draft state and survives subsequent read",
+      "status": "PASS"
+    },
+    {
+      "name": "actual upload + selected asset binding are frozen in work",
+      "status": "PASS"
+    },
+    {
+      "name": "cross-brand attachment binding is rejected before freezing",
+      "status": "PASS"
+    },
+    {
+      "name": "failed lock persistence does not create partial cases or freeze old work",
+      "status": "PASS"
+    },
+    {
+      "name": "lock creates independent professional and publication cases",
+      "status": "PASS"
+    },
+    {
+      "name": "frozen work cannot be overwritten",
+      "status": "PASS"
+    },
+    {
+      "name": "creator self-review is rejected even with newly granted reviewer role",
+      "status": "PASS"
+    },
+    {
+      "name": "publication approval waits for same-version professional approval",
+      "status": "PASS"
+    },
+    {
+      "name": "return requires explicit feedback",
+      "status": "PASS"
+    },
+    {
+      "name": "review persistence failure returns 500 and rolls back decisions/state",
+      "status": "PASS"
+    },
+    {
+      "name": "review expected rowVersion rejects stale decision",
+      "status": "PASS"
+    },
+    {
+      "name": "return feedback is attached to the frozen work",
+      "status": "PASS"
+    },
+    {
+      "name": "revision persistence failure rolls back new version and old state",
+      "status": "PASS"
+    },
+    {
+      "name": "revision optimistic guard rejects stale base",
+      "status": "PASS"
+    },
+    {
+      "name": "revision keeps old feedback and creates a new independent review chain",
+      "status": "PASS"
+    },
+    {
+      "name": "revoked professional authority cannot decide the current case",
+      "status": "PASS"
+    },
+    {
+      "name": "two authorized independent approvals produce approved, not published",
+      "status": "PASS"
+    }
+  ]
+}

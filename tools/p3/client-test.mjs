@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';import test from 'node:test';
+import {Epoch,fingerprint,canSubmit,request,Failure,all} from '../../prototypes/employee-workspace/src/p3/client.ts';
+global.document={cookie:'mos_csrf=test-only-token'};
+const v={title:'T',body:'Selected',refAssetIds:['a'],rowVersion:4,can:{submit:true}};
+test('changed body blocks submitting the previous version',()=>{assert(!canSubmit(v,{...v,body:'changed'},false,false));});
+test('unchanged current snapshot can submit',()=>{assert(canSubmit(v,{...v},false,false));});
+test('pending write or unknown outcome blocks submit',()=>{assert(!canSubmit(v,v,true,false));assert(!canSubmit(v,v,false,true));});
+test('changed selected attachments block submit',()=>{assert(!canSubmit(v,{...v,refAssetIds:[]},false,false));});
+test('missing server capability cannot submit',()=>{assert(!canSubmit({...v,can:{}},v,false,false));});
+test('empty work cannot submit',()=>{assert(!canSubmit({...v,body:''},{...v,body:''},false,false));});
+test('reference ordering alone does not change selected work',()=>{assert.equal(fingerprint({...v,refAssetIds:['a','b']}),fingerprint({...v,refAssetIds:['b','a']}));});
+test('old request epoch is rejected after context switch',()=>{const e=new Epoch(),n=e.next();e.next();assert(!e.current(n));});
+test('network failure never automatically retries a write',async()=>{let calls=0;global.fetch=async()=>{calls++;throw Error('offline');};await assert.rejects(request('/api/mos/content-versions/x','PUT',{}),x=>x instanceof Failure&&x.uncertain);assert.equal(calls,1);});
+test('500 never automatically retries a write',async()=>{let calls=0;global.fetch=async()=>{calls++;return new Response(JSON.stringify({code:'TEST_IO'}),{status:500});};await assert.rejects(request('/api/mos/content-versions/x','PUT',{}),x=>x.status===500);assert.equal(calls,1);});
+test('409 is explicit and not an unknown transport outcome',async()=>{global.fetch=async()=>new Response(JSON.stringify({code:'ROW_VERSION_CONFLICT'}),{status:409});await assert.rejects(request('/api/mos/content-versions/x','PUT',{}),x=>x.status===409&&!x.uncertain);});
+test('requests carry same-origin credentials and CSRF, no bearer token',async()=>{global.fetch=async(p,opts)=>{assert.equal(opts.credentials,'same-origin');assert.equal(opts.headers['x-mos-csrf'],'test-only-token');assert(!opts.headers.Authorization);return new Response('{}');};await request('/api/mos/content-versions/x','PUT',{});});
+test('external URL is rejected before fetch',async()=>{await assert.rejects(request('https://example.invalid/api/mos/x'));});
+test('all pages are read, not silently limited to the first 200',async()=>{let calls=0;global.fetch=async()=>{calls++;return new Response(JSON.stringify({items:calls===1?Array(200).fill({id:'x'}):[{id:'last'}],total:201}));};assert.equal((await all('/api/mos/tasks?brand=VFIB')).length,201);assert.equal(calls,2);});

@@ -1,5 +1,7 @@
 # P2 员工工作区交互原型
 
+本文件描述 P2 独立模拟入口。P3 已增加单独的 API 试点构建，详见 `../../docs/p3-employee-experience/README.md`；两者入口、运行方式及数据边界不同。
+
 独立分支 `codex/employee-experience-p2`，起点 `c5127952fa7d9e627846bb5299fd521d44dcc6f3`。当前 Marketing OS V0.1.6 业务源码及正式 JSON 存储均未切换。
 
 ## 本地运行

@@ -1,0 +1,149 @@
+{
+  "suite": "mos-provider-contract",
+  "phase": "Phase 3（A-05 真实 Provider 契约测试）",
+  "ranAt": "2026-11-02T11:32:07.379Z",
+  "liveRequested": false,
+  "liveRecord": {
+    "attempted": false,
+    "text": null,
+    "image": null
+  },
+  "notes": [
+    "L3 未执行：未设置 MOS_PROVIDER_LIVE=1。**未对任何真实供应商做过端到端验证**（BLOCKED：无凭据/未授权）。"
+  ],
+  "total": 26,
+  "passed": 26,
+  "failed": 0,
+  "cases": [
+    {
+      "name": "PC-01 文本：未配置时 status/health 均如实为未配置（零出站）",
+      "ok": true,
+      "detail": "configured=false health=NOT_CONFIGURED"
+    },
+    {
+      "name": "PC-02 文本：未配置时 invoke 返回 NOT_CONFIGURED 且**不产出任何文字**",
+      "ok": true,
+      "detail": "state=NOT_CONFIGURED text.len=0 errorCode=PROVIDER_NOT_CONFIGURED"
+    },
+    {
+      "name": "PC-03 图像：未配置时 invoke 返回 NOT_CONFIGURED 且 outputs 为空",
+      "ok": true,
+      "detail": "state=NOT_CONFIGURED outputs=0 configured=false"
+    },
+    {
+      "name": "PC-04 选中真实供应商但无密钥：文本/图像一律 NOT_CONFIGURED（绝不伪造模型输出）",
+      "ok": true,
+      "detail": "text=NOT_CONFIGURED image=NOT_CONFIGURED"
+    },
+    {
+      "name": "PC-05 密钥不外泄：status/health 序列化结果不含密钥（只在服务端）",
+      "ok": true,
+      "detail": "blob.len=861"
+    },
+    {
+      "name": "PC-06 hasServerKey 只报布尔、不报密钥本身",
+      "ok": true,
+      "detail": "text.hasServerKey=true"
+    },
+    {
+      "name": "PC-06a 图像：未配置 → readiness=NOT_CONFIGURED",
+      "ok": true,
+      "detail": "readiness=NOT_CONFIGURED"
+    },
+    {
+      "name": "PC-06b 图像：MOCK 不被标为 REAL（readiness 仍 NOT_CONFIGURED，且标注 simulated）",
+      "ok": true,
+      "detail": "readiness=NOT_CONFIGURED simulated=true"
+    },
+    {
+      "name": "PC-06c 图像：已选真实供应商且有密钥 → CONFIGURED_NOT_TESTED（未联调不称 REAL）",
+      "ok": true,
+      "detail": "readiness=CONFIGURED_NOT_TESTED"
+    },
+    {
+      "name": "PC-06d 视频：适配器已实现，但未配置供应商时 readiness=NOT_CONFIGURED 且不声明 AI_RENDER",
+      "ok": true,
+      "detail": "readiness=NOT_CONFIGURED caps=SCRIPT/STORYBOARD/KEYFRAME/ASSET_UPLOAD/FINAL_CUT_UPLOAD"
+    },
+    {
+      "name": "PC-06e 集成状态矩阵暴露 imageProvider.readiness 与 videoProvider（BLOCKED 不被隐去）",
+      "ok": true,
+      "detail": "image=NOT_CONFIGURED video=NOT_CONFIGURED"
+    },
+    {
+      "name": "PC-07 classifyHttp：429→RATE_LIMITED，5xx→HTTP_ERROR，4xx→BAD_REQUEST",
+      "ok": true,
+      "detail": "429/500/400=PROVIDER_RATE_LIMITED,PROVIDER_HTTP_ERROR,PROVIDER_BAD_REQUEST"
+    },
+    {
+      "name": "PC-08 classifyError：AbortError→TIMEOUT，其余→NETWORK_ERROR，且 TIMEOUT 可重试",
+      "ok": true,
+      "detail": "abort=PROVIDER_TIMEOUT retryable(400)=false"
+    },
+    {
+      "name": "PC-09 parseRateLimit：只回填供应商真实提供的字段，缺失一律 null",
+      "ok": true,
+      "detail": "limit=60 remaining=null retryAfter=7"
+    },
+    {
+      "name": "PC-10 costReceipt：无回执一律 amount=null/confirmed=false（不凭空推算）",
+      "ok": true,
+      "detail": "absent=null present=0.04"
+    },
+    {
+      "name": "PC-11 MOCK 文本草稿：state=MOCK 且醒目标注「非模型输出」",
+      "ok": true,
+      "detail": "state=MOCK mock=true"
+    },
+    {
+      "name": "PC-12 MOCK 图像：产出真实落盘 SVG、标注「非真实模型输出」且同提示词字节可复现",
+      "ok": true,
+      "detail": "state=MOCK bytes=2146"
+    },
+    {
+      "name": "PC-13 数据分级：内部受限内容默认拒发外模型（BLOCKED，errorCode 明确）",
+      "ok": true,
+      "detail": "state=BLOCKED errorCode=PROVIDER_BLOCKED_DATA_CLASS"
+    },
+    {
+      "name": "PC-14 未知供应商：明确报错且不伪造（UNKNOWN_MODE）",
+      "ok": true,
+      "detail": "state=NOT_CONFIGURED errorCode=PROVIDER_UNKNOWN_MODE"
+    },
+    {
+      "name": "PC-15 文本成功路径：SUCCEEDED + usage 回执 + rateLimit 解析 + costReceipt 诚实（无回执→null）",
+      "ok": true,
+      "detail": "state=SUCCEEDED usage={\"prompt_tokens\":11,\"completion_tokens\":7,\"promptTokens\":11,\"completionTokens\":7,\"totalTokens\":18,\"providerJobId\":\"\",\"promptChars\":251} rl.limit=60"
+    },
+    {
+      "name": "PC-16 文本 429：errorCode=RATE_LIMITED、retryable=true、retryAfterSec 如实解析",
+      "ok": true,
+      "detail": "state=FAILED errorCode=PROVIDER_RATE_LIMITED retryAfter=7"
+    },
+    {
+      "name": "PC-17 图像成功路径：SUCCEEDED + 真实 PNG 字节（b64 解码）+ 供应商成本回执透传",
+      "ok": true,
+      "detail": "state=SUCCEEDED bytes=70 cost=0.04"
+    },
+    {
+      "name": "PC-18 图像 5xx：errorCode=PROVIDER_HTTP_ERROR、retryable=true、保留状态码且隐藏上游正文",
+      "ok": true,
+      "detail": "state=FAILED errorCode=PROVIDER_HTTP_ERROR"
+    },
+    {
+      "name": "PC-19 图像超时：硬超时生效 → errorCode=PROVIDER_TIMEOUT、retryable=true",
+      "ok": true,
+      "detail": "state=FAILED errorCode=PROVIDER_TIMEOUT note=调用供应商超时（1000ms）PROVIDER_TIMEOUT"
+    },
+    {
+      "name": "PC-20 图像空响应：errorCode=PROVIDER_EMPTY_RESPONSE（不伪造成成功）",
+      "ok": true,
+      "detail": "state=FAILED errorCode=PROVIDER_EMPTY_RESPONSE"
+    },
+    {
+      "name": "PC-21 invoke 未知 op：明确报错，不做静默降级",
+      "ok": true,
+      "detail": "state=FAILED errorCode=PROVIDER_UNKNOWN_MODE"
+    }
+  ]
+}
