@@ -1,0 +1,36 @@
+PASS U01 personal task queue and explicit isolated MOCK identity
+PASS create synthetic task with requirements without technical fields
+PASS U02 two discussion turns do not overwrite the artifact
+PASS dirty artifact replacement requires confirmation and cancel retains input
+PASS U03 attachment is synthetic metadata and separate from model reference
+PASS U05 save-409 keeps draft and cannot submit
+PASS U05 save-500 keeps draft and cannot submit
+PASS U05 offline keeps draft and cannot submit
+PASS 409 comparison retains local text and allows explicit rebase
+PASS save-unknown-applied is reconciled before further submission
+PASS save-unknown-unapplied is reconciled before further submission
+PASS edits during a slow save cannot submit the older snapshot
+PASS language switching preserves employee text and exposes English controls
+PASS saved selected work submits without entire chat or self approval
+PASS U04 independent professional return requires specific feedback
+PASS author derives a new revision and old feedback remains readable
+PASS publication approval waits for same-version professional approval
+PASS independent publication approval yields approved but not published work
+PASS unknown decision result checks authoritative mock history without replay
+PASS self-review and denied review scenarios expose no decision action
+PASS changed review subject refuses approval
+PASS recovery previews candidate before changing current work
+PASS denied and unreadable references never pretend to be understood
+PASS modal focus trapping and Esc restore the trigger focus
+PASS mobile view switches preserve draft and do not overflow
+PASS same-tab refresh restores synthetic work without business storage
+PASS late generation cannot replace the next brand context
+PASS text is escaped, not interpreted as remote HTML
+PASS free creation saves selected work into a synthetic task without clipboard transfer
+PASS not-configured retains composer input
+PASS budget retains composer input
+PASS generation-failed retains composer input
+PASS empty and denied list states remain distinguishable
+PASS corrupt synthetic cache resets only its own namespace
+PASS page requests are local assets only; no MOS APIs or remote services
+{"passed":35,"failed":0}

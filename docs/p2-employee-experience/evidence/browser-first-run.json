@@ -1,0 +1,170 @@
+{
+  "at": "2026-11-02T11:00:31.424Z",
+  "scope": "Real Chrome against independent static P2 build; all model/data/review outcomes are local simulations, not live services or employee usability acceptance",
+  "passed": 18,
+  "failed": 11,
+  "rows": [
+    {
+      "name": "U01 personal task queue and explicit isolated MOCK identity",
+      "status": "PASS"
+    },
+    {
+      "name": "create synthetic task with requirements without technical fields",
+      "status": "PASS"
+    },
+    {
+      "name": "U02 two discussion turns do not overwrite the artifact",
+      "status": "PASS"
+    },
+    {
+      "name": "dirty artifact replacement requires confirmation and cancel retains input",
+      "status": "PASS"
+    },
+    {
+      "name": "U03 attachment is synthetic metadata and separate from model reference",
+      "status": "PASS"
+    },
+    {
+      "name": "U05 save-409 keeps draft and cannot submit",
+      "status": "FAIL",
+      "error": "Wait failed: document.querySelector(\"#p2-scenario\")?.value===\"save-409\""
+    },
+    {
+      "name": "U05 save-500 keeps draft and cannot submit",
+      "status": "FAIL",
+      "error": "Wait failed: document.querySelector(\"#p2-scenario\")?.value===\"save-500\""
+    },
+    {
+      "name": "U05 offline keeps draft and cannot submit",
+      "status": "FAIL",
+      "error": "Wait failed: document.querySelector(\"#p2-scenario\")?.value===\"offline\""
+    },
+    {
+      "name": "409 comparison retains local text and allows explicit rebase",
+      "status": "FAIL",
+      "error": "Wait failed: document.querySelector(\"#p2-scenario\")?.value===\"save-409\""
+    },
+    {
+      "name": "save-unknown-applied is reconciled before further submission",
+      "status": "FAIL",
+      "error": "Wait failed: document.querySelector(\"#p2-scenario\")?.value===\"save-unknown-applied\""
+    },
+    {
+      "name": "save-unknown-unapplied is reconciled before further submission",
+      "status": "FAIL",
+      "error": "Wait failed: document.querySelector(\"#p2-scenario\")?.value===\"save-unknown-unapplied\""
+    },
+    {
+      "name": "edits during a slow save cannot submit the older snapshot",
+      "status": "FAIL",
+      "error": "Wait failed: document.querySelector(\"#p2-scenario\")?.value===\"slow-save\""
+    },
+    {
+      "name": "language switching preserves employee text and exposes English controls",
+      "status": "PASS"
+    },
+    {
+      "name": "saved selected work submits without entire chat or self approval",
+      "status": "PASS"
+    },
+    {
+      "name": "U04 independent professional return requires specific feedback",
+      "status": "PASS"
+    },
+    {
+      "name": "author derives a new revision and old feedback remains readable",
+      "status": "PASS"
+    },
+    {
+      "name": "publication approval waits for same-version professional approval",
+      "status": "PASS"
+    },
+    {
+      "name": "independent publication approval yields approved but not published work",
+      "status": "PASS"
+    },
+    {
+      "name": "unknown decision result checks authoritative mock history without replay",
+      "status": "PASS"
+    },
+    {
+      "name": "self-review and denied review scenarios expose no decision action",
+      "status": "PASS"
+    },
+    {
+      "name": "changed review subject refuses approval",
+      "status": "PASS"
+    },
+    {
+      "name": "recovery previews candidate before changing current work",
+      "status": "FAIL",
+      "error": "Wait failed: document.querySelector(\"#p2-scenario\")?.value===\"draft-recovery\""
+    },
+    {
+      "name": "denied and unreadable references never pretend to be understood",
+      "status": "FAIL",
+      "error": "Wait failed: document.querySelector(\"#p2-scenario\")?.value===\"file-denied\""
+    },
+    {
+      "name": "modal focus trapping and Esc restore the trigger focus",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n\n'' !== 'p2-reset'\n"
+    },
+    {
+      "name": "mobile view switches preserve draft and do not overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "same-tab refresh restores synthetic work without business storage",
+      "status": "PASS"
+    },
+    {
+      "name": "late generation cannot replace the next brand context",
+      "status": "FAIL",
+      "error": "Wait failed: document.querySelector(\"#p2-scenario\")?.value===\"slow-response\""
+    },
+    {
+      "name": "text is escaped, not interpreted as remote HTML",
+      "status": "PASS"
+    },
+    {
+      "name": "page requests are local assets only; no MOS APIs or remote services",
+      "status": "PASS"
+    }
+  ],
+  "requests": [
+    {
+      "url": "http://p2.localhost:9096/",
+      "method": "GET"
+    },
+    {
+      "url": "http://p2.localhost:9096/assets/index-T3EdzWD4.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://p2.localhost:9096/assets/index-BLwxwXLO.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://p2.localhost:9096/favicon.ico",
+      "method": "GET"
+    },
+    {
+      "url": "http://p2.localhost:9096/",
+      "method": "GET"
+    },
+    {
+      "url": "http://p2.localhost:9096/assets/index-T3EdzWD4.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://p2.localhost:9096/assets/index-BLwxwXLO.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://p2.localhost:9096/favicon.ico",
+      "method": "GET"
+    }
+  ],
+  "exceptions": []
+}

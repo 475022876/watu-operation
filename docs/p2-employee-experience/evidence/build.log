@@ -1,0 +1,14 @@
+
+> vfib-employee-workspace-prototype@0.0.0-p2 build
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 17 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.64 kB │ gzip:  0.42 kB
+dist/assets/index-DTZh19HO.css   17.48 kB │ gzip:  4.30 kB
+dist/assets/index-DwvcL6iH.js   278.30 kB │ gzip: 87.37 kB
+
+✓ built in 292ms

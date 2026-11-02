@@ -1,0 +1,12 @@
+{
+  "modelPassed": 49,
+  "browserPassed": 35,
+  "isolationPassed": 10,
+  "totalPassed": 94,
+  "failed": 0,
+  "build": "PASS",
+  "realEmployeeAcceptance": "NOT EXECUTED",
+  "liveExternalServices": "NOT EXECUTED",
+  "legacy17Suites": "NOT EXECUTED",
+  "scope": "P2 synthetic prototype only"
+}

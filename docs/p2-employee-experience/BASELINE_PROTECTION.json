@@ -1,0 +1,12 @@
+{
+  "baseline": "c5127952fa7d9e627846bb5299fd521d44dcc6f3",
+  "branch": "codex/employee-experience-p2",
+  "trackedBaselineDifferences": [],
+  "onlyNewPaths": [
+    "prototypes/employee-workspace",
+    "docs/p2-employee-experience"
+  ],
+  "businessSourceChanged": false,
+  "productionDataAccessed": false,
+  "applicationVersionChanged": false
+}

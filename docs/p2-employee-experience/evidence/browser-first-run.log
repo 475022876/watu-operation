@@ -1,0 +1,33 @@
+PASS U01 personal task queue and explicit isolated MOCK identity
+PASS create synthetic task with requirements without technical fields
+PASS U02 two discussion turns do not overwrite the artifact
+PASS dirty artifact replacement requires confirmation and cancel retains input
+PASS U03 attachment is synthetic metadata and separate from model reference
+FAIL U05 save-409 keeps draft and cannot submit Wait failed: document.querySelector("#p2-scenario")?.value==="save-409"
+FAIL U05 save-500 keeps draft and cannot submit Wait failed: document.querySelector("#p2-scenario")?.value==="save-500"
+FAIL U05 offline keeps draft and cannot submit Wait failed: document.querySelector("#p2-scenario")?.value==="offline"
+FAIL 409 comparison retains local text and allows explicit rebase Wait failed: document.querySelector("#p2-scenario")?.value==="save-409"
+FAIL save-unknown-applied is reconciled before further submission Wait failed: document.querySelector("#p2-scenario")?.value==="save-unknown-applied"
+FAIL save-unknown-unapplied is reconciled before further submission Wait failed: document.querySelector("#p2-scenario")?.value==="save-unknown-unapplied"
+FAIL edits during a slow save cannot submit the older snapshot Wait failed: document.querySelector("#p2-scenario")?.value==="slow-save"
+PASS language switching preserves employee text and exposes English controls
+PASS saved selected work submits without entire chat or self approval
+PASS U04 independent professional return requires specific feedback
+PASS author derives a new revision and old feedback remains readable
+PASS publication approval waits for same-version professional approval
+PASS independent publication approval yields approved but not published work
+PASS unknown decision result checks authoritative mock history without replay
+PASS self-review and denied review scenarios expose no decision action
+PASS changed review subject refuses approval
+FAIL recovery previews candidate before changing current work Wait failed: document.querySelector("#p2-scenario")?.value==="draft-recovery"
+FAIL denied and unreadable references never pretend to be understood Wait failed: document.querySelector("#p2-scenario")?.value==="file-denied"
+FAIL modal focus trapping and Esc restore the trigger focus Expected values to be strictly equal:
+
+'' !== 'p2-reset'
+
+PASS mobile view switches preserve draft and do not overflow
+PASS same-tab refresh restores synthetic work without business storage
+FAIL late generation cannot replace the next brand context Wait failed: document.querySelector("#p2-scenario")?.value==="slow-response"
+PASS text is escaped, not interpreted as remote HTML
+PASS page requests are local assets only; no MOS APIs or remote services
+{"passed":18,"failed":11}

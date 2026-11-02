@@ -1,0 +1,67 @@
+✔ synthetic tasks and draft context stay scoped by brand (8.9411ms)
+✔ actor cannot switch to a brand outside its grant (0.3092ms)
+✔ draft content is scoped by actor as well as task (0.204ms)
+✔ discussion does not automatically replace current artifact (6.3742ms)
+✔ selected response changes artifact but does not submit or save (0.4151ms)
+✔ save persists only selected work and not the conversation (15.1604ms)
+✔ generation not-configured preserves input and work (1.4349ms)
+✔ generation budget preserves input and work (0.189ms)
+✔ generation generation-failed preserves input and work (0.2024ms)
+✔ generation offline preserves input and work (0.1917ms)
+✔ save save-409 retains draft and blocks submit (3.4896ms)
+✔ save save-500 retains draft and blocks submit (0.8604ms)
+✔ save offline retains draft and blocks submit (0.9146ms)
+✔ saving a snapshot while edits continue does not authorize submission (37.75ms)
+✔ duplicate save in-flight is rejected (29.5333ms)
+✔ unknown save true requires reconciliation without duplicate work (16.0446ms)
+✔ unknown save false requires reconciliation without duplicate work (15.1499ms)
+✔ compare/rebase retains local content and does not silently save (30.71ms)
+✔ upload only records synthetic metadata and distinguishes read capability (0.5712ms)
+✔ review attachment selection does not imply use by the model (0.7051ms)
+✔ unreadable file cannot be selected for generation (0.2366ms)
+✔ authorized supported reference is marked only after request inclusion (0.6615ms)
+✔ revoked references are not sent to a mock model (0.53ms)
+✔ removing a denied reference permits editing without the material (12.8349ms)
+✔ upload failure does not add a successful file (0.4125ms)
+✔ selected attachments are frozen with the work (14.888ms)
+✔ unsaved attachment changes block submission (15.5148ms)
+✔ author cannot approve their own submitted work despite publisher role (0.5623ms)
+✔ publication approval cannot precede professional approval (14.9856ms)
+✔ separate authorized professional and publication decisions are required (1.2993ms)
+✔ return requires feedback and revision preserves old work (30.021ms)
+✔ stale review row version cannot approve a changed subject (15.9534ms)
+✔ mutated frozen material is detected by mock signature (0.7809ms)
+✔ decision result unknown preserves actual synthetic decision and prevents replay (0.6612ms)
+✔ non-makers cannot generate, create or modify work (0.4418ms)
+✔ task assignee must have maker permission for the current brand (0.1775ms)
+✔ late generated response cannot overwrite a different brand context (44.7206ms)
+✔ save dispatched before role switch retains original author (30.8122ms)
+✖ free creation can attach selected work without including chat in artifact (1.0563ms)
+✔ attaching to a frozen task does not change current context (0.1251ms)
+✔ session snapshot round-trip restores drafts but does not become a production store (0.1694ms)
+✔ locale switch does not mutate work or messages (4.8427ms)
+✔ reset clears only the synthetic workspace (0.1842ms)
+ℹ tests 43
+ℹ suites 0
+ℹ pass 42
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 582.581
+
+✖ failing tests:
+
+test at prototypes\employee-workspace\tests\model.test.mjs:38:1
+✖ free creation can attach selected work without including chat in artifact (1.0563ms)
+  Error: work.save_first
+      at MockWorkspace.save (file:///C:/Users/three/.codex/worktrees/postgresql-phase3a2/VFIB-Marketing-OS/prototypes/employee-workspace/src/model.ts:109:50)
+      at TestContext.<anonymous> (file:///C:/Users/three/.codex/worktrees/postgresql-phase3a2/VFIB-Marketing-OS/prototypes/employee-workspace/tests/model.test.mjs:38:213)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    code: 'work.save_first'
+  }
