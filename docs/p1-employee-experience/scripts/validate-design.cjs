@@ -1,0 +1,26 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),{execFileSync}=require('node:child_process');
+const root=path.resolve(__dirname,'..'),repo=path.resolve(root,'../..'),checks=[];
+function check(name,ok){checks.push({name,status:ok?'PASS':'FAIL'});if(!ok)process.exitCode=1;}
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const copy=JSON.parse(read('COPY.zh-en.json')).copy,states=JSON.parse(read('STATE_CATALOG.json')).states,render=JSON.parse(read('DESIGN_RENDER_EVIDENCE.json'));
+const placeholders=s=>[...s.matchAll(/\{([^}]+)\}/g)].map(m=>m[1]).sort().join('|');
+check('paired nonempty Chinese/English copy with matching placeholders',Object.values(copy).every(c=>typeof c.zh==='string'&&c.zh.trim()&&typeof c.en==='string'&&c.en.trim()&&placeholders(c.zh)===placeholders(c.en)));
+check('32 unique design states refer to existing copy',states.length===32&&new Set(states.map(s=>s.id)).size===32&&states.every(s=>copy[s.primary]&&s.rule));
+check('all states appear in behavioral specification',states.every(s=>read('P1_02_STATE_BEHAVIOR.md').includes(s.id)));
+check('three scenes each contain state definitions',new Set(states.map(s=>s.page)).size===3);
+const svgs=fs.readdirSync(path.join(root,'boards')).filter(n=>n.endsWith('.svg'));
+check('seven static drawings without script or remote references',svgs.length===7&&svgs.every(n=>!/<script|foreignObject|on\w+\s*=|(?:href|src)=["']https?:/i.test(read('boards/'+n))));
+check('seven PNGs match captured sizes and digests',render.results.length===7&&render.results.every(r=>{const data=fs.readFileSync(path.join(root,'boards',r.drawing));return data.readUInt32BE(16)===r.width&&data.readUInt32BE(20)===r.height&&crypto.createHash('sha256').update(data).digest('hex')===r.sha256;}));
+check('three 1440px desktop and three 390px mobile boards',render.results.filter(r=>r.width===1440&&r.height===960).length===3&&render.results.filter(r=>r.width===390&&r.height===844).length===3);
+const docs=fs.readdirSync(root).filter(n=>n.endsWith('.md'));
+check('five specifications and overview with valid local links',docs.length===6&&docs.every(n=>[...read(n).matchAll(/!?\[[^\]]*\]\(([^)]+)\)/g)].every(m=>/^https?:/.test(m[1])||fs.existsSync(path.join(root,m[1])))));
+check('five P0 user scripts have design walkthrough coverage',['U01','U02','U03','U04','U05'].every(id=>read('P1_04_DESIGN_WALKTHROUGH.md').includes(id)));
+const baseline='4ab767d22b8635330ecf6e7be08618713afa6372',scope=['server.js','lib','public','package.json','package-lock.json','migrations'];
+const run=args=>execFileSync('git',args,{cwd:repo,encoding:'utf8'});
+const diff=run(['diff',baseline,'--',...scope]);check('no runtime source, dependency or migration changes',diff.trim()==='');
+check('P0 locked evidence and reports unchanged',run(['diff',baseline,'--','docs/p0-employee-experience']).trim()==='');
+const tree=run(['ls-tree','-r',baseline,'--',...scope]);
+fs.writeFileSync(path.join(root,'BASELINE_PROTECTION.json'),JSON.stringify({baseline,scope,trackedSourceFiles:tree.trim().split('\n').length,treeSha256:crypto.createHash('sha256').update(tree).digest('hex'),runtimeDiff:diff,productionDataRead:false,productionSecretsRead:false,prototypeImplemented:false},null,2));
+const out={date:'2026-11-02',scope:'P1 design consistency and static rendering only; not employee usability or runtime acceptance',copyPairs:Object.keys(copy).length,states:states.length,drawings:svgs.length,passed:checks.filter(c=>c.status==='PASS').length,failed:checks.filter(c=>c.status==='FAIL').length,checks};
+fs.writeFileSync(path.join(root,'VALIDATION.json'),JSON.stringify(out,null,2));console.log(JSON.stringify(out));

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" role="img" aria-label="我的任务 390px设计"><title>我的任务 390px设计 — static synthetic design, not a running application</title><style>text{font-family:'Microsoft YaHei','Noto Sans SC',Arial,sans-serif} .line{stroke:#dfe5ef;stroke-width:1}</style>
+<rect x="0" y="0" width="390" height="844" rx="0" fill="#f4f6fa" stroke="#f4f6fa"/>
+<rect x="0" y="0" width="390" height="61" rx="0" fill="#fff" stroke="#dfe5ef"/>
+<text x="18" y="37" font-size="20" fill="#162941" font-weight="400">☰</text>
+<rect x="54" y="17" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="66" y="36" font-size="12" fill="#245fe5" font-weight="600">VFIB</text>
+<text x="291" y="37" font-size="12" fill="#64748b" font-weight="400">林悦  EN</text>
+<text x="18" y="824" font-size="10" fill="#64748b" font-weight="400">P1静态设计 · 合成示例 · 不可操作</text>
+<text x="18" y="105" font-size="26" fill="#162941" font-weight="700">我的任务</text>
+<text x="18" y="133" font-size="13" fill="#64748b" font-weight="400">先处理需要你行动的工作</text>
+<rect x="18" y="158" width="112" height="28" rx="14" fill="#245fe5" stroke="#245fe5"/>
+<text x="30" y="177" font-size="12" fill="#fff" font-weight="600">待我处理 6</text>
+<rect x="140" y="158" width="100" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="152" y="177" font-size="12" fill="#245fe5" font-weight="600">待修改 2</text>
+<rect x="250" y="158" width="118" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="262" y="177" font-size="12" fill="#245fe5" font-weight="600">待我审核 1</text>
+<rect x="18" y="207" width="354" height="44" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<text x="30" y="235" font-size="13" fill="#64748b" font-weight="400">⌕ 搜索任务       筛选 ▾</text>
+<rect x="18" y="272" width="354" height="144" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<text x="34" y="302" font-size="17" fill="#162941" font-weight="600">会员服务介绍短文</text>
+<text x="34" y="331" font-size="12" fill="#64748b" font-weight="400">制作中 · 今天17:00截止</text>
+<rect x="34" y="356" width="320" height="40" rx="8" fill="#245fe5" stroke="#245fe5"/>
+<text x="50" y="381" font-size="14" fill="#fff" font-weight="600">继续创作</text>
+<rect x="18" y="432" width="354" height="144" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<text x="34" y="462" font-size="17" fill="#162941" font-weight="600">活动邀请文案</text>
+<text x="34" y="491" font-size="12" fill="#64748b" font-weight="400">待修改 · 开头需要简短一些</text>
+<rect x="34" y="516" width="320" height="40" rx="8" fill="#245fe5" stroke="#245fe5"/>
+<text x="50" y="541" font-size="14" fill="#fff" font-weight="600">按反馈修改</text>
+<rect x="18" y="592" width="354" height="144" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<text x="34" y="622" font-size="17" fill="#162941" font-weight="600">品牌活动通知</text>
+<text x="34" y="651" font-size="12" fill="#64748b" font-weight="400">待开始 · 明天16:00截止</text>
+<rect x="34" y="676" width="320" height="40" rx="8" fill="#245fe5" stroke="#245fe5"/>
+<text x="50" y="701" font-size="14" fill="#fff" font-weight="600">查看要求</text>
+<text x="20" y="790" font-size="11" fill="#64748b" font-weight="400">更多视图与六区入口从左上菜单展开</text>
+</svg>

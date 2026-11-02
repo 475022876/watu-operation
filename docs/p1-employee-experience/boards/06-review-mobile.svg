@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" role="img" aria-label="作品审核 390px设计"><title>作品审核 390px设计 — static synthetic design, not a running application</title><style>text{font-family:'Microsoft YaHei','Noto Sans SC',Arial,sans-serif} .line{stroke:#dfe5ef;stroke-width:1}</style>
+<rect x="0" y="0" width="390" height="844" rx="0" fill="#f4f6fa" stroke="#f4f6fa"/>
+<rect x="0" y="0" width="390" height="61" rx="0" fill="#fff" stroke="#dfe5ef"/>
+<text x="18" y="37" font-size="20" fill="#162941" font-weight="400">☰</text>
+<rect x="54" y="17" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="66" y="36" font-size="12" fill="#245fe5" font-weight="600">VFIB</text>
+<text x="291" y="37" font-size="12" fill="#64748b" font-weight="400">林悦  EN</text>
+<text x="18" y="824" font-size="10" fill="#64748b" font-weight="400">P1静态设计 · 合成示例 · 不可操作</text>
+<rect x="280" y="12" width="108" height="36" rx="0" fill="#fff" stroke="#fff"/>
+<text x="291" y="37" font-size="12" fill="#64748b" font-weight="400">陈岚  EN</text>
+<text x="18" y="94" font-size="12" fill="#64748b" font-weight="400">← 待我审核</text>
+<text x="18" y="127" font-size="22" fill="#162941" font-weight="700">会员服务介绍短文</text>
+<rect x="18" y="145" width="174" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="30" y="164" font-size="12" fill="#245fe5" font-weight="600">专业审核 · 待你处理</text>
+<rect x="18" y="190" width="100" height="28" rx="14" fill="#245fe5" stroke="#245fe5"/>
+<text x="30" y="209" font-size="12" fill="#fff" font-weight="600">作品</text>
+<rect x="132" y="190" width="120" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="144" y="209" font-size="12" fill="#245fe5" font-weight="600">审核反馈</text>
+<rect x="18" y="240" width="354" height="415" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<text x="34" y="274" font-size="14" fill="#162941" font-weight="600">本次送审正文 · 只读</text>
+<text x="34" y="319" font-size="14" fill="#162941" font-weight="400">先阅读要审核的作品，再给出意见。</text>
+<text x="34" y="350" font-size="14" fill="#162941" font-weight="400"></text>
+<text x="34" y="381" font-size="14" fill="#162941" font-weight="400">这是固定的送审正文，不包含聊天。</text>
+<text x="34" y="412" font-size="14" fill="#162941" font-weight="400">反馈与后续修订都留在同一任务中。</text>
+<text x="34" y="443" font-size="14" fill="#162941" font-weight="400"></text>
+<text x="34" y="474" font-size="14" fill="#162941" font-weight="400">附件（2）  查看本次附件</text>
+<text x="34" y="505" font-size="14" fill="#162941" font-weight="400">任务要求  展开</text>
+<text x="34" y="620" font-size="11" fill="#64748b" font-weight="400">发布审批仍需授权人员独立处理。</text>
+<rect x="0" y="684" width="390" height="116" rx="0" fill="#fff" stroke="#dfe5ef"/>
+<rect x="18" y="700" width="130" height="40" rx="8" fill="#fff" stroke="#dfe5ef"/>
+<text x="34" y="725" font-size="14" fill="#162941" font-weight="600">退回修改</text>
+<rect x="160" y="700" width="212" height="40" rx="8" fill="#245fe5" stroke="#245fe5"/>
+<text x="176" y="725" font-size="14" fill="#fff" font-weight="600">批准专业审核</text>
+<text x="18" y="774" font-size="11" fill="#64748b" font-weight="400">动作先打开确认/意见面板，未确认不提交。</text>
+</svg>

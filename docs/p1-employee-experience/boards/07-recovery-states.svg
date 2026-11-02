@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1040" viewBox="0 0 1440 1040" role="img" aria-label="关键异常与恢复设计"><title>关键异常与恢复设计 — static synthetic design, not a running application</title><style>text{font-family:'Microsoft YaHei','Noto Sans SC',Arial,sans-serif} .line{stroke:#dfe5ef;stroke-width:1}</style>
+<rect x="0" y="0" width="1440" height="1040" rx="0" fill="#f4f6fa" stroke="#dfe5ef"/>
+<text x="32" y="52" font-size="25" fill="#162941" font-weight="700">关键状态：就地解释，并给出可执行的下一步</text>
+<text x="32" y="81" font-size="13" fill="#64748b" font-weight="400">示例状态不是实际错误或真实服务结果。所有动作均为静态示意。</text>
+<rect x="32" y="118" width="440" height="262" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<rect x="52" y="138" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="64" y="157" font-size="12" fill="#64748b" font-weight="600">状态示例</text>
+<text x="52" y="201" font-size="19" fill="#162941" font-weight="600">模型未接通</text>
+<text x="52" y="240" font-size="13" fill="#64748b" font-weight="400">当前文字模型尚未接通。输入仍保留。</text>
+<text x="52" y="265" font-size="13" fill="#64748b" font-weight="400"></text>
+<path d="M52 299h400" class="line"/>
+<text x="52" y="337" font-size="12" fill="#245fe5" font-weight="600">继续手动编辑 / 查看接入状态</text>
+<rect x="496" y="118" width="440" height="262" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<rect x="516" y="138" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="528" y="157" font-size="12" fill="#a85c12" font-weight="600">状态示例</text>
+<text x="516" y="201" font-size="19" fill="#162941" font-weight="600">资料不能用于本次生成</text>
+<text x="516" y="240" font-size="13" fill="#64748b" font-weight="400">无法确认这份资料的使用权限，未发送给模型。</text>
+<text x="516" y="265" font-size="13" fill="#64748b" font-weight="400"></text>
+<path d="M516 299h400" class="line"/>
+<text x="516" y="337" font-size="12" fill="#245fe5" font-weight="600">移除本次引用 / 查看原因</text>
+<rect x="960" y="118" width="440" height="262" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<rect x="980" y="138" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="992" y="157" font-size="12" fill="#a63237" font-weight="600">状态示例</text>
+<text x="980" y="201" font-size="19" fill="#162941" font-weight="600">保存失败 · 断网或服务错误</text>
+<text x="980" y="240" font-size="13" fill="#64748b" font-weight="400">当前输入仍在，请恢复连接后再保存。未送审。</text>
+<text x="980" y="265" font-size="13" fill="#64748b" font-weight="400"></text>
+<path d="M980 299h400" class="line"/>
+<text x="980" y="337" font-size="12" fill="#245fe5" font-weight="600">重试保存 / 保留草稿</text>
+<rect x="32" y="406" width="440" height="262" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<rect x="52" y="426" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="64" y="445" font-size="12" fill="#a85c12" font-weight="600">状态示例</text>
+<text x="52" y="489" font-size="19" fill="#162941" font-weight="600">保存冲突</text>
+<text x="52" y="528" font-size="13" fill="#64748b" font-weight="400">服务器上有更新内容。你的输入不会被覆盖。</text>
+<text x="52" y="553" font-size="13" fill="#64748b" font-weight="400"></text>
+<path d="M52 587h400" class="line"/>
+<text x="52" y="625" font-size="12" fill="#245fe5" font-weight="600">比较两个版本 / 保留我的草稿</text>
+<rect x="496" y="406" width="440" height="262" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<rect x="516" y="426" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="528" y="445" font-size="12" fill="#a85c12" font-weight="600">状态示例</text>
+<text x="516" y="489" font-size="19" fill="#162941" font-weight="600">保存结果未确认</text>
+<text x="516" y="528" font-size="13" fill="#64748b" font-weight="400">请求已发送，但未收到明确结果。请先核对。</text>
+<text x="516" y="553" font-size="13" fill="#64748b" font-weight="400"></text>
+<path d="M516 587h400" class="line"/>
+<text x="516" y="625" font-size="12" fill="#245fe5" font-weight="600">查询保存结果 / 暂不重复新建</text>
+<rect x="960" y="406" width="440" height="262" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<rect x="980" y="426" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="992" y="445" font-size="12" fill="#245fe5" font-weight="600">状态示例</text>
+<text x="980" y="489" font-size="19" fill="#162941" font-weight="600">恢复未保存内容</text>
+<text x="980" y="528" font-size="13" fill="#64748b" font-weight="400">发现此前未保存的输入，尚未替换当前作品。</text>
+<text x="980" y="553" font-size="13" fill="#64748b" font-weight="400"></text>
+<path d="M980 587h400" class="line"/>
+<text x="980" y="625" font-size="12" fill="#245fe5" font-weight="600">预览恢复内容 / 保留当前作品</text>
+<rect x="32" y="694" width="440" height="262" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<rect x="52" y="714" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="64" y="733" font-size="12" fill="#a63237" font-weight="600">状态示例</text>
+<text x="52" y="777" font-size="19" fill="#162941" font-weight="600">审核权限已变化</text>
+<text x="52" y="816" font-size="13" fill="#64748b" font-weight="400">你当前不能审核这份作品，未提交决定。</text>
+<text x="52" y="841" font-size="13" fill="#64748b" font-weight="400"></text>
+<path d="M52 875h400" class="line"/>
+<text x="52" y="913" font-size="12" fill="#245fe5" font-weight="600">返回待办 / 刷新权限</text>
+<rect x="496" y="694" width="440" height="262" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<rect x="516" y="714" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="528" y="733" font-size="12" fill="#a63237" font-weight="600">状态示例</text>
+<text x="516" y="777" font-size="19" fill="#162941" font-weight="600">送审作品已经变化</text>
+<text x="516" y="816" font-size="13" fill="#64748b" font-weight="400">本次审核对象需要重新核对，不能沿用旧批准。</text>
+<text x="516" y="841" font-size="13" fill="#64748b" font-weight="400"></text>
+<path d="M516 875h400" class="line"/>
+<text x="516" y="913" font-size="12" fill="#245fe5" font-weight="600">查看最新送审作品 / 返回任务</text>
+<rect x="960" y="694" width="440" height="262" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<rect x="980" y="714" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="992" y="733" font-size="12" fill="#187757" font-weight="600">状态示例</text>
+<text x="980" y="777" font-size="19" fill="#162941" font-weight="600">作品已批准 · 尚未发布</text>
+<text x="980" y="816" font-size="13" fill="#64748b" font-weight="400">这份作品可交给发布负责人安排。</text>
+<text x="980" y="841" font-size="13" fill="#64748b" font-weight="400"></text>
+<path d="M980 875h400" class="line"/>
+<text x="980" y="913" font-size="12" fill="#245fe5" font-weight="600">查看发布安排 / 返回任务</text>
+<text x="32" y="1012" font-size="12" fill="#64748b" font-weight="400">P1静态设计 · 不改变权限或服务端状态；详细交互约束见状态说明。</text>
+</svg>

@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-02",
+  "at": "2026-11-02T10:25:47.285Z",
+  "scope": "Static SVG drawing rendering only; not a prototype or user workflow test",
+  "results": [
+    {
+      "drawing": "01-my-tasks-desktop.png",
+      "width": 1440,
+      "height": 960,
+      "sha256": "a9778a7043c391d9d6fc89a4fcc2772cb7bdf17ed2130bd236839f49657b6748",
+      "status": "RENDERED_STATIC_DESIGN"
+    },
+    {
+      "drawing": "02-creative-desktop.png",
+      "width": 1440,
+      "height": 960,
+      "sha256": "a676162a9082a9ff56a99a1cb7d0fdbbccc7b0f778c25081cc08b6a0532e315a",
+      "status": "RENDERED_STATIC_DESIGN"
+    },
+    {
+      "drawing": "03-review-desktop.png",
+      "width": 1440,
+      "height": 960,
+      "sha256": "979bd0693b0a8469f1dbd4da221b56ffb992dd290848e71d43f988a1bd9abd50",
+      "status": "RENDERED_STATIC_DESIGN"
+    },
+    {
+      "drawing": "04-my-tasks-mobile.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "ec1468b879bc124f3516163ac4cd442c8fcfc5567fcef348bfd6c94f4422d9e5",
+      "status": "RENDERED_STATIC_DESIGN"
+    },
+    {
+      "drawing": "05-creative-mobile.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "6995b4325e7775dcbbb6f1b4a20d98c15920390f93fec484bfad0b0c8bbd2715",
+      "status": "RENDERED_STATIC_DESIGN"
+    },
+    {
+      "drawing": "06-review-mobile.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "ae074508cff5afcaa0e5dcf33995b7d4cfd74d2515e286e0c7ba74c872e3330b",
+      "status": "RENDERED_STATIC_DESIGN"
+    },
+    {
+      "drawing": "07-recovery-states.png",
+      "width": 1440,
+      "height": 1040,
+      "sha256": "71aa2bf45192f828b0ad806da62612d1e2b343c9509004c2f448a1d76cd175d6",
+      "status": "RENDERED_STATIC_DESIGN"
+    }
+  ]
+}

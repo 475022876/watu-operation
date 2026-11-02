@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960" role="img" aria-label="我的任务 桌面设计"><title>我的任务 桌面设计 — static synthetic design, not a running application</title><style>text{font-family:'Microsoft YaHei','Noto Sans SC',Arial,sans-serif} .line{stroke:#dfe5ef;stroke-width:1}</style>
+<rect x="0" y="0" width="1440" height="960" rx="0" fill="#f4f6fa" stroke="#f4f6fa"/>
+<rect x="0" y="0" width="204" height="960" rx="0" fill="#102843" stroke="#102843"/>
+<text x="24" y="41" font-size="23" fill="#fff" font-weight="700">VFIB</text>
+<text x="24" y="63" font-size="12" fill="#abc0d8" font-weight="400">Marketing OS</text>
+<rect x="12" y="87" width="180" height="42" rx="8" fill="#244363" stroke="#244363"/>
+<text x="26" y="112" font-size="15" fill="#fff" font-weight="600">工作台</text>
+<text x="175" y="112" font-size="13" fill="#9fb7d0" font-weight="400">⌄</text>
+<text x="38" y="144" font-size="12" fill="#cbdcf0" font-weight="400">我的任务</text>
+<text x="26" y="200" font-size="15" fill="#bccce0" font-weight="400">数据工作台</text>
+<text x="175" y="200" font-size="13" fill="#9fb7d0" font-weight="400">⌄</text>
+<text x="26" y="288" font-size="15" fill="#bccce0" font-weight="400">内容制作</text>
+<text x="175" y="288" font-size="13" fill="#9fb7d0" font-weight="400">⌄</text>
+<text x="26" y="376" font-size="15" fill="#bccce0" font-weight="400">发布管理</text>
+<text x="175" y="376" font-size="13" fill="#9fb7d0" font-weight="400">⌄</text>
+<text x="26" y="464" font-size="15" fill="#bccce0" font-weight="400">品牌规范</text>
+<text x="175" y="464" font-size="13" fill="#9fb7d0" font-weight="400">⌄</text>
+<text x="26" y="552" font-size="15" fill="#bccce0" font-weight="400">系统扩展</text>
+<text x="175" y="552" font-size="13" fill="#9fb7d0" font-weight="400">⌄</text>
+<text x="22" y="936" font-size="11" fill="#a7bbd2" font-weight="400">六区保留 · 当前分区展开</text>
+<rect x="204" y="0" width="1236" height="66" rx="0" fill="#fff" stroke="#dfe5ef"/>
+<rect x="232" y="19" width="98" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="244" y="38" font-size="12" fill="#245fe5" font-weight="600">VFIB 品牌</text>
+<text x="350" y="39" font-size="12" fill="#64748b" font-weight="400">工作内容随品牌隔离</text>
+<text x="1212" y="39" font-size="13" fill="#64748b" font-weight="400">EN   /   林悦 · 运营</text>
+<text x="1188" y="943" font-size="11" fill="#64748b" font-weight="400">P1静态设计 · 合成示例 · 不可操作</text>
+<text x="240" y="120" font-size="30" fill="#162941" font-weight="700">我的任务</text>
+<text x="240" y="150" font-size="14" fill="#64748b" font-weight="400">先处理需要你行动的工作</text>
+<rect x="1250" y="100" width="146" height="40" rx="8" fill="#fff" stroke="#dfe5ef"/>
+<text x="1266" y="125" font-size="14" fill="#162941" font-weight="600">＋ 发起任务</text>
+<rect x="240" y="180" width="160" height="49" rx="10" fill="#245fe5" stroke="#245fe5"/>
+<text x="257" y="210" font-size="15" fill="#fff" font-weight="600">待我处理  6</text>
+<rect x="412" y="180" width="160" height="49" rx="10" fill="#fff" stroke="#dfe5ef"/>
+<text x="429" y="210" font-size="15" fill="#64748b" font-weight="400">待修改  2</text>
+<rect x="584" y="180" width="160" height="49" rx="10" fill="#fff" stroke="#dfe5ef"/>
+<text x="601" y="210" font-size="15" fill="#64748b" font-weight="400">待我审核  1</text>
+<rect x="756" y="180" width="160" height="49" rx="10" fill="#fff" stroke="#dfe5ef"/>
+<text x="773" y="210" font-size="15" fill="#64748b" font-weight="400">临近截止  3</text>
+<rect x="928" y="180" width="160" height="49" rx="10" fill="#fff" stroke="#dfe5ef"/>
+<text x="945" y="210" font-size="15" fill="#64748b" font-weight="400">全部任务  18</text>
+<rect x="240" y="252" width="1156" height="52" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<text x="258" y="285" font-size="14" fill="#64748b" font-weight="400">⌕  搜索任务名称或负责人</text>
+<text x="1134" y="285" font-size="13" fill="#64748b" font-weight="400">时间范围  ▾    更多筛选</text>
+<rect x="240" y="324" width="1156" height="448" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<text x="262" y="359" font-size="12" fill="#64748b" font-weight="400">任务与当前需要</text>
+<text x="836" y="359" font-size="12" fill="#64748b" font-weight="400">负责人</text>
+<text x="978" y="359" font-size="12" fill="#64748b" font-weight="400">截止</text>
+<text x="1160" y="359" font-size="12" fill="#64748b" font-weight="400">下一步</text>
+<path d="M240 378h1156" class="line"/>
+<text x="264" y="423" font-size="18" fill="#162941" font-weight="600">会员服务介绍短文</text>
+<text x="264" y="453" font-size="13" fill="#64748b" font-weight="400">按任务要求整理介绍，不加入未核实的费率。</text>
+<rect x="264" y="467" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="276" y="486" font-size="12" fill="#245fe5" font-weight="600">制作中</text>
+<text x="840" y="440" font-size="14" fill="#162941" font-weight="400">林悦</text>
+<text x="978" y="440" font-size="14" fill="#a85c12" font-weight="400">今天 17:00</text>
+<rect x="1160" y="418" width="150" height="40" rx="8" fill="#245fe5" stroke="#245fe5"/>
+<text x="1176" y="443" font-size="14" fill="#fff" font-weight="600">继续创作</text>
+<path d="M260 504h1116" class="line"/>
+<text x="264" y="543" font-size="18" fill="#162941" font-weight="600">活动邀请文案</text>
+<text x="264" y="573" font-size="13" fill="#64748b" font-weight="400">审核意见：开头再简短一些，保留报名条件。</text>
+<rect x="264" y="587" width="90" height="28" rx="14" fill="#fff0dd" stroke="#fff0dd"/>
+<text x="276" y="606" font-size="12" fill="#a85c12" font-weight="600">待修改</text>
+<text x="840" y="560" font-size="14" fill="#162941" font-weight="400">林悦</text>
+<text x="978" y="560" font-size="14" fill="#162941" font-weight="400">今天 18:00</text>
+<rect x="1160" y="538" width="150" height="40" rx="8" fill="#245fe5" stroke="#245fe5"/>
+<text x="1176" y="563" font-size="14" fill="#fff" font-weight="600">按反馈修改</text>
+<path d="M260 624h1116" class="line"/>
+<text x="264" y="663" font-size="18" fill="#162941" font-weight="600">品牌活动通知</text>
+<text x="264" y="693" font-size="13" fill="#64748b" font-weight="400">已安排明日开始，资料已随任务提供。</text>
+<rect x="264" y="707" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="276" y="726" font-size="12" fill="#245fe5" font-weight="600">待开始</text>
+<text x="840" y="680" font-size="14" fill="#162941" font-weight="400">林悦</text>
+<text x="978" y="680" font-size="14" fill="#162941" font-weight="400">明天 16:00</text>
+<rect x="1160" y="658" width="150" height="40" rx="8" fill="#245fe5" stroke="#245fe5"/>
+<text x="1176" y="683" font-size="14" fill="#fff" font-weight="600">查看要求</text>
+<text x="248" y="812" font-size="13" fill="#64748b" font-weight="400">已完成、已取消与项目总览可从“全部任务”查找。</text>
+<text x="240" y="894" font-size="13" fill="#64748b" font-weight="400">主要动作：点击任务下一步，直接进入同一作品上下文。</text>
+</svg>

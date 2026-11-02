@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" role="img" aria-label="创作工作区 390px设计"><title>创作工作区 390px设计 — static synthetic design, not a running application</title><style>text{font-family:'Microsoft YaHei','Noto Sans SC',Arial,sans-serif} .line{stroke:#dfe5ef;stroke-width:1}</style>
+<rect x="0" y="0" width="390" height="844" rx="0" fill="#f4f6fa" stroke="#f4f6fa"/>
+<rect x="0" y="0" width="390" height="61" rx="0" fill="#fff" stroke="#dfe5ef"/>
+<text x="18" y="37" font-size="20" fill="#162941" font-weight="400">☰</text>
+<rect x="54" y="17" width="90" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="66" y="36" font-size="12" fill="#245fe5" font-weight="600">VFIB</text>
+<text x="291" y="37" font-size="12" fill="#64748b" font-weight="400">林悦  EN</text>
+<text x="18" y="824" font-size="10" fill="#64748b" font-weight="400">P1静态设计 · 合成示例 · 不可操作</text>
+<text x="18" y="94" font-size="12" fill="#64748b" font-weight="400">← 我的任务</text>
+<text x="18" y="127" font-size="22" fill="#162941" font-weight="700">会员服务介绍短文</text>
+<text x="18" y="154" font-size="12" fill="#a85c12" font-weight="400">今天17:00截止 · 当前作品未保存</text>
+<rect x="18" y="177" width="108" height="28" rx="14" fill="#eef3fb" stroke="#eef3fb"/>
+<text x="30" y="196" font-size="12" fill="#245fe5" font-weight="600">讨论</text>
+<rect x="138" y="177" width="118" height="28" rx="14" fill="#245fe5" stroke="#245fe5"/>
+<text x="150" y="196" font-size="12" fill="#fff" font-weight="600">当前作品</text>
+<text x="18" y="231" font-size="12" fill="#245fe5" font-weight="400">任务要求与资料（2）  ▾</text>
+<rect x="18" y="252" width="354" height="414" rx="12" fill="#fff" stroke="#dfe5ef"/>
+<text x="34" y="289" font-size="16" fill="#162941" font-weight="600">当前作品</text>
+<path d="M18 307h354" class="line"/>
+<text x="34" y="344" font-size="17" fill="#162941" font-weight="600">把服务说明写得更容易理解</text>
+<text x="34" y="380" font-size="13" fill="#162941" font-weight="400">直接编辑你选定的交付内容。</text>
+<text x="34" y="407" font-size="13" fill="#162941" font-weight="400"></text>
+<text x="34" y="434" font-size="13" fill="#162941" font-weight="400">先介绍读者遇到的场景，再说明</text>
+<text x="34" y="461" font-size="13" fill="#162941" font-weight="400">已核实的服务内容。</text>
+<text x="34" y="488" font-size="13" fill="#162941" font-weight="400"></text>
+<text x="34" y="515" font-size="13" fill="#162941" font-weight="400">聊天、附件状态和当前作品分别保留，</text>
+<text x="34" y="542" font-size="13" fill="#162941" font-weight="400">切换视图不会替换正在编辑的文字。</text>
+<text x="34" y="641" font-size="11" fill="#64748b" font-weight="400">附件：服务说明.pdf · 未用于生成</text>
+<rect x="0" y="698" width="390" height="99" rx="0" fill="#fff" stroke="#dfe5ef"/>
+<rect x="18" y="716" width="354" height="40" rx="8" fill="#245fe5" stroke="#245fe5"/>
+<text x="34" y="741" font-size="14" fill="#fff" font-weight="600">保存作品</text>
+<text x="18" y="780" font-size="11" fill="#64748b" font-weight="400">保存成功后，主要动作变为“提交审核”。</text>
+</svg>

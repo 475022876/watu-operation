@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-02",
+  "scope": "P1 design consistency and static rendering only; not employee usability or runtime acceptance",
+  "copyPairs": 95,
+  "states": 32,
+  "drawings": 7,
+  "passed": 11,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "paired nonempty Chinese/English copy with matching placeholders",
+      "status": "PASS"
+    },
+    {
+      "name": "32 unique design states refer to existing copy",
+      "status": "PASS"
+    },
+    {
+      "name": "all states appear in behavioral specification",
+      "status": "PASS"
+    },
+    {
+      "name": "three scenes each contain state definitions",
+      "status": "PASS"
+    },
+    {
+      "name": "seven static drawings without script or remote references",
+      "status": "PASS"
+    },
+    {
+      "name": "seven PNGs match captured sizes and digests",
+      "status": "PASS"
+    },
+    {
+      "name": "three 1440px desktop and three 390px mobile boards",
+      "status": "PASS"
+    },
+    {
+      "name": "five specifications and overview with valid local links",
+      "status": "PASS"
+    },
+    {
+      "name": "five P0 user scripts have design walkthrough coverage",
+      "status": "PASS"
+    },
+    {
+      "name": "no runtime source, dependency or migration changes",
+      "status": "PASS"
+    },
+    {
+      "name": "P0 locked evidence and reports unchanged",
+      "status": "PASS"
+    }
+  ]
+}
