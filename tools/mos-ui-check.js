@@ -216,11 +216,11 @@ async function main() {
     await shot('03-my-work.png');
 
     const navCount = await evalJs('document.querySelectorAll(".nav-item").length');
-    check('侧边导航包含 8 个工作中心条目', navCount >= 14, 'nav-item=' + navCount);
+    check('侧边导航包含六区工作入口', navCount >= 14, 'nav-item=' + navCount);
 
     const centers = await evalJs('Array.from(document.querySelectorAll(".nav-group-label")).map(function(e){return e.textContent;}).join("|")');
-    check('工作中心名称齐全（5 主 + 2 辅，非 Growth Center）',
-      ['工作台', '策划与情报', '内容制作', '发布管理', '运营分析', '品牌与素材', '审批与管理'].every((c) => String(centers).indexOf(c) !== -1),
+    check('工作中心名称齐全（当前六区，非 Growth Center）',
+      ['工作台', '数据工作台', '内容制作', '发布管理', '品牌规范', '系统扩展'].every((c) => String(centers).indexOf(c) !== -1),
       centers);
     check('不存在 Growth Center', String(centers).indexOf('Growth') === -1, '');
 
@@ -231,7 +231,7 @@ async function main() {
     await evalJs('(function(){document.getElementById("langBtn").click();return true;})()');
     await sleep(700);
     const enNav = await evalJs('Array.from(document.querySelectorAll(".nav-group-label")).map(function(e){return e.textContent;}).join("|")');
-    check('切换 English 后主导航为英文', enNav.indexOf('Workspace') !== -1 && enNav.indexOf('Planning & Intelligence') !== -1
+    check('切换 English 后主导航为英文', enNav.indexOf('Workspace') !== -1 && enNav.indexOf('Data Workspace') !== -1
       && enNav.indexOf('Content Production') !== -1, enNav);
     const meLocaleEn = await evalJs('(async function(){'
       + 'var r=await fetch("/api/mos/auth/me",{credentials:"same-origin"});var j=await r.json();'
@@ -356,6 +356,9 @@ async function main() {
     }
 
     /* 7) 规划：月视图日历 */
+    // P4: planning is a related-work entry under intelligence, not a global sidebar item.
+    await evalJs(`(function(){document.querySelector('[data-route="intelligence"]').click();return true;})()`);
+    await waitFor(`!!document.querySelector('.section-navigation [data-route="planning"]')`, '数据获取可发现月度计划入口', 15000);
     await evalJs('(function(){var b=document.querySelector(\'[data-route="planning"]\');if(b)b.click();return true;})()');
     await waitFor('document.getElementById("newPlan")', '计划列表工具条', 15000);
     await evalJs('(function(){var b=Array.prototype.find.call(document.querySelectorAll("[data-v]"),function(x){return x.dataset.v==="calendar";});if(b)b.click();return true;})()');
@@ -899,6 +902,9 @@ async function main() {
       'HTTP ' + filtered.status);
 
     // 7) VFIB / U CARD 营销工作区：品牌一致性提示 + 切换
+    // P4: both brand workspaces remain reachable from the marketing activities context.
+    await evalJs(`(function(){document.querySelector('[data-route="campaigns"]').click();return true;})()`);
+    await waitFor(`!!document.querySelector('.section-navigation [data-route="marketing-vfib"]') && !!document.querySelector('.section-navigation [data-route="marketing-ucard"]')`, '营销活动可发现两个品牌工作区', 15000);
     await evalJs('(function(){var b=document.querySelector(\'[data-route="marketing-vfib"]\');if(b)b.click();return true;})()');
     await waitFor('document.querySelector(".page-head h1")', 'VFIB 营销工作区', 15000);
     await waitFor('document.body.innerText.indexOf("VFIB_BANKING")>=0', 'VFIB 模板渲染', 15000);
@@ -1009,7 +1015,7 @@ async function main() {
       + 'var g=b.closest(".nav-group");'
       + 'return JSON.stringify({nav:true,label:g?((g.querySelector(".nav-group-label")||{}).textContent||""):""});})()');
     const setNavObj = JSON.parse(setNav || '{"nav":false,"label":""}');
-    check('SET-02 管理员在侧边导航可见「系统接入」分组与入口', setNavObj.nav && setNavObj.label.indexOf('系统接入') !== -1,
+    check('SET-02 管理员在系统扩展分组可见 AI 管理入口', setNavObj.nav && setNavObj.label.indexOf('系统扩展') !== -1,
       'label=' + setNavObj.label);
     await shot('SET-60-provider-settings.png');
 

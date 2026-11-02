@@ -1,6 +1,6 @@
 'use strict';
 const {root,start,sleep}=require('./harness.cjs'),fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
-const out=path.join(root,'docs/p3-employee-experience/evidence');fs.mkdirSync(out,{recursive:true});const rows=[];let h;
+const out=path.resolve(root,process.env.MOS_PILOT_EVIDENCE_DIR||'docs/p3-employee-experience/evidence');fs.mkdirSync(out,{recursive:true});const rows=[];let h;
 async function test(name,fn){try{await fn();rows.push({name,status:'PASS'});console.log('PASS '+name);}catch(e){rows.push({name,status:'FAIL',error:e.message});console.log('FAIL '+name+' '+e.message);}}
 (async()=>{h=await start({port:9098});const {maker,professional,publisher,other}=h.actors;let task,v,prof,pub;
  await test('existing API creates a synthetic G2 task',async()=>{task=await h.createTask();assert.equal(task.brandCode,'VFIB');});

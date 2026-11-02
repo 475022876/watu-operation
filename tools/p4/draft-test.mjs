@@ -1,0 +1,14 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {readDraft} from '../../prototypes/employee-workspace/src/p3/draft.ts';
+const scope={actor:'maker',brand:'VFIB',task:'t1'},key='mos-p3:maker:VFIB:t1';
+const valid=()=>({schema:1,...scope,draft:{title:'T',body:'Local input',refAssetIds:['a']},baseId:'v1',baseRow:1,pending:''});
+const storage=x=>({getItem:k=>{assert.equal(k,key);return x;}});
+test('absent draft does not invent content',()=>assert.equal(readDraft(storage(null),key,scope),null));
+test('valid draft restores only its content fields',()=>{const v=valid();v.draft.can={submit:true};const c=readDraft(storage(JSON.stringify(v)),key,scope);assert.deepEqual(c.draft,{title:'T',body:'Local input',refAssetIds:['a']});});
+test('malformed JSON rejects without clearing any storage',()=>assert.throws(()=>readDraft(storage('{'),key,scope)));
+for(const field of ['actor','brand','task'])test('draft scope rejects another '+field,()=>{const v=valid();v[field]='other';assert.throws(()=>readDraft(storage(JSON.stringify(v)),key,scope));});
+for(const shape of [null,{title:'T',body:2,refAssetIds:[]},{title:'T',body:'B',refAssetIds:'bad'},{title:'T',body:'B',refAssetIds:[1]}])test('invalid draft shape rejected '+JSON.stringify(shape),()=>{const v=valid();v.draft=shape;assert.throws(()=>readDraft(storage(JSON.stringify(v)),key,scope));});
+test('invalid base row rejects automatic recovery',()=>{const v=valid();v.baseRow=-1;assert.throws(()=>readDraft(storage(JSON.stringify(v)),key,scope));});
+test('unknown outcome marker rejects recovery',()=>{const v=valid();v.pending='success';assert.throws(()=>readDraft(storage(JSON.stringify(v)),key,scope));});
+test('known uncertain write is preserved as uncertain',()=>{const v=valid();v.pending='save';assert.equal(readDraft(storage(JSON.stringify(v)),key,scope).pending,'save');});
+test('storage access failure is explicit, no unsafe fallback',()=>assert.throws(()=>readDraft({getItem(){throw Error('denied');}},key,scope)));
