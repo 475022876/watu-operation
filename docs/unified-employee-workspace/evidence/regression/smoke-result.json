@@ -1,0 +1,85 @@
+{
+  "suite": "mos-smoke",
+  "mosVersion": "0.1.6",
+  "ranAt": "2026-11-03T07:01:19.453Z",
+  "total": 15,
+  "passed": 15,
+  "failed": 0,
+  "cases": [
+    {
+      "name": "GET /api/mos/auth/me 未登录返回 authenticated=false",
+      "ok": true,
+      "detail": "{\"ok\":true,\"authenticated\":false}"
+    },
+    {
+      "name": "错误口令被拒绝",
+      "ok": true,
+      "detail": "401 {\"ok\":false,\"error\":\"账号或密码不正确\",\"code\":\"BAD_CREDENTIALS\"}"
+    },
+    {
+      "name": "管理员登录成功",
+      "ok": true,
+      "detail": "{\"ok\":true,\"mustChangePassword\":true,\"displayName\":\"Marketing OS 管理员\"}"
+    },
+    {
+      "name": "登录后 /me 返回主体与权限",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GET /api/mos/meta 返回字典与集成状态",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "首登未改密 → 受保护接口 403 PASSWORD_CHANGE_REQUIRED",
+      "ok": true,
+      "detail": "{\"ok\":false,\"error\":\"首次登录需先修改密码\",\"code\":\"PASSWORD_CHANGE_REQUIRED\"}"
+    },
+    {
+      "name": "修改密码成功",
+      "ok": true,
+      "detail": "{\"ok\":true}"
+    },
+    {
+      "name": "GET /api/mos/plans 返回 DEMO 计划",
+      "ok": true,
+      "detail": "total=1"
+    },
+    {
+      "name": "GET /api/mos/calendar 返回统一日历条目",
+      "ok": true,
+      "detail": "entries=9"
+    },
+    {
+      "name": "未知品牌返回 404",
+      "ok": true,
+      "detail": "404"
+    },
+    {
+      "name": "GET /api/mos/sources 返回来源登记",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GET /api/mos/topics 返回 DEMO Topic",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GET /api/mos/audit 返回审计事件",
+      "ok": true,
+      "detail": "n=4"
+    },
+    {
+      "name": "VER-01 版本一致：package.json = MOS_VERSION = appVersion = 页面显示 = /api/mos/meta",
+      "ok": true,
+      "detail": "pkg=0.1.6 mos=0.1.6 app=0.1.6 html=0.1.6 meta=0.1.6"
+    },
+    {
+      "name": "VER-02 版本已升级到 0.1.6（本轮目标；非 0.1.5）",
+      "ok": true,
+      "detail": "version=0.1.6"
+    }
+  ]
+}

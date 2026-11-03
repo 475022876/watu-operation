@@ -1,0 +1,1169 @@
+{
+  "at": "2026-11-03T06:47:22.275Z",
+  "scope": "Actual own legacy modules mounted in one React shell, actual isolated MOS APIs/JSON, synthetic fixtures only, no live paid AI or social service",
+  "passed": 37,
+  "failed": 1,
+  "rows": [
+    {
+      "name": "ordinary employee has six groups and actual role-scoped entries without iframe",
+      "status": "PASS"
+    },
+    {
+      "name": "my work date and reminder filters use the existing task API",
+      "status": "PASS"
+    },
+    {
+      "name": "administrator sees all seventeen main entries without granting employees admin",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: projects",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: all-tasks",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: intelligence",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: campaigns",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: analytics",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: text-studio",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: visual-studio",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: video-workspace",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: drafts",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: publishing",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: brand-overview",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: brand-guidelines",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: brand-library",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: settings",
+      "status": "PASS"
+    },
+    {
+      "name": "actual module mounts inside unified shell: platforms",
+      "status": "PASS"
+    },
+    {
+      "name": "scoped module stylesheet parses and does not override shell sidebar geometry",
+      "status": "PASS"
+    },
+    {
+      "name": "same platform multiple synthetic accounts are read from actual channel API",
+      "status": "PASS"
+    },
+    {
+      "name": "campaigns can be created through the integrated modal and persist on the server",
+      "status": "PASS"
+    },
+    {
+      "name": "related capability retains navigation and context: topics",
+      "status": "PASS"
+    },
+    {
+      "name": "related capability retains navigation and context: planning",
+      "status": "PASS"
+    },
+    {
+      "name": "related capability retains navigation and context: marketing-vfib",
+      "status": "PASS"
+    },
+    {
+      "name": "related capability retains navigation and context: marketing-ucard",
+      "status": "PASS"
+    },
+    {
+      "name": "related capability retains navigation and context: governance",
+      "status": "PASS"
+    },
+    {
+      "name": "current brand filtering is enforced in active project presentation",
+      "status": "PASS"
+    },
+    {
+      "name": "drafts hand off to the new work surface without changing task or using clipboard",
+      "status": "PASS"
+    },
+    {
+      "name": "task-associated unbound uploads are visible through the workspace API",
+      "status": "PASS"
+    },
+    {
+      "name": "admin reminder reaches the same synthetic task through in-app records",
+      "status": "PASS"
+    },
+    {
+      "name": "English change updates module chrome without leaving the shell or rewriting data",
+      "status": "PASS"
+    },
+    {
+      "name": "mobile menu opens all workspaces and selected module keeps a single shell",
+      "status": "PASS"
+    },
+    {
+      "name": "free text candidate saves directly into the same task and opens the new work surface",
+      "status": "PASS"
+    },
+    {
+      "name": "video manual edits remain guarded and save through actual video API",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "name": "image workspace uploads an actual PNG and retains it as a working asset",
+      "status": "PASS"
+    },
+    {
+      "name": "pending module request blocks brand switch until the original context is settled",
+      "status": "PASS"
+    },
+    {
+      "name": "ordinary role cannot deep-link into administrator module or read settings API",
+      "status": "PASS"
+    },
+    {
+      "name": "no external network, iframe, or unhandled page exception",
+      "status": "PASS"
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-IguevEGi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-B6D5cWYv.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/favicon.ico",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-IguevEGi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-B6D5cWYv.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/i18n.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/app.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/api.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/projects.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/i18n/zh-CN.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/i18n/en-US.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/ui.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/active-projects",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/tasks.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/components/taskkit.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/intelligence.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/source-items",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/sources",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/campaigns.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/components/campaignkit.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/campaigns",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/analytics.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/analytics",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/text-studio.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/components/text-handoff.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/templates",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/visual.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/skills",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/templates",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/assets",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/video.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/assets",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/video/task_mw0bs5k9_0d36eb837f07",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/drafts.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/publishing.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/publishing/schedules",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/channels",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/publications",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/publishing/calendar",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/brand.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/components/assetkit.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/library/approved",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/brand/VFIB/overview",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/guidelines.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/reference.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/library/approved",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/settings.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/settings/providers",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/settings/usage",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/publishing/schedules",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/channels",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/publications",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/campaigns",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNSIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJXaW5kb3dUZXh0IiBkPSJNMjAgM2gtMVYxaC0ydjJIN1YxSDV2Mkg0Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS45IDIgMiAyaDE2YzEuMSAwIDItLjkgMi0yVjVjMC0xLjEtLjktMi0yLTJ6bTAgMThINFY4aDE2djEzeiIvPjxwYXRoIGZpbGw9Im5vbmUiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4=",
+      "origin": "null"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/campaigns",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/campaigns",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/source-items",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/sources",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/topics.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/topics",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/source-items",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/sources",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/planning.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/plans",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/campaigns",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/marketing.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/campaigns",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/marketing/brief-templates",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/campaigns",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/campaigns",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/marketing/brief-templates",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/library/approved",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/governance.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/components/reviewkit.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/asset-admissions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/assets",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/integration/contract",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/active-projects",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/active-projects",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/active-projects",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mw0bs5k9_0d36eb837f07",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mw0bs5k9_0d36eb837f07",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mw0bs5k9_0d36eb837f07/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mw0bs5kc_9073a7dfa7b4",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/tasks/task_mw0bs5k9_0d36eb837f07/remind",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/campaigns",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/library/approved",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/brand/VFIB/overview",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-IguevEGi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-B6D5cWYv.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/i18n.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/app.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/api.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/text-studio.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/i18n/zh-CN.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/i18n/en-US.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/ui.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/components/text-handoff.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/templates",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/generation-jobs",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mw0bs5k9_0d36eb837f07",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mw0bs5k9_0d36eb837f07",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks/task_mw0bs5k9_0d36eb837f07/workspace",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/content-versions/cv_mw0bsaqf_8e4d35693c0c",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/review-cases",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/video.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/assets",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/video/task_mw0bs5k9_0d36eb837f07",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/video/task_mw0bs5k9_0d36eb837f07",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/visual.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/skills",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/templates",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/assets",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/assets/wa_mw0bsa30_99001f9f56ac/content",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mos/assets/upload",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/assets",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/assets/wa_mw0bsb1w_1a47d2e333e2/content",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/assets/wa_mw0bsa30_99001f9f56ac/content",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/meta",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/modules/campaigns.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/components/campaignkit.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/mos/js/components/taskkit.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/campaigns",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-IguevEGi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-B6D5cWYv.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/pilot.html",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-IguevEGi.js",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/employee-pilot/assets/pilot-B6D5cWYv.css",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/auth/me",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/tasks",
+      "origin": "http://p3.localhost:9099"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mos/task-workspace/people",
+      "origin": "http://p3.localhost:9099"
+    }
+  ],
+  "exceptions": []
+}

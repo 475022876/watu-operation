@@ -1,0 +1,14 @@
+{
+  "baseline": "0133cc3e9ae07b714f616a4e244de99150267eca",
+  "originalDataAccessedOrChanged": false,
+  "productionConfigurationCopied": false,
+  "workspaceSourceChanged": false,
+  "formalDualSystemContractChanged": false,
+  "schema": 8,
+  "applicationVersion": "0.1.6",
+  "databaseMigrationExecuted": false,
+  "newDependenciesInstalled": false,
+  "originalEntryReplaced": false,
+  "mainMerged": false,
+  "ownedBackendChange": "lib/mos/routes/task-workspace.js: existing media task association lookup only"
+}

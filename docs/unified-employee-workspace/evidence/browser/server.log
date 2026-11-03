@@ -1,0 +1,46 @@
+  ------------------------------------------------------------
+  【DEMO 演示账号】仅用于沙盒演示，生产环境请勿启用：
+    mosadmin  /  [redacted]   （引导管理员（首登需改密））
+    demo.p1  /  [redacted]   （DEMO · P1）
+    demo.p2  /  [redacted]   （DEMO · P2）
+    demo.p3  /  [redacted]   （DEMO · P3+PUBLISHING_APPROVER）
+    demo.reviewer  /  [redacted]   （DEMO · PROFESSIONAL_REVIEWER）
+    demo.lfa  /  [redacted]   （DEMO · LIBRARY_FINAL_APPROVER）
+  ------------------------------------------------------------
+
+[mos-store] 首次运行，已生成 Marketing OS 数据库
+[mos-scheduler] 未启动（DISABLED）：调度器默认关闭（mos.scheduler.enabled=false）；未获得运营授权时不自动出站。
+[mos-event] 未启动（POLL_DISABLED）：事件轮询默认关闭（需 MOS_WORKSPACE_POLL_ENABLED=1 或 config.json 显式开启）。
+
+  ┌──────────────────────────────────────────────────────────┐
+  │   VFIB Marketing OS                                      │
+  │   智能品牌传播与市场运营中台   v0.1.6                    │
+  └──────────────────────────────────────────────────────────┘
+
+  本地访问：http://127.0.0.1:9099
+  局域网访问：http://192.168.0.66:9099  （以太网）
+
+  数据目录：C:\Users\three\AppData\Local\Temp\vfib-p3-2QGt1o\data
+  数据文件：C:\Users\three\AppData\Local\Temp\vfib-p3-2QGt1o\data\mos.json
+  Marketing OS：已启用 schema v8 · 2 品牌 · 6 身份
+  集成状态：identity=mock knowledge=mock library=mock
+            sourceIngest=real text=mock image=none（mock/real 详见 docs/MOCK_REAL_MATRIX.md）
+  采集调度：未运行（默认关闭） · 单实例限制 · 已执行 0 次巡检
+  访问白名单：未限制（生产建议配置 IP 白名单 / VPN / Zero Trust）
+  可信代理  ：未配置 —— 忽略全部 X-Forwarded-* 头（最安全）
+  会话 Cookie：mos_sid（HttpOnly + SameSite=Strict）
+
+  按 Ctrl+C 停止服务
+
+[api] GET /api/mos/assets/wa_mw0cpd4b_9f4223e046a2/content -> Error [ERR_HTTP_HEADERS_SENT]: Cannot write headers after they are sent to the client
+    at ServerResponse.writeHead (node:_http_server:411:11)
+    at sendJson (C:\Users\three\AppData\Local\Temp\vfib-p3-2QGt1o\lib\util.js:158:7)
+    at Object.dispatch (C:\Users\three\AppData\Local\Temp\vfib-p3-2QGt1o\lib\mos\router.js:156:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async handleRequest (C:\Users\three\AppData\Local\Temp\vfib-p3-2QGt1o\server.js:148:7)
+[api] GET /api/mos/assets/wa_mw0cpe6o_38db221c309c/content -> Error [ERR_HTTP_HEADERS_SENT]: Cannot write headers after they are sent to the client
+    at ServerResponse.writeHead (node:_http_server:411:11)
+    at sendJson (C:\Users\three\AppData\Local\Temp\vfib-p3-2QGt1o\lib\util.js:158:7)
+    at Object.dispatch (C:\Users\three\AppData\Local\Temp\vfib-p3-2QGt1o\lib\mos\router.js:156:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async handleRequest (C:\Users\three\AppData\Local\Temp\vfib-p3-2QGt1o\server.js:148:7)

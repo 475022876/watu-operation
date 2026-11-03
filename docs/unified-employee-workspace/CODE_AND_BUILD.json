@@ -1,0 +1,16 @@
+{
+  "codeCommit": "456b3a8b174fc9c965e17cda49f641f9ea28e5fd",
+  "sourceGitBlobSha256": {
+    "prototypes/employee-workspace/src/p3/main.tsx": "1c0009693cb04a7c552d00f47b066336c56fe83df8f0a159f74ed5fe064b1ce3",
+    "prototypes/employee-workspace/src/p3/module-host.tsx": "55b892a1405f415b98e2616cef3826889a1d53c52b8e71f1b4ab42f09aa63b7f",
+    "prototypes/employee-workspace/src/p3/navigation.ts": "38e77a2537fe9d3db9f417af84e36c4fdd9c7ec58e41db6a3d63a4b8eee94412",
+    "public/mos/js/api.js": "e2549107ca9f0654a9accf6fa34d3f9d90ba7d2ddde9f19bc13c312815a28556",
+    "lib/mos/routes/task-workspace.js": "93d909a47aca2fb6c4609ca5b9e1adffba37309d4b94b395d257c860bce7e08f"
+  },
+  "buildSha256": {
+    "public/employee-pilot/pilot.html": "6e6dd188114280f20a0b5d66e0f7396d54e63080cc996b1a10305252175ccacf",
+    "public/employee-pilot/THIRD_PARTY_NOTICES.txt": "346813be80c3e9b25a7bf336c9f9c92a9688e08666c6ddb075163a471d2935b3",
+    "public/employee-pilot/assets/pilot-CcIgv0sk.js": "88132fb62b5cd056e53b3094d15edb2c47cc3fcf9f1019d84b3975f98b1ea833",
+    "public/employee-pilot/assets/pilot-D_c6gSlH.css": "d9f0648cffec59c5a1575dcbfc123e788d1d90b4cae8c22ce3d2eca32c61087b"
+  }
+}

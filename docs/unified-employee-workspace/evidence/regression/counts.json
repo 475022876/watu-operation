@@ -1,0 +1,104 @@
+[
+  {
+    "file": "unit-result.json",
+    "passed": 76,
+    "failed": 0,
+    "total": 76
+  },
+  {
+    "file": "smoke-result.json",
+    "passed": 15,
+    "failed": 0,
+    "total": 15
+  },
+  {
+    "file": "security-egress-result.json",
+    "passed": 17,
+    "failed": 0,
+    "total": 17
+  },
+  {
+    "file": "scheduler-result.json",
+    "passed": 20,
+    "failed": 0,
+    "total": 20
+  },
+  {
+    "file": "provider-contract-result.json",
+    "passed": 26,
+    "failed": 0,
+    "total": 26
+  },
+  {
+    "file": "provider-admin-result.json",
+    "passed": 70,
+    "failed": 0,
+    "total": 70
+  },
+  {
+    "file": "workspace-contract-result.json",
+    "passed": 36,
+    "failed": 0,
+    "total": 36
+  },
+  {
+    "file": "dual-identity-result.json",
+    "passed": 51,
+    "failed": 0,
+    "total": 51
+  },
+  {
+    "file": "e2e-result.json",
+    "passed": 48,
+    "failed": 0,
+    "total": 48
+  },
+  {
+    "file": "e2e-build02-result.json",
+    "passed": 63,
+    "failed": 0,
+    "total": 63
+  },
+  {
+    "file": "e2e-build03-result.json",
+    "passed": 96,
+    "failed": 0,
+    "total": 96
+  },
+  {
+    "file": "v012-research-result.json",
+    "passed": 55,
+    "failed": 0,
+    "total": 55
+  },
+  {
+    "file": "v012-editorial-result.json",
+    "passed": 43,
+    "failed": 0,
+    "total": 43
+  },
+  {
+    "file": "v013-studio-result.json",
+    "passed": 29,
+    "failed": 0,
+    "total": 29
+  },
+  {
+    "file": "v013-research-result.json",
+    "passed": 79,
+    "failed": 0,
+    "total": 79
+  },
+  {
+    "file": "i18n-check-result.json",
+    "passed": 21,
+    "failed": 0,
+    "total": 21
+  },
+  {
+    "file": "ui-check-result.json",
+    "passed": 135,
+    "failed": 0,
+    "total": 135
+  }
+]

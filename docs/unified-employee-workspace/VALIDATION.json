@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-03",
+  "baseline": "0133cc3e9ae07b714f616a4e244de99150267eca",
+  "codeCommit": "456b3a8b174fc9c965e17cda49f641f9ea28e5fd",
+  "branch": "codex/unified-employee-workspace",
+  "mainEntries": 17,
+  "groups": 6,
+  "unifiedBrowser": {
+    "passed": 40,
+    "failed": 0
+  },
+  "requestLifecycle": {
+    "passed": 5,
+    "failed": 0
+  },
+  "retainedEmployeeFlow": {
+    "passed": 32,
+    "failed": 0
+  },
+  "isolatedHttp": {
+    "passed": 21,
+    "failed": 0
+  },
+  "legacySuites": {
+    "count": 17,
+    "passed": 880,
+    "failed": 0
+  },
+  "previewDataPreserved": true,
+  "actualEmployeeTrial": "NOT EXECUTED",
+  "realExternalServices": "NOT EXECUTED",
+  "productionSwitch": "NOT EXECUTED"
+}

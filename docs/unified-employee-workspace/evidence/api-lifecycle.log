@@ -1,0 +1,13 @@
+✔ success reports a balanced lifecycle without exposing request data (22.1808ms)
+✔ permission failure remains a failure and releases the lifecycle (1.0901ms)
+✔ network failure releases the lifecycle and is not retried (0.2293ms)
+✔ an observer exception cannot alter request authorization or result (0.3253ms)
+✔ a prior context completes only its captured observers (1.1259ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 116.4649

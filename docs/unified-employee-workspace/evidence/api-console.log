@@ -1,0 +1,21 @@
+PASS existing API creates a synthetic G2 task
+PASS create and read work uses contentTaskId and server capabilities
+PASS cross-brand identity cannot read or modify the work
+PASS concurrent draft save rejects stale rowVersion
+PASS failed persistence rolls back draft state and survives subsequent read
+PASS actual upload + selected asset binding are frozen in work
+PASS cross-brand attachment binding is rejected before freezing
+PASS failed lock persistence does not create partial cases or freeze old work
+PASS lock creates independent professional and publication cases
+PASS frozen work cannot be overwritten
+PASS creator self-review is rejected even with newly granted reviewer role
+PASS publication approval waits for same-version professional approval
+PASS return requires explicit feedback
+PASS review persistence failure returns 500 and rolls back decisions/state
+PASS review expected rowVersion rejects stale decision
+PASS return feedback is attached to the frozen work
+PASS revision persistence failure rolls back new version and old state
+PASS revision optimistic guard rejects stale base
+PASS revision keeps old feedback and creates a new independent review chain
+PASS revoked professional authority cannot decide the current case
+PASS two authorized independent approvals produce approved, not published

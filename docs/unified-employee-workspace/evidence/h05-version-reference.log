@@ -1,0 +1,12 @@
+PASS H05 contentTaskId-only version rejects revoked
+PASS H05 contentTaskId-only version rejects restricted
+PASS H05 contentTaskId-only version rejects executive
+PASS H05 contentTaskId-only version rejects unknown classification
+PASS H05 contentTaskId-only version rejects missing metadata
+PASS H05 contentTaskId-only version rejects external transfer blocked
+PASS H05 authorized open version asset reaches fresh authority
+PASS H05 authorized internal version asset allowed by policy
+PASS H05 cross-brand library reference denied
+PASS H05 revoked local actor cannot use version asset
+PASS H05 direct reference control still rejects revoked authority
+PASS H05 no library references remains ordinary manual text
