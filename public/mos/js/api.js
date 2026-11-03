@@ -69,7 +69,7 @@ async function parse(res) {
   return json;
 }
 
-export async function request(path, options) {
+async function executeRequest(path, options) {
   const opts = options || {};
   const method = opts.method || 'GET';
 
@@ -99,6 +99,20 @@ export async function request(path, options) {
   }
 
   return parse(res);
+}
+
+// Optional lifecycle observation for the unified host; no request data or credentials emitted.
+const requestObservers = new Set();
+export function observeRequests(callback) {
+  requestObservers.add(callback);
+  return () => requestObservers.delete(callback);
+}
+export async function request(path, options) {
+  const observers = Array.from(requestObservers);
+  const report = delta => observers.forEach(fn => { try { fn(delta); } catch (_) { /* UI observers cannot change API behavior. */ } });
+  report(1);
+  try { return await executeRequest(path, options); }
+  finally { report(-1); }
 }
 
 export const api = {

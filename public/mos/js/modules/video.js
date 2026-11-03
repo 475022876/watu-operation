@@ -52,14 +52,17 @@ async function render() {
     bindHead(); return;
   }
   if (!taskId || !tasks.some((t) => t.id === taskId)) taskId = tasks[0].id;
-  await loadVideo();
+  if (!await loadVideo()) return;
   paint();
   bindHead();
 }
 
 async function loadVideo() {
-  const r = await api.get(withBrand('/api/mos/video/' + taskId, ctxRef.brand, {}));
+  const requestedTask = taskId, brand = ctxRef.brand, host = hostEl;
+  const r = await api.get(withBrand('/api/mos/video/' + requestedTask, brand, {}));
+  if (!hostEl || hostEl !== host || taskId !== requestedTask || ctxRef.brand !== brand) return false;
   video = r.video; taskInfo = r.task; dirty = false;
+  return true;
 }
 
 function bindHead() {
@@ -67,8 +70,20 @@ function bindHead() {
   if (r) r.addEventListener('click', async () => { await render(); toast('已刷新', 'ok'); });
   const s = hostEl.querySelector('#vwTask');
   if (s) s.addEventListener('change', async () => {
+    if (s.value === taskId) return;
     if (dirty && !(await confirmDialog('放弃未保存修改？', '当前视频工作区有未保存修改。', '放弃并切换'))) { s.value = taskId; return; }
-    taskId = s.value; await loadVideo(); paint();
+    const previousTask = taskId, host = hostEl;
+    host.querySelectorAll('input,textarea,select,button').forEach(el => { el.disabled = true; });
+    taskId = s.value;
+    try {
+      if (!await loadVideo()) return;
+    } catch (err) {
+      if (!hostEl || hostEl !== host) return;
+      taskId = previousTask;
+      toast('任务读取失败，原视频内容已保留：' + err.message, 'err');
+    }
+    if (hostEl !== host) return;
+    paint(); bindHead();
   });
 }
 
@@ -310,7 +325,7 @@ async function save() {
   try {
     await api.put(withBrand('/api/mos/video/' + taskId, ctxRef.brand), collect());
     toast('已保存', 'ok');
-    await loadVideo();
+    if (!await loadVideo()) return;
     await render();
   } catch (err) {
     if (err.code === 'BAD_SUBTITLE') toast('字幕时间非法：' + err.message, 'err');
@@ -352,7 +367,7 @@ function csrf() {
 }
 
 export default {
-  async mount(host, ctx) { ctxRef = ctx; hostEl = host; assets = []; await render(); },
+  async mount(host, ctx) { ctxRef = ctx; hostEl = host; taskId = ctx.params.task || taskId; assets = []; await render(); },
   unmount() { hostEl = null; video = null; dirty = false; },
   hasUnsaved() { return dirty; }
 };

@@ -185,7 +185,7 @@ async function run() {
   out.innerHTML = '<div class="hint">正在生成…</div>';
   try {
     const r = await api.post(withBrand('/api/mos/generation-jobs', ctxRef.brand), Object.assign({}, f, {
-      kind: 'IMAGE',
+      kind: 'IMAGE', taskId: ctxRef.params.task || undefined,
       idempotencyKey: 'img-' + ctxRef.brand + '-' + Date.now()
     }));
     const j = r.job || {};
@@ -226,7 +226,7 @@ function uploadDialog() {
       const f = b.querySelector('#upF').files[0];
       if (!f) { toast('请选择文件', 'err'); return false; }
       try {
-        const res = await fetch(withBrand('/api/mos/assets/upload', ctxRef.brand, { name: f.name }), {
+        const res = await fetch(withBrand('/api/mos/assets/upload', ctxRef.brand, { name: f.name, taskId: ctxRef.params.task || undefined }), {
           method: 'POST', credentials: 'same-origin',
           headers: { 'Content-Type': 'application/octet-stream', 'x-mos-csrf': csrf() },
           body: f

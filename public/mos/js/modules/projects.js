@@ -19,8 +19,8 @@ async function render() {
     const s = stateBlock('error', { title: '加载失败', desc: err.message, actions: [{ label: '重试', primary: true, onClick: render }] });
     hostEl.innerHTML = head(ctx) + s.html; s.bind(hostEl); return;
   }
-  const camps = data.campaigns || [];
-  const topics = data.topics || [];
+  const camps = (data.campaigns || []).filter(c => c.brandCode === ctx.brand);
+  const topics = (data.topics || []).filter(t => t.brandCode === ctx.brand);
 
   let html = head(ctx) + '<div class="grid grid-2">';
 
